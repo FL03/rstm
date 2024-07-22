@@ -22,6 +22,3 @@ pub(crate) type Registry<Q = String> = HashMap<(State<Q>, char), (State<Q>, char
 
 pub trait Turing {}
 
-pub trait Alphabet {
-    fn symbols(&self) -> Vec<char>;
-}

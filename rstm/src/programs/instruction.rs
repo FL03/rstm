@@ -4,7 +4,7 @@
 */
 pub use self::builder::InstructionBuilder;
 
-use crate::prelude::{Direction, State};
+use crate::prelude::{Direction, Head, State, Tail};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]

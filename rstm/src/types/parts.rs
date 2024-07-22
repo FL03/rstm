@@ -9,9 +9,9 @@ use crate::prelude::{Direction, State};
 ///
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Head<T> {
+pub struct Head<Q> {
     pub(crate) position: usize,
-    pub(crate) state: State<T>,
+    pub(crate) state: State<Q>,
     // pub(crate) _ptr: ,
 }
 
