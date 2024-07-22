@@ -26,7 +26,10 @@ impl<T> Context<T> {
     }
 
     pub fn with_transitions(self, transitions: Vec<Transition<T>>) -> Self {
-        Self { transitions, ..self }
+        Self {
+            transitions,
+            ..self
+        }
     }
 
     pub fn initial_state(&self) -> &State<T> {
@@ -40,8 +43,6 @@ impl<T> Context<T> {
     pub fn transitions(&self) -> &Vec<Transition<T>> {
         &self.transitions
     }
-
-
 }
 
 ///
@@ -53,11 +54,7 @@ pub struct TuringMachine {
 }
 
 impl TuringMachine {
-    pub fn new(
-        initial_state: State,
-        tape: Tape,
-        transforms: Vec<Transition>,
-    ) -> Self {
+    pub fn new(initial_state: State, tape: Tape, transforms: Vec<Transition>) -> Self {
         let ctx = Context::new(initial_state.clone());
         let mut transitions = Registry::new();
         for trs in transforms {
@@ -66,8 +63,6 @@ impl TuringMachine {
                 (trs.next_state, trs.write_symbol, trs.direction),
             );
         }
-
-
 
         TuringMachine {
             cstate: initial_state,
@@ -88,8 +83,6 @@ impl TuringMachine {
     pub const fn tape(&self) -> &Tape {
         &self.tape
     }
-
-
 
     pub fn step(&mut self) -> Result<(), FsmError> {
         let cursor = self.cstate.clone();

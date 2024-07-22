@@ -43,10 +43,7 @@ impl IntoDirection for &str {
     strum::EnumIter,
     strum::VariantNames,
 )]
-#[cfg_attr(
-    feature = "serde",
-    derive(serde::Deserialize, serde::Serialize),
-)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[repr(i8)]
 #[strum(serialize_all = "lowercase")]
 pub enum Direction {

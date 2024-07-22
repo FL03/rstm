@@ -11,7 +11,6 @@ pub(crate) mod prelude {
     pub use crate::state::{State, Transition};
 }
 
-
 #[allow(unused)]
 #[doc(hidden)]
 mod private {
@@ -31,26 +30,13 @@ mod private {
         Future(T),
     }
 
-    pub enum StateGroup<S> where S: State {
-        A {
-            prev: S,
-            curr: S,
-        },
-        B {
-            curr: S,
-            next: S,
-        },
-        C {
-            prev: S,
-            next: S,
-        },
-        D {
-            prev: S,
-            curr: S,
-            next: S,
-        }
+    pub enum StateGroup<S>
+    where
+        S: State,
+    {
+        A { prev: S, curr: S },
+        B { curr: S, next: S },
+        C { prev: S, next: S },
+        D { prev: S, curr: S, next: S },
     }
-
-
-
 }

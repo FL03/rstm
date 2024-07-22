@@ -54,8 +54,6 @@ impl<Q> Program<Q> {
     pub fn push(&mut self, instruction: Instruction<Q>) {
         self.instructions.push(instruction);
     }
-
-
 }
 
 impl<T> Extend<Instruction<T>> for Program<T> {

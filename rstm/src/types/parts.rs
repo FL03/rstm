@@ -5,8 +5,8 @@
 use crate::prelude::{Direction, State};
 
 /// The head of a turing machine generally speaks to the current state and symbol of the machine
-/// w.r.t. the [tape](crate::types::Tape). Currently, the head simply stores a reference to the 
-/// 
+/// w.r.t. the [tape](crate::types::Tape). Currently, the head simply stores a reference to the
+///
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Head<T> {
