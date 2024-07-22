@@ -1,0 +1,52 @@
+[workspace]
+default-members = [
+    "rstm"
+]
+
+exclude = [
+
+]
+
+members = [
+    "rstm",
+]
+
+resolver = "2"
+
+
+[workspace.dependencies]
+smart-default = "0.7"
+
+[workspace.package]
+authors = ["Joe McCain III <jo3mccain@icloud.com>",]
+categories = [ ]
+description = "This crate focuses on building concrete implementations for Turing Machines."
+edition = "2021"
+homepage = "https://github.com/FL03/rstm/wiki"
+keywords = [ ]
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/FL03/rstm.git"
+version = "0.0.0"
+
+[profile.dev]
+opt-level = 0
+debug = true
+debug-assertions = true
+overflow-checks = true
+lto = false
+panic = 'unwind'
+incremental = true
+codegen-units = 256
+rpath = false
+
+[profile.release]
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = false
+panic = 'unwind'
+incremental = false
+codegen-units = 16
+rpath = false
