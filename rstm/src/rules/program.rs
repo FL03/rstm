@@ -4,13 +4,9 @@
 */
 use super::Instruction;
 use crate::{Head, State, Tail};
+use std::vec;
 
-#[cfg(all(feature = "alloc", not(feature = "std")))]
-use alloc::collections::{btree_set as set, BTreeSet as Set};
-#[cfg(feature = "std")]
-use std::collections::{hash_set as set, HashSet as Set};
-
-type RuleSet<Q, S> = Set<Instruction<Q, S>>;
+type RuleSet<Q, S> = Vec<Instruction<Q, S>>;
 
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -26,6 +22,16 @@ impl<Q, S> Program<Q, S> {
             instructions: RuleSet::new(),
         }
     }
+
+    pub fn from_instructions(instructions: impl IntoIterator<Item = Instruction<Q, S>>) -> Self
+    where
+        Q: Default,
+    {
+        Self {
+            initial_state: State::default(),
+            instructions: RuleSet::from_iter(instructions),
+        }
+    }
     ///
     pub fn with_initial_state(self, initial_state: State<Q>) -> Self {
         Self {
@@ -34,11 +40,21 @@ impl<Q, S> Program<Q, S> {
         }
     }
 
-    pub fn with_instructions(self, instructions: RuleSet<Q, S>) -> Self {
+    pub fn with_instructions(
+        self,
+        instructions: impl IntoIterator<Item = Instruction<Q, S>>,
+    ) -> Self {
         Self {
-            instructions,
+            instructions: RuleSet::from_iter(instructions),
             ..self
         }
+    }
+    /// Returns an owned reference to the element(s) specified by the index.
+    pub fn get<I>(&self, idx: I) -> Option<&I::Output>
+    where
+        I: core::slice::SliceIndex<[Instruction<Q, S>]>,
+    {
+        self.instructions.get(idx)
     }
     /// Returns an owned reference to the initial state of the program.
     pub const fn initial_state(&self) -> &State<Q> {
@@ -53,68 +69,51 @@ impl<Q, S> Program<Q, S> {
         &mut self.instructions
     }
     /// Returns an iterator over the elements.
-    pub fn iter(&self) -> set::Iter<Instruction<Q, S>> {
+    pub fn iter(&self) -> core::slice::Iter<Instruction<Q, S>> {
         self.instructions.iter()
     }
-    /// Returns an owned reference to the element(s) specified by the index.
-    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
+    /// Returns a collection of tails for a given head.
+    pub fn get_head(&self, head: &Head<Q, S>) -> Vec<&Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
     {
-        self.iter().find(|i| i.head() == head).map(|i| i.tail())
+        self.iter()
+            .filter_map(|i| {
+                if i.head() == head {
+                    Some(i.tail())
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 }
 
-#[cfg(feature = "std")]
-impl<Q, S> Program<Q, S> {
-    pub fn from_instructions(instructions: impl IntoIterator<Item = Instruction<Q, S>>) -> Self
-    where
-        Q: Default + Eq + core::hash::Hash,
-        S: Default + Eq + core::hash::Hash,
-    {
+impl<Q: Default, S> From<RuleSet<Q, S>> for Program<Q, S> {
+    fn from(instructions: RuleSet<Q, S>) -> Self {
         Self {
             initial_state: State::default(),
-            instructions: RuleSet::from_iter(instructions),
+            instructions,
         }
     }
 }
-#[cfg(all(feature = "alloc", not(feature = "std")))]
-impl<Q, S> Program<Q, S> {
-    pub fn from_instructions(instructions: impl IntoIterator<Item = Instruction<Q, S>>) -> Self
-    where
-        Q: Default + Ord,
-        S: Default + Ord,
-    {
+
+impl<Q, S> FromIterator<Instruction<Q, S>> for Program<Q, S>
+where
+    Q: Default,
+{
+    fn from_iter<I: IntoIterator<Item = Instruction<Q, S>>>(iter: I) -> Self {
         Self {
             initial_state: State::default(),
-            instructions: RuleSet::from_iter(instructions),
+            instructions: RuleSet::from_iter(iter),
         }
     }
-
-    pub fn iter(&self) -> set::Iter<Instruction<Q, S>> {
-        self.instructions.iter()
-    }
-
-    pub fn iter_mut(&mut self) -> set::IterMut<Instruction<Q, S>> {
-        self.instructions.iter_mut()
-    }
 }
 
-#[cfg(feature = "std")]
 impl<Q, S> IntoIterator for Program<Q, S> {
     type Item = Instruction<Q, S>;
-    type IntoIter = set::IntoIter<Self::Item>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.instructions.into_iter()
-    }
-}
-
-#[cfg(all(feature = "alloc", not(feature = "std")))]
-impl<Q, S> IntoIterator for Program<Q, S> {
-    type Item = Instruction<Q, S>;
-    type IntoIter = set::IntoIter<Self::Item>;
+    type IntoIter = vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.instructions.into_iter()

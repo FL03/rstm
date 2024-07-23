@@ -5,6 +5,8 @@
 use crate::{Direction, FsmError, State, Tail};
 use core::cell::Cell;
 
+use super::Head;
+
 #[allow(unused)]
 #[doc(hidden)]
 pub struct Slider<Q> {
@@ -125,7 +127,23 @@ impl<S> Tape<S> {
         self.step(Direction::Right);
     }
 
-    pub fn update<Q>(&mut self, tail: Tail<Q, S>) -> State<Q> {
+    pub fn update<Q>(self, tail: Tail<Q, S>) -> (Self, Head<Q, S>)
+    where
+        S: Clone,
+    {
+        let Tail {
+            direction,
+            state,
+            symbol,
+        } = tail;
+        let mut tape = self;
+        tape.write(symbol.clone());
+        tape.step(direction);
+        tape.on_update();
+        (tape, Head::new(state, symbol))
+    }
+
+    pub fn update_inplace<Q>(&mut self, tail: Tail<Q, S>) -> State<Q> {
         let Tail {
             direction,
             state,

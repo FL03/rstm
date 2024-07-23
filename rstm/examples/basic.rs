@@ -23,6 +23,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ];
 
     let mut tm = TM::new(initial_state, rules, tape);
-    tm.run();
+    tm.run()?;
     Ok(())
 }

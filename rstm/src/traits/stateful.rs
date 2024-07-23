@@ -11,7 +11,10 @@ pub trait BaseState {
 
     fn data_mut(&mut self) -> &mut Self::Data;
 
-    fn set_data(&mut self, data: Self::Data);
+    #[doc(hidden)]
+    fn swap<S>(&mut self, state: S::Data) -> S
+    where
+        S: BaseState;
 }
 
 /// [Stateful] is used to describe objects which rely upon a state.

@@ -26,8 +26,6 @@ pub(crate) mod prelude {
 }
 
 ///
-pub trait Mode {}
-
 pub trait Haltable {
     fn halt(&self) -> bool;
 }

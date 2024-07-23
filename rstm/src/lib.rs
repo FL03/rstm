@@ -5,10 +5,9 @@
 //! # rstm
 //!
 
-#![cfg_attr(not(feature = "std"), no_std)]
-
-#[cfg(feature = "alloc")]
-extern crate alloc;
+// #![cfg_attr(not(feature = "std"), no_std)]
+// #[cfg(feature = "alloc")]
+// extern crate alloc;
 
 #[doc(inline)]
 pub use self::{error::FsmError, state::State, traits::prelude::*, turing::TM, types::prelude::*};

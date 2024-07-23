@@ -13,9 +13,7 @@ repository.workspace = true
 version.workspace = true
 
 [features]
-default = [
-    "std",
-]
+default = []
 
 full = [
     "default",
@@ -24,9 +22,9 @@ full = [
 ]
 
 # [FF] Dependencies
-alloc = [
-    "serde?/alloc",
-]
+# alloc = [
+#     "serde?/alloc",
+# ]
 
 serde = [
     "dep:serde",
@@ -37,11 +35,11 @@ tracing = [
 ]
 
 # ********* [FF] Environments *********
-std = [
-    "alloc",
-    "serde?/std",
-    "strum/std",
-]
+# std = [
+#     "alloc",
+#     "serde?/std",
+#     "strum/std",
+# ]
 
 [lib]
 bench = true
@@ -61,13 +59,13 @@ lazy_static = "1"
 tracing-subscriber = { features = [], version = "0.3" }
 
 [dependencies.serde]
-default-features = false
+# default-features = false
 features = ["derive"]
 optional = true
 version = "1"
 
 [dependencies.strum]
-default-features = false
+# default-features = false
 features = ["derive"]
 version = "0.26"
 
