@@ -2,23 +2,16 @@
     Appellation: turing <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-pub use self::machine::TuringMachine;
+#[doc(inline)]
+pub use self::{actor::Actor, context::Context, machine::Fsm};
 
+pub(crate) mod actor;
+pub(crate) mod context;
 pub(crate) mod machine;
 
-#[doc(hidden)]
-pub mod context;
-#[doc(hidden)]
-pub mod utm;
-
 pub(crate) mod prelude {
-    pub use super::machine::TuringMachine;
+    pub use super::machine::Fsm;
 }
 
-use crate::prelude::{Direction, State};
-use std::collections::HashMap;
-///
-pub(crate) type Registry<Q = String> = HashMap<(State<Q>, char), (State<Q>, char, Direction)>;
-
+#[doc(hidden)]
 pub trait Turing {}
-

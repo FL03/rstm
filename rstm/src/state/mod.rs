@@ -2,41 +2,59 @@
     Appellation: state <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-pub use self::{state::State, transition::Transition};
+#[doc(inline)]
+pub use self::{state::State, states::*};
 
 pub(crate) mod state;
-pub(crate) mod transition;
+
+pub(crate) mod states {
+    #[doc(inline)]
+    pub use self::binary::BinaryState;
+
+    pub mod binary;
+    pub mod halting;
+
+    pub(crate) mod prelude {
+        pub use super::binary::*;
+    }
+}
 
 pub(crate) mod prelude {
-    pub use crate::state::{State, Transition};
+
+    pub use super::state::State;
+    pub use super::states::prelude::*;
 }
 
-#[allow(unused)]
-#[doc(hidden)]
-mod private {
-    pub trait State {
-        type Data;
-    }
+/// 
+pub trait Mode {
+}
 
-    /// [Stateful] is used to describe objects which rely upon a state.
-    ///
-    pub trait Stateful<T = String> {
-        type State: State<Data = T>;
-    }
+pub trait Haltable {
+    fn halt(&self) -> bool;
+}
 
-    pub enum TimePerspective<T> {
-        Past(T),
-        Present(T),
-        Future(T),
-    }
-
-    pub enum StateGroup<S>
-    where
-        S: State,
-    {
-        A { prev: S, curr: S },
-        B { curr: S, next: S },
-        C { prev: S, next: S },
-        D { prev: S, curr: S, next: S },
+impl Haltable for bool {
+    fn halt(&self) -> bool {
+        *self
     }
 }
+
+impl Haltable for char {
+    fn halt(&self) -> bool {
+        *self == 'H'
+    }
+}
+
+impl Haltable for String {
+    fn halt(&self) -> bool {
+        self.as_str().halt()
+    }
+}
+
+impl Haltable for &str {
+    fn halt(&self) -> bool {
+        let s = self.to_string().to_lowercase();
+        matches!(s.as_str(), "h" | "H" | "stop" | "terminate")
+    }
+}
+

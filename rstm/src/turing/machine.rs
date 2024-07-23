@@ -2,109 +2,134 @@
     Appellation: tm <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Registry;
-use crate::prelude::{FsmError, Tape};
-use crate::state::{State, Transition};
+use super::Context;
 
-pub struct Context<T = String> {
-    pub(crate) initial_state: State<T>,
-    pub(crate) states: Vec<State<T>>,
-    pub(crate) transitions: Vec<Transition<T>>,
+use crate::prelude::{FsmError, Head, Registry, Tape};
+use crate::rules::Instruction;
+use crate::state::{Haltable, State};
+use crate::Symbolic;
+
+/// # Finite State Machine
+/// 
+
+#[derive(Clone, Debug,)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct Fsm<Q = String, S = char> {
+    pub(crate) ctx: Context<Q, S>,
+    pub(crate) registry: Registry<Q, S>,
+    pub(crate) tape: Tape<S>,
 }
 
-impl<T> Context<T> {
-    pub fn new(initial_state: State<T>) -> Self {
-        Self {
-            initial_state,
-            states: Vec::new(),
-            transitions: Vec::new(),
-        }
-    }
-
-    pub fn with_states(self, states: Vec<State<T>>) -> Self {
-        Self { states, ..self }
-    }
-
-    pub fn with_transitions(self, transitions: Vec<Transition<T>>) -> Self {
-        Self {
-            transitions,
-            ..self
-        }
-    }
-
-    pub fn initial_state(&self) -> &State<T> {
-        &self.initial_state
-    }
-
-    pub fn states(&self) -> &Vec<State<T>> {
-        &self.states
-    }
-
-    pub fn transitions(&self) -> &Vec<Transition<T>> {
-        &self.transitions
-    }
-}
-
-///
-pub struct TuringMachine {
-    pub(crate) ctx: Context,
-    pub(crate) cstate: State,
-    pub(crate) registry: Registry,
-    pub(crate) tape: Tape,
-}
-
-impl TuringMachine {
-    pub fn new(initial_state: State, tape: Tape, transforms: Vec<Transition>) -> Self {
-        let ctx = Context::new(initial_state.clone());
-        let mut transitions = Registry::new();
-        for trs in transforms {
-            transitions.insert(
-                (trs.current_state.clone(), trs.read_symbol),
-                (trs.next_state, trs.write_symbol, trs.direction),
-            );
-        }
-
-        TuringMachine {
-            cstate: initial_state,
-            ctx,
-            tape,
-            registry: transitions,
-        }
-    }
-
-    pub const fn context(&self) -> &Context {
+impl<Q, S> Fsm<Q, S> {
+    pub const fn context(&self) -> &Context<Q, S> {
         &self.ctx
     }
 
-    pub const fn current_state(&self) -> &State {
-        &self.cstate
+    pub fn current_state(&self) -> &State<Q> {
+        self.context().current_state()
     }
 
-    pub const fn tape(&self) -> &Tape {
+    pub fn head(&self) -> Head<Q, S> where Q: Clone, S: Clone {
+        let state = self.current_state().clone();
+        let symbol = self.tape.read().unwrap().clone();
+        Head::new(state, symbol)
+    }
+    ///
+    pub const fn registry(&self) -> &Registry<Q, S> {
+        &self.registry
+    }
+
+    pub fn registry_mut(&mut self) -> &mut Registry<Q, S> {
+        &mut self.registry
+    }
+
+    pub const fn tape(&self) -> &Tape<S> {
         &self.tape
     }
 
-    pub fn step(&mut self) -> Result<(), FsmError> {
-        let cursor = self.cstate.clone();
-        let current_symbol = *self.tape.read()?;
-        if let Some(&(ref next_state, write_symbol, direction)) =
-            self.registry.get(&(cursor.clone(), current_symbol))
-        {
-            self.tape.write(write_symbol);
-            self.tape.step(direction);
-            self.cstate = next_state.clone();
+    pub fn tape_mut(&mut self) -> &mut Tape<S> {
+        &mut self.tape
+    }
+}
+
+
+#[cfg(feature = "std")]
+impl<Q, S> Fsm<Q, S>
+where
+    Q: Eq + core::hash::Hash,
+    S: Symbolic
+{
+    pub fn new(
+        initial_state: State<Q>,
+        instructions: impl IntoIterator<Item = Instruction<Q, S>>,
+        tape: Tape<S>,
+        
+    ) -> Self where Q: Clone + Default, S: Clone + Default {
+        let ctx = Context::from_state(initial_state.clone());
+        let mut registry = Registry::new();
+        for t in instructions {
+            registry.insert(t.head, t.tail);
+        }
+
+        Fsm {
+            ctx,
+            tape,
+            registry,
+        }
+    }
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip_all, name = "step", target = "fsm"))]
+    pub fn step(&mut self) -> Result<(), FsmError> where Q: Clone, S: Clone {
+        #[cfg(feature = "tracing")]
+        tracing::info!("Stepping...");
+        let registry = self.registry.clone();
+        // Get a clone of the current state
+        let cst = self.current_state().clone();
+        let sym = self.tape().read()?.clone();
+        let head = Head::new(cst.clone(), sym);
+        if let Some(tail) = registry.get(&head).cloned() {
+            let nxt = self.tape.update(tail);
+            self.ctx.set_state(nxt);
             return Ok(());
         }
-        Err(FsmError::state_not_found(cursor, current_symbol))
+        Err(FsmError::state_not_found(""))
     }
-
-    pub fn run(&mut self) {
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip_all, name = "run", target = "fsm"))]
+    pub fn run(mut self) -> Result<(), FsmError> where Q: Clone, S: Clone {
+        #[cfg(feature = "tracing")]
+        tracing::info!("Running the program...");
         loop {
-            self.tape.print_tape();
-            self.step().expect("Error stepping through machine");
-            if *self.cstate == "HALT" {
-                break;
+            #[cfg(feature = "tracing")]
+            tracing::info!("{}", &self.tape);
+            match self.step() {
+                Ok(_) => continue,
+                Err(e) => {
+                    return Err(e);
+                }
             }
         }
+    }
+}
+
+impl<Q> Fsm<Q>
+where
+    Q: Clone + Eq + core::hash::Hash + Haltable,
+{
+    pub fn run_haltable(&mut self) -> Result<(), FsmError> {
+        let _ = loop {
+            dbg!(self.tape());
+            match self.step() {
+                Ok(_) => (),
+                Err(e) => {
+                    eprintln!("{}", e);
+                    break;
+                }
+            }
+
+            if self.current_state().halt() {
+                break;
+            }
+        };
+
+        Ok(())
     }
 }
