@@ -4,7 +4,7 @@
 */
 use super::Context;
 
-use crate::prelude::{FsmError, Head, Registry, Symbolic, Tape};
+use crate::prelude::{FsmError, Head, Symbolic, Tape};
 use crate::rules::{Instruction, Program};
 use crate::state::{Haltable, State};
 

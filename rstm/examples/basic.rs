@@ -4,7 +4,7 @@
 */
 extern crate rstm;
 
-use rstm::prelude::{Direction, Instruction, State, Tape, TM};
+use rstm::prelude::{State, Tape, TM};
 use rstm::rule;
 use rstm::state::binary::BinaryStates::*;
 
@@ -12,7 +12,7 @@ use rstm::state::binary::BinaryStates::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt().init();
-    let tape = Tape::from_str("1011");
+    let tape = Tape::from_str("10111000101001101011010010");
     let initial_state = State(Invalid);
 
     let rules = vec![
@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         rule![(State(Valid), '1') -> Right(State(Valid), '0',)],
     ];
 
-    let mut tm = TM::new(initial_state, rules, tape);
+    let tm = TM::new(initial_state, rules, tape);
     tm.run()?;
     Ok(())
 }
