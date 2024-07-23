@@ -2,23 +2,24 @@
     Appellation: turing <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-pub use self::machine::TuringMachine;
+//!## Turing Machine
+//!
+//! ### Overview
+//!
+//! A Turing machine is a mathematical model describing the generalization of computation using
+//! a set of symbols and a [tape](Tape). Assuming an infinite tape, the machine can read, write, and move linearly
+//! across the tape. The machine uses a set of pre-defined rules to determine the next state and symbol.
+//!
+#[doc(inline)]
+pub use self::{actor::Actor, context::Context, model::TM};
 
-pub(crate) mod machine;
-
-#[doc(hidden)]
-pub mod context;
-#[doc(hidden)]
-pub mod utm;
+pub(crate) mod actor;
+pub(crate) mod context;
+pub(crate) mod model;
 
 pub(crate) mod prelude {
-    pub use super::machine::TuringMachine;
+    pub use super::model::TM;
 }
 
-use crate::prelude::{Direction, State};
-use std::collections::HashMap;
-///
-pub(crate) type Registry<Q = String> = HashMap<(State<Q>, char), (State<Q>, char, Direction)>;
-
+#[doc(hidden)]
 pub trait Turing {}
-

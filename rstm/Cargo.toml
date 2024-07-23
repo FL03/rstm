@@ -13,30 +13,33 @@ repository.workspace = true
 version.workspace = true
 
 [features]
-default = [
-    "std",
-]
+default = []
 
 full = [
     "default",
     "serde",
+    "tracing",
 ]
 
 # [FF] Dependencies
-alloc = [
-    "serde?/alloc",
-]
+# alloc = [
+#     "serde?/alloc",
+# ]
 
 serde = [
     "dep:serde",
 ]
 
-# ********* [FF] Environments *********
-std = [
-    "alloc",
-    "serde?/std",
-    "strum/std",
+tracing = [
+    "dep:tracing",
 ]
+
+# ********* [FF] Environments *********
+# std = [
+#     "alloc",
+#     "serde?/std",
+#     "strum/std",
+# ]
 
 [lib]
 bench = true
@@ -44,19 +47,32 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 test = true
 
+[[example]]
+name = "basic"
+required-features = ["tracing"]
+
 [dependencies]
 thiserror = "1"
 
+[dev-dependencies]
+lazy_static = "1"
+tracing-subscriber = { features = [], version = "0.3" }
+
 [dependencies.serde]
-default-features = false
+# default-features = false
 features = ["derive"]
 optional = true
 version = "1"
 
 [dependencies.strum]
-default-features = false
+# default-features = false
 features = ["derive"]
 version = "0.26"
+
+[dependencies.tracing]
+features = []
+optional = true
+version = "0.1"
 
 [package.metadata.docs.rs]
 all-features = true
