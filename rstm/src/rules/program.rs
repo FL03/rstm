@@ -12,7 +12,6 @@ use std::collections::{hash_set as set, HashSet as Set};
 
 type RuleSet<Q, S> = Set<Instruction<Q, S>>;
 
-
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Program<Q = String, S = char> {
@@ -58,7 +57,11 @@ impl<Q, S> Program<Q, S> {
         self.instructions.iter()
     }
     /// Returns an owned reference to the element(s) specified by the index.
-    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>> where Q: PartialEq, S: PartialEq {
+    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
+    where
+        Q: PartialEq,
+        S: PartialEq,
+    {
         self.iter().find(|i| i.head() == head).map(|i| i.tail())
     }
 }
@@ -75,8 +78,6 @@ impl<Q, S> Program<Q, S> {
             instructions: RuleSet::from_iter(instructions),
         }
     }
-
-    
 }
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 impl<Q, S> Program<Q, S> {

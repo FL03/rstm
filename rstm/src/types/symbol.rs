@@ -2,13 +2,13 @@
     Appellation: symbol <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+use crate::Symbol;
 #[cfg(feature = "alloc")]
 use alloc::vec::Vec;
 
-#[repr(transparent)]
-pub struct Symbol<S = char>(pub S);
-
-
-pub struct Alphabet<S = char> {
-    pub symbols: Vec<Symbol<S>>,
+pub struct InputAlpha<S = char>
+where
+    S: Symbol,
+{
+    pub symbols: Vec<S>,
 }

@@ -12,4 +12,3 @@ pub(crate) mod prelude {
     pub use super::instruction::Instruction;
     pub use super::program::Program;
 }
-

@@ -7,7 +7,7 @@
 //! that cannot be implemented outside of our own crate.  This way we
 //! can feel free to extend those traits without worrying about it
 //! being a breaking change for other implementations.
-//! 
+//!
 
 #[doc(hidden)]
 pub(crate) trait Private {}

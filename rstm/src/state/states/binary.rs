@@ -70,8 +70,6 @@ impl<I, V> BinaryState<V, I> {
             Self::Valid(_) => BinaryStates::Valid,
         }
     }
-
-    
 }
 
 impl<Q> BinaryState<Q, Q> {
@@ -86,6 +84,13 @@ impl<Q> BinaryState<Q, Q> {
         (self.kind(), self.as_ref())
     }
 }
+
+impl Default for BinaryStates {
+    fn default() -> Self {
+        Self::Invalid
+    }
+}
+
 impl<Q> AsRef<Q> for BinaryState<Q, Q> {
     fn as_ref(&self) -> &Q {
         match self {

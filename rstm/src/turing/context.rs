@@ -21,17 +21,23 @@ impl<Q, S> Context<Q, S> {
     }
     ///
     pub fn from_program(program: Program<Q, S>) -> Self {
-        Self { program, state: None }
+        Self {
+            program,
+            state: None,
+        }
     }
 
-    pub fn from_state(state: State<Q>) -> Self where Q: Default, S: Default {
+    pub fn from_state(state: State<Q>) -> Self
+    where
+        Q: Default,
+        S: Default,
+    {
         Self {
             program: Program::default(),
             state: Some(state),
         }
     }
 
-    
     /// Returns the current state of the system;
     /// if the state is [none](Option::None), assumes the initial state.
     pub fn current_state(&self) -> &State<Q> {

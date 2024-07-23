@@ -50,7 +50,7 @@ doctest = false
 test = true
 
 [[example]]
-name = "default"
+name = "basic"
 required-features = ["tracing"]
 
 [dependencies]

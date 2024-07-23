@@ -9,18 +9,17 @@ use crate::rules::Instruction;
 use crate::state::{Haltable, State};
 use crate::Symbolic;
 
-/// # Finite State Machine
-/// 
-
-#[derive(Clone, Debug,)]
+/// # Turing Machine ([TM])
+///
+#[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Fsm<Q = String, S = char> {
+pub struct TM<Q = String, S = char> {
     pub(crate) ctx: Context<Q, S>,
     pub(crate) registry: Registry<Q, S>,
     pub(crate) tape: Tape<S>,
 }
 
-impl<Q, S> Fsm<Q, S> {
+impl<Q, S> TM<Q, S> {
     pub const fn context(&self) -> &Context<Q, S> {
         &self.ctx
     }
@@ -29,7 +28,11 @@ impl<Q, S> Fsm<Q, S> {
         self.context().current_state()
     }
 
-    pub fn head(&self) -> Head<Q, S> where Q: Clone, S: Clone {
+    pub fn head(&self) -> Head<Q, S>
+    where
+        Q: Clone,
+        S: Clone,
+    {
         let state = self.current_state().clone();
         let symbol = self.tape.read().unwrap().clone();
         Head::new(state, symbol)
@@ -52,33 +55,42 @@ impl<Q, S> Fsm<Q, S> {
     }
 }
 
-
 #[cfg(feature = "std")]
-impl<Q, S> Fsm<Q, S>
+impl<Q, S> TM<Q, S>
 where
     Q: Eq + core::hash::Hash,
-    S: Symbolic
+    S: Symbolic,
 {
     pub fn new(
         initial_state: State<Q>,
         instructions: impl IntoIterator<Item = Instruction<Q, S>>,
         tape: Tape<S>,
-        
-    ) -> Self where Q: Clone + Default, S: Clone + Default {
+    ) -> Self
+    where
+        Q: Clone + Default,
+        S: Clone + Default,
+    {
         let ctx = Context::from_state(initial_state.clone());
         let mut registry = Registry::new();
         for t in instructions {
             registry.insert(t.head, t.tail);
         }
 
-        Fsm {
+        TM {
             ctx,
             tape,
             registry,
         }
     }
-    #[cfg_attr(feature = "tracing", tracing::instrument(skip_all, name = "step", target = "fsm"))]
-    pub fn step(&mut self) -> Result<(), FsmError> where Q: Clone, S: Clone {
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "step", target = "fsm")
+    )]
+    pub fn step(&mut self) -> Result<(), FsmError>
+    where
+        Q: Clone,
+        S: Clone,
+    {
         #[cfg(feature = "tracing")]
         tracing::info!("Stepping...");
         let registry = self.registry.clone();
@@ -93,8 +105,15 @@ where
         }
         Err(FsmError::state_not_found(""))
     }
-    #[cfg_attr(feature = "tracing", tracing::instrument(skip_all, name = "run", target = "fsm"))]
-    pub fn run(mut self) -> Result<(), FsmError> where Q: Clone, S: Clone {
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "run", target = "fsm")
+    )]
+    pub fn run(mut self) -> Result<(), FsmError>
+    where
+        Q: Clone,
+        S: Clone,
+    {
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
         loop {
@@ -110,7 +129,7 @@ where
     }
 }
 
-impl<Q> Fsm<Q>
+impl<Q> TM<Q>
 where
     Q: Clone + Eq + core::hash::Hash + Haltable,
 {

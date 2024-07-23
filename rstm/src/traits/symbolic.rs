@@ -13,7 +13,6 @@ pub trait AsRefChar {
     fn as_char(&self) -> &char;
 }
 
-
 pub trait Symbol {
     fn as_ptr(&self) -> *const char;
 
@@ -26,7 +25,10 @@ pub trait Symbolic: Eq + Ord + core::fmt::Debug + core::fmt::Display + core::has
  ************* Implementations *************
 */
 
-impl<T> AsRefChar for T where T: AsRef<char> {
+impl<T> AsRefChar for T
+where
+    T: AsRef<char>,
+{
     fn as_char(&self) -> &char {
         self.as_ref()
     }
@@ -50,4 +52,7 @@ impl Symbol for char {
     }
 }
 
-impl<S> Symbolic for S where S: Symbol + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash {}
+impl<S> Symbolic for S where
+    S: Symbol + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash
+{
+}

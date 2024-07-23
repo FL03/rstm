@@ -7,6 +7,4 @@ pub trait PowerMode {
     private!();
 }
 
-pub enum On {
-    
-}
+pub enum On {}

@@ -3,7 +3,6 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 
-
 /// S
 pub trait BaseState {
     type Data;
@@ -13,10 +12,7 @@ pub trait BaseState {
     fn data_mut(&mut self) -> &mut Self::Data;
 
     fn set_data(&mut self, data: Self::Data);
-
-    
 }
-
 
 /// [Stateful] is used to describe objects which rely upon a state.
 ///

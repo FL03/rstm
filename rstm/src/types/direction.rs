@@ -132,16 +132,37 @@ impl Direction {
     }
 }
 
-impl From<i8> for Direction {
-    fn from(value: i8) -> Self {
-        match value % 2 {
-            -1 => Self::Left,
-            0 => Self::Stay,
-            1 => Self::Right,
-            _ => Self::Stay,
-        }
-    }
+macro_rules! impl_from_direction {
+    ($($T:ty),*) => {
+        $(
+            impl From<$T> for Direction {
+                fn from(value: $T) -> Self {
+                    match value % 3 {
+                        0 => Self::Stay,
+                        1 => Self::Right,
+                        _ => Self::Left,
+                    }
+                }
+            }
+        )*
+    };
+    (signed: $($T:ty),*) => {
+        $(
+            impl From<$T> for Direction {
+                fn from(value: $T) -> Self {
+                    match value % 2 {
+                        -1 => Self::Left,
+                        1 => Self::Right,
+                        _ => Self::Stay,
+                    }
+                }
+            }
+        )*
+    };
 }
+
+impl_from_direction!(u8, u16, u32, u64, u128, usize);
+impl_from_direction!(signed: i8, i16, i32, i64, i128, isize);
 
 impl From<char> for Direction {
     fn from(value: char) -> Self {

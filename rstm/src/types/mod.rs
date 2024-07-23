@@ -9,7 +9,6 @@ pub mod direction;
 pub mod head;
 #[doc(hidden)]
 pub mod scope;
-#[doc(hidden)]
 pub mod symbol;
 pub mod tail;
 pub mod tape;

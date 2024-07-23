@@ -8,7 +8,6 @@ use core::cell::Cell;
 #[allow(unused)]
 #[doc(hidden)]
 pub struct Slider<Q> {
-    
     scope: usize,
     state: *const State<Q>,
 }
@@ -50,23 +49,15 @@ impl<S> Tape<S> {
         self.store.get(idx)
     }
 
+    pub fn ticks(&self) -> usize {
+        self.ticks.get()
+    }
+
     pub fn to_string(&self) -> String
     where
-        S: alloc::string::ToString,
+        S: core::fmt::Display,
     {
-        format!(
-            "{}",
-            self.store
-                .iter()
-                .enumerate()
-                .map(|(i, c)| {
-                    match i {
-                        c if i == self.pos => format!("[{}]", &c),
-                        _ => c.to_string(),
-                    } 
-                })
-                .collect::<String>()
-        )
+        format!("step ({}): {}", self.ticks(), self)
     }
     /// Removes and returns the last element of the tape, or `None` if it is empty.
     pub fn pop(&mut self) -> Option<S> {
@@ -201,9 +192,15 @@ impl<S> core::ops::DerefMut for Tape<S> {
 
 impl<S> core::fmt::Display for Tape<S>
 where
-    S: alloc::string::ToString,
+    S: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        write!(f, "{}", self.to_string())
+        for (i, c) in self.store.iter().enumerate() {
+            match c {
+                b if i == self.pos => write!(f, "[{b}]")?,
+                _ => write!(f, "{c}")?,
+            }
+        }
+        Ok(())
     }
 }

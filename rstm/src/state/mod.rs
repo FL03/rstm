@@ -25,9 +25,8 @@ pub(crate) mod prelude {
     pub use super::states::prelude::*;
 }
 
-/// 
-pub trait Mode {
-}
+///
+pub trait Mode {}
 
 pub trait Haltable {
     fn halt(&self) -> bool;
@@ -57,4 +56,3 @@ impl Haltable for &str {
         matches!(s.as_str(), "h" | "H" | "stop" | "terminate")
     }
 }
-
