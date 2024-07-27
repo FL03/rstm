@@ -2,33 +2,32 @@
     Appellation: tape <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::{Direction, FsmError, State, Tail};
+use crate::{Direction, Error, Head, State, Tail};
 use core::cell::Cell;
-
-use super::Head;
-
-#[allow(unused)]
-#[doc(hidden)]
-pub struct Slider<Q> {
-    scope: usize,
-    state: *const State<Q>,
-}
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Tape<S = char> {
+pub struct StdTape<S = char> {
     pos: usize,
     store: Vec<S>,
     ticks: Cell<usize>,
 }
 
-impl<S> Tape<S> {
+impl<S> StdTape<S> {
     pub fn new() -> Self {
-        Tape {
+        StdTape {
             pos: 0,
             store: Vec::<S>::new(),
             ticks: Cell::default(),
         }
+    }
+    /// Returns a raw pointer to the store.
+    pub fn as_ptr(&self) -> *const S {
+        self.store.as_ptr()
+    }
+    /// Returns a mutable raw pointer to the store.
+    pub fn as_mut_ptr(&mut self) -> *mut S {
+        self.store.as_mut_ptr()
     }
     /// Returns an owned reference to the store as a [slice](core::slice)
     pub fn as_slice(&self) -> &[S] {
@@ -74,9 +73,9 @@ impl<S> Tape<S> {
         self.store.push(symbol);
     }
     /// Returns an owned reference to the current symbol on the tape
-    pub fn read(&self) -> Result<&S, FsmError> {
+    pub fn read(&self) -> Result<&S, Error> {
         self.get(self.pos)
-            .ok_or(FsmError::index_out_of_bounds(self.pos))
+            .ok_or(Error::index_out_of_bounds(self.pos, self.len()))
     }
     ///
     pub fn write(&mut self, symbol: S) {
@@ -160,9 +159,9 @@ impl<S> Tape<S> {
     }
 }
 
-impl Tape {
-    pub fn from_str(input: &str) -> Tape {
-        Tape {
+impl StdTape {
+    pub fn from_str(input: &str) -> StdTape {
+        StdTape {
             pos: 0,
             store: input.chars().collect(),
             ticks: Cell::default(),
@@ -170,31 +169,31 @@ impl Tape {
     }
 }
 
-impl<S> AsRef<[S]> for Tape<S> {
+impl<S> AsRef<[S]> for StdTape<S> {
     fn as_ref(&self) -> &[S] {
         &self.store
     }
 }
 
-impl<S> AsMut<[S]> for Tape<S> {
+impl<S> AsMut<[S]> for StdTape<S> {
     fn as_mut(&mut self) -> &mut [S] {
         &mut self.store
     }
 }
 
-impl<S> core::borrow::Borrow<[S]> for Tape<S> {
+impl<S> core::borrow::Borrow<[S]> for StdTape<S> {
     fn borrow(&self) -> &[S] {
         &self.store
     }
 }
 
-impl<S> core::borrow::BorrowMut<[S]> for Tape<S> {
+impl<S> core::borrow::BorrowMut<[S]> for StdTape<S> {
     fn borrow_mut(&mut self) -> &mut [S] {
         &mut self.store
     }
 }
 
-impl<S> core::ops::Deref for Tape<S> {
+impl<S> core::ops::Deref for StdTape<S> {
     type Target = [S];
 
     fn deref(&self) -> &Self::Target {
@@ -202,13 +201,13 @@ impl<S> core::ops::Deref for Tape<S> {
     }
 }
 
-impl<S> core::ops::DerefMut for Tape<S> {
+impl<S> core::ops::DerefMut for StdTape<S> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.store
     }
 }
 
-impl<S> core::fmt::Display for Tape<S>
+impl<S> core::fmt::Display for StdTape<S>
 where
     S: core::fmt::Display,
 {

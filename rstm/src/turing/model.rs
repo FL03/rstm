@@ -4,24 +4,27 @@
 */
 use super::Context;
 
-use crate::prelude::{FsmError, Head, Symbolic, Tape};
+use crate::prelude::{Error, Head, StdTape, Symbolic};
 use crate::rules::{Instruction, Program};
 use crate::state::{Haltable, State};
 
 /// # Turing Machine ([TM])
 ///
+/// The Turing Machine is a mathematical model of computation that uses a set of rules to determine
+/// how a machine should manipulate a tape. The machine can read, write, and move linearly across the tape.
+/// Each pre-defined rule maps a head, consisting of a state and symbol, to a new state and symbol along with a direction.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TM<Q = String, S = char> {
     pub(crate) ctx: Context<Q, S>,
-    pub(crate) tape: Tape<S>,
+    pub(crate) tape: StdTape<S>,
 }
 
 impl<Q, S> TM<Q, S> {
     pub fn new(
         initial_state: State<Q>,
         instructions: impl IntoIterator<Item = Instruction<Q, S>>,
-        tape: Tape<S>,
+        tape: StdTape<S>,
     ) -> Self
     where
         Q: Clone,
@@ -34,6 +37,10 @@ impl<Q, S> TM<Q, S> {
 
     pub const fn context(&self) -> &Context<Q, S> {
         &self.ctx
+    }
+
+    pub fn context_mut(&mut self) -> &mut Context<Q, S> {
+        &mut self.ctx
     }
 
     pub fn current_state(&self) -> &State<Q> {
@@ -50,11 +57,11 @@ impl<Q, S> TM<Q, S> {
         Head::new(state, symbol)
     }
 
-    pub const fn tape(&self) -> &Tape<S> {
+    pub const fn tape(&self) -> &StdTape<S> {
         &self.tape
     }
 
-    pub fn tape_mut(&mut self) -> &mut Tape<S> {
+    pub fn tape_mut(&mut self) -> &mut StdTape<S> {
         &mut self.tape
     }
 }
@@ -69,7 +76,7 @@ where
         feature = "tracing",
         tracing::instrument(skip_all, name = "step", target = "fsm")
     )]
-    pub fn step(&mut self) -> Result<(), FsmError> {
+    pub fn step(&mut self) -> Result<(), Error> {
         #[cfg(feature = "tracing")]
         tracing::info!("Stepping...");
         let prog = self.ctx.program.clone();
@@ -82,13 +89,13 @@ where
             self.ctx.set_state(nxt);
             return Ok(());
         }
-        Err(FsmError::state_not_found(""))
+        Err(Error::state_not_found(""))
     }
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "run", target = "fsm")
     )]
-    pub fn run(mut self) -> Result<(), FsmError> {
+    pub fn run(mut self) -> Result<(), Error> {
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
         loop {
@@ -108,7 +115,7 @@ impl<Q> TM<Q>
 where
     Q: Clone + Eq + core::hash::Hash + Haltable,
 {
-    pub fn run_haltable(&mut self) -> Result<(), FsmError> {
+    pub fn run_haltable(&mut self) -> Result<(), Error> {
         let _ = loop {
             dbg!(self.tape());
             match self.step() {

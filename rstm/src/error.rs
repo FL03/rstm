@@ -7,9 +7,9 @@
     Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, strum::VariantNames, thiserror::Error,
 )]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub enum FsmError {
-    #[error("[IndexError] Out of Bounds: {0}")]
-    IndexOutOfBounds(String),
+pub enum Error {
+    #[error("[IndexError] Out of Bounds: {index} is out of bounds for a length of {len}")]
+    IndexOutOfBounds { index: usize, len: usize },
     #[error("[StateError] Invalid State: {0}")]
     InvalidState(String),
     #[error("[StateError] State Not Found: {0}")]
@@ -20,24 +20,30 @@ pub enum FsmError {
     Unknown(String),
 }
 
-impl FsmError {
-    pub fn index_out_of_bounds(err: impl ToString) -> Self {
-        FsmError::IndexOutOfBounds(err.to_string())
+impl Error {
+    pub fn index_out_of_bounds(index: usize, len: usize) -> Self {
+        Error::IndexOutOfBounds { index, len }
     }
 
     pub fn invalid_state(err: impl ToString) -> Self {
-        FsmError::InvalidState(err.to_string())
+        Error::InvalidState(err.to_string())
     }
 
     pub fn state_not_found(err: impl ToString) -> Self {
-        FsmError::StateNotFound(err.to_string())
+        Error::StateNotFound(err.to_string())
     }
 
     pub fn transformation_error(message: impl ToString) -> Self {
-        FsmError::TransformationError(message.to_string())
+        Error::TransformationError(message.to_string())
     }
 
     pub fn unknown(message: impl ToString) -> Self {
-        FsmError::Unknown(message.to_string())
+        Error::Unknown(message.to_string())
+    }
+}
+
+impl From<&str> for Error {
+    fn from(err: &str) -> Self {
+        Error::Unknown(err.to_string())
     }
 }

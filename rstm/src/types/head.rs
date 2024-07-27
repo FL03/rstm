@@ -43,8 +43,8 @@ impl<Q, S> Head<Q, S> {
         self.symbol = symbol;
     }
     /// Returns a reference to the current [state](State)
-    pub const fn state(&self) -> &State<Q> {
-        &self.state
+    pub fn state(&self) -> State<&'_ Q> {
+        self.state.to_view()
     }
     /// Returns a mutable reference to the current [state](State)
     pub fn state_mut(&mut self) -> &mut State<Q> {

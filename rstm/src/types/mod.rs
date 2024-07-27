@@ -3,21 +3,20 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{direction::Direction, head::Head, tail::Tail, tape::Tape};
+pub use self::{direction::Direction, head::Head, tail::Tail};
 
 pub mod direction;
 pub mod head;
 #[doc(hidden)]
 pub mod scope;
-pub mod symbol;
+#[doc(hidden)]
+pub mod store;
 pub mod tail;
-pub mod tape;
 
 pub(crate) mod prelude {
     pub use super::direction::Direction;
     pub use super::head::Head;
     pub use super::tail::Tail;
-    pub use super::tape::Tape;
     pub use super::Registry;
 }
 

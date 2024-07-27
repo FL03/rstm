@@ -11,11 +11,12 @@
 //! across the tape. The machine uses a set of pre-defined rules to determine the next state and symbol.
 //!
 #[doc(inline)]
-pub use self::{actor::Actor, context::Context, model::TM};
+pub use self::{context::Context, model::TM};
 
-pub(crate) mod actor;
 pub(crate) mod context;
 pub(crate) mod model;
+
+pub mod actor;
 
 pub(crate) mod prelude {
     pub use super::model::TM;

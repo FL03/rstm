@@ -2,15 +2,16 @@
     Appellation: symbolic <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-
+/// [Alphabet] abstractly describes the set of symbols used for both
+/// the input and output of any given Turing machine.
+///
+/// ### Definition
+///
+/// An alphabet is formally defines to be a finite set of symbols.
 pub trait Alphabet<S = char> {
     type Elem;
 
     fn symbols(&self) -> Vec<S>;
-}
-
-pub trait AsRefChar {
-    fn as_char(&self) -> &char;
 }
 
 pub trait Symbol {
@@ -19,20 +20,14 @@ pub trait Symbol {
     fn symbol(&self) -> char;
 }
 
-pub trait Symbolic: Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash {}
+pub trait Symbolic:
+    Clone + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash
+{
+}
 
 /*
  ************* Implementations *************
 */
-
-impl<T> AsRefChar for T
-where
-    T: AsRef<char>,
-{
-    fn as_char(&self) -> &char {
-        self.as_ref()
-    }
-}
 
 impl Alphabet for Vec<char> {
     type Elem = char;
@@ -53,6 +48,6 @@ impl Symbol for char {
 }
 
 impl<S> Symbolic for S where
-    S: Symbol + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash
+    S: Clone + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash
 {
 }
