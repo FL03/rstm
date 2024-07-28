@@ -55,29 +55,13 @@ impl<Q> State<Q> {
     {
         core::any::TypeId::of::<Q>()
     }
-}
 
-impl<Q> State<crate::state::halting::Halt<Q>> {
-    pub fn is_halt(&self) -> bool {
-        true
-    }
-}
-
-impl State<char> {
-    pub fn is_halt(&self) -> bool {
-        self.0 == 'H' || self.0 == 'h'
-    }
-}
-
-impl State<&str> {
-    pub fn is_halt(&self) -> bool {
-        self.0.to_lowercase() == "halt"
-    }
-}
-
-impl State<String> {
-    pub fn is_halt(&self) -> bool {
-        self.0.to_lowercase() == "halt"
+    /// Returns the `type id` of the generic inner type, `Q`.
+    pub fn is_halt(&self) -> bool
+    where
+        Q: 'static,
+    {
+        self.state_type_id() == core::any::TypeId::of::<super::halting::Halt<Q>>()
     }
 }
 

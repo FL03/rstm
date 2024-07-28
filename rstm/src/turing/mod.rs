@@ -21,4 +21,15 @@ pub(crate) mod prelude {
 }
 
 #[doc(hidden)]
-pub trait Turing {}
+pub trait Turing {
+    type Alpha; // input alphabet
+    type Beta; // output alphabet
+    type Gamma; //
+}
+
+pub trait Ctx {}
+pub trait Actor {
+    type Ctx;
+
+    fn handle(&self, context: Context) -> Result<(), Box<dyn std::error::Error>>;
+}

@@ -2,7 +2,7 @@
     Appellation: symbol <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::{Head, Symbolic, Tail};
+use crate::{Head, Symbolic, SymbolicExt, Tail};
 use std::collections::hash_map::{self, Entry, HashMap};
 
 pub struct Ruleset<Q, S = char> {
@@ -33,21 +33,33 @@ where
         Ruleset { rules }
     }
     /// Given a head, returns an [entry](Entry) in the ruleset for in-place manipulation
-    pub fn entry(&mut self, key: Head<Q, S>) -> Entry<'_, Head<Q, S>, Tail<Q, S>> {
+    pub fn entry(&mut self, key: Head<Q, S>) -> Entry<'_, Head<Q, S>, Tail<Q, S>>
+    where
+        S: SymbolicExt,
+    {
         self.rules.entry(key)
     }
     /// Inserts a new rule into the ruleset
-    pub fn insert(&mut self, head: Head<Q, S>, tail: Tail<Q, S>) {
+    pub fn insert(&mut self, head: Head<Q, S>, tail: Tail<Q, S>)
+    where
+        S: SymbolicExt,
+    {
         self.rules.insert(head, tail);
     }
     /// Returns a reference to the tail of a given head;
     /// if the head is not in the ruleset, returns [None](Option::None)
-    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>> {
+    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
+    where
+        S: SymbolicExt,
+    {
         self.rules.get(head)
     }
     /// Returns a mutable reference to the tail of a given head;
     /// if the head is not in the ruleset, returns [None](Option::None)
-    pub fn get_mut(&mut self, head: &Head<Q, S>) -> Option<&mut Tail<Q, S>> {
+    pub fn get_mut(&mut self, head: &Head<Q, S>) -> Option<&mut Tail<Q, S>>
+    where
+        S: SymbolicExt,
+    {
         self.rules.get_mut(head)
     }
     /// Returns the number of rules in the ruleset
@@ -86,7 +98,10 @@ where
         self.rules.retain(f)
     }
 
-    pub fn remove(&mut self, head: &Head<Q, S>) -> Option<Tail<Q, S>> {
+    pub fn remove(&mut self, head: &Head<Q, S>) -> Option<Tail<Q, S>>
+    where
+        S: SymbolicExt,
+    {
         self.rules.remove(head)
     }
 }
@@ -94,7 +109,7 @@ where
 impl<Q, S> Extend<(Head<Q, S>, Tail<Q, S>)> for Ruleset<Q, S>
 where
     Q: Eq + core::hash::Hash,
-    S: Symbolic,
+    S: SymbolicExt,
 {
     fn extend<T>(&mut self, iter: T)
     where
@@ -107,7 +122,7 @@ where
 impl<Q, S> Extend<crate::rules::Instruction<Q, S>> for Ruleset<Q, S>
 where
     Q: Eq + core::hash::Hash,
-    S: Symbolic,
+    S: SymbolicExt,
 {
     fn extend<T>(&mut self, iter: T)
     where

@@ -9,20 +9,16 @@ pub(crate) mod state;
 
 pub(crate) mod states {
     #[doc(inline)]
-    pub use self::binary::BinaryState;
+    pub use self::{binary::*, halting::*};
 
-    pub mod binary;
-    pub mod halting;
-
-    pub(crate) mod prelude {
-        pub use super::binary::*;
-    }
+    pub(crate) mod binary;
+    pub(crate) mod halting;
 }
 
 pub(crate) mod prelude {
 
     pub use super::state::State;
-    pub use super::states::prelude::*;
+    pub use super::states::*;
 }
 
 ///

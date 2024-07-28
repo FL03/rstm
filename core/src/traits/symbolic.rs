@@ -2,6 +2,7 @@
     Appellation: symbolic <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+
 /// [Alphabet] abstractly describes the set of symbols used for both
 /// the input and output of any given Turing machine.
 ///
@@ -14,16 +15,26 @@
 /// a particular value. The values of the variants may then be used
 /// as pointers, specifiying the location of the symbol w.r.t. the
 /// alphabet.
-pub trait Alphabet<S = char> {
-    type Elem;
+pub trait Alphabet: IntoIterator<Item = Self::Sym> {
+    type Sym;
 
-    fn symbols(&self) -> Vec<S>;
+    fn len(&self) -> usize {
+        self.symbols_to_vec().len()
+    }
+
+    fn symbols_to_vec(&self) -> Vec<Self::Sym>;
 }
+
+pub trait Symbolic
+where
+    Self: Clone + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
+{
+}
+
+pub trait SymbolicExt: Symbolic + Eq + Ord + core::hash::Hash {}
 
 pub trait Symbol: Symbolic {
     type Z;
-
-    fn as_ptr(&self) -> *const char;
 
     fn symbol(&self) -> char;
 
@@ -34,20 +45,14 @@ pub trait Symbol: Symbolic {
     fn value(&self) -> Self::Z;
 }
 
-pub trait Symbolic
-where
-    Self: Clone + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash,
-{
-}
-
 /*
  ************* Implementations *************
 */
 
 impl Alphabet for Vec<char> {
-    type Elem = char;
+    type Sym = char;
 
-    fn symbols(&self) -> Vec<char> {
+    fn symbols_to_vec(&self) -> Vec<char> {
         self.clone()
     }
 }
@@ -56,3 +61,5 @@ impl<S> Symbolic for S where
     S: Clone + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash
 {
 }
+
+impl<S> SymbolicExt for S where S: Symbolic + Clone + Eq + Ord + core::hash::Hash {}

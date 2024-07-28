@@ -4,11 +4,13 @@
 */
 extern crate rstm;
 
-use rstm::prelude::{State, StdTape, TM};
-use rstm::rule;
-use rstm::state::binary::BinaryStates::*;
+use rstm::{
+    rule,
+    state::{self, State},
+    StdTape, TM,
+};
 
-// use Direction::Right;
+use state::BinaryStates::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt().with_level(true).init();
@@ -29,9 +31,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-mod wolfram {
+pub mod wolfram {
 
-    #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+    #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, strum::EnumIter)]
     #[repr(u8)]
     pub enum Three {
         #[default]
@@ -40,11 +42,36 @@ mod wolfram {
         C = 2,
     }
 
-    impl rstm::Alphabet for Three {
-        type Elem = char;
+    impl Three {
+        pub fn as_u8(&self) -> u8 {
+            *self as u8
+        }
 
-        fn symbols(&self) -> Vec<char> {
-            vec!['A', 'B', 'C']
+        pub fn iter() -> impl Iterator<Item = Three> {
+            use Three::*;
+            [A, B, C].into_iter()
+        }
+
+        pub fn iter_value() -> impl Iterator<Item = u8> {
+            [0, 1, 2].into_iter()
+        }
+    }
+
+    impl rstm::Alphabet for Three {
+        type Sym = Self;
+
+        fn symbols_to_vec(&self) -> Vec<Self::Sym> {
+            use Three::*;
+            vec![A, B, C]
+        }
+    }
+
+    impl IntoIterator for Three {
+        type Item = Self;
+        type IntoIter = std::vec::IntoIter<Self>;
+
+        fn into_iter(self) -> Self::IntoIter {
+            vec![Three::A, Three::B, Three::C].into_iter()
         }
     }
 

@@ -32,6 +32,10 @@ impl<Q, S> Tail<Q, S> {
     pub fn direction(&self) -> Direction {
         self.direction
     }
+
+    pub fn next_head(&self) -> super::Head<&'_ Q, &'_ S> {
+        super::Head::new(self.state.to_view(), &self.symbol)
+    }
     /// Returns the next [state](State) the agent is instructed to move to
     pub fn next_state(&self) -> State<&'_ Q> {
         self.state.to_view()

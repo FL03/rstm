@@ -4,15 +4,19 @@
 */
 extern crate rstm;
 
-use rstm::prelude::{State, StdTape, TM};
-use rstm::rule;
-use rstm::state::binary::BinaryStates::*;
+use rstm::{
+    rule,
+    state::{self, State},
+    StdTape, TM,
+};
+
+use state::BinaryStates::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt().init();
+    tracing_subscriber::fmt().with_target(false).init();
     println!("{}", -1_isize as u8);
-    let tape: StdTape<u8> =
-        StdTape::from_iter([0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1]);
+    let tape_data: Vec<u8> = vec![0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1];
+
     let initial_state = State(Invalid);
 
     let rules = vec![
@@ -22,29 +26,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         rule![(Valid, 1) -> Left(Valid, 0)],
     ];
 
+    let tape = StdTape::from_iter(tape_data);
     let tm = TM::new(initial_state, rules, tape);
     tm.run()?;
     Ok(())
-}
-
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[repr(u8)]
-pub enum Three {
-    #[default]
-    A = 0,
-    B = 1,
-    C = 2,
-}
-
-impl rstm::Alphabet for Three {
-    type Elem = char;
-
-    fn symbols(&self) -> Vec<char> {
-        vec!['A', 'B', 'C']
-    }
-}
-
-pub enum Two<T> {
-    X(T),
-    Y(T),
 }

@@ -4,7 +4,7 @@
 */
 use super::Context;
 
-use crate::prelude::{Error, Head, StdTape, Symbolic};
+use crate::prelude::{Error, Head, StdTape, Symbolic, SymbolicExt};
 use crate::rules::{Instruction, Program};
 use crate::state::{Haltable, State};
 
@@ -70,13 +70,13 @@ impl<Q, S> TM<Q, S> {
 impl<Q, S> TM<Q, S>
 where
     Q: Clone + PartialEq,
-    S: Clone + Symbolic,
+    S: SymbolicExt,
 {
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "step", target = "fsm")
     )]
-    pub fn step(&mut self) -> Result<(), Error> {
+    pub fn step(&mut self) -> Result<Head<Q, S>, Error> {
         #[cfg(feature = "tracing")]
         tracing::info!("Stepping...");
         let prog = self.ctx.program.clone();
@@ -84,10 +84,11 @@ where
         let cst = self.current_state().clone();
         let sym = self.tape().read()?.clone();
         let head = Head::new(cst.clone(), sym);
-        if let Some(tail) = prog.get_head(&head).first().cloned() {
+        if let Some(&tail) = prog.get_head(&head).first() {
+            let head = tail.next_head();
             let nxt = self.tape.update_inplace(tail.clone());
-            self.ctx.set_state(nxt);
-            return Ok(());
+            self.ctx.set_state(nxt.clone());
+            return Ok(Head::new(nxt, tail.write_symbol().clone()));
         }
         Err(Error::state_not_found(""))
     }
@@ -102,35 +103,16 @@ where
             #[cfg(feature = "tracing")]
             tracing::info!("{}", &self.tape);
             match self.step() {
-                Ok(_) => continue,
+                Ok(_) => {
+                    // if self.current_state().is_halt() {
+                    //     return Ok(());
+                    // }
+                    continue;
+                }
                 Err(e) => {
                     return Err(e);
                 }
             }
         }
-    }
-}
-
-impl<Q> TM<Q>
-where
-    Q: Clone + Eq + core::hash::Hash + Haltable,
-{
-    pub fn run_haltable(&mut self) -> Result<(), Error> {
-        let _ = loop {
-            dbg!(self.tape());
-            match self.step() {
-                Ok(_) => (),
-                Err(e) => {
-                    eprintln!("{}", e);
-                    break;
-                }
-            }
-
-            if self.current_state().halt() {
-                break;
-            }
-        };
-
-        Ok(())
     }
 }

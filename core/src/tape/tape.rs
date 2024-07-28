@@ -36,7 +36,7 @@ impl<S> StdTape<S> {
             ticks: Cell::default(),
         }
     }
-
+    /// Constructs a new tape from an iterator.
     pub fn from_iter(iter: impl IntoIterator<Item = S>) -> Self {
         StdTape {
             cursor: 0,
@@ -81,17 +81,9 @@ impl<S> StdTape<S> {
     pub fn is_empty(&self) -> bool {
         self.store.is_empty()
     }
-
+    
     pub fn iter(&self) -> core::slice::Iter<S> {
         self.store.iter()
-    }
-    /// Given an index, return a reference to the symbol at that index;
-    /// panics if the index is out of bounds.
-    pub fn get<I>(&self, idx: I) -> Option<&I::Output>
-    where
-        I: core::slice::SliceIndex<[S]>,
-    {
-        self.store.get(idx)
     }
 
     pub fn ticks(&self) -> usize {
@@ -104,25 +96,26 @@ impl<S> StdTape<S> {
     {
         format!("step ({}): {}", self.ticks(), self)
     }
-    /// Removes and returns the last element of the tape, or `None` if it is empty.
-    pub fn pop(&mut self) -> Option<S> {
-        self.store.pop()
-    }
+
     /// Returns the current position of the tape head;
     pub fn position(&self) -> usize {
         self.cursor
     }
-    /// Appends the given element to the back of the collection.
-    pub fn push(&mut self, symbol: S) {
-        self.store.push(symbol);
-    }
+
     /// Returns an owned reference to the current symbol on the tape
     pub fn read(&self) -> Result<&S, Error> {
         self.get(self.cursor)
             .ok_or(Error::index_out_of_bounds(self.cursor, self.len()))
     }
     ///
-    pub fn write(&mut self, symbol: S) {
+    pub fn write(&mut self, direction: Direction, symbol: S) {
+        self.write_symbol(symbol);
+        self.shift(direction);
+        self.on_update();
+    }
+
+    ///
+    fn write_symbol(&mut self, symbol: S) {
         if self.cursor < self.store.len() {
             self.store[self.cursor] = symbol;
         } else {
@@ -130,44 +123,10 @@ impl<S> StdTape<S> {
         }
     }
 
-    pub fn write_iter(&mut self, iter: impl Iterator<Item = S>) {
-        for (i, symbol) in iter.enumerate() {
-            if i < self.store.len() {
-                self.store[i] = symbol;
-            } else {
-                self.store.push(symbol);
-            }
-        }
-    }
-
-    pub fn shift(self, direction: Direction) -> Self {
+    fn shift(&mut self, direction: Direction) -> usize {
         self.on_update();
-        Self {
-            cursor: direction.apply(self.cursor),
-            store: self.store,
-            ticks: self.ticks,
-        }
-    }
-
-    pub fn shift_left(self) -> Self {
-        self.shift(Direction::Left)
-    }
-
-    pub fn shift_right(self) -> Self {
-        self.shift(Direction::Right)
-    }
-
-    pub fn step(&mut self, direction: Direction) {
         self.cursor = direction.apply(self.cursor);
-        self.on_update();
-    }
-
-    pub fn step_left(&mut self) {
-        self.step(Direction::Left);
-    }
-
-    pub fn step_right(&mut self) {
-        self.step(Direction::Right);
+        self.position()
     }
 
     pub fn update<Q>(self, direction: Direction, state: State<Q>, symbol: S) -> (Self, Head<Q, S>)
@@ -176,9 +135,8 @@ impl<S> StdTape<S> {
     {
         let head = Head::new(state, symbol.clone());
         let mut tape = self;
-        tape.write(symbol);
-        tape.step(direction);
-        tape.on_update();
+        tape.write(direction, symbol);
+        tape.shift(direction);
         (tape, head)
     }
 
@@ -188,14 +146,31 @@ impl<S> StdTape<S> {
             state,
             symbol,
         } = tail;
-        self.write(symbol);
-        self.step(direction);
-        self.on_update();
+
+        self.write(direction, symbol);
+        self.shift(direction);
         state
     }
 
     fn on_update(&self) {
         self.ticks.set(self.ticks.get() + 1);
+    }
+
+    /// Given an index, return a reference to the symbol at that index;
+    /// panics if the index is out of bounds.
+    pub fn get<I>(&self, idx: I) -> Option<&I::Output>
+    where
+        I: core::slice::SliceIndex<[S]>,
+    {
+        self.store.get(idx)
+    }
+    /// Removes and returns the last element of the tape, or `None` if it is empty.
+    pub fn pop(&mut self) -> Option<S> {
+        self.store.pop()
+    }
+    /// Appends the given element to the back of the collection.
+    pub fn push(&mut self, symbol: S) {
+        self.store.push(symbol);
     }
 }
 
