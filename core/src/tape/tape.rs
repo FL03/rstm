@@ -81,7 +81,7 @@ impl<S> StdTape<S> {
     pub fn is_empty(&self) -> bool {
         self.store.is_empty()
     }
-    
+
     pub fn iter(&self) -> core::slice::Iter<S> {
         self.store.iter()
     }

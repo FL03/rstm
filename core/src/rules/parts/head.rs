@@ -33,6 +33,7 @@ impl<Q, S> Head<Q, S> {
     pub fn as_mut_tuple(&mut self) -> (&mut State<Q>, &mut S) {
         (&mut self.state, &mut self.symbol)
     }
+
     /// Updates the current [state](State)
     pub fn set_state(&mut self, state: State<Q>) {
         self.state = state;
@@ -64,6 +65,19 @@ impl<Q, S> Head<Q, S> {
         }
         if let Some(symbol) = symbol {
             self.symbol = symbol;
+        }
+    }
+}
+
+impl<'a, Q, S> Head<&'a Q, &'a S> {
+    pub fn cloned(&self) -> Head<Q, S>
+    where
+        Q: Clone,
+        S: Clone,
+    {
+        Head {
+            state: self.state.cloned(),
+            symbol: self.symbol.clone(),
         }
     }
 }

@@ -4,9 +4,9 @@
 */
 use super::Context;
 
-use crate::prelude::{Error, Head, StdTape, Symbolic, SymbolicExt};
+use crate::prelude::{Error, Head, StdTape, SymbolicExt};
 use crate::rules::{Instruction, Program};
-use crate::state::{Haltable, State};
+use crate::state::State;
 
 /// # Turing Machine ([TM])
 ///
@@ -76,19 +76,18 @@ where
         feature = "tracing",
         tracing::instrument(skip_all, name = "step", target = "fsm")
     )]
-    pub fn step(&mut self) -> Result<Head<Q, S>, Error> {
+    pub fn step_inplace(&mut self) -> Result<Head<Q, S>, Error> {
         #[cfg(feature = "tracing")]
         tracing::info!("Stepping...");
         let prog = self.ctx.program.clone();
         // Get a clone of the current state
-        let cst = self.current_state().clone();
+        let st = self.current_state().clone();
         let sym = self.tape().read()?.clone();
-        let head = Head::new(cst.clone(), sym);
+        let head = Head::new(st.clone(), sym);
         if let Some(&tail) = prog.get_head(&head).first() {
-            let head = tail.next_head();
             let nxt = self.tape.update_inplace(tail.clone());
-            self.ctx.set_state(nxt.clone());
-            return Ok(Head::new(nxt, tail.write_symbol().clone()));
+            self.ctx.set_state(nxt);
+            return Ok(tail.get_next().cloned());
         }
         Err(Error::state_not_found(""))
     }
@@ -102,7 +101,7 @@ where
         loop {
             #[cfg(feature = "tracing")]
             tracing::info!("{}", &self.tape);
-            match self.step() {
+            match self.step_inplace() {
                 Ok(_) => {
                     // if self.current_state().is_halt() {
                     //     return Ok(());

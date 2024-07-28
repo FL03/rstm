@@ -33,7 +33,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 pub mod wolfram {
 
-    #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, strum::EnumIter)]
+    #[derive(
+        Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd, strum::EnumIter,
+    )]
     #[repr(u8)]
     pub enum Three {
         #[default]

@@ -55,13 +55,23 @@ impl<Q> State<Q> {
     {
         core::any::TypeId::of::<Q>()
     }
-
     /// Returns the `type id` of the generic inner type, `Q`.
     pub fn is_halt(&self) -> bool
     where
         Q: 'static,
     {
         self.state_type_id() == core::any::TypeId::of::<super::halting::Halt<Q>>()
+    }
+}
+
+impl<'a, Q> State<&'a Q> {
+    /// Clones the internal state and returning a new instance of [State]
+    pub fn cloned(&self) -> State<Q> where Q: Clone {
+        State(self.0.clone())
+    }
+    /// Copies the internal state and returning a new instance of [State]
+    pub fn copied(&self) -> State<Q> where Q: Copy {
+        State(*self.0)
     }
 }
 
