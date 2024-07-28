@@ -4,35 +4,27 @@
 */
 //! # rstm
 //!
-
+#![crate_name = "rstm"]
 // #![cfg_attr(not(feature = "std"), no_std)]
 // #[cfg(feature = "alloc")]
 // extern crate alloc;
 
+pub use rstm_core::*;
+
 #[doc(inline)]
-pub use self::{
-    error::Error, state::State, tape::StdTape, traits::prelude::*, turing::TM, types::prelude::*,
-};
+pub use self::turing::TM;
 
 #[macro_use]
-pub(crate) mod macros;
-#[macro_use]
-pub(crate) mod seal;
+pub(crate) mod macros {
+    #[macro_use]
+    pub mod rules;
+}
 
-pub mod error;
-pub mod rules;
-pub mod state;
-pub mod tape;
-pub mod traits;
+#[doc(hidden)]
+pub mod sand;
 pub mod turing;
-pub mod types;
 
 pub mod prelude {
-    pub use crate::error::Error;
-    pub use crate::rules::prelude::*;
-    pub use crate::state::prelude::*;
-    pub use crate::tape::prelude::*;
-    pub use crate::traits::prelude::*;
     pub use crate::turing::prelude::*;
-    pub use crate::types::prelude::*;
+    pub use rstm_core::prelude::*;
 }

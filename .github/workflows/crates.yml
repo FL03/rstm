@@ -16,9 +16,45 @@ on:
   workflow_dispatch:
 
 jobs:
+  independents:
+    env:
+      CRATE_NAME: ${{ github.event.repository.name }}-${{ matrix.suffix }}
+    name: Publish (${{ matrix.suffix }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        suffix: [ core ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: cache
+        uses: actions/cache@v4
+        with:
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/debug
+            target/release
+          restore-keys: |
+            cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+            cargo-${{ runner.os }}-
+            cargo-
+      - run: cargo publish --all-features -v -p ${{ env.CRATE_NAME }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
   publish:
     name: Publish (${{ github.event.repository.name }})
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: cache
+        uses: actions/cache@v4
+        with:
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target/release
+          restore-keys: |
+            cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+            cargo-${{ runner.os }}-
+            cargo-
       - run: cargo publish --all-features -v -p ${{ github.event.repository.name }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}

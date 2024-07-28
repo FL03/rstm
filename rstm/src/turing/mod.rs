@@ -2,7 +2,7 @@
     Appellation: turing <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-//!## Turing Machine
+//! # Turing Machine ([TM])
 //!
 //! ### Overview
 //!
@@ -15,8 +15,6 @@ pub use self::{context::Context, model::TM};
 
 pub(crate) mod context;
 pub(crate) mod model;
-
-pub mod actor;
 
 pub(crate) mod prelude {
     pub use super::model::TM;

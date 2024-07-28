@@ -1,6 +1,6 @@
 [workspace]
 default-members = [
-    "rstm"
+    "rstm",
 ]
 
 exclude = [
@@ -9,13 +9,17 @@ exclude = [
 
 members = [
     "rstm",
+    "core",
 ]
 
 resolver = "2"
 
 
 [workspace.dependencies]
+lazy_static = "1"
+paste = "1"
 smart-default = "0.7"
+thiserror = "1"
 
 [workspace.package]
 authors = ["Joe McCain III <jo3mccain@icloud.com>",]
