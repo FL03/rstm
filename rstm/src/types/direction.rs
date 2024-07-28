@@ -96,15 +96,15 @@ impl Direction {
     pub fn stay() -> Self {
         Self::Stay
     }
-
-    pub fn apply(&self, position: usize) -> usize {
+    /// Applies the shift to the given position in the [direction](Direction) specified by the current instance.
+    pub fn apply(&self, cur: usize) -> usize {
         match self {
-            Self::Left => position - 1,
-            Self::Right => position + 1,
-            Self::Stay => position,
+            Self::Left => cur - 1,
+            Self::Right => cur + 1,
+            Self::Stay => cur,
         }
     }
-    /// Converts an [i8] value into a [Direction] by taking the modulus of the value.
+    /// Converts an [i8] value into a [`Direction`] by taking the modulus of the value.
     /// The function uses a modulator of 2 to determine the direction since there are
     /// only two actionable directions ([left](Direction::Left) and [right](Direction::Right)).
     pub fn from_i8(value: i8) -> Self {
@@ -114,7 +114,7 @@ impl Direction {
             _ => Self::Stay,
         }
     }
-    /// Converts a [char] value into a direction; matches the value to the corresponding direction.
+    /// Converts a [char] value into a direction; matches the value to the corresponding [direction](Direction).
     pub fn from_char(value: char) -> Self {
         match value {
             'L' | 'l' => Self::Left,
@@ -122,7 +122,15 @@ impl Direction {
             _ => Self::Stay,
         }
     }
+    /// Returns a [char] representation of the [direction](Direction).
+    pub fn as_char(&self) -> char {
+        (*self).into_char()
+    }
 
+    pub fn as_str(&self) -> &str {
+        (*self).as_ref()
+    }
+    /// Consumes the instance, returning a [char] representation of the [direction](Direction).
     pub fn into_char(self) -> char {
         match self {
             Self::Left => 'L',

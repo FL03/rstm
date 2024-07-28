@@ -3,8 +3,6 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 
-
-
 pub trait Automata {
     type Rule;
     type State;

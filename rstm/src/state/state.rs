@@ -30,8 +30,11 @@ impl<Q> State<Q> {
         &mut self.0
     }
     /// Returns a shared reference to the state.
-    pub fn as_shared(&self) -> State<Arc<Q>> where Q: Clone {
-        State(Arc::new(self.0.clone())) 
+    pub fn as_shared(&self) -> State<Arc<Q>>
+    where
+        Q: Clone,
+    {
+        State(Arc::new(self.0.clone()))
     }
     /// Returns a state with an owned inner value.
     pub fn to_view<'a>(&'a self) -> State<&'a Q> {
@@ -46,7 +49,10 @@ impl<Q> State<Q> {
         core::any::type_name::<Q>()
     }
     /// Returns the `type id` of the generic inner type, `Q`.
-    pub fn state_type_id(&self) -> core::any::TypeId where Q: 'static {
+    pub fn state_type_id(&self) -> core::any::TypeId
+    where
+        Q: 'static,
+    {
         core::any::TypeId::of::<Q>()
     }
 }

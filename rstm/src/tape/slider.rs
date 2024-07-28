@@ -6,6 +6,23 @@
 use crate::State;
 
 pub struct Slider<Q, S> {
-    state: *const State<Q>,
+    state: State<*const Q>,
     symbol: *const S,
+}
+
+impl<Q, S> Slider<Q, S> {
+    pub fn new(State(state): State<*const Q>, symbol: *const S) -> Self {
+        Self {
+            state: State(state),
+            symbol,
+        }
+    }
+
+    pub fn state(&self) -> State<*const Q> {
+        self.state
+    }
+
+    pub fn symbol(&self) -> *const S {
+        self.symbol
+    }
 }

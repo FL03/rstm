@@ -5,6 +5,21 @@
 use crate::{Direction, Error, Head, State, Tail};
 use core::cell::Cell;
 
+/// [StdTape] is an implementation of the traditional tape described by Turing machines.
+///
+/// The tape, often thought of as the memory of the machine, is a one-dimensional array
+/// of symbols in-which the tape head can read and write symbols. Furthermore, the tape
+/// is infinite in both directions, meaning that the tape head can move left or right.
+/// While this setup is largely hypothetical, it is a useful abstraction for understanding
+/// the capabilities of Turing machines.
+///
+/// Here, the [StdTape] employs the use of a [Vec] to store symbols while leveraging a
+/// [usize] to keep track of the current position of the tape head. Moreover, the tape
+/// stores the number of steps or operations taken by the tape head in a [Cell<usize>].
+/// This is done to quantify the impact of operations whose directions are defined to
+/// be [Direction::Stay]. Moving left and right within a linear space speaks directly
+/// to a translation or shift in space, however, staying in place does not result in
+/// any movement, shift, or translation within space.
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct StdTape<S = char> {

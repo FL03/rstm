@@ -21,7 +21,6 @@ pub trait Rule {
 }
 
 pub trait Transition<Q, S>: Rule<Elem = S, State = Q> {
-
     fn direction(&self) -> Direction;
 
     fn current_state(&self) -> State<Q>;
@@ -50,7 +49,7 @@ pub trait Write<Q, S> {
 }
 
 /*
-    ************* Implementations *************
+ ************* Implementations *************
 */
 impl<Q, S> Read<Q, S> for (State<Q>, S) {
     type State = Q;
@@ -89,4 +88,3 @@ impl<Q, S> Write<Q, S> for (Direction, State<Q>, S) {
         &self.2
     }
 }
-

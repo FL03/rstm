@@ -113,7 +113,8 @@ where
     where
         T: IntoIterator<Item = crate::rules::Instruction<Q, S>>,
     {
-        self.rules.extend(iter.into_iter().map(|i| (i.head, i.tail)))
+        self.rules
+            .extend(iter.into_iter().map(|i| (i.head, i.tail)))
     }
 }
 
