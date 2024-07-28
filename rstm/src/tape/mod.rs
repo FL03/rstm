@@ -12,3 +12,10 @@ pub mod slider;
 pub(crate) mod prelude {
     pub use super::tape::StdTape;
 }
+
+
+pub trait Read<T> {
+    type Output;
+
+    fn read(&self, buf: T) -> Self::Output;
+}

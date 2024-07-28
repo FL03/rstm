@@ -42,7 +42,7 @@ impl<Q, S> TM<Q, S> {
     pub fn context_mut(&mut self) -> &mut Context<Q, S> {
         &mut self.ctx
     }
-
+    
     pub fn current_state(&self) -> &State<Q> {
         self.context().current_state()
     }
