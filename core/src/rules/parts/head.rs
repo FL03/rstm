@@ -5,12 +5,25 @@
 use crate::state::State;
 
 /// The head of a turing machine generally speaks to the current state and symbol of the machine
-/// w.r.t. the [tape](crate::types::Tape).
+/// w.r.t. the [tape](crate::Tape).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Head<Q = String, S = char> {
-    pub(crate) state: State<Q>,
-    pub(crate) symbol: S,
+    #[cfg_attr(
+        feature = "serde",
+        serde(
+            flatten,
+            alias = "state",
+            alias = "current_state",
+            alias = "head_state"
+        )
+    )]
+    pub state: State<Q>,
+    #[cfg_attr(
+        feature = "serde",
+        serde(flatten, alias = "symbol", alias = "current_symbol", alias = "value")
+    )]
+    pub symbol: S,
 }
 
 impl<Q, S> Head<Q, S> {
@@ -82,6 +95,12 @@ impl<'a, Q, S> Head<&'a Q, &'a S> {
             state: self.state.cloned(),
             symbol: self.symbol.clone(),
         }
+    }
+}
+
+impl<Q, S> From<(Q, S)> for Head<Q, S> {
+    fn from((state, symbol): (Q, S)) -> Self {
+        Self::new(State(state), symbol)
     }
 }
 

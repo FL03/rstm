@@ -29,7 +29,7 @@ use crate::State;
 #[repr(C)]
 #[strum(serialize_all = "lowercase")]
 #[strum_discriminants(
-    name(BinaryStates),
+    name(BinState),
     derive(
         Hash,
         Ord,
@@ -64,10 +64,10 @@ impl<I, V> BinaryState<V, I> {
         }
     }
 
-    pub fn kind(&self) -> BinaryStates {
+    pub fn kind(&self) -> BinState {
         match self {
-            Self::Invalid(_) => BinaryStates::Invalid,
-            Self::Valid(_) => BinaryStates::Valid,
+            Self::Invalid(_) => BinState::Invalid,
+            Self::Valid(_) => BinState::Valid,
         }
     }
 }
@@ -80,12 +80,12 @@ impl<Q> BinaryState<Q, Q> {
         }
     }
 
-    pub fn state(&self) -> (BinaryStates, &Q) {
+    pub fn state(&self) -> (BinState, &Q) {
         (self.kind(), self.as_ref())
     }
 }
 
-impl Default for BinaryStates {
+impl Default for BinState {
     fn default() -> Self {
         Self::Invalid
     }

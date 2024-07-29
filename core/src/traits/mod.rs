@@ -3,18 +3,15 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::symbolic::Symbolic;
+pub use self::symbolic::*;
 
 #[doc(hidden)]
 pub mod actor;
+#[doc(hidden)]
+pub mod io;
 pub mod symbolic;
 
 pub(crate) mod prelude {
     pub use super::symbolic::*;
-}
-
-pub trait Shift<T> {
-    type Output;
-
-    fn shift(&self, tape: &T) -> Self::Output;
+    // pub use super::transform::*;
 }

@@ -28,10 +28,12 @@ full = [
 
 serde = [
     "dep:serde",
+    "rstm-core/serde",
 ]
 
 tracing = [
     "dep:tracing",
+    "rstm-core/tracing",
 ]
 
 # ********* [FF] Environments *********

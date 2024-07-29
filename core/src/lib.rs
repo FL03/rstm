@@ -11,8 +11,8 @@ extern crate alloc;
 
 #[doc(inline)]
 pub use self::{
-    error::Error, rules::prelude::*, state::State, tape::StdTape, traits::prelude::*,
-    types::prelude::*,
+    error::Error, ops::prelude::*, rules::prelude::*, state::State, tape::StdTape,
+    traits::prelude::*, types::prelude::*,
 };
 
 #[macro_use]
@@ -21,6 +21,7 @@ pub(crate) mod macros;
 pub(crate) mod seal;
 
 pub mod error;
+pub mod ops;
 pub mod rules;
 pub mod state;
 pub mod tape;
@@ -29,6 +30,7 @@ pub mod types;
 
 pub mod prelude {
     pub use crate::error::Error;
+    pub use crate::ops::prelude::*;
     pub use crate::rules::prelude::*;
     pub use crate::state::prelude::*;
     pub use crate::tape::prelude::*;

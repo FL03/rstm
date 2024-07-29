@@ -2,14 +2,24 @@
     Appellation: tail <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+pub use self::builder::TailBuilder;
+
 use crate::{Direction, Head, State};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Tail<Q = String, S = char> {
-    pub(crate) direction: Direction,
-    pub(crate) state: State<Q>,
-    pub(crate) symbol: S,
+    pub direction: Direction,
+    #[cfg_attr(
+        feature = "serde",
+        serde(flatten, alias = "state", alias = "next_state")
+    )]
+    pub state: State<Q>,
+    #[cfg_attr(
+        feature = "serde",
+        serde(flatten, alias = "symbol", alias = "write_symbol")
+    )]
+    pub symbol: S,
 }
 
 impl<Q, S> Tail<Q, S> {
@@ -20,15 +30,20 @@ impl<Q, S> Tail<Q, S> {
             symbol,
         }
     }
+
+    pub fn create() -> TailBuilder<Q, S> {
+        TailBuilder::new(Direction::Right)
+    }
     /// Returns the direction, state, and symbol as a 3-tuple
     pub fn as_tuple(&self) -> (Direction, &State<Q>, &S) {
         (self.direction, &self.state, &self.symbol)
     }
-    /// Returns an instance of the [head](StdHead) which owns the current state and symbol
+    /// Returns an instance of the [head](Head) where each element within
+    /// the created instance is an immutable reference
     pub fn as_head(&self) -> Head<&'_ Q, &'_ S> {
         super::Head::new(self.state.to_ref(), &self.symbol)
     }
-    /// Consumes the tail and returns the head
+    /// Consumes the tail and returns a new instance of the [Head]
     pub fn into_head(self) -> Head<Q, S> {
         super::Head::new(self.state, self.symbol)
     }
@@ -44,8 +59,61 @@ impl<Q, S> Tail<Q, S> {
     pub fn next_state(&self) -> State<&'_ Q> {
         self.state.to_ref()
     }
-    /// Returns the symbol the [head](StdHead) is instructed to write
+    /// Returns the symbol the [head](Head) is instructed to write
     pub const fn write_symbol(&self) -> &S {
         &self.symbol
+    }
+}
+
+mod builder {
+    use super::*;
+
+    pub struct TailBuilder<Q, S> {
+        direction: Direction,
+        state: Option<State<Q>>,
+        symbol: Option<S>,
+    }
+
+    impl<Q, S> TailBuilder<Q, S> {
+        pub fn new(direction: Direction) -> Self {
+            Self {
+                direction,
+                state: None,
+                symbol: None,
+            }
+        }
+        /// Sets the direction
+        pub fn direction(self, direction: Direction) -> Self {
+            Self { direction, ..self }
+        }
+        /// Sets the next [state](State)
+        pub fn state(self, State(state): State<Q>) -> Self {
+            Self {
+                state: Some(State(state)),
+                ..self
+            }
+        }
+        /// Sets the symbol
+        pub fn symbol(self, symbol: S) -> Self {
+            Self {
+                symbol: Some(symbol),
+                ..self
+            }
+        }
+        /// Consumes the builder and returns a new instance of the [tail](Tail)
+        pub fn build(self) -> Result<Tail<Q, S>, crate::Error> {
+            if self.state.is_none() {
+                return Err("Missing state".into());
+            }
+
+            if self.symbol.is_none() {
+                return Err("Missing symbol".into());
+            }
+            Ok(Tail::new(
+                self.direction,
+                self.state.expect("State is required"),
+                self.symbol.expect("Symbol is required"),
+            ))
+        }
     }
 }

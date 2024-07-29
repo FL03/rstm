@@ -20,3 +20,24 @@ pub(crate) mod prelude {
     pub use super::state::State;
     pub use super::states::*;
 }
+
+#[doc(hidden)]
+pub trait RawState {
+    type Data;
+}
+
+#[doc(hidden)]
+pub trait Stateful<Q> {
+    type State: RawState<Data = Q>;
+}
+
+/*
+ ************* Implementations *************
+*/
+impl<Q> RawState for State<Q> {
+    type Data = Q;
+}
+
+impl<Q> Stateful<Q> for State<Q> {
+    type State = State<Q>;
+}

@@ -51,8 +51,6 @@ test = true
 thiserror.workspace = true
 paste.workspace = true
 
-
-
 [dependencies.serde]
 # default-features = false
 features = ["derive"]

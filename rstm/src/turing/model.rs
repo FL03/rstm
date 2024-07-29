@@ -31,35 +31,45 @@ impl<Q, S> TM<Q, S> {
     {
         let state = State(state);
         let program = Program::new(state.clone()).with_instructions(instructions);
-        TM { program, state, tape }
+        TM {
+            program,
+            state,
+            tape,
+        }
     }
-
+    /// Creates a new instance of a [head](Head) from references to the current state and symbol;
     pub fn head(&self) -> Head<&'_ Q, &'_ S>
     where
         Q: Clone,
         S: Clone,
     {
-        let state = self.current_state();
+        let state = self.state();
         let symbol = self.tape().read().unwrap();
         Head::new(state, symbol)
     }
-
+    /// Returns an immutable reference to the [program](Program)
     pub const fn program(&self) -> &Program<Q, S> {
         &self.program
     }
-
-    pub fn current_state(&self) -> State<&'_ Q> {
+    /// Returns an instance of the [state](State) with an immutable
+    /// reference to the internal data
+    pub fn state(&self) -> State<&'_ Q> {
         self.state.to_ref()
     }
-
+    /// Returns an instance of the [state](State) with a mutable
+    /// reference to the internal data
+    pub fn state_mut(&mut self) -> State<&'_ mut Q> {
+        self.state.to_mut()
+    }
+    /// Returns an instance of the [state](State) with an immutable
     pub fn set_state(&mut self, state: State<Q>) {
         self.state = state;
     }
-
+    /// Returns an immutable reference to the [tape](StdTape)
     pub const fn tape(&self) -> &StdTape<S> {
         &self.tape
     }
-
+    /// Returns a mutable reference to the [tape](StdTape)
     pub fn tape_mut(&mut self) -> &mut StdTape<S> {
         &mut self.tape
     }
@@ -87,7 +97,7 @@ where
             self.set_state(nxt);
             return Ok(tail.as_head().cloned());
         }
-        Err(Error::state_not_found(""))
+        Err(Error::state_not_found())
     }
     #[cfg_attr(
         feature = "tracing",
@@ -122,6 +132,17 @@ where
     type Item = Head<Q, S>;
 
     fn next(&mut self) -> Option<Self::Item> {
+        #[cfg(feature = "tracing")]
+        tracing::info!("Stepping...");
+        let prog = self.program().clone();
+        // Create a new head from the current state and symbol
+        let head = self.head().cloned();
+        // Get the first instruction for the current head
+        if let Some(&tail) = prog.get_head(&head).first() {
+            let nxt = self.tape_mut().update_inplace(tail.clone());
+            self.set_state(nxt);
+            return Some(tail.as_head().cloned());
+        }
         self.step_inplace().ok()
     }
 }

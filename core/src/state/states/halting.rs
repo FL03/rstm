@@ -6,7 +6,7 @@ use crate::state::State;
 
 pub trait Halter {
     const HALT: bool = true;
-    
+
     private!();
 }
 

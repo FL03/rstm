@@ -11,8 +11,8 @@ pub trait Automata {
     fn current_state(&self) -> Self::State;
 }
 
-pub trait Transition<T> {
-    type Output;
-
-    fn transition(&self, rule: T) -> Self::Output;
+pub enum Step<T> {
+    Left(T),
+    Right(T),
+    Stay(T),
 }

@@ -10,7 +10,7 @@ use rstm::{
     StdTape, TM,
 };
 
-use state::BinaryStates::*;
+use state::BinState::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt().with_level(true).init();
@@ -62,7 +62,7 @@ pub mod wolfram {
     impl rstm::Alphabet for Three {
         type Sym = Self;
 
-        fn symbols_to_vec(&self) -> Vec<Self::Sym> {
+        fn to_vec(&self) -> Vec<Self::Sym> {
             use Three::*;
             vec![A, B, C]
         }

@@ -86,8 +86,7 @@ where
         self.rules.retain(f)
     }
 
-    pub fn remove(&mut self, head: &Head<Q, S>) -> Option<Tail<Q, S>>
-    {
+    pub fn remove(&mut self, head: &Head<Q, S>) -> Option<Tail<Q, S>> {
         self.rules.remove(head)
     }
 }
@@ -95,7 +94,7 @@ where
 impl<Q, S> Extend<(Head<Q, S>, Tail<Q, S>)> for Ruleset<Q, S>
 where
     Q: Eq + core::hash::Hash,
-    S: Symbolic
+    S: Symbolic,
 {
     fn extend<T>(&mut self, iter: T)
     where

@@ -19,12 +19,17 @@ pub trait Alphabet: IntoIterator<Item = Self::Sym> {
     type Sym;
 
     fn len(&self) -> usize {
-        self.symbols_to_vec().len()
+        self.to_vec().len()
     }
 
-    fn symbols_to_vec(&self) -> Vec<Self::Sym>;
+    fn to_vec(&self) -> Vec<Self::Sym>;
 }
 
+/// [Symbolic] is a generic trait automatically implemented for any
+/// type that satisfies the following conditions:
+/// - Clone
+/// - Eq
+/// - Ord
 pub trait Symbolic
 where
     Self: Clone
@@ -38,6 +43,7 @@ where
 {
 }
 
+#[doc(hidden)]
 pub trait Symbol: Symbolic {
     type Z;
 
@@ -57,7 +63,7 @@ pub trait Symbol: Symbolic {
 impl Alphabet for Vec<char> {
     type Sym = char;
 
-    fn symbols_to_vec(&self) -> Vec<char> {
+    fn to_vec(&self) -> Vec<char> {
         self.clone()
     }
 }

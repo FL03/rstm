@@ -22,14 +22,12 @@ pub(crate) mod prelude {
     pub use super::tape::StdTape;
 }
 
-pub trait Read {
-    type Output;
+#[doc(hidden)]
+pub trait RawTape {
+    type Elem;
 
-    fn read(&mut self, buf: &[u8]) -> Self::Output;
+    fn as_slice(&self) -> &[Self::Elem];
 }
 
-pub trait Write<T> {
-    type Output;
-
-    fn write(&mut self, buf: &mut [u8]) -> Self::Output;
-}
+#[doc(hidden)]
+pub trait Tape {}

@@ -12,8 +12,8 @@ pub enum Error {
     IndexOutOfBounds { index: usize, len: usize },
     #[error("[StateError] Invalid State: {0}")]
     InvalidState(String),
-    #[error("[StateError] State Not Found: {0}")]
-    StateNotFound(String),
+    #[error("[StateError] State Not Found")]
+    StateNotFound,
     #[error("Transformation error: {0}")]
     TransformationError(String),
     #[error("Unknown error: {0}")]
@@ -29,8 +29,8 @@ impl Error {
         Error::InvalidState(err.to_string())
     }
 
-    pub fn state_not_found(err: impl ToString) -> Self {
-        Error::StateNotFound(err.to_string())
+    pub fn state_not_found() -> Self {
+        Error::StateNotFound
     }
 
     pub fn transformation_error(message: impl ToString) -> Self {
