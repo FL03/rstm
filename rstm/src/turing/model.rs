@@ -2,128 +2,126 @@
     Appellation: tm <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Context;
-
-use crate::prelude::{FsmError, Head, Symbolic, Tape};
+use crate::prelude::{Error, Head, StdTape, Symbolic};
 use crate::rules::{Instruction, Program};
-use crate::state::{Haltable, State};
+use crate::state::State;
 
 /// # Turing Machine ([TM])
 ///
+/// The Turing Machine is a mathematical model of computation that uses a set of rules to determine
+/// how a machine should manipulate a tape. The machine can read, write, and move linearly across the tape.
+/// Each pre-defined rule maps a head, consisting of a state and symbol, to a new state and symbol along with a direction.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TM<Q = String, S = char> {
-    pub(crate) ctx: Context<Q, S>,
-    pub(crate) tape: Tape<S>,
+    pub(crate) program: Program<Q, S>,
+    pub(crate) state: State<Q>,
+    pub(crate) tape: StdTape<S>,
 }
 
 impl<Q, S> TM<Q, S> {
     pub fn new(
-        initial_state: State<Q>,
+        State(state): State<Q>,
         instructions: impl IntoIterator<Item = Instruction<Q, S>>,
-        tape: Tape<S>,
+        tape: StdTape<S>,
     ) -> Self
     where
         Q: Clone,
         S: Clone + Default,
     {
-        let program = Program::new(initial_state.clone()).with_instructions(instructions);
-        let ctx = Context::new(program, initial_state);
-        TM { ctx, tape }
+        let state = State(state);
+        let program = Program::new(state.clone()).with_instructions(instructions);
+        TM {
+            program,
+            state,
+            tape,
+        }
     }
-
-    pub const fn context(&self) -> &Context<Q, S> {
-        &self.ctx
-    }
-
-    pub fn current_state(&self) -> &State<Q> {
-        self.context().current_state()
-    }
-
-    pub fn head(&self) -> Head<Q, S>
+    /// Creates a new instance of a [head](Head) from references to the current state and symbol;
+    pub fn head(&self) -> Head<&'_ Q, &'_ S>
     where
         Q: Clone,
         S: Clone,
     {
-        let state = self.current_state().clone();
-        let symbol = self.tape.read().unwrap().clone();
+        let state = self.state();
+        let symbol = self.tape().read().unwrap();
         Head::new(state, symbol)
     }
-
-    pub const fn tape(&self) -> &Tape<S> {
+    /// Returns an immutable reference to the [program](Program)
+    pub const fn program(&self) -> &Program<Q, S> {
+        &self.program
+    }
+    /// Returns an instance of the [state](State) with an immutable
+    /// reference to the internal data
+    pub fn state(&self) -> State<&'_ Q> {
+        self.state.to_ref()
+    }
+    /// Returns an instance of the [state](State) with a mutable
+    /// reference to the internal data
+    pub fn state_mut(&mut self) -> State<&'_ mut Q> {
+        self.state.to_mut()
+    }
+    /// Returns an instance of the [state](State) with an immutable
+    pub fn set_state(&mut self, state: State<Q>) {
+        self.state = state;
+    }
+    /// Returns an immutable reference to the [tape](StdTape)
+    pub const fn tape(&self) -> &StdTape<S> {
         &self.tape
     }
-
-    pub fn tape_mut(&mut self) -> &mut Tape<S> {
+    /// Returns a mutable reference to the [tape](StdTape)
+    pub fn tape_mut(&mut self) -> &mut StdTape<S> {
         &mut self.tape
     }
-}
-
-// #[cfg(feature = "std")]
-impl<Q, S> TM<Q, S>
-where
-    Q: Clone + PartialEq,
-    S: Clone + Symbolic,
-{
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "step", target = "fsm")
-    )]
-    pub fn step(&mut self) -> Result<(), FsmError> {
-        #[cfg(feature = "tracing")]
-        tracing::info!("Stepping...");
-        let prog = self.ctx.program.clone();
-        // Get a clone of the current state
-        let cst = self.current_state().clone();
-        let sym = self.tape().read()?.clone();
-        let head = Head::new(cst.clone(), sym);
-        if let Some(tail) = prog.get_head(&head).first().cloned() {
-            let nxt = self.tape.update_inplace(tail.clone());
-            self.ctx.set_state(nxt);
-            return Ok(());
-        }
-        Err(FsmError::state_not_found(""))
-    }
+    /// Runs the program until the 
+    /// 
+    /// The program will continue to run until the current state is a halt state.
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "run", target = "fsm")
     )]
-    pub fn run(mut self) -> Result<(), FsmError> {
+    pub fn run(mut self) -> Result<(), Error> where Q: Clone + PartialEq, S: Symbolic {
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
         loop {
             #[cfg(feature = "tracing")]
             tracing::info!("{}", &self.tape);
-            match self.step() {
-                Ok(_) => continue,
-                Err(e) => {
-                    return Err(e);
+            match self.next() {
+                Some(_) => {
+                    // if self.current_state().is_halt() {
+                    //     return Ok(());
+                    // }
+                    continue;
+                }
+                None => {
+                    return Err(Error::unknown("Runtime Error"));
                 }
             }
         }
     }
 }
 
-impl<Q> TM<Q>
+impl<Q, S> core::iter::Iterator for TM<Q, S>
 where
-    Q: Clone + Eq + core::hash::Hash + Haltable,
+    Q: Clone + PartialEq,
+    S: Symbolic,
 {
-    pub fn run_haltable(&mut self) -> Result<(), FsmError> {
-        let _ = loop {
-            dbg!(self.tape());
-            match self.step() {
-                Ok(_) => (),
-                Err(e) => {
-                    eprintln!("{}", e);
-                    break;
-                }
-            }
+    type Item = Head<Q, S>;
 
-            if self.current_state().halt() {
-                break;
-            }
-        };
-
-        Ok(())
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "step", target = "fsm")
+    )]
+    fn next(&mut self) -> Option<Self::Item> {
+        #[cfg(feature = "tracing")]
+        tracing::info!("Stepping...");
+        // Create a new head from the current state and symbol
+        let head = self.head().cloned();
+        // Get the first instruction for the current head
+        if let Some(&tail) = self.program.get_head(&head).first() {
+            self.state = self.tape.update_inplace(tail.cloned());
+            return Some(tail.cloned().into_head());
+        }
+        None
     }
 }

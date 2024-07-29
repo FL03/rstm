@@ -1,5 +1,4 @@
 [package]
-name = "rstm"
 authors.workspace = true
 build = "build.rs"
 categories.workspace = true
@@ -8,6 +7,7 @@ edition.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 license.workspace = true
+name = "rstm-core"
 readme.workspace = true
 repository.workspace = true
 version.workspace = true
@@ -22,18 +22,16 @@ full = [
 ]
 
 # ********* [FF] Dependencies *********
-# alloc = [
-#     "serde?/alloc",
-# ]
+alloc = [
+    "serde?/alloc",
+]
 
 serde = [
     "dep:serde",
-    "rstm-core/serde",
 ]
 
 tracing = [
     "dep:tracing",
-    "rstm-core/tracing",
 ]
 
 # ********* [FF] Environments *********
@@ -49,21 +47,9 @@ crate-type = ["cdylib", "rlib"]
 doctest = false
 test = true
 
-[[example]]
-name = "basic"
-required-features = ["tracing"]
-
-[[example]]
-name = "utm"
-required-features = ["tracing"]
-
-# ****************** Dependencies ******************
 [dependencies]
 thiserror.workspace = true
-
-[dependencies.rstm-core]
-path = "../core"
-version = "0.0.2"
+paste.workspace = true
 
 [dependencies.serde]
 # default-features = false
@@ -81,7 +67,6 @@ features = []
 optional = true
 version = "0.1"
 
-# ****************** Dev Dependencies ******************
 [dev-dependencies]
 lazy_static.workspace = true
 tracing-subscriber = { features = [], version = "0.3" }

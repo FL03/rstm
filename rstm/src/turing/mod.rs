@@ -2,7 +2,7 @@
     Appellation: turing <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-//!## Turing Machine
+//! # Turing Machine ([TM])
 //!
 //! ### Overview
 //!
@@ -11,9 +11,8 @@
 //! across the tape. The machine uses a set of pre-defined rules to determine the next state and symbol.
 //!
 #[doc(inline)]
-pub use self::{actor::Actor, context::Context, model::TM};
+pub use self::{context::Context, model::TM};
 
-pub(crate) mod actor;
 pub(crate) mod context;
 pub(crate) mod model;
 
@@ -22,4 +21,15 @@ pub(crate) mod prelude {
 }
 
 #[doc(hidden)]
-pub trait Turing {}
+pub trait Turing {
+    type Alpha; // input alphabet
+    type Beta; // output alphabet
+    type Gamma; //
+}
+
+pub trait Ctx {}
+pub trait Actor {
+    type Ctx;
+
+    fn handle(&self, context: Context) -> Result<(), Box<dyn std::error::Error>>;
+}

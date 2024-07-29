@@ -4,25 +4,28 @@
 */
 extern crate rstm;
 
-use rstm::prelude::{State, Tape, TM};
-use rstm::rule;
-use rstm::state::binary::BinaryStates::*;
+use rstm::{
+    rule,
+    state::{self, State},
+    StdTape, TM,
+};
 
-// use Direction::Right;
+use state::BinState::*;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt().init();
-    let tape = Tape::from_str("10111000101001101011010010");
-    let initial_state = State(Invalid);
+    tracing_subscriber::fmt().with_target(false).init();
+    println!("{}", -1_isize as u8);
+    let tape_data: Vec<u8> = vec![0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1];
 
     let rules = vec![
-        rule![(State(Invalid), '0') -> Right(State(Invalid), '1',)],
-        rule![(State(Invalid), '1') -> Right(State(Valid), '0',)],
-        rule![(State(Valid), '0') -> Right(State(Valid), '1',)],
-        rule![(State(Valid), '1') -> Right(State(Valid), '0',)],
+        rule![(Invalid, 0) -> Left(Invalid, 0)],
+        rule![(Invalid, 1) -> Right(Valid, 0)],
+        rule![(Valid, 0) -> Right(Valid, 1)],
+        rule![(Valid, 1) -> Left(Valid, 0)],
     ];
 
-    let tm = TM::new(initial_state, rules, tape);
+    let tape = StdTape::from_iter(tape_data);
+    let tm = TM::new(State(Invalid), rules, tape);
     tm.run()?;
     Ok(())
 }
