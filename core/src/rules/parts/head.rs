@@ -99,6 +99,19 @@ impl<Q, S> Head<Q, S> {
     }
 }
 
+impl<Q> Head<Q, usize> {
+    pub fn shift(self, direction: crate::Direction) -> Self {
+        Self {
+            symbol: direction.apply(self.symbol),
+            ..self
+        }
+    }
+    
+    pub fn shift_inplace(&mut self, direction: crate::Direction) {
+        self.symbol = direction.apply(self.symbol);
+    }
+}
+
 impl<'a, Q, S> Head<&'a Q, &'a S> {
     pub fn cloned(&self) -> Head<Q, S>
     where

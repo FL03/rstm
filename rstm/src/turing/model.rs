@@ -36,11 +36,7 @@ impl<Q, S> TM<Q, S> {
         }
     }
     /// Creates a new instance of a [head](Head) from references to the current state and symbol;
-    pub fn head(&self) -> Head<&'_ Q, &'_ S>
-    where
-        Q: Clone,
-        S: Clone,
-    {
+    pub fn head(&self) -> Head<&'_ Q, &'_ S> {
         let state = self.state();
         let symbol = self.tape().read().unwrap();
         Head::new(state, symbol)
@@ -117,10 +113,8 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         #[cfg(feature = "tracing")]
         tracing::info!("Stepping...");
-        // Create a new head from the current state and symbol
-        let head = self.head().cloned();
         // Get the first instruction for the current head
-        if let Some(&tail) = self.program.get_head(&head).first() {
+        if let Some(&tail) = self.program.get_head(&self.head().cloned()).first() {
             self.state = self.tape.update_inplace(tail.cloned());
             return Some(tail.cloned().into_head());
         }
