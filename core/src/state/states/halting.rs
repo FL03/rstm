@@ -5,16 +5,13 @@
 use crate::state::State;
 
 #[doc(hidden)]
-pub trait Halter {
+pub trait Halting {
     const HALT: bool = true;
 
     private!();
+    
 }
-#[doc(hidden)]
-pub enum Halting<T> {
-    Continue(T),
-    Halt(T),
-}
+
 
 pub struct Halt<T>(pub T);
 
@@ -31,8 +28,13 @@ impl<T> Halt<T> {
     pub fn as_mut(&mut self) -> &mut T {
         &mut self.0
     }
+
 }
 
-impl<T> Halter for State<Halt<T>> {
+impl<T> Halting for Halt<T> {
+    seal!();
+}
+
+impl<T> Halting for State<Halt<T>> {
     seal!();
 }

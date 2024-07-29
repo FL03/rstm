@@ -78,7 +78,7 @@ impl<Q, S> TM<Q, S> {
     )]
     pub fn execute(mut self) -> Result<(), Error>
     where
-        Q: Clone + PartialEq,
+        Q: Clone + PartialEq + 'static,
         S: Symbolic,
     {
         #[cfg(feature = "tracing")]
@@ -87,12 +87,12 @@ impl<Q, S> TM<Q, S> {
             #[cfg(feature = "tracing")]
             tracing::info!("{}", &self.tape);
             match self.next() {
-                Some(_) => {
-                    // if self.current_state().is_halt() {
-                    //     return Ok(());
-                    // }
-                    continue;
-                }
+                Some(_) => if self.state.is_halt() {
+                        return Ok(());
+                    } else {
+                        continue;
+                    },
+                
                 None => {
                     return Err(Error::unknown("Runtime Error"));
                 }
@@ -103,7 +103,7 @@ impl<Q, S> TM<Q, S> {
 
 impl<Q, S> core::iter::Iterator for TM<Q, S>
 where
-    Q: Clone + PartialEq,
+    Q: Clone + PartialEq + 'static,
     S: Symbolic,
 {
     type Item = Head<Q, S>;
@@ -115,11 +115,14 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         #[cfg(feature = "tracing")]
         tracing::info!("Stepping...");
+        if self.state.is_halt() {
+            return None;
+        }
         // Get the first instruction for the current head
         if let Some(tail) = self.program.get_ref(self.read()?) {
             self.state = self.tape.update_inplace(tail.cloned());
             return Some(tail.cloned().into_head());
         }
-        None
+        unreachable!("No instruction found for the current head")
     }
 }
