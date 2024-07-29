@@ -4,10 +4,16 @@
 */
 use crate::state::State;
 
+#[doc(hidden)]
 pub trait Halter {
     const HALT: bool = true;
 
     private!();
+}
+#[doc(hidden)]
+pub enum Halting<T> {
+    Continue(T),
+    Halt(T),
 }
 
 pub struct Halt<T>(pub T);
