@@ -29,5 +29,23 @@ pub trait RawTape {
     fn as_slice(&self) -> &[Self::Elem];
 }
 
+pub trait Read {
+    type Elem;
+
+    fn read(&self) -> &Self::Elem;
+}
+
+pub trait Write {
+    type Elem;
+
+    fn write(&mut self, value: Self::Elem);
+}
+
 #[doc(hidden)]
-pub trait Tape {}
+pub trait Tape<T>: Read<Elem = T> + Write<Elem = T> {
+    fn len(&self) -> usize;
+
+    fn is_empty(&self) -> bool;
+}
+
+

@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #![allow(dead_code)]
-use crate::State;
+use crate::{Head, State};
 
 ///
 ///
@@ -12,33 +12,36 @@ use crate::State;
 /// configuration consists of the inner state of the head, the symbol it is reading,
 /// and the contents of the tape.
 pub struct Slider<Q, S> {
-    pub(crate) state: State<Q>, // inner state of head
-    pub(crate) symbol: usize,   // index of symbol
-    pub(crate) tape: Vec<S>,    // tape
+    pub(crate) head: Head<Q, usize>,  // head of the tape
+    /// state of the machine
+    pub(crate) tape: Vec<S>,
 }
 
 impl<Q, S> Slider<Q, S> {
     pub fn new(State(state): State<Q>, tape: impl IntoIterator<Item = S>) -> Self {
         Self {
-            state: State(state),
-            symbol: 0,
+            head: Head::new(State(state), 0),
             tape: tape.into_iter().collect(),
         }
     }
-
+    /// Returns an immutable reference to the head of the machine.
+    pub fn head(&self) -> &Head<Q, usize> {
+        &self.head
+    }
+    /// Returns the current state of the machine.
     pub fn state(&self) -> State<&Q> {
-        self.state.to_ref()
+        self.head.state.to_ref()
     }
-
-    pub fn symbol(&self) -> usize {
-        self.symbol
+    /// Returns the current position of the head on the tape.
+    pub fn pos(&self) -> usize {
+        self.head.symbol
     }
-
+    /// Returns the current symbol being read by the head.
     pub fn read(&self) -> &S {
-        &self.tape[self.symbol]
+        &self.tape[self.pos()]
     }
-
+    /// Writes a symbol to the tape at the current position of the head.
     pub fn write(&mut self, symbol: S) {
-        self.tape[self.symbol] = symbol;
+        self.tape[self.head.symbol] = symbol;
     }
 }

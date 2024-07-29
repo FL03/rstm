@@ -16,10 +16,13 @@ pub struct Program<Q = String, S = char> {
 }
 
 impl<Q, S> Program<Q, S> {
-    pub fn new(State(initial_state): State<Q>) -> Self {
+    pub fn new() -> Self
+    where
+        Q: Default,
+    {
         Self {
-            initial_state: State(initial_state),
-            ruleset: RuleSet::new(),
+            initial_state: State::default(),
+            ruleset: Vec::new(),
         }
     }
 
@@ -30,6 +33,13 @@ impl<Q, S> Program<Q, S> {
         Self {
             initial_state: State::default(),
             ruleset: RuleSet::from_iter(instructions),
+        }
+    }
+
+    pub fn from_state(State(initial_state): State<Q>) -> Self {
+        Self {
+            initial_state: State(initial_state),
+            ruleset: RuleSet::new(),
         }
     }
     ///
@@ -94,7 +104,9 @@ impl<Q, S> Program<Q, S> {
         Q: PartialEq,
         S: PartialEq,
     {
-        self.iter().find(|i| i.head().to_ref() == head).map(|i| i.tail())
+        self.iter()
+            .find(|i| i.head().to_ref() == head)
+            .map(|i| i.tail())
     }
 }
 

@@ -5,7 +5,7 @@
 #[doc(inline)]
 pub use self::{
     instruction::*,
-    parts::{Head, Tail},
+    parts::*,
     program::*,
 };
 
@@ -20,6 +20,8 @@ pub mod parts {
 
     pub(crate) mod head;
     pub(crate) mod tail;
+
+    pub type IndexedHead<Q> = Head<Q, usize>;
 }
 
 pub(crate) mod prelude {

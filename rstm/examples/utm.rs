@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ];
 
     let tape = StdTape::from_iter(alpha);
-    let program = Program::new(State(Invalid)).with_instructions(rules);
+    let program = Program::from_state(State(Invalid)).with_instructions(rules);
     // create a new instance of the machine
     let tm = TM::new(program, tape);
     tm.execute()?;

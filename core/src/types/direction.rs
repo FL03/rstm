@@ -85,10 +85,6 @@ impl Direction {
     pub fn stay() -> Self {
         Self::Stay
     }
-    /// Applies the shift to the given position in the [direction](Direction) specified by the current instance.
-    pub fn apply(self, cur: usize) -> usize {
-        cur.wrapping_add_signed(self as isize)
-    }
     /// Converts an [i8] value into a [`Direction`] by taking the modulus of the value.
     /// The function uses a modulator of 2 to determine the direction since there are
     /// only two actionable directions ([left](Direction::Left) and [right](Direction::Right)).
@@ -99,7 +95,8 @@ impl Direction {
             _ => Self::Stay,
         }
     }
-    /// Converts a [char] value into a direction; matches the value to the corresponding [direction](Direction).
+    /// Converts a [char] value into a direction; matches the value to the corresponding 
+    /// [direction](Direction).
     pub fn from_char(value: char) -> Self {
         match value {
             'L' | 'l' => Self::Left,
@@ -122,6 +119,12 @@ impl Direction {
             Self::Right => 'R',
             Self::Stay => 'S',
         }
+    }
+    /// Applies the shift to the given position in the [direction](Direction) specified by the 
+    /// current instance. This is done using the [`wrapping_add_signed`](usize::wrapping_add_signed) 
+    /// method.
+    pub fn apply(self, cur: usize) -> usize {
+        cur.wrapping_add_signed(self as isize)
     }
 }
 
