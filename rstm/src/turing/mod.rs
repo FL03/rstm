@@ -20,16 +20,13 @@ pub(crate) mod prelude {
     pub use super::model::TM;
 }
 
+use crate::prelude::Alphabet;
+
 #[doc(hidden)]
-pub trait Turing {
-    type Alpha; // input alphabet
-    type Beta; // output alphabet
-    type Gamma; //
-}
+pub trait Turing<Q> {
+    type Alpha: Alphabet; // input alphabet
+    type Beta: Alphabet; // output alphabet
+    
 
-pub trait Ctx {}
-pub trait Actor {
-    type Ctx;
-
-    fn handle(&self, context: Context) -> Result<(), Box<dyn std::error::Error>>;
+    fn step(&self, input: Self::Alpha) -> Self::Beta;
 }
