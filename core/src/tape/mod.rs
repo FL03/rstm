@@ -7,7 +7,7 @@
 //! Idealized Turing machines consider a tape, or memory, that is infinite in both directions.
 //! This tape is a one-dimensional array of symbols manipulated by the tape head according to
 //! some set of pre-defined rules.
-pub use self::tape::StdTape;
+pub use self::tape::Tape;
 
 pub(crate) mod tape;
 
@@ -15,11 +15,9 @@ pub(crate) mod tape;
 pub mod entry;
 #[doc(hidden)]
 pub mod iter;
-#[doc(hidden)]
-pub mod slider;
 
 pub(crate) mod prelude {
-    pub use super::tape::StdTape;
+    pub use super::tape::Tape;
 }
 
 #[doc(hidden)]
@@ -29,23 +27,21 @@ pub trait RawTape {
     fn as_slice(&self) -> &[Self::Elem];
 }
 
-pub trait Read {
-    type Elem;
+/*
+ ************* Implementations *************
+*/
+impl<T> RawTape for [T] {
+    type Elem = T;
 
-    fn read(&self) -> &Self::Elem;
+    fn as_slice(&self) -> &[Self::Elem] {
+        &self
+    }
 }
 
-pub trait Write {
-    type Elem;
+impl<T> RawTape for Vec<T> {
+    type Elem = T;
 
-    fn write(&mut self, value: Self::Elem);
+    fn as_slice(&self) -> &[Self::Elem] {
+        &self
+    }
 }
-
-#[doc(hidden)]
-pub trait Tape<T>: Read<Elem = T> + Write<Elem = T> {
-    fn len(&self) -> usize;
-
-    fn is_empty(&self) -> bool;
-}
-
-

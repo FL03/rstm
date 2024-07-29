@@ -3,11 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{
-    instruction::*,
-    parts::*,
-    program::*,
-};
+pub use self::{instruction::*, parts::*, program::*};
 
 pub(crate) mod instruction;
 pub(crate) mod program;
@@ -32,9 +28,18 @@ pub(crate) mod prelude {
 
 use crate::{Direction, State, Symbolic};
 
-pub trait Rule {
+pub trait Space {
     type Elem;
     type State;
+
+    fn state(&self) -> State<&'_ Self::State>;
+
+    fn symbol(&self) -> &Self::Elem;
+}
+
+pub trait Morphism {
+    type Input: Space;
+    type Output: Space;
 }
 
 pub trait Transition<Q, S>
@@ -63,7 +68,7 @@ pub trait Directive<Q, S> {
 
     fn next_state(&self) -> State<&'_ Q>;
 
-    fn write_symbol(&self) -> &S;
+    fn value(&self) -> &S;
 }
 
 /*
@@ -92,7 +97,7 @@ where
     }
 
     fn write_symbol(&self) -> &S {
-        self.write_symbol()
+        self.value()
     }
 }
 
@@ -115,7 +120,7 @@ impl<Q, S> Directive<Q, S> for Instruction<Q, S> {
         self.tail().next_state()
     }
 
-    fn write_symbol(&self) -> &S {
+    fn value(&self) -> &S {
         &self.write_symbol()
     }
 }
@@ -139,7 +144,7 @@ impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
         self.next_state()
     }
 
-    fn write_symbol(&self) -> &S {
+    fn value(&self) -> &S {
         &self.write_symbol()
     }
 }
@@ -163,7 +168,7 @@ impl<Q, S> Directive<Q, S> for (Direction, State<Q>, S) {
         self.1.to_ref()
     }
 
-    fn write_symbol(&self) -> &S {
+    fn value(&self) -> &S {
         &self.2
     }
 }

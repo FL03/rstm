@@ -8,7 +8,7 @@
 /// the [`map`] method, which applies a function to a value and returns a new value.
 pub trait Transform<T> {
     type Output;
-    /// [`Transform::transform`] is a method that takes a reference to `self` and a value of type 
+    /// [`Transform::transform`] is a method that takes a reference to `self` and a value of type
     /// `T` and returns a value of type [`Transform::Output`].
     fn transform(&self, delta: T) -> Self::Output;
 }

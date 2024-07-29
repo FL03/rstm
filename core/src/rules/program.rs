@@ -75,38 +75,89 @@ impl<Q, S> Program<Q, S> {
     pub fn iter(&self) -> core::slice::Iter<Instruction<Q, S>> {
         self.ruleset.iter()
     }
-    /// Returns an owned reference to the element(s) specified by the index.
-    pub fn get<I>(&self, idx: I) -> Option<&I::Output>
-    where
-        I: core::slice::SliceIndex<[Instruction<Q, S>]>,
-    {
-        self.ruleset.get(idx)
+    /// Returns a mutable iterator over the elements.
+    pub fn iter_mut(&mut self) -> core::slice::IterMut<Instruction<Q, S>> {
+        self.ruleset.iter_mut()
     }
     /// Returns a collection of tails for a given head.
-    pub fn get_head(&self, head: &Head<Q, S>) -> Vec<Tail<&'_ Q, &'_ S>>
+    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
     {
-        self.iter()
-            .filter_map(|i| {
-                if i.head() == head {
-                    Some(i.tail().to_ref())
-                } else {
-                    None
-                }
-            })
-            .collect()
+        self.iter().find_map(|i| {
+            if i.head() == head {
+                Some(i.tail())
+            } else {
+                None
+            }
+        })
     }
 
-    pub fn find_head(&self, head: Head<&'_ Q, &'_ S>) -> Option<&Tail<Q, S>>
+    pub fn get_mut(&mut self, head: &Head<Q, S>) -> Option<&mut Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
     {
-        self.iter()
-            .find(|i| i.head().to_ref() == head)
-            .map(|i| i.tail())
+        self.iter_mut().find_map(|i| {
+            if i.head() == head {
+                Some(i.tail_mut())
+            } else {
+                None
+            }
+        })
+    }
+    /// Returns a collection of tails for a given head.
+    pub fn get_ref(&self, head: Head<&'_ Q, &'_ S>) -> Option<Tail<&'_ Q, &'_ S>>
+    where
+        Q: PartialEq,
+        S: PartialEq,
+    {
+        self.iter().find_map(|i| {
+            if i.head_ref() == head {
+                Some(i.tail_ref())
+            } else {
+                None
+            }
+        })
+    }
+}
+
+impl<Q, S> AsRef<[Instruction<Q, S>]> for Program<Q, S> {
+    fn as_ref(&self) -> &[Instruction<Q, S>] {
+        &self.ruleset
+    }
+}
+
+impl<Q, S> AsMut<[Instruction<Q, S>]> for Program<Q, S> {
+    fn as_mut(&mut self) -> &mut [Instruction<Q, S>] {
+        &mut self.ruleset
+    }
+}
+
+impl<Q, S> core::ops::Deref for Program<Q, S> {
+    type Target = [Instruction<Q, S>];
+
+    fn deref(&self) -> &Self::Target {
+        &self.ruleset
+    }
+}
+
+impl<Q, S> core::ops::DerefMut for Program<Q, S> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.ruleset
+    }
+}
+
+impl<Q, S> core::ops::Index<Head<Q, S>> for Program<Q, S>
+where
+    Q: PartialEq,
+    S: PartialEq,
+{
+    type Output = Tail<Q, S>;
+
+    fn index(&self, index: Head<Q, S>) -> &Self::Output {
+        self.get(&index).unwrap()
     }
 }
 

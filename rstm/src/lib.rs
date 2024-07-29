@@ -20,11 +20,9 @@ pub(crate) mod macros {
     pub mod rules;
 }
 
-#[doc(hidden)]
-pub mod sand;
 pub mod turing;
 
 pub mod prelude {
-    pub use crate::turing::prelude::*;
+    pub use crate::turing::TM;
     pub use rstm_core::prelude::*;
 }

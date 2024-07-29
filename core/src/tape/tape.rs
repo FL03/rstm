@@ -20,18 +20,18 @@ use core::cell::Cell;
 /// be [Direction::Stay]. Moving left and right within a linear space speaks directly
 /// to a translation or shift in space, however, staying in place does not result in
 /// any movement, shift, or translation within space. That being said, staying still
-/// is an operation that does result in some change in-time. 
+/// is an operation that does result in some change in-time.
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct StdTape<S = char> {
+pub struct Tape<S = char> {
     cursor: usize,
     store: Vec<S>,
     ticks: Cell<usize>,
 }
 
-impl<S> StdTape<S> {
+impl<S> Tape<S> {
     pub fn new() -> Self {
-        StdTape {
+        Tape {
             cursor: 0,
             store: Vec::<S>::new(),
             ticks: Cell::default(),
@@ -39,7 +39,7 @@ impl<S> StdTape<S> {
     }
     /// Constructs a new tape from an iterator.
     pub fn from_iter(iter: impl IntoIterator<Item = S>) -> Self {
-        StdTape {
+        Tape {
             cursor: 0,
             store: Vec::from_iter(iter),
             ticks: Cell::default(),
@@ -47,7 +47,7 @@ impl<S> StdTape<S> {
     }
     /// Constructs a new, empty tape with the specified capacity.
     pub fn with_capacity(capacity: usize) -> Self {
-        StdTape {
+        Tape {
             cursor: 0,
             store: Vec::<S>::with_capacity(capacity),
             ticks: Cell::default(),
@@ -175,9 +175,9 @@ impl<S> StdTape<S> {
     }
 }
 
-impl StdTape {
-    pub fn from_str(input: &str) -> StdTape {
-        StdTape {
+impl Tape {
+    pub fn from_str(input: &str) -> Tape {
+        Tape {
             cursor: 0,
             store: input.chars().collect(),
             ticks: Cell::default(),
@@ -185,31 +185,31 @@ impl StdTape {
     }
 }
 
-impl<S> AsRef<[S]> for StdTape<S> {
+impl<S> AsRef<[S]> for Tape<S> {
     fn as_ref(&self) -> &[S] {
         &self.store
     }
 }
 
-impl<S> AsMut<[S]> for StdTape<S> {
+impl<S> AsMut<[S]> for Tape<S> {
     fn as_mut(&mut self) -> &mut [S] {
         &mut self.store
     }
 }
 
-impl<S> core::borrow::Borrow<[S]> for StdTape<S> {
+impl<S> core::borrow::Borrow<[S]> for Tape<S> {
     fn borrow(&self) -> &[S] {
         &self.store
     }
 }
 
-impl<S> core::borrow::BorrowMut<[S]> for StdTape<S> {
+impl<S> core::borrow::BorrowMut<[S]> for Tape<S> {
     fn borrow_mut(&mut self) -> &mut [S] {
         &mut self.store
     }
 }
 
-impl<S> core::ops::Deref for StdTape<S> {
+impl<S> core::ops::Deref for Tape<S> {
     type Target = [S];
 
     fn deref(&self) -> &Self::Target {
@@ -217,13 +217,13 @@ impl<S> core::ops::Deref for StdTape<S> {
     }
 }
 
-impl<S> core::ops::DerefMut for StdTape<S> {
+impl<S> core::ops::DerefMut for Tape<S> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.store
     }
 }
 
-impl<S> core::fmt::Display for StdTape<S>
+impl<S> core::fmt::Display for Tape<S>
 where
     S: core::fmt::Display,
 {
@@ -238,7 +238,7 @@ where
     }
 }
 
-impl<S> core::iter::Extend<S> for StdTape<S> {
+impl<S> core::iter::Extend<S> for Tape<S> {
     fn extend<T>(&mut self, iter: T)
     where
         T: IntoIterator<Item = S>,
@@ -247,16 +247,16 @@ impl<S> core::iter::Extend<S> for StdTape<S> {
     }
 }
 
-impl<S> core::iter::FromIterator<S> for StdTape<S> {
+impl<S> core::iter::FromIterator<S> for Tape<S> {
     fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = S>,
     {
-        StdTape::from_iter(iter)
+        Tape::from_iter(iter)
     }
 }
 
-impl<S> core::iter::IntoIterator for StdTape<S> {
+impl<S> core::iter::IntoIterator for Tape<S> {
     type Item = S;
     type IntoIter = std::vec::IntoIter<S>;
 
@@ -265,7 +265,7 @@ impl<S> core::iter::IntoIterator for StdTape<S> {
     }
 }
 
-impl<S, I> core::ops::Index<I> for StdTape<S>
+impl<S, I> core::ops::Index<I> for Tape<S>
 where
     I: core::slice::SliceIndex<[S]>,
 {
@@ -276,7 +276,7 @@ where
     }
 }
 
-impl<S, I> core::ops::IndexMut<I> for StdTape<S>
+impl<S, I> core::ops::IndexMut<I> for Tape<S>
 where
     I: core::slice::SliceIndex<[S]>,
 {

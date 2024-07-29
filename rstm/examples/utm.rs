@@ -4,8 +4,8 @@
 */
 extern crate rstm;
 
-use rstm::{rule, Program, State, StdTape, TM};
 use rstm::state::BinState::{Invalid, Valid};
+use rstm::{rule, Program, State, Tape, TM};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt().with_target(false).init();
@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         rule![(Valid, 1) -> Left(Valid, 0)],
     ];
 
-    let tape = StdTape::from_iter(alpha);
+    let tape = Tape::from_iter(alpha);
     let program = Program::from_state(State(Invalid)).with_instructions(rules);
     // create a new instance of the machine
     let tm = TM::new(program, tape);

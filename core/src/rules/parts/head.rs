@@ -4,7 +4,7 @@
 */
 use crate::state::State;
 
-/// The head of a turing machine generally speaks to the current state and symbol of the 
+/// The head of a turing machine generally speaks to the current state and symbol of the
 /// machine w.r.t. the [tape](crate::Tape).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -106,7 +106,7 @@ impl<Q> Head<Q, usize> {
             ..self
         }
     }
-    
+
     pub fn shift_inplace(&mut self, direction: crate::Direction) {
         self.symbol = direction.apply(self.symbol);
     }
