@@ -4,44 +4,52 @@
 */
 pub use self::builder::InstructionBuilder;
 
-use crate::prelude::{Direction, State, StdHead, StdTail};
+use crate::prelude::{Direction, Head, State, Tail};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Instruction<Q = String, S = char> {
-    pub head: StdHead<Q, S>,
-    pub tail: StdTail<Q, S>,
+    pub head: Head<Q, S>,
+    pub tail: Tail<Q, S>,
 }
 
 impl<Q, S> Instruction<Q, S> {
     pub fn new() -> InstructionBuilder<Q, S> {
         InstructionBuilder::new()
     }
-
-    pub const fn head(&self) -> &StdHead<Q, S> {
+    /// Returns a reference to the [head](Head) of the [instruction](Instruction)
+    pub const fn head(&self) -> &Head<Q, S> {
         &self.head
     }
-
-    pub const fn tail(&self) -> &StdTail<Q, S> {
+    /// Returns a mutable reference to the [head](Head) of the [instruction](Instruction)
+    pub fn head_mut(&mut self) -> &mut Head<Q, S> {
+        &mut self.head
+    }
+    /// Returns a reference to the [tail](Tail) of the [instruction](Instruction)
+    pub const fn tail(&self) -> &Tail<Q, S> {
         &self.tail
     }
-
+    /// Returns a mutable reference to the [tail](Tail) of the [instruction](Instruction)
+    pub fn tail_mut(&mut self) -> &mut Tail<Q, S> {
+        &mut self.tail
+    }
+    /// Returns the direction the [head](Head) is instructed to move
     pub fn direction(&self) -> Direction {
         self.tail().direction()
     }
-
+    /// Returns the current [state](State) of the [head](Head)
     pub fn state(&self) -> State<&'_ Q> {
         self.head().get_state()
     }
-
+    /// Returns the current symbol of the [head](Head)
     pub const fn symbol(&self) -> &S {
         self.head().symbol()
     }
-
+    /// Returns the next [state](State) the agent is instructed to move to
     pub fn next_state(&self) -> State<&'_ Q> {
         self.tail().next_state()
     }
-
+    /// Returns the symbol the [head](Head) is instructed to write
     pub const fn write_symbol(&self) -> &S {
         self.tail().write_symbol()
     }
@@ -107,11 +115,11 @@ mod builder {
 
         pub fn build(self) -> Instruction<Q, S> {
             Instruction {
-                head: StdHead {
+                head: Head {
                     state: self.state.expect("state is required"),
                     symbol: self.symbol.expect("symbol is required"),
                 },
-                tail: StdTail {
+                tail: Tail {
                     direction: self.direction,
                     state: self.next_state.expect("next_state is required"),
                     symbol: self.write_symbol.expect("write_symbol is required"),

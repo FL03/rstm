@@ -2,11 +2,11 @@
     Appellation: symbol <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::{StdHead, StdTail, Symbolic, SymbolicExt};
+use crate::{Head, Symbolic, SymbolicExt, Tail};
 use std::collections::hash_map::{self, Entry, HashMap};
 
 pub struct Ruleset<Q, S = char> {
-    pub(crate) rules: HashMap<StdHead<Q, S>, StdTail<Q, S>>,
+    pub(crate) rules: HashMap<Head<Q, S>, Tail<Q, S>>,
 }
 
 impl<Q, S> Ruleset<Q, S>
@@ -22,25 +22,25 @@ where
     pub fn from_iter<I, R>(iter: I) -> Self
     where
         I: IntoIterator<Item = R>,
-        R: Into<(StdHead<Q, S>, StdTail<Q, S>)>,
-        HashMap<StdHead<Q, S>, StdTail<Q, S>>: FromIterator<I::Item>,
+        R: Into<(Head<Q, S>, Tail<Q, S>)>,
+        HashMap<Head<Q, S>, Tail<Q, S>>: FromIterator<I::Item>,
     {
         Ruleset {
             rules: iter.into_iter().collect(),
         }
     }
-    pub fn from_rules(rules: HashMap<StdHead<Q, S>, StdTail<Q, S>>) -> Self {
+    pub fn from_rules(rules: HashMap<Head<Q, S>, Tail<Q, S>>) -> Self {
         Ruleset { rules }
     }
     /// Given a head, returns an [entry](Entry) in the ruleset for in-place manipulation
-    pub fn entry(&mut self, key: StdHead<Q, S>) -> Entry<'_, StdHead<Q, S>, StdTail<Q, S>>
+    pub fn entry(&mut self, key: Head<Q, S>) -> Entry<'_, Head<Q, S>, Tail<Q, S>>
     where
         S: SymbolicExt,
     {
         self.rules.entry(key)
     }
     /// Inserts a new rule into the ruleset
-    pub fn insert(&mut self, head: StdHead<Q, S>, tail: StdTail<Q, S>)
+    pub fn insert(&mut self, head: Head<Q, S>, tail: Tail<Q, S>)
     where
         S: SymbolicExt,
     {
@@ -48,7 +48,7 @@ where
     }
     /// Returns a reference to the tail of a given head;
     /// if the head is not in the ruleset, returns [None](Option::None)
-    pub fn get(&self, head: &StdHead<Q, S>) -> Option<&StdTail<Q, S>>
+    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
     where
         S: SymbolicExt,
     {
@@ -56,7 +56,7 @@ where
     }
     /// Returns a mutable reference to the tail of a given head;
     /// if the head is not in the ruleset, returns [None](Option::None)
-    pub fn get_mut(&mut self, head: &StdHead<Q, S>) -> Option<&mut StdTail<Q, S>>
+    pub fn get_mut(&mut self, head: &Head<Q, S>) -> Option<&mut Tail<Q, S>>
     where
         S: SymbolicExt,
     {
@@ -71,34 +71,34 @@ where
         self.rules.is_empty()
     }
 
-    pub fn iter(&self) -> hash_map::Iter<'_, StdHead<Q, S>, StdTail<Q, S>> {
+    pub fn iter(&self) -> hash_map::Iter<'_, Head<Q, S>, Tail<Q, S>> {
         self.rules.iter()
     }
 
-    pub fn iter_mut(&mut self) -> hash_map::IterMut<'_, StdHead<Q, S>, StdTail<Q, S>> {
+    pub fn iter_mut(&mut self) -> hash_map::IterMut<'_, Head<Q, S>, Tail<Q, S>> {
         self.rules.iter_mut()
     }
 
-    pub fn keys(&self) -> hash_map::Keys<'_, StdHead<Q, S>, StdTail<Q, S>> {
+    pub fn keys(&self) -> hash_map::Keys<'_, Head<Q, S>, Tail<Q, S>> {
         self.rules.keys()
     }
 
-    pub fn values(&self) -> hash_map::Values<'_, StdHead<Q, S>, StdTail<Q, S>> {
+    pub fn values(&self) -> hash_map::Values<'_, Head<Q, S>, Tail<Q, S>> {
         self.rules.values()
     }
 
-    pub fn values_mut(&mut self) -> hash_map::ValuesMut<'_, StdHead<Q, S>, StdTail<Q, S>> {
+    pub fn values_mut(&mut self) -> hash_map::ValuesMut<'_, Head<Q, S>, Tail<Q, S>> {
         self.rules.values_mut()
     }
 
     pub fn retain<F>(&mut self, f: F)
     where
-        F: FnMut(&StdHead<Q, S>, &mut StdTail<Q, S>) -> bool,
+        F: FnMut(&Head<Q, S>, &mut Tail<Q, S>) -> bool,
     {
         self.rules.retain(f)
     }
 
-    pub fn remove(&mut self, head: &StdHead<Q, S>) -> Option<StdTail<Q, S>>
+    pub fn remove(&mut self, head: &Head<Q, S>) -> Option<Tail<Q, S>>
     where
         S: SymbolicExt,
     {
@@ -106,14 +106,14 @@ where
     }
 }
 
-impl<Q, S> Extend<(StdHead<Q, S>, StdTail<Q, S>)> for Ruleset<Q, S>
+impl<Q, S> Extend<(Head<Q, S>, Tail<Q, S>)> for Ruleset<Q, S>
 where
     Q: Eq + core::hash::Hash,
     S: SymbolicExt,
 {
     fn extend<T>(&mut self, iter: T)
     where
-        T: IntoIterator<Item = (StdHead<Q, S>, StdTail<Q, S>)>,
+        T: IntoIterator<Item = (Head<Q, S>, Tail<Q, S>)>,
     {
         self.rules.extend(iter)
     }
@@ -134,8 +134,8 @@ where
 }
 
 impl<Q, S> IntoIterator for Ruleset<Q, S> {
-    type Item = (StdHead<Q, S>, StdTail<Q, S>);
-    type IntoIter = std::collections::hash_map::IntoIter<StdHead<Q, S>, StdTail<Q, S>>;
+    type Item = (Head<Q, S>, Tail<Q, S>);
+    type IntoIter = std::collections::hash_map::IntoIter<Head<Q, S>, Tail<Q, S>>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.rules.into_iter()

@@ -5,7 +5,7 @@
 #[doc(inline)]
 pub use self::{
     instruction::*,
-    parts::{StdHead, StdTail},
+    parts::{Head, Tail},
     program::*,
 };
 
@@ -24,30 +24,33 @@ pub mod parts {
 
 pub(crate) mod prelude {
     pub use super::instruction::Instruction;
-    pub use super::parts::{StdHead, StdTail};
+    pub use super::parts::{Head, Tail};
     pub use super::program::Program;
 }
 
-use crate::{Direction, State};
+use crate::{Direction, State, Symbolic};
 
-pub trait RuleT {
+pub trait Rule {
     type Elem;
     type State;
 }
 
-pub trait Transition<Q, S>: RuleT<Elem = S, State = Q> {
+pub trait Transition<Q, S>
+where
+    S: Symbolic,
+{
     fn direction(&self) -> Direction;
 
-    fn current_state(&self) -> State<Q>;
+    fn current_state(&self) -> State<&'_ Q>;
 
-    fn next_state(&self) -> State<Q>;
+    fn next_state(&self) -> State<&'_ Q>;
 
-    fn symbol(&self) -> Self::Elem;
+    fn symbol(&self) -> &S;
 
     fn write_symbol(&self) -> S;
 }
 
-pub trait Scope<Q, S> {
+pub trait Header<Q, S> {
     fn current_state(&self) -> State<&'_ Q>;
 
     fn symbol(&self) -> &S;
@@ -65,7 +68,33 @@ pub trait Directive<Q, S> {
  ************* Implementations *************
 */
 
-impl<Q, S> Scope<Q, S> for Instruction<Q, S> {
+impl<A, Q, S> Transition<Q, S> for A
+where
+    A: Header<Q, S> + Directive<Q, S>,
+    S: Symbolic,
+{
+    fn direction(&self) -> Direction {
+        self.direction()
+    }
+
+    fn current_state(&self) -> State<&'_ Q> {
+        self.current_state()
+    }
+
+    fn next_state(&self) -> State<&'_ Q> {
+        self.next_state()
+    }
+
+    fn symbol(&self) -> &S {
+        self.symbol()
+    }
+
+    fn write_symbol(&self) -> &S {
+        self.write_symbol()
+    }
+}
+
+impl<Q, S> Header<Q, S> for Instruction<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
         self.head.state.to_ref()
     }
@@ -89,9 +118,9 @@ impl<Q, S> Directive<Q, S> for Instruction<Q, S> {
     }
 }
 
-impl<Q, S> Scope<Q, S> for crate::StdHead<Q, S> {
+impl<Q, S> Header<Q, S> for crate::Head<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
-        self.state.to_ref()
+        self.state().to_ref()
     }
 
     fn symbol(&self) -> &S {
@@ -99,7 +128,7 @@ impl<Q, S> Scope<Q, S> for crate::StdHead<Q, S> {
     }
 }
 
-impl<Q, S> Directive<Q, S> for crate::StdTail<Q, S> {
+impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
     fn direction(&self) -> Direction {
         self.direction
     }
@@ -113,7 +142,7 @@ impl<Q, S> Directive<Q, S> for crate::StdTail<Q, S> {
     }
 }
 
-impl<Q, S> Scope<Q, S> for (State<Q>, S) {
+impl<Q, S> Header<Q, S> for (State<Q>, S) {
     fn current_state(&self) -> State<&'_ Q> {
         self.0.to_ref()
     }

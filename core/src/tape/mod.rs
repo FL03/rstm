@@ -16,8 +16,6 @@ pub mod entry;
 #[doc(hidden)]
 pub mod iter;
 #[doc(hidden)]
-pub mod mt;
-#[doc(hidden)]
 pub mod slider;
 
 pub(crate) mod prelude {

@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Instruction;
-use crate::{State, StdHead, StdTail};
+use crate::{Head, State, Tail};
 use std::vec;
 
 type RuleSet<Q, S> = Vec<Instruction<Q, S>>;
@@ -23,7 +23,7 @@ impl<Q, S> Program<Q, S> {
         }
     }
 
-    pub fn from_instructions(instructions: impl IntoIterator<Item = Instruction<Q, S>>) -> Self
+    pub fn from_iter(instructions: impl IntoIterator<Item = Instruction<Q, S>>) -> Self
     where
         Q: Default,
     {
@@ -49,13 +49,7 @@ impl<Q, S> Program<Q, S> {
             ..self
         }
     }
-    /// Returns an owned reference to the element(s) specified by the index.
-    pub fn get<I>(&self, idx: I) -> Option<&I::Output>
-    where
-        I: core::slice::SliceIndex<[Instruction<Q, S>]>,
-    {
-        self.ruleset.get(idx)
-    }
+
     /// Returns an owned reference to the initial state of the program.
     pub const fn initial_state(&self) -> &State<Q> {
         &self.initial_state
@@ -72,8 +66,15 @@ impl<Q, S> Program<Q, S> {
     pub fn iter(&self) -> core::slice::Iter<Instruction<Q, S>> {
         self.ruleset.iter()
     }
+    /// Returns an owned reference to the element(s) specified by the index.
+    pub fn get<I>(&self, idx: I) -> Option<&I::Output>
+    where
+        I: core::slice::SliceIndex<[Instruction<Q, S>]>,
+    {
+        self.ruleset.get(idx)
+    }
     /// Returns a collection of tails for a given head.
-    pub fn get_head(&self, head: &StdHead<Q, S>) -> Vec<&StdTail<Q, S>>
+    pub fn get_head(&self, head: &Head<Q, S>) -> Vec<&Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,

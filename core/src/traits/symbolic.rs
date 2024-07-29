@@ -27,11 +27,16 @@ pub trait Alphabet: IntoIterator<Item = Self::Sym> {
 
 pub trait Symbolic
 where
-    Self: Clone + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
+    Self: Clone
+        + Eq
+        + Ord
+        + PartialEq
+        + PartialOrd
+        + core::fmt::Debug
+        + core::fmt::Display
+        + core::hash::Hash,
 {
 }
-
-pub trait SymbolicExt: Symbolic + Eq + Ord + core::hash::Hash {}
 
 pub trait Symbol: Symbolic {
     type Z;
@@ -61,5 +66,3 @@ impl<S> Symbolic for S where
     S: Clone + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash
 {
 }
-
-impl<S> SymbolicExt for S where S: Symbolic + Clone + Eq + Ord + core::hash::Hash {}

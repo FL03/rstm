@@ -2,7 +2,7 @@
     Appellation: tape <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::{Direction, Error, State, StdHead, StdTail};
+use crate::{Direction, Error, Head, State, Tail};
 use core::cell::Cell;
 
 /// [StdTape] is an implementation of the traditional tape described by Turing machines.
@@ -129,24 +129,19 @@ impl<S> StdTape<S> {
         self.position()
     }
 
-    pub fn update<Q>(
-        self,
-        direction: Direction,
-        state: State<Q>,
-        symbol: S,
-    ) -> (Self, StdHead<Q, S>)
+    pub fn update<Q>(self, direction: Direction, state: State<Q>, symbol: S) -> (Self, Head<Q, S>)
     where
         S: Clone,
     {
-        let head = StdHead::new(state, symbol.clone());
+        let head = Head::new(state, symbol.clone());
         let mut tape = self;
         tape.write(direction, symbol);
         tape.shift(direction);
         (tape, head)
     }
 
-    pub fn update_inplace<Q>(&mut self, tail: StdTail<Q, S>) -> State<Q> {
-        let StdTail {
+    pub fn update_inplace<Q>(&mut self, tail: Tail<Q, S>) -> State<Q> {
+        let Tail {
             direction,
             state,
             symbol,

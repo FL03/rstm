@@ -2,23 +2,23 @@
     Appellation: entry <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-pub use crate::rules::{StdHead, StdTail};
+pub use crate::rules::{Head, Tail};
 
-pub struct Entry<Q, S> {
-    key: StdHead<Q, S>,
-    value: StdTail<Q, S>,
+pub struct Entry<'a, Q, S> {
+    key: &'a mut Head<Q, S>,
+    value: &'a mut Tail<Q, S>,
 }
 
-impl<Q, S> Entry<Q, S> {
-    pub fn new(key: StdHead<Q, S>, value: StdTail<Q, S>) -> Self {
+impl<'a, Q, S> Entry<'a, Q, S> {
+    pub fn new(key: &'a mut Head<Q, S>, value: &'a mut Tail<Q, S>) -> Self {
         Self { key, value }
     }
 
-    pub fn key(&self) -> &StdHead<Q, S> {
+    pub fn key(&self) -> &Head<Q, S> {
         &self.key
     }
 
-    pub fn value(&self) -> &StdTail<Q, S> {
+    pub fn value(&self) -> &Tail<Q, S> {
         &self.value
     }
 }

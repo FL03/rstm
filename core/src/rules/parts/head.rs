@@ -8,12 +8,12 @@ use crate::state::State;
 /// w.r.t. the [tape](crate::types::Tape).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct StdHead<Q = String, S = char> {
+pub struct Head<Q = String, S = char> {
     pub(crate) state: State<Q>,
     pub(crate) symbol: S,
 }
 
-impl<Q, S> StdHead<Q, S> {
+impl<Q, S> Head<Q, S> {
     pub fn new(State(state): State<Q>, symbol: S) -> Self {
         Self {
             state: State(state),
@@ -72,27 +72,27 @@ impl<Q, S> StdHead<Q, S> {
     }
 }
 
-impl<'a, Q, S> StdHead<&'a Q, &'a S> {
-    pub fn cloned(&self) -> StdHead<Q, S>
+impl<'a, Q, S> Head<&'a Q, &'a S> {
+    pub fn cloned(&self) -> Head<Q, S>
     where
         Q: Clone,
         S: Clone,
     {
-        StdHead {
+        Head {
             state: self.state.cloned(),
             symbol: self.symbol.clone(),
         }
     }
 }
 
-impl<Q, S> From<(State<Q>, S)> for StdHead<Q, S> {
+impl<Q, S> From<(State<Q>, S)> for Head<Q, S> {
     fn from((state, symbol): (State<Q>, S)) -> Self {
         Self::new(state, symbol)
     }
 }
 
-impl<Q, S> From<StdHead<Q, S>> for (State<Q>, S) {
-    fn from(head: StdHead<Q, S>) -> Self {
+impl<Q, S> From<Head<Q, S>> for (State<Q>, S) {
+    fn from(head: Head<Q, S>) -> Self {
         head.into_tuple()
     }
 }
