@@ -20,33 +20,3 @@ pub(crate) mod prelude {
     pub use super::state::State;
     pub use super::states::*;
 }
-
-///
-pub trait Haltable {
-    fn halt(&self) -> bool;
-}
-
-impl Haltable for bool {
-    fn halt(&self) -> bool {
-        *self
-    }
-}
-
-impl Haltable for char {
-    fn halt(&self) -> bool {
-        *self == 'H'
-    }
-}
-
-impl Haltable for String {
-    fn halt(&self) -> bool {
-        self.as_str().halt()
-    }
-}
-
-impl Haltable for &str {
-    fn halt(&self) -> bool {
-        let s = self.to_string().to_lowercase();
-        matches!(s.as_str(), "h" | "H" | "stop" | "terminate")
-    }
-}

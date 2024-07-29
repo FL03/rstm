@@ -5,7 +5,7 @@
 #[doc(inline)]
 pub use self::{
     instruction::*,
-    parts::{Head, Tail},
+    parts::{StdHead, StdTail},
     program::*,
 };
 
@@ -24,7 +24,7 @@ pub mod parts {
 
 pub(crate) mod prelude {
     pub use super::instruction::Instruction;
-    pub use super::parts::{Head, Tail};
+    pub use super::parts::{StdHead, StdTail};
     pub use super::program::Program;
 }
 
@@ -67,7 +67,7 @@ pub trait Directive<Q, S> {
 
 impl<Q, S> Scope<Q, S> for Instruction<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
-        self.head.state.to_view()
+        self.head.state.to_ref()
     }
 
     fn symbol(&self) -> &S {
@@ -89,9 +89,9 @@ impl<Q, S> Directive<Q, S> for Instruction<Q, S> {
     }
 }
 
-impl<Q, S> Scope<Q, S> for crate::Head<Q, S> {
+impl<Q, S> Scope<Q, S> for crate::StdHead<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
-        self.state.to_view()
+        self.state.to_ref()
     }
 
     fn symbol(&self) -> &S {
@@ -99,7 +99,7 @@ impl<Q, S> Scope<Q, S> for crate::Head<Q, S> {
     }
 }
 
-impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
+impl<Q, S> Directive<Q, S> for crate::StdTail<Q, S> {
     fn direction(&self) -> Direction {
         self.direction
     }
@@ -115,7 +115,7 @@ impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
 
 impl<Q, S> Scope<Q, S> for (State<Q>, S) {
     fn current_state(&self) -> State<&'_ Q> {
-        self.0.to_view()
+        self.0.to_ref()
     }
 
     fn symbol(&self) -> &S {
@@ -129,7 +129,7 @@ impl<Q, S> Directive<Q, S> for (Direction, State<Q>, S) {
     }
 
     fn next_state(&self) -> State<&'_ Q> {
-        self.1.to_view()
+        self.1.to_ref()
     }
 
     fn write_symbol(&self) -> &S {

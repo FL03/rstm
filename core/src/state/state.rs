@@ -2,6 +2,7 @@
     Appellation: state <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+use crate::state::Halt;
 use std::sync::Arc;
 ///
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -13,14 +14,6 @@ impl<Q> State<Q> {
     pub fn new(state: Q) -> Self {
         Self(state)
     }
-    /// Transforms the state into its inner value.
-    pub fn into_inner(self) -> Q {
-        self.0
-    }
-    /// Transforms the state into a shared reference.
-    pub fn into_shared(self) -> State<Arc<Q>> {
-        State(Arc::new(self.0))
-    }
     /// Returns an immutable reference to the state.
     pub fn as_ref(&self) -> &Q {
         &self.0
@@ -29,48 +22,119 @@ impl<Q> State<Q> {
     pub fn as_mut(&mut self) -> &mut Q {
         &mut self.0
     }
+    /// Consumes and returns the inner value of the [state](State).
+    pub fn into_inner(self) -> Q {
+        self.0
+    }
+
+    pub fn into_owned(self) -> State<Q>
+    where
+        Q: Clone,
+    {
+        State(self.0.clone())
+    }
+    /// Transforms the state into a shared reference.
+    pub fn into_shared(self) -> State<Arc<Q>> {
+        State(Arc::new(self.0))
+    }
+    /// [State::map] applies a [`Fn`] closure to the state, returing a new state in the process.
+    /// Essentially, the method sufficiently describes the transformation of the state.
+    pub fn map<R, F>(self, f: F) -> State<R>
+    where
+        F: Fn(State<Q>) -> R,
+    {
+        State(f(self))
+    }
+    /// [State::map_mut] applies a [`FnMut`] closure to the state, returing the transformed state.
+    pub fn map_mut<R, F>(mut self, f: &mut F) -> State<R>
+    where
+        F: FnMut(&mut Q) -> R,
+    {
+        State(f(self.as_mut()))
+    }
+    /// Maps the state to a new state using a closure that takes the state by value.
+    pub fn map_once<R, F>(self, f: F) -> State<R>
+    where
+        F: FnOnce(State<Q>) -> R,
+    {
+        State(f(self))
+    }
+    /// Returns a state with an owned inner value.
+    pub fn to_owned(&self) -> State<Q>
+    where
+        Q: Clone,
+    {
+        State(self.0.clone())
+    }
     /// Returns a shared reference to the state.
-    pub fn as_shared(&self) -> State<Arc<Q>>
+    pub fn to_shared(&self) -> State<Arc<Q>>
     where
         Q: Clone,
     {
         State(Arc::new(self.0.clone()))
     }
-    /// Returns a state with an owned inner value.
-    pub fn to_view<'a>(&'a self) -> State<&'a Q> {
-        State(&self.0)
-    }
     /// Returns a state with a mutable reference to the inner value.
-    pub fn to_view_mut<'a>(&'a mut self) -> State<&'a mut Q> {
+    pub fn to_mut<'a>(&'a mut self) -> State<&'a mut Q> {
         State(&mut self.0)
     }
+    /// Returns a state with an owned inner value.
+    pub fn to_ref<'a>(&'a self) -> State<&'a Q> {
+        State(&self.0)
+    }
+
     /// Returns the `name` of the generic inner type, `Q`.
-    pub fn state_type_name(&self) -> &'static str {
+    pub fn inner_type_name(&self) -> &'static str {
         core::any::type_name::<Q>()
     }
     /// Returns the `type id` of the generic inner type, `Q`.
-    pub fn state_type_id(&self) -> core::any::TypeId
+    pub fn inner_type_id(&self) -> core::any::TypeId
     where
         Q: 'static,
     {
         core::any::TypeId::of::<Q>()
     }
-    /// Returns the `type id` of the generic inner type, `Q`.
-    pub fn is_halt(&self) -> bool
-    where
-        Q: 'static,
-    {
-        self.state_type_id() == core::any::TypeId::of::<super::halting::Halt<Q>>()
+}
+
+impl<Q> State<Halt<Q>> {
+    /// Returns a new instance of [State] with a [Halt] sub-state.
+    pub fn halt(Halt(inner): Halt<Q>) -> Self {
+        Self(Halt(inner))
+    }
+    pub fn is_halt(&self) -> bool {
+        true
     }
 }
 
 impl<'a, Q> State<&'a Q> {
     /// Clones the internal state and returning a new instance of [State]
-    pub fn cloned(&self) -> State<Q> where Q: Clone {
+    pub fn cloned(&self) -> State<Q>
+    where
+        Q: Clone,
+    {
         State(self.0.clone())
     }
     /// Copies the internal state and returning a new instance of [State]
-    pub fn copied(&self) -> State<Q> where Q: Copy {
+    pub fn copied(&self) -> State<Q>
+    where
+        Q: Copy,
+    {
+        State(*self.0)
+    }
+}
+
+impl<'a, Q> State<&'a mut Q> {
+    /// Clones the internal state and returning a new instance of [State]
+    pub fn cloned(&self) -> State<Q>
+    where
+        Q: Clone,
+    {
+        State(self.0.clone())
+    }
+    /// Copies the internal state and returning a new instance of [State]
+    pub fn copied(&self) -> State<Q>
+    where
+        Q: Copy,
+    {
         State(*self.0)
     }
 }

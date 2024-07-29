@@ -4,7 +4,7 @@
 */
 use super::Context;
 
-use crate::prelude::{Error, Head, StdTape, SymbolicExt};
+use crate::prelude::{Error, StdHead, StdTape, SymbolicExt};
 use crate::rules::{Instruction, Program};
 use crate::state::State;
 
@@ -47,14 +47,14 @@ impl<Q, S> TM<Q, S> {
         self.context().current_state()
     }
 
-    pub fn head(&self) -> Head<Q, S>
+    pub fn head(&self) -> StdHead<Q, S>
     where
         Q: Clone,
         S: Clone,
     {
         let state = self.current_state().clone();
         let symbol = self.tape.read().unwrap().clone();
-        Head::new(state, symbol)
+        StdHead::new(state, symbol)
     }
 
     pub const fn tape(&self) -> &StdTape<S> {
@@ -76,18 +76,18 @@ where
         feature = "tracing",
         tracing::instrument(skip_all, name = "step", target = "fsm")
     )]
-    pub fn step_inplace(&mut self) -> Result<Head<Q, S>, Error> {
+    pub fn step_inplace(&mut self) -> Result<StdHead<Q, S>, Error> {
         #[cfg(feature = "tracing")]
         tracing::info!("Stepping...");
         let prog = self.ctx.program.clone();
         // Get a clone of the current state
         let st = self.current_state().clone();
         let sym = self.tape().read()?.clone();
-        let head = Head::new(st.clone(), sym);
+        let head = StdHead::new(st.clone(), sym);
         if let Some(&tail) = prog.get_head(&head).first() {
             let nxt = self.tape.update_inplace(tail.clone());
             self.ctx.set_state(nxt);
-            return Ok(tail.get_next().cloned());
+            return Ok(tail.as_head().cloned());
         }
         Err(Error::state_not_found(""))
     }

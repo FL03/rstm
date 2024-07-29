@@ -8,13 +8,12 @@ use crate::state::State;
 /// w.r.t. the [tape](crate::types::Tape).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Head<Q = String, S = char> {
+pub struct StdHead<Q = String, S = char> {
     pub(crate) state: State<Q>,
     pub(crate) symbol: S,
-    // pub(crate) _ptr: ,
 }
 
-impl<Q, S> Head<Q, S> {
+impl<Q, S> StdHead<Q, S> {
     pub fn new(State(state): State<Q>, symbol: S) -> Self {
         Self {
             state: State(state),
@@ -43,8 +42,12 @@ impl<Q, S> Head<Q, S> {
         self.symbol = symbol;
     }
     /// Returns a reference to the current [state](State)
-    pub fn state(&self) -> State<&'_ Q> {
-        self.state.to_view()
+    pub fn get_state(&self) -> State<&'_ Q> {
+        self.state.to_ref()
+    }
+
+    pub const fn state(&self) -> &State<Q> {
+        &self.state
     }
     /// Returns a mutable reference to the current [state](State)
     pub fn state_mut(&mut self) -> &mut State<Q> {
@@ -69,27 +72,27 @@ impl<Q, S> Head<Q, S> {
     }
 }
 
-impl<'a, Q, S> Head<&'a Q, &'a S> {
-    pub fn cloned(&self) -> Head<Q, S>
+impl<'a, Q, S> StdHead<&'a Q, &'a S> {
+    pub fn cloned(&self) -> StdHead<Q, S>
     where
         Q: Clone,
         S: Clone,
     {
-        Head {
+        StdHead {
             state: self.state.cloned(),
             symbol: self.symbol.clone(),
         }
     }
 }
 
-impl<Q, S> From<(State<Q>, S)> for Head<Q, S> {
+impl<Q, S> From<(State<Q>, S)> for StdHead<Q, S> {
     fn from((state, symbol): (State<Q>, S)) -> Self {
         Self::new(state, symbol)
     }
 }
 
-impl<Q, S> From<Head<Q, S>> for (State<Q>, S) {
-    fn from(head: Head<Q, S>) -> Self {
+impl<Q, S> From<StdHead<Q, S>> for (State<Q>, S) {
+    fn from(head: StdHead<Q, S>) -> Self {
         head.into_tuple()
     }
 }

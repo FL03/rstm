@@ -18,9 +18,9 @@ pub struct Slide<Q, S> {
 /// configuration consists of the inner state of the head, the symbol it is reading,
 /// and the contents of the tape.
 pub struct Slider<Q, S> {
-    state: State<Q>,
-    symbol: usize,
-    tape: Vec<S>,
+    state: State<Q>, // inner state of head
+    symbol: usize,   // index of symbol
+    tape: Vec<S>,    // tape
 }
 
 impl<Q, S> Slider<Q, S> {
@@ -33,7 +33,7 @@ impl<Q, S> Slider<Q, S> {
     }
 
     pub fn state(&self) -> State<&Q> {
-        self.state.to_view()
+        self.state.to_ref()
     }
 
     pub fn symbol(&self) -> usize {

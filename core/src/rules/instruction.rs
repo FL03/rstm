@@ -4,13 +4,13 @@
 */
 pub use self::builder::InstructionBuilder;
 
-use crate::prelude::{Direction, Head, State, Tail};
+use crate::prelude::{Direction, State, StdHead, StdTail};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Instruction<Q = String, S = char> {
-    pub head: Head<Q, S>,
-    pub tail: Tail<Q, S>,
+    pub head: StdHead<Q, S>,
+    pub tail: StdTail<Q, S>,
 }
 
 impl<Q, S> Instruction<Q, S> {
@@ -18,11 +18,11 @@ impl<Q, S> Instruction<Q, S> {
         InstructionBuilder::new()
     }
 
-    pub const fn head(&self) -> &Head<Q, S> {
+    pub const fn head(&self) -> &StdHead<Q, S> {
         &self.head
     }
 
-    pub const fn tail(&self) -> &Tail<Q, S> {
+    pub const fn tail(&self) -> &StdTail<Q, S> {
         &self.tail
     }
 
@@ -31,7 +31,7 @@ impl<Q, S> Instruction<Q, S> {
     }
 
     pub fn state(&self) -> State<&'_ Q> {
-        self.head().state()
+        self.head().get_state()
     }
 
     pub const fn symbol(&self) -> &S {
@@ -107,11 +107,11 @@ mod builder {
 
         pub fn build(self) -> Instruction<Q, S> {
             Instruction {
-                head: Head {
+                head: StdHead {
                     state: self.state.expect("state is required"),
                     symbol: self.symbol.expect("symbol is required"),
                 },
-                tail: Tail {
+                tail: StdTail {
                     direction: self.direction,
                     state: self.next_state.expect("next_state is required"),
                     symbol: self.write_symbol.expect("write_symbol is required"),

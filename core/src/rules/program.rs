@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Instruction;
-use crate::{Head, State, Tail};
+use crate::{State, StdHead, StdTail};
 use std::vec;
 
 type RuleSet<Q, S> = Vec<Instruction<Q, S>>;
@@ -33,13 +33,13 @@ impl<Q, S> Program<Q, S> {
         }
     }
     ///
-    pub fn with_initial_state(self, initial_state: State<Q>) -> Self {
+    pub fn with_initial_state(self, State(state): State<Q>) -> Self {
         Self {
-            initial_state,
+            initial_state: State(state),
             ..self
         }
     }
-
+    ///
     pub fn with_instructions(
         self,
         instructions: impl IntoIterator<Item = Instruction<Q, S>>,
@@ -73,7 +73,7 @@ impl<Q, S> Program<Q, S> {
         self.ruleset.iter()
     }
     /// Returns a collection of tails for a given head.
-    pub fn get_head(&self, head: &Head<Q, S>) -> Vec<&Tail<Q, S>>
+    pub fn get_head(&self, head: &StdHead<Q, S>) -> Vec<&StdTail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
