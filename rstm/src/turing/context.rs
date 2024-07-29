@@ -38,14 +38,15 @@ impl<Q, S> Context<Q, S> {
         }
     }
 
-    /// Returns the current state of the system;
-    /// if the state is [none](Option::None), assumes the initial state.
-    pub fn current_state(&self) -> &State<Q> {
-        self.state.as_ref().unwrap_or(self.initial_state())
-    }
+    // /// Returns the current state of the system;
+    // /// if the state is [none](Option::None), assumes the initial state.
+    // pub fn current_state(&self) -> State<&'_ Q> {
+    //     let q = &self.state.map(State::into_inner).unwrap_or(self.program.initial_state.into_inner());
+    //     State(q)
+    // }
 
-    pub const fn initial_state(&self) -> &State<Q> {
-        &self.program.initial_state()
+    pub fn initial_state(&self) -> State<&'_ Q> {
+        self.program.initial_state()
     }
 
     pub fn program(&self) -> &Program<Q, S> {

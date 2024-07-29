@@ -47,7 +47,7 @@ where
 
     fn symbol(&self) -> &S;
 
-    fn write_symbol(&self) -> S;
+    fn write_symbol(&self) -> &S;
 }
 
 pub trait Header<Q, S> {

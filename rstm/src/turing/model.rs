@@ -2,9 +2,7 @@
     Appellation: tm <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Context;
-
-use crate::prelude::{Error, Head, StdTape, SymbolicExt};
+use crate::prelude::{Error, Head, StdTape, Symbolic};
 use crate::rules::{Instruction, Program};
 use crate::state::State;
 
@@ -16,13 +14,14 @@ use crate::state::State;
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct TM<Q = String, S = char> {
-    pub(crate) ctx: Context<Q, S>,
+    pub(crate) program: Program<Q, S>,
+    pub(crate) state: State<Q>,
     pub(crate) tape: StdTape<S>,
 }
 
 impl<Q, S> TM<Q, S> {
     pub fn new(
-        initial_state: State<Q>,
+        State(state): State<Q>,
         instructions: impl IntoIterator<Item = Instruction<Q, S>>,
         tape: StdTape<S>,
     ) -> Self
@@ -30,31 +29,31 @@ impl<Q, S> TM<Q, S> {
         Q: Clone,
         S: Clone + Default,
     {
-        let program = Program::new(initial_state.clone()).with_instructions(instructions);
-        let ctx = Context::new(program, initial_state);
-        TM { ctx, tape }
+        let state = State(state);
+        let program = Program::new(state.clone()).with_instructions(instructions);
+        TM { program, state, tape }
     }
 
-    pub const fn context(&self) -> &Context<Q, S> {
-        &self.ctx
-    }
-
-    pub fn context_mut(&mut self) -> &mut Context<Q, S> {
-        &mut self.ctx
-    }
-
-    pub fn current_state(&self) -> &State<Q> {
-        self.context().current_state()
-    }
-
-    pub fn head(&self) -> Head<Q, S>
+    pub fn head(&self) -> Head<&'_ Q, &'_ S>
     where
         Q: Clone,
         S: Clone,
     {
-        let state = self.current_state().clone();
-        let symbol = self.tape.read().unwrap().clone();
+        let state = self.current_state();
+        let symbol = self.tape().read().unwrap();
         Head::new(state, symbol)
+    }
+
+    pub const fn program(&self) -> &Program<Q, S> {
+        &self.program
+    }
+
+    pub fn current_state(&self) -> State<&'_ Q> {
+        self.state.to_ref()
+    }
+
+    pub fn set_state(&mut self, state: State<Q>) {
+        self.state = state;
     }
 
     pub const fn tape(&self) -> &StdTape<S> {
@@ -70,7 +69,7 @@ impl<Q, S> TM<Q, S> {
 impl<Q, S> TM<Q, S>
 where
     Q: Clone + PartialEq,
-    S: SymbolicExt,
+    S: Symbolic,
 {
     #[cfg_attr(
         feature = "tracing",
@@ -79,14 +78,13 @@ where
     pub fn step_inplace(&mut self) -> Result<Head<Q, S>, Error> {
         #[cfg(feature = "tracing")]
         tracing::info!("Stepping...");
-        let prog = self.ctx.program.clone();
-        // Get a clone of the current state
-        let st = self.current_state().clone();
-        let sym = self.tape().read()?.clone();
-        let head = Head::new(st.clone(), sym);
+        let prog = self.program().clone();
+        // Create a new head from the current state and symbol
+        let head = self.head().cloned();
+        // Get the first instruction for the current head
         if let Some(&tail) = prog.get_head(&head).first() {
             let nxt = self.tape.update_inplace(tail.clone());
-            self.ctx.set_state(nxt);
+            self.set_state(nxt);
             return Ok(tail.as_head().cloned());
         }
         Err(Error::state_not_found(""))
@@ -119,7 +117,7 @@ where
 impl<Q, S> core::iter::Iterator for TM<Q, S>
 where
     Q: Clone + PartialEq,
-    S: SymbolicExt,
+    S: Symbolic,
 {
     type Item = Head<Q, S>;
 

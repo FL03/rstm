@@ -17,8 +17,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", -1_isize as u8);
     let tape_data: Vec<u8> = vec![0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1];
 
-    let initial_state = State(Invalid);
-
     let rules = vec![
         rule![(Invalid, 0) -> Left(Invalid, 0)],
         rule![(Invalid, 1) -> Right(Valid, 0)],
@@ -27,7 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ];
 
     let tape = StdTape::from_iter(tape_data);
-    let tm = TM::new(initial_state, rules, tape);
+    let tm = TM::new(State(Invalid), rules, tape);
     tm.run()?;
     Ok(())
 }

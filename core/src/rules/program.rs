@@ -11,8 +11,8 @@ type RuleSet<Q, S> = Vec<Instruction<Q, S>>;
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Program<Q = String, S = char> {
-    initial_state: State<Q>,
-    ruleset: RuleSet<Q, S>,
+    pub initial_state: State<Q>,
+    pub(crate) ruleset: RuleSet<Q, S>,
 }
 
 impl<Q, S> Program<Q, S> {
@@ -49,10 +49,9 @@ impl<Q, S> Program<Q, S> {
             ..self
         }
     }
-
     /// Returns an owned reference to the initial state of the program.
-    pub const fn initial_state(&self) -> &State<Q> {
-        &self.initial_state
+    pub fn initial_state(&self) -> State<&'_ Q> {
+        self.initial_state.to_ref()
     }
     /// Returns a reference to the instructions.
     pub const fn instructions(&self) -> &RuleSet<Q, S> {
