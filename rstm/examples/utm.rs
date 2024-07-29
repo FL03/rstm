@@ -4,30 +4,27 @@
 */
 extern crate rstm;
 
-use rstm::{
-    rule,
-    state::{self, State},
-    StdTape, TM,
-};
-
-use state::BinState::*;
+use rstm::{rule, Program, State, StdTape, TM};
+use rstm::state::BinState::{Invalid, Valid};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt().with_level(true).init();
-    tracing::info!("Example: Wolfram [2, 3] UTM");
+    tracing_subscriber::fmt().with_target(false).init();
 
-    let tape = StdTape::<u8>::from_iter([0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1]);
-    let initial_state = State(Invalid);
-
+    // initialize the tape data
+    let alpha: Vec<u8> = vec![1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1];
+    // define the rules for the machine
     let rules = vec![
         rule![(Invalid, 0) -> Right(Invalid, 0)],
         rule![(Invalid, 1) -> Right(Valid, 0)],
         rule![(Valid, 0) -> Right(Valid, 1)],
-        rule![(Valid, 1) -> Right(Valid, 0)],
+        rule![(Valid, 1) -> Left(Valid, 0)],
     ];
 
-    let tm = TM::new(initial_state, rules, tape);
-    tm.run()?;
+    let tape = StdTape::from_iter(alpha);
+    let program = Program::new(State(Invalid)).with_instructions(rules);
+    // create a new instance of the machine
+    let tm = TM::new(program, tape);
+    tm.execute()?;
     Ok(())
 }
 

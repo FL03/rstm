@@ -86,12 +86,8 @@ impl Direction {
         Self::Stay
     }
     /// Applies the shift to the given position in the [direction](Direction) specified by the current instance.
-    pub fn apply(&self, cur: usize) -> usize {
-        match self {
-            Self::Left => cur - 1,
-            Self::Right => cur + 1,
-            Self::Stay => cur,
-        }
+    pub fn apply(self, cur: usize) -> usize {
+        cur.wrapping_add_signed(self as isize)
     }
     /// Converts an [i8] value into a [`Direction`] by taking the modulus of the value.
     /// The function uses a modulator of 2 to determine the direction since there are

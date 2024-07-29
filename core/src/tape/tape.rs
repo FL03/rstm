@@ -126,7 +126,7 @@ impl<S> StdTape<S> {
 
     fn shift(&mut self, direction: Direction) -> usize {
         self.on_update();
-        self.cursor = direction.apply(self.cursor);
+        self.cursor = direction.apply(self.cursor) % self.store.len();
         self.position()
     }
 

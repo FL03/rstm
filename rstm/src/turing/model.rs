@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use crate::prelude::{Error, Head, StdTape, Symbolic};
-use crate::rules::{Instruction, Program};
+use crate::rules::Program;
 use crate::state::State;
 
 /// # Turing Machine ([TM])
@@ -21,16 +21,14 @@ pub struct TM<Q = String, S = char> {
 
 impl<Q, S> TM<Q, S> {
     pub fn new(
-        State(state): State<Q>,
-        instructions: impl IntoIterator<Item = Instruction<Q, S>>,
+        program: Program<Q, S>,
         tape: StdTape<S>,
     ) -> Self
     where
-        Q: Clone,
-        S: Clone + Default,
+        Q: Clone + Default,
+        S: Default,
     {
-        let state = State(state);
-        let program = Program::new(state.clone()).with_instructions(instructions);
+        let state = program.initial_state().cloned();
         TM {
             program,
             state,
@@ -73,14 +71,18 @@ impl<Q, S> TM<Q, S> {
     pub fn tape_mut(&mut self) -> &mut StdTape<S> {
         &mut self.tape
     }
-    /// Runs the program until the 
-    /// 
+    /// Runs the program until the
+    ///
     /// The program will continue to run until the current state is a halt state.
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "run", target = "fsm")
     )]
-    pub fn run(mut self) -> Result<(), Error> where Q: Clone + PartialEq, S: Symbolic {
+    pub fn execute(mut self) -> Result<(), Error>
+    where
+        Q: Clone + PartialEq,
+        S: Symbolic,
+    {
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
         loop {
