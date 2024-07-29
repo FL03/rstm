@@ -83,6 +83,20 @@ impl<Q, S> Head<Q, S> {
             self.symbol = symbol;
         }
     }
+
+    pub fn to_ref<'a>(&'a self) -> Head<&'a Q, &'a S> {
+        Head {
+            state: self.state.to_ref(),
+            symbol: &self.symbol,
+        }
+    }
+
+    pub fn to_mut<'a>(&'a mut self) -> Head<&'a mut Q, &'a mut S> {
+        Head {
+            state: self.state.to_mut(),
+            symbol: &mut self.symbol,
+        }
+    }
 }
 
 impl<'a, Q, S> Head<&'a Q, &'a S> {

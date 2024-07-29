@@ -38,15 +38,6 @@ impl<Q, S> Tail<Q, S> {
     pub fn as_tuple(&self) -> (Direction, &State<Q>, &S) {
         (self.direction, &self.state, &self.symbol)
     }
-    /// Returns an instance of the [head](Head) where each element within
-    /// the created instance is an immutable reference
-    pub fn as_head(&self) -> Head<&'_ Q, &'_ S> {
-        super::Head::new(self.state.to_ref(), &self.symbol)
-    }
-    /// Consumes the tail and returns a new instance of the [Head]
-    pub fn into_head(self) -> Head<Q, S> {
-        super::Head::new(self.state, self.symbol)
-    }
     /// Consumes the tail and returns the direction, state, and symbol as a 3-tuple
     pub fn into_tuple(self) -> (Direction, State<Q>, S) {
         (self.direction, self.state, self.symbol)
@@ -62,6 +53,83 @@ impl<Q, S> Tail<Q, S> {
     /// Returns the symbol the [head](Head) is instructed to write
     pub const fn write_symbol(&self) -> &S {
         &self.symbol
+    }
+    /// Consumes the tail and returns a new instance of the [Head]
+    pub fn into_head(self) -> Head<Q, S> {
+        super::Head::new(self.state, self.symbol)
+    }
+    /// Returns an instance of the [head](Head) where each element within
+    /// the created instance is an immutable reference
+    pub fn to_head_ref<'a>(&'a self) -> Head<&'a Q, &'a S> {
+        super::Head::new(self.state.to_ref(), &self.symbol)
+    }
+
+    pub fn to_ref(&self) -> Tail<&'_ Q, &'_ S> {
+        Tail {
+            direction: self.direction,
+            state: self.state.to_ref(),
+            symbol: &self.symbol,
+        }
+    }
+
+    pub fn to_mut(&mut self) -> Tail<&'_ mut Q, &'_ mut S> {
+        Tail {
+            direction: self.direction,
+            state: self.state.to_mut(),
+            symbol: &mut self.symbol,
+        }
+    }
+
+    pub fn into_owned(self) -> Tail<Q, S>
+    where
+        Q: Clone,
+        S: Clone,
+    {
+        Tail {
+            direction: self.direction,
+            state: self.state,
+            symbol: self.symbol,
+        }
+    }
+
+    pub fn to_owned(&self) -> Tail<Q, S>
+    where
+        Q: Clone,
+        S: Clone,
+    {
+        Tail {
+            direction: self.direction,
+            state: self.state.to_owned(),
+            symbol: self.symbol.clone(),
+        }
+    }
+}
+
+impl<'a, Q, S> Tail<&'a Q, &'a S> {
+    pub fn cloned(&self) -> Tail<Q, S>
+    where
+        Q: Clone,
+        S: Clone,
+    {
+        Tail {
+            direction: self.direction,
+            state: self.state.cloned(),
+            symbol: self.symbol.clone(),
+        }
+    }
+}
+
+impl<'a, Q, S> Tail<&'a mut Q, &'a mut S> {
+    pub fn cloned(&self) -> Tail<Q, S>
+    where
+        Q: Clone,
+        S: Clone,
+    {
+        Tail {
+            direction: self.direction,
+            state: self.state.cloned(),
+            symbol: self.symbol.clone(),
+        }
     }
 }
 

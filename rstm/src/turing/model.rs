@@ -73,37 +73,14 @@ impl<Q, S> TM<Q, S> {
     pub fn tape_mut(&mut self) -> &mut StdTape<S> {
         &mut self.tape
     }
-}
-
-// #[cfg(feature = "std")]
-impl<Q, S> TM<Q, S>
-where
-    Q: Clone + PartialEq,
-    S: Symbolic,
-{
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "step", target = "fsm")
-    )]
-    pub fn step_inplace(&mut self) -> Result<Head<Q, S>, Error> {
-        #[cfg(feature = "tracing")]
-        tracing::info!("Stepping...");
-        let prog = self.program().clone();
-        // Create a new head from the current state and symbol
-        let head = self.head().cloned();
-        // Get the first instruction for the current head
-        if let Some(&tail) = prog.get_head(&head).first() {
-            let nxt = self.tape.update_inplace(tail.clone());
-            self.set_state(nxt);
-            return Ok(tail.as_head().cloned());
-        }
-        Err(Error::state_not_found())
-    }
+    /// Runs the program until the 
+    /// 
+    /// The program will continue to run until the current state is a halt state.
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "run", target = "fsm")
     )]
-    pub fn run(mut self) -> Result<(), Error> {
+    pub fn run(mut self) -> Result<(), Error> where Q: Clone + PartialEq, S: Symbolic {
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
         loop {
@@ -131,18 +108,20 @@ where
 {
     type Item = Head<Q, S>;
 
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "step", target = "fsm")
+    )]
     fn next(&mut self) -> Option<Self::Item> {
         #[cfg(feature = "tracing")]
         tracing::info!("Stepping...");
-        let prog = self.program().clone();
         // Create a new head from the current state and symbol
         let head = self.head().cloned();
         // Get the first instruction for the current head
-        if let Some(&tail) = prog.get_head(&head).first() {
-            let nxt = self.tape_mut().update_inplace(tail.clone());
-            self.set_state(nxt);
-            return Some(tail.as_head().cloned());
+        if let Some(&tail) = self.program.get_head(&head).first() {
+            self.state = self.tape.update_inplace(tail.cloned());
+            return Some(tail.cloned().into_head());
         }
-        self.step_inplace().ok()
+        None
     }
 }

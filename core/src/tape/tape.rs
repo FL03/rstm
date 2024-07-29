@@ -19,7 +19,8 @@ use core::cell::Cell;
 /// This is done to quantify the impact of operations whose directions are defined to
 /// be [Direction::Stay]. Moving left and right within a linear space speaks directly
 /// to a translation or shift in space, however, staying in place does not result in
-/// any movement, shift, or translation within space.
+/// any movement, shift, or translation within space. That being said, staying still
+/// is an operation that does result in some change in-time. 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct StdTape<S = char> {

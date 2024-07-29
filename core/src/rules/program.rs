@@ -73,7 +73,7 @@ impl<Q, S> Program<Q, S> {
         self.ruleset.get(idx)
     }
     /// Returns a collection of tails for a given head.
-    pub fn get_head(&self, head: &Head<Q, S>) -> Vec<&Tail<Q, S>>
+    pub fn get_head(&self, head: &Head<Q, S>) -> Vec<Tail<&'_ Q, &'_ S>>
     where
         Q: PartialEq,
         S: PartialEq,
@@ -81,12 +81,20 @@ impl<Q, S> Program<Q, S> {
         self.iter()
             .filter_map(|i| {
                 if i.head() == head {
-                    Some(i.tail())
+                    Some(i.tail().to_ref())
                 } else {
                     None
                 }
             })
             .collect()
+    }
+
+    pub fn find_head(&self, head: Head<&'_ Q, &'_ S>) -> Option<&Tail<Q, S>>
+    where
+        Q: PartialEq,
+        S: PartialEq,
+    {
+        self.iter().find(|i| i.head().to_ref() == head).map(|i| i.tail())
     }
 }
 
