@@ -4,8 +4,8 @@
 */
 use crate::state::State;
 
-/// The head of a turing machine generally speaks to the current state and symbol of the machine
-/// w.r.t. the [tape](crate::Tape).
+/// The head of a turing machine generally speaks to the current state and symbol of the 
+/// machine w.r.t. the [tape](crate::Tape).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Head<Q = String, S = char> {

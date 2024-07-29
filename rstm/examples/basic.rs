@@ -18,7 +18,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let tape_data: Vec<u8> = vec![0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1];
 
     let rules = vec![
-        rule![(Invalid, 0) -> Left(Invalid, 0)],
+        rule![(Invalid, 0) -> Right(Invalid, 0)],
         rule![(Invalid, 1) -> Right(Valid, 0)],
         rule![(Valid, 0) -> Right(Valid, 1)],
         rule![(Valid, 1) -> Left(Valid, 0)],
