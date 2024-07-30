@@ -57,10 +57,6 @@ impl<Q, S> TM<Q, S> {
     pub fn state_mut(&mut self) -> State<&'_ mut Q> {
         self.state.to_mut()
     }
-    /// Returns an instance of the [state](State) with an immutable
-    pub fn set_state(&mut self, state: State<Q>) {
-        self.state = state;
-    }
     /// Returns an immutable reference to the [tape](StdTape)
     pub const fn tape(&self) -> &Tape<S> {
         &self.tape
@@ -74,7 +70,7 @@ impl<Q, S> TM<Q, S> {
     /// The program will continue to run until the current state is a halt state.
     #[cfg_attr(
         feature = "tracing",
-        tracing::instrument(skip_all, name = "run", target = "fsm")
+        tracing::instrument(skip_all, name = "run", target = "turing")
     )]
     pub fn execute(mut self) -> Result<(), Error>
     where
@@ -87,17 +83,40 @@ impl<Q, S> TM<Q, S> {
             #[cfg(feature = "tracing")]
             tracing::info!("{}", &self.tape);
             match self.next() {
-                Some(_) => if self.state.is_halt() {
+                Some(_) => {
+                    if self.state.is_halt() {
                         return Ok(());
                     } else {
                         continue;
-                    },
-                
+                    }
+                }
                 None => {
                     return Err(Error::unknown("Runtime Error"));
                 }
             }
         }
+    }
+
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "step", target = "turing")
+    )]
+    fn process(&mut self) -> Option<Head<Q, S>>
+    where
+        Q: Clone + PartialEq + 'static,
+        S: Clone + PartialEq,
+    {
+        #[cfg(feature = "tracing")]
+        tracing::info!("Stepping...");
+        if self.state.is_halt() {
+            return None;
+        }
+        // Get the first instruction for the current head
+        if let Some(tail) = self.program.get_head_ref(self.read()?) {
+            self.state = self.tape.update_inplace(tail.cloned());
+            return Some(tail.cloned().into_head());
+        }
+        unreachable!("No instruction found for the current head")
     }
 }
 
@@ -110,7 +129,7 @@ where
 
     #[cfg_attr(
         feature = "tracing",
-        tracing::instrument(skip_all, name = "step", target = "fsm")
+        tracing::instrument(skip_all, name = "step", target = "turing")
     )]
     fn next(&mut self) -> Option<Self::Item> {
         #[cfg(feature = "tracing")]
@@ -119,7 +138,7 @@ where
             return None;
         }
         // Get the first instruction for the current head
-        if let Some(tail) = self.program.get_ref(self.read()?) {
+        if let Some(tail) = self.program.get_head_ref(self.read()?) {
             self.state = self.tape.update_inplace(tail.cloned());
             return Some(tail.cloned().into_head());
         }

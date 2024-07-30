@@ -21,20 +21,23 @@ pub(crate) mod prelude {
     pub use super::states::*;
 }
 
+pub type AnyState = State<Box<dyn std::any::Any + Send + Sync>>;
+
 #[doc(hidden)]
-pub trait RawState {
+pub trait StateData {
     type Data;
 }
 
 #[doc(hidden)]
 pub trait Stateful<Q> {
-    type State: RawState<Data = Q>;
+    type State: StateData<Data = Q>;
 }
+
 
 /*
  ************* Implementations *************
 */
-impl<Q> RawState for State<Q> {
+impl<Q> StateData for State<Q> {
     type Data = Q;
 }
 

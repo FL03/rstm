@@ -19,13 +19,21 @@ impl<Q, S> Actor<Q, S> {
         }
     }
 
-    pub fn handle<D>(&mut self, rule: D)
+    pub fn state(&self) -> State<&Q> {
+        self.head.state.to_ref()
+    }
+
+    pub fn handle<D>(&mut self, rule: D) -> Head<&Q, &S>
     where
         D: Directive<Q, S>,
         S: Symbolic,
     {
         self.write(rule.value().clone());
         self.head.shift_inplace(rule.direction());
+        Head {
+            state: self.head.state.to_ref(),
+            symbol: self.read(),
+        }
     }
 
     pub fn is_halted(&self) -> bool {

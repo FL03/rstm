@@ -22,11 +22,15 @@ impl<Q> State<Q> {
     pub fn as_mut(&mut self) -> &mut Q {
         &mut self.0
     }
+    /// Consumes the state and returns a boxed state.
+    pub fn boxed(self) -> State<Box<Q>> {
+        State(Box::new(self.0))
+    }
     /// Consumes and returns the inner value of the [state](State).
     pub fn into_inner(self) -> Q {
         self.0
     }
-
+    /// Consumes the state and returns an owned state.
     pub fn into_owned(self) -> State<Q>
     where
         Q: Clone,
@@ -199,18 +203,18 @@ unsafe impl<Q> core::marker::Send for State<Q> where Q: core::marker::Send {}
 
 unsafe impl<Q> core::marker::Sync for State<Q> where Q: core::marker::Sync {}
 
-impl<Q> core::cmp::PartialEq<Q> for State<Q>
+impl<Q> PartialEq<Q> for State<Q>
 where
-    Q: core::cmp::PartialEq,
+    Q: PartialEq,
 {
     fn eq(&self, other: &Q) -> bool {
         self.0 == *other
     }
 }
 
-impl<Q> core::cmp::PartialOrd<Q> for State<Q>
+impl<Q> PartialOrd<Q> for State<Q>
 where
-    Q: core::cmp::PartialOrd,
+    Q: PartialOrd,
 {
     fn partial_cmp(&self, other: &Q) -> Option<core::cmp::Ordering> {
         self.0.partial_cmp(other)

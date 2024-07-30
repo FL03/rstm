@@ -9,5 +9,5 @@ pub trait Turing<Q> {
     type Alpha: Alphabet; // input alphabet
     type Beta: Alphabet; // output alphabet
 
-    fn step(&self, input: Self::Alpha) -> Self::Beta;
+    fn step(&mut self, input: Self::Alpha) -> Self::Beta;
 }
