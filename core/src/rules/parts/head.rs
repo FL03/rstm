@@ -55,16 +55,12 @@ impl<Q, S> Head<Q, S> {
         self.symbol = symbol;
     }
     /// Returns a reference to the current [state](State)
-    pub fn get_state(&self) -> State<&'_ Q> {
+    pub fn state(&self) -> State<&Q> {
         self.state.to_ref()
     }
-
-    pub const fn state(&self) -> &State<Q> {
-        &self.state
-    }
     /// Returns a mutable reference to the current [state](State)
-    pub fn state_mut(&mut self) -> &mut State<Q> {
-        &mut self.state
+    pub fn state_mut(&mut self) -> State<&mut Q> {
+        self.state.to_mut()
     }
     /// Returns a reference to the current symbol
     pub const fn symbol(&self) -> &S {

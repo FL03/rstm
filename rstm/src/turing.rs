@@ -82,7 +82,7 @@ impl<Q, S> TM<Q, S> {
         loop {
             #[cfg(feature = "tracing")]
             tracing::info!("{}", &self.tape);
-            match self.next() {
+            match self.process() {
                 Some(_) => {
                     if self.state.is_halt() {
                         return Ok(());
@@ -101,7 +101,7 @@ impl<Q, S> TM<Q, S> {
         feature = "tracing",
         tracing::instrument(skip_all, name = "step", target = "turing")
     )]
-    fn process(&mut self) -> Option<Head<Q, S>>
+    fn process(&mut self) -> Option<Head<&'_ Q, &'_ S>>
     where
         Q: Clone + PartialEq + 'static,
         S: Clone + PartialEq,
@@ -114,7 +114,7 @@ impl<Q, S> TM<Q, S> {
         // Get the first instruction for the current head
         if let Some(tail) = self.program.get_head_ref(self.read()?) {
             self.state = self.tape.update_inplace(tail.cloned());
-            return Some(tail.cloned().into_head());
+            return self.read();
         }
         unreachable!("No instruction found for the current head")
     }
@@ -123,25 +123,11 @@ impl<Q, S> TM<Q, S> {
 impl<Q, S> core::iter::Iterator for TM<Q, S>
 where
     Q: Clone + PartialEq + 'static,
-    S: Symbolic,
+    S: Clone + PartialEq,
 {
     type Item = Head<Q, S>;
 
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "step", target = "turing")
-    )]
     fn next(&mut self) -> Option<Self::Item> {
-        #[cfg(feature = "tracing")]
-        tracing::info!("Stepping...");
-        if self.state.is_halt() {
-            return None;
-        }
-        // Get the first instruction for the current head
-        if let Some(tail) = self.program.get_head_ref(self.read()?) {
-            self.state = self.tape.update_inplace(tail.cloned());
-            return Some(tail.cloned().into_head());
-        }
-        unreachable!("No instruction found for the current head")
+        self.process().map(|i| i.cloned())
     }
 }

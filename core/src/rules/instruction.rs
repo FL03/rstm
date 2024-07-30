@@ -47,7 +47,7 @@ impl<Q, S> Instruction<Q, S> {
     }
     /// Returns the current [state](State) of the [head](Head)
     pub fn state(&self) -> State<&'_ Q> {
-        self.head().get_state()
+        self.head().state()
     }
     /// Returns the current symbol of the [head](Head)
     pub const fn symbol(&self) -> &S {

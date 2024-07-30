@@ -7,20 +7,27 @@ use crate::{Head, State, Symbolic};
 
 /// [Actor] aptly describe the `TMH` model
 pub struct Actor<Q, S> {
-    pub head: Head<Q, usize>,
-    pub tape: Vec<S>,
+    /// the input alphabet
+    pub alpha: Vec<S>,
+    pub ptr: Head<Q, usize>,
 }
 
 impl<Q, S> Actor<Q, S> {
     pub fn new(State(state): State<Q>, tape: impl IntoIterator<Item = S>) -> Self {
         Self {
-            head: Head::new(State(state), 0),
-            tape: Vec::from_iter(tape),
+            alpha: Vec::from_iter(tape),
+            ptr: Head::new(State(state), 0),
         }
     }
 
+    pub const fn head(&self) -> &Head<Q, usize> {
+        &self.ptr
+    }
+
+
+
     pub fn state(&self) -> State<&Q> {
-        self.head.state.to_ref()
+        self.ptr.state()
     }
 
     pub fn handle<D>(&mut self, rule: D) -> Head<&Q, &S>
@@ -29,30 +36,34 @@ impl<Q, S> Actor<Q, S> {
         S: Symbolic,
     {
         self.write(rule.value().clone());
-        self.head.shift_inplace(rule.direction());
+        self.ptr.shift_inplace(rule.direction());
         Head {
-            state: self.head.state.to_ref(),
+            state: self.ptr.state.to_ref(),
             symbol: self.read(),
         }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.alpha.is_empty()
+    }
+
     pub fn is_halted(&self) -> bool {
-        self.head.symbol >= self.tape.len()
+        self.ptr.symbol >= self.alpha.len()
     }
 
     pub fn len(&self) -> usize {
-        self.tape.len()
+        self.alpha.len()
     }
 
     pub fn read(&self) -> &S {
-        &self.tape[self.head.symbol % self.len()]
+        &self.alpha[self.ptr.symbol % self.len()]
     }
 
     pub fn write(&mut self, symbol: S) {
-        if self.head.symbol < self.tape.len() {
-            self.tape[self.head.symbol] = symbol;
+        if self.ptr.symbol < self.alpha.len() {
+            self.alpha[self.ptr.symbol] = symbol;
         } else {
-            self.tape.push(symbol);
+            self.alpha.push(symbol);
         }
     }
 }

@@ -2,7 +2,7 @@
     Appellation: halting <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::State;
+use crate::state::{RawState, State, Stateful};
 
 #[doc(hidden)]
 pub trait Halting {
@@ -28,7 +28,14 @@ impl<T> Halt<T> {
     pub fn as_mut(&mut self) -> &mut T {
         &mut self.0
     }
+}
 
+impl<Q> RawState for Halt<Q> {
+    type Ctx = Q;
+}
+
+impl<T> Stateful<T> for Halt<T> {
+    type State = Halt<T>;
 }
 
 impl<T> Halting for Halt<T> {

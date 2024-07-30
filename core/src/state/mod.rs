@@ -24,21 +24,22 @@ pub(crate) mod prelude {
 pub type AnyState = State<Box<dyn std::any::Any + Send + Sync>>;
 
 #[doc(hidden)]
-pub trait StateData {
-    type Data;
+pub trait RawState {
+    type Ctx;
+
 }
 
 #[doc(hidden)]
 pub trait Stateful<Q> {
-    type State: StateData<Data = Q>;
+    type State: RawState<Ctx = Q>;
 }
 
 
 /*
  ************* Implementations *************
 */
-impl<Q> StateData for State<Q> {
-    type Data = Q;
+impl<Q> RawState for State<Q> {
+    type Ctx = Q;
 }
 
 impl<Q> Stateful<Q> for State<Q> {

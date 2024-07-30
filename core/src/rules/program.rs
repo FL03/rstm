@@ -79,6 +79,7 @@ impl<Q, S> Program<Q, S> {
     pub fn iter_mut(&mut self) -> core::slice::IterMut<Instruction<Q, S>> {
         self.ruleset.iter_mut()
     }
+    
     pub fn get(&self, State(state): State<&Q>, symbol: &S) -> Option<&Tail<Q, S>>
     where
         Q: PartialEq,

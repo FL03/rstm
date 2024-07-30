@@ -127,7 +127,7 @@ impl<Q, S> Directive<Q, S> for Instruction<Q, S> {
 
 impl<Q, S> Header<Q, S> for crate::Head<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
-        self.state().to_ref()
+        self.state()
     }
 
     fn symbol(&self) -> &S {
