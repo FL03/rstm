@@ -3,16 +3,8 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 
-pub trait Automata {
-    type Rule;
-    type State;
-    type Symbol;
+pub trait RawSpace {
+    type Elem;
 
-    fn current_state(&self) -> Self::State;
-}
-
-pub enum Step<T> {
-    Left(T),
-    Right(T),
-    Stay(T),
+    fn space(&self) -> Self::Elem;
 }

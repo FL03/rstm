@@ -1,0 +1,69 @@
+/*
+    Appellation: actor <module>
+    Contrib: FL03 <jo3mccain@icloud.com>
+*/
+use crate::rules::Directive;
+use crate::{Head, State, Symbolic};
+
+/// [Actor] aptly describe the `TMH` model
+pub struct Actor<Q, S> {
+    /// the input alphabet
+    pub alpha: Vec<S>,
+    pub ptr: Head<Q, usize>,
+}
+
+impl<Q, S> Actor<Q, S> {
+    pub fn new(State(state): State<Q>, tape: impl IntoIterator<Item = S>) -> Self {
+        Self {
+            alpha: Vec::from_iter(tape),
+            ptr: Head::new(State(state), 0),
+        }
+    }
+
+    pub const fn head(&self) -> &Head<Q, usize> {
+        &self.ptr
+    }
+
+
+
+    pub fn state(&self) -> State<&Q> {
+        self.ptr.state()
+    }
+
+    pub fn handle<D>(&mut self, rule: D) -> Head<&Q, &S>
+    where
+        D: Directive<Q, S>,
+        S: Symbolic,
+    {
+        self.write(rule.value().clone());
+        self.ptr.shift_inplace(rule.direction());
+        Head {
+            state: self.ptr.state.to_ref(),
+            symbol: self.read(),
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.alpha.is_empty()
+    }
+
+    pub fn is_halted(&self) -> bool {
+        self.ptr.symbol >= self.alpha.len()
+    }
+
+    pub fn len(&self) -> usize {
+        self.alpha.len()
+    }
+
+    pub fn read(&self) -> &S {
+        &self.alpha[self.ptr.symbol % self.len()]
+    }
+
+    pub fn write(&mut self, symbol: S) {
+        if self.ptr.symbol < self.alpha.len() {
+            self.alpha[self.ptr.symbol] = symbol;
+        } else {
+            self.alpha.push(symbol);
+        }
+    }
+}

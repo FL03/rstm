@@ -25,14 +25,13 @@ pub trait Alphabet: IntoIterator<Item = Self::Sym> {
     fn to_vec(&self) -> Vec<Self::Sym>;
 }
 
-/// [Symbolic] is a generic trait automatically implemented for any
-/// type that satisfies the following conditions:
-/// - Clone
-/// - Eq
-/// - Ord
+/// [Symbolic] is a trait denoting types that can be used as symbols;
+/// this is useful for allowing symbols to represented with [char] or
+/// be a position on the tape, value mapping for an alphabet,.
 pub trait Symbolic
 where
     Self: Clone
+        + Copy
         + Eq
         + Ord
         + PartialEq
@@ -60,15 +59,15 @@ pub trait Symbol: Symbolic {
  ************* Implementations *************
 */
 
-impl Alphabet for Vec<char> {
-    type Sym = char;
+impl<S: Symbolic> Alphabet for Vec<S> {
+    type Sym = S;
 
-    fn to_vec(&self) -> Vec<char> {
+    fn to_vec(&self) -> Vec<S> {
         self.clone()
     }
 }
 
 impl<S> Symbolic for S where
-    S: Clone + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash
+    S: Copy + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash
 {
 }

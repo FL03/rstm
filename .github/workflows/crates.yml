@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  independents:
+  base:
     env:
       CRATE_NAME: ${{ github.event.repository.name }}-${{ matrix.suffix }}
     name: Publish (${{ matrix.suffix }})
@@ -42,6 +42,7 @@ jobs:
       - run: cargo publish --all-features -v -p ${{ env.CRATE_NAME }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
   publish:
     name: Publish (${{ github.event.repository.name }})
+    needs: base
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

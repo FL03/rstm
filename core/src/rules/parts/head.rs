@@ -4,8 +4,8 @@
 */
 use crate::state::State;
 
-/// The head of a turing machine generally speaks to the current state and symbol of the machine
-/// w.r.t. the [tape](crate::Tape).
+/// The head of a turing machine generally speaks to the current state and symbol of the
+/// machine w.r.t. the [tape](crate::Tape).
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Head<Q = String, S = char> {
@@ -55,16 +55,12 @@ impl<Q, S> Head<Q, S> {
         self.symbol = symbol;
     }
     /// Returns a reference to the current [state](State)
-    pub fn get_state(&self) -> State<&'_ Q> {
+    pub fn state(&self) -> State<&Q> {
         self.state.to_ref()
     }
-
-    pub const fn state(&self) -> &State<Q> {
-        &self.state
-    }
     /// Returns a mutable reference to the current [state](State)
-    pub fn state_mut(&mut self) -> &mut State<Q> {
-        &mut self.state
+    pub fn state_mut(&mut self) -> State<&mut Q> {
+        self.state.to_mut()
     }
     /// Returns a reference to the current symbol
     pub const fn symbol(&self) -> &S {
@@ -96,6 +92,19 @@ impl<Q, S> Head<Q, S> {
             state: self.state.to_mut(),
             symbol: &mut self.symbol,
         }
+    }
+}
+
+impl<Q> Head<Q, usize> {
+    pub fn shift(self, direction: crate::Direction) -> Self {
+        Self {
+            symbol: direction.apply(self.symbol),
+            ..self
+        }
+    }
+
+    pub fn shift_inplace(&mut self, direction: crate::Direction) {
+        self.symbol = direction.apply(self.symbol);
     }
 }
 

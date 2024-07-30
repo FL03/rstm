@@ -2,19 +2,16 @@
     Appellation: halting <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::State;
+use crate::state::{RawState, State, Stateful};
 
 #[doc(hidden)]
-pub trait Halter {
+pub trait Halting {
     const HALT: bool = true;
 
     private!();
+    
 }
-#[doc(hidden)]
-pub enum Halting<T> {
-    Continue(T),
-    Halt(T),
-}
+
 
 pub struct Halt<T>(pub T);
 
@@ -33,6 +30,18 @@ impl<T> Halt<T> {
     }
 }
 
-impl<T> Halter for State<Halt<T>> {
+impl<Q> RawState for Halt<Q> {
+    type Ctx = Q;
+}
+
+impl<T> Stateful<T> for Halt<T> {
+    type State = Halt<T>;
+}
+
+impl<T> Halting for Halt<T> {
+    seal!();
+}
+
+impl<T> Halting for State<Halt<T>> {
     seal!();
 }
