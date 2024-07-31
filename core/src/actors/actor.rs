@@ -24,18 +24,16 @@ impl<Q, S> Actor<Q, S> {
         &self.ptr
     }
 
-
-
     pub fn state(&self) -> State<&Q> {
         self.ptr.state()
     }
 
-    pub fn handle<D>(&mut self, rule: D) -> Head<&Q, &S>
+    pub fn handle<D>(&mut self, rule: &D) -> Head<&Q, &S>
     where
         D: Directive<Q, S>,
         S: Symbolic,
     {
-        self.write(rule.value().clone());
+        self.write(*rule.value());
         self.ptr.shift_inplace(rule.direction());
         Head {
             state: self.ptr.state.to_ref(),
@@ -47,8 +45,8 @@ impl<Q, S> Actor<Q, S> {
         self.alpha.is_empty()
     }
 
-    pub fn is_halted(&self) -> bool {
-        self.ptr.symbol >= self.alpha.len()
+    pub fn is_halted(&self) -> bool where Q: 'static {
+        self.ptr.state.is_halt()
     }
 
     pub fn len(&self) -> usize {

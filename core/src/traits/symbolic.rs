@@ -15,7 +15,7 @@
 /// a particular value. The values of the variants may then be used
 /// as pointers, specifiying the location of the symbol w.r.t. the
 /// alphabet.
-pub trait Alphabet: IntoIterator<Item = Self::Sym> {
+pub trait Alphabet {
     type Sym;
 
     fn len(&self) -> usize {
@@ -38,21 +38,11 @@ where
         + PartialOrd
         + core::fmt::Debug
         + core::fmt::Display
-        + core::hash::Hash,
+        + core::hash::Hash
+        + Send
+        + Sync
+        + 'static
 {
-}
-
-#[doc(hidden)]
-pub trait Symbol: Symbolic {
-    type Z;
-
-    fn symbol(&self) -> char;
-
-    fn is_symbol(&self, symbol: char) -> bool {
-        self.symbol() == symbol
-    }
-    /// Returns the value assigned to the symbol;
-    fn value(&self) -> Self::Z;
 }
 
 /*
@@ -68,6 +58,6 @@ impl<S: Symbolic> Alphabet for Vec<S> {
 }
 
 impl<S> Symbolic for S where
-    S: Copy + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash
+    S: Copy + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash + Send + Sync + 'static
 {
 }
