@@ -5,6 +5,9 @@
 use crate::{Direction, Error, Head, State, Tail};
 use core::cell::Cell;
 
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
+
 /// The [`Tape`] is defined to be a one-dimensional surface evenly divided into cells capable
 /// of storing symbols. The tape is infinite in both directions allowing the head, or actor, to
 /// move without bounds, extending the tape as needed.

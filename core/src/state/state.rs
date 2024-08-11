@@ -26,7 +26,15 @@ impl<Q> State<Q> {
     pub fn boxed(self) -> State<Box<Q>> {
         State(Box::new(self.0))
     }
-    /// Consumes and returns the inner value of the [state](State).
+    /// Returns a halted state with an immutable reference to the state.
+    pub fn as_halt<'a>(&'a self) -> State<Halt<&'a Q>> {
+        State(Halt(self))
+    }
+    /// Consumes the state and returns a halted state.
+    pub fn into_halt(self) -> State<Halt<Q>> {
+        State(Halt(self.into_inner()))
+    }
+    /// Consumes and returns the inner value of the state.
     pub fn into_inner(self) -> Q {
         self.0
     }
@@ -85,7 +93,6 @@ impl<Q> State<Q> {
     pub fn to_ref<'a>(&'a self) -> State<&'a Q> {
         State(&self.0)
     }
-
     /// Returns the `name` of the generic inner type, `Q`.
     pub fn inner_type_name(&self) -> &'static str {
         core::any::type_name::<Q>()
@@ -97,12 +104,15 @@ impl<Q> State<Q> {
     {
         core::any::TypeId::of::<Q>()
     }
+    /// Returns `true` if the state is a [Halt] state.
     pub fn is_halt(&self) -> bool
     where
         Q: 'static,
     {
         core::any::TypeId::of::<Self>() == core::any::TypeId::of::<State<Halt<Q>>>()
     }
+
+
 }
 
 impl<Q> State<Halt<Q>> {
