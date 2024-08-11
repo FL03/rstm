@@ -27,7 +27,7 @@ impl<Q> State<Q> {
         State(Box::new(self.0))
     }
     /// Returns a halted state with an immutable reference to the state.
-    pub fn as_halt<'a>(&'a self) -> State<Halt<&'a Q>> {
+    pub fn as_halt(&self) -> State<Halt<&Q>> {
         State(Halt(self))
     }
     /// Consumes the state and returns a halted state.

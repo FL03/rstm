@@ -5,18 +5,18 @@
 
 use lazy_static::lazy_static;
 use rstm::actors::Actor;
-use rstm::state::BinState;
 use rstm::{rule, Program, State};
 
-use BinState::{Invalid, Valid};
 
 lazy_static! {
     static ref ALPHA: Vec<u8> = vec![1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1];
-    static ref RULES: Program<BinState, usize> = Program::from_iter([
-        rule![(Invalid, 0) -> Right(Invalid, 0)],
-        rule![(Invalid, 1) -> Right(Valid, 0)],
-        rule![(Valid, 0) -> Right(Valid, 1)],
-        rule![(Valid, 1) -> Left(Valid, 0)],
+    static ref RULES: Program<isize, usize> = Program::from_iter([
+        rule![(0, 0) -> Right(0, 0)],
+        rule![(0, 1) -> Right(1, 0)],
+        rule![(1, 0) -> Right(0, 1)],
+        rule![(1, 1) -> Left(1, 0)],
+        rule![(-1, 0) -> Right(0, 1)],
+        rule![(-1, 1) -> Stay(0, 0)],
     ]);
 }
 
@@ -25,6 +25,6 @@ lazy_static! {
 fn test_actor() {
     let input = [0_usize; 10];
 
-    let actor = Actor::new(State(Invalid), input);
+    let actor = Actor::new(State(0), input);
     actor.run(RULES.clone());
 }

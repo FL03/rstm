@@ -71,7 +71,7 @@ impl<Q, S> Actor<Q, S> {
     {
         self.ptr.state.is_halt()
     }
-
+    #[inline]
     pub fn len(&self) -> usize {
         self.alpha.len()
     }
@@ -81,10 +81,21 @@ impl<Q, S> Actor<Q, S> {
     }
 
     pub fn write(&mut self, symbol: S) {
-        if self.ptr.symbol < self.alpha.len() {
+        let head = self.head();
+        if head.symbol < self.len() {
             self.alpha[self.ptr.symbol] = symbol;
         } else {
             self.alpha.push(symbol);
         }
     }
+
+    fn get(&mut self, index: Head<Q, usize>) -> &S where S: Clone + Default {
+        if index.symbol >= self.len() {
+            let diff = index.symbol - self.len();
+            let ext = vec![S::default(); diff + 1];
+            self.alpha.extend(ext);
+        }
+        &self.alpha[index.symbol % self.len()]
+    }
 }
+

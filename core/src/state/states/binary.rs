@@ -44,23 +44,23 @@ use crate::State;
     )
 )]
 pub enum BinaryState<V = String, I = V> {
-    Invalid(State<I>),
-    Valid(State<V>),
+    Invalid(I),
+    Valid(V),
 }
 
 impl<I, V> BinaryState<V, I> {
-    pub fn invalid(State(state): State<I>) -> Self {
-        Self::Invalid(State(state))
+    pub fn invalid(state: I) -> Self {
+        Self::Invalid(state)
     }
 
-    pub fn valid(State(state): State<V>) -> Self {
-        Self::Valid(State(state))
+    pub fn valid(state: V) -> Self {
+        Self::Valid(state)
     }
 
     pub fn invalidate<Q>(self, state: Q) -> BinaryState<Q, Q> {
         match self {
-            Self::Invalid(_) => BinaryState::Invalid(State(state)),
-            Self::Valid(_) => BinaryState::Invalid(State(state)),
+            Self::Invalid(_) => BinaryState::Invalid(state),
+            Self::Valid(_) => BinaryState::Invalid(state),
         }
     }
 
@@ -75,8 +75,8 @@ impl<I, V> BinaryState<V, I> {
 impl<Q> BinaryState<Q, Q> {
     pub fn into_inner(self) -> State<Q> {
         match self {
-            Self::Invalid(q) => q,
-            Self::Valid(q) => q,
+            Self::Invalid(q) => State(q),
+            Self::Valid(q) => State(q),
         }
     }
 
@@ -85,11 +85,7 @@ impl<Q> BinaryState<Q, Q> {
     }
 }
 
-impl Default for BinState {
-    fn default() -> Self {
-        Self::Invalid
-    }
-}
+
 
 impl<Q> AsRef<Q> for BinaryState<Q, Q> {
     fn as_ref(&self) -> &Q {
@@ -121,9 +117,15 @@ impl<Q> core::borrow::BorrowMut<Q> for BinaryState<Q, Q> {
     }
 }
 
-impl<Q: Default> Default for BinaryState<Q, Q> {
+impl Default for BinState {
     fn default() -> Self {
-        Self::invalid(State::default())
+        Self::Invalid
+    }
+}
+
+impl<I, V> Default for BinaryState<V, I> where I: Default {
+    fn default() -> Self {
+        Self::invalid(<I>::default())
     }
 }
 
