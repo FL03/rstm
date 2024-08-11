@@ -5,15 +5,12 @@
 use crate::{Direction, Error, Head, State, Tail};
 use core::cell::Cell;
 
-/// [StdTape] is an implementation of the traditional tape described by Turing machines.
+/// The [`Tape`] is defined to be a one-dimensional surface evenly divided into cells capable
+/// of storing symbols. The tape is infinite in both directions allowing the head, or actor, to
+/// move without bounds, extending the tape as needed.
 ///
-/// The tape, often thought of as the memory of the machine, is a one-dimensional array
-/// of symbols in-which the tape head can read and write symbols. Furthermore, the tape
-/// is infinite in both directions, meaning that the tape head can move left or right.
-/// While this setup is largely hypothetical, it is a useful abstraction for understanding
-/// the capabilities of Turing machines.
 ///
-/// Here, the [StdTape] employs the use of a [Vec] to store symbols while leveraging a
+/// Here, the [Tape] employs the use of a [Vec] to store symbols while leveraging a
 /// [usize] to keep track of the current position of the tape head. Moreover, the tape
 /// stores the number of steps or operations taken by the tape head in a [Cell<usize>].
 /// This is done to quantify the impact of operations whose directions are defined to
@@ -82,11 +79,17 @@ impl<S> Tape<S> {
     pub fn is_empty(&self) -> bool {
         self.store.is_empty()
     }
-
+    /// Returns an immutable iterator over the symbols stored on the tape.
     pub fn iter(&self) -> core::slice::Iter<S> {
         self.store.iter()
     }
-
+    /// Returns a mutable iterator over the symbols stored on the tape.
+    pub fn iter_mut(&mut self) -> core::slice::IterMut<S> {
+        self.store.iter_mut()
+    }
+    /// Returns the number of steps or operations taken by the tape head;
+    /// this provides a measure of the impact of operations whose directions are defined to be
+    /// [Stay](Direction::Stay).
     pub fn ticks(&self) -> usize {
         self.ticks.get()
     }

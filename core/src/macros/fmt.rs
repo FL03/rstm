@@ -15,4 +15,3 @@ macro_rules! unit_impl_fmt {
         $(impl_fmt!(@impl $trait::<$T>($($fmt)*));)*
     };
 }
-

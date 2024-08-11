@@ -41,7 +41,7 @@ where
         + core::hash::Hash
         + Send
         + Sync
-        + 'static
+        + 'static,
 {
 }
 
@@ -58,6 +58,14 @@ impl<S: Symbolic> Alphabet for Vec<S> {
 }
 
 impl<S> Symbolic for S where
-    S: Copy + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash + Send + Sync + 'static
+    S: Copy
+        + Eq
+        + Ord
+        + core::fmt::Debug
+        + core::fmt::Display
+        + core::hash::Hash
+        + Send
+        + Sync
+        + 'static
 {
 }

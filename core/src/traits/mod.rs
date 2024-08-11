@@ -6,7 +6,7 @@
 pub use self::symbolic::*;
 
 #[doc(hidden)]
-pub mod actor;
+pub mod cspace;
 #[doc(hidden)]
 pub mod io;
 pub mod symbolic;

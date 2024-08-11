@@ -12,17 +12,20 @@ pub use self::tape::Tape;
 pub(crate) mod tape;
 
 #[doc(hidden)]
-pub mod entry;
+pub mod cursor;
 #[doc(hidden)]
-pub mod iter;
+pub mod ds;
 
 pub(crate) mod prelude {
     pub use super::tape::Tape;
 }
 
+/// A trait for tape-like structures.
 #[doc(hidden)]
 pub trait RawTape {
     type Elem;
+
+    private!();
 
     fn as_slice(&self) -> &[Self::Elem];
 }
@@ -33,6 +36,8 @@ pub trait RawTape {
 impl<T> RawTape for [T] {
     type Elem = T;
 
+    seal!();
+
     fn as_slice(&self) -> &[Self::Elem] {
         &self
     }
@@ -41,7 +46,9 @@ impl<T> RawTape for [T] {
 impl<T> RawTape for Vec<T> {
     type Elem = T;
 
+    seal!();
+
     fn as_slice(&self) -> &[Self::Elem] {
-        &self
+        Vec::as_slice(self)
     }
 }

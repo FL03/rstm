@@ -26,7 +26,15 @@ pub type AnyState = State<Box<dyn std::any::Any + Send + Sync>>;
 #[doc(hidden)]
 pub trait RawState {
     type Ctx;
+}
 
+pub trait Stated<Q>: RawState<Ctx = Q> {
+    fn cloned(&self) -> Self
+    where
+        Q: Clone;
+    fn copied(&self) -> Self
+    where
+        Q: Copy;
 }
 
 #[doc(hidden)]
@@ -34,10 +42,13 @@ pub trait Stateful<Q> {
     type State: RawState<Ctx = Q>;
 }
 
-
 /*
  ************* Implementations *************
 */
+impl<Q> RawState for Halt<Q> {
+    type Ctx = Q;
+}
+
 impl<Q> RawState for State<Q> {
     type Ctx = Q;
 }

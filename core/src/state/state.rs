@@ -97,7 +97,10 @@ impl<Q> State<Q> {
     {
         core::any::TypeId::of::<Q>()
     }
-    pub fn is_halt(&self) -> bool where Q: 'static {
+    pub fn is_halt(&self) -> bool
+    where
+        Q: 'static,
+    {
         core::any::TypeId::of::<Self>() == core::any::TypeId::of::<State<Halt<Q>>>()
     }
 }
@@ -107,7 +110,10 @@ impl<Q> State<Halt<Q>> {
     pub fn halt(Halt(inner): Halt<Q>) -> Self {
         Self(Halt(inner))
     }
-    
+
+    pub fn unhalt(self) -> State<Q> {
+        State(self.0.into_inner())
+    }
 }
 
 impl<'a, Q> State<&'a Q> {

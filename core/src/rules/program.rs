@@ -79,7 +79,7 @@ impl<Q, S> Program<Q, S> {
     pub fn iter_mut(&mut self) -> core::slice::IterMut<Instruction<Q, S>> {
         self.ruleset.iter_mut()
     }
-    
+
     pub fn get(&self, State(state): State<&Q>, symbol: &S) -> Option<&Tail<Q, S>>
     where
         Q: PartialEq,
@@ -181,6 +181,12 @@ impl<Q: Default, S> From<RuleSet<Q, S>> for Program<Q, S> {
             initial_state: State::default(),
             ruleset: instructions,
         }
+    }
+}
+
+impl<Q, S> Extend<Instruction<Q, S>> for Program<Q, S> {
+    fn extend<I: IntoIterator<Item = Instruction<Q, S>>>(&mut self, iter: I) {
+        self.ruleset.extend(iter)
     }
 }
 

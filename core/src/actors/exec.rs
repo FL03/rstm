@@ -11,6 +11,15 @@ pub struct Executor<Q, S> {
 }
 
 impl<Q, S> Executor<Q, S> {
+    pub fn from_actor(actor: Actor<Q, S>) -> Self
+    where
+        Q: Default,
+    {
+        Self {
+            actor,
+            program: Program::new(),
+        }
+    }
 
     pub fn with_program(self, program: Program<Q, S>) -> Self {
         Executor { program, ..self }

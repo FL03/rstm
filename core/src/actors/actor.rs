@@ -2,7 +2,8 @@
     Appellation: actor <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::rules::Directive;
+use super::Executor;
+use crate::rules::{Directive, Program};
 use crate::{Head, State, Symbolic};
 
 /// [Actor] aptly describe the `TMH` model
@@ -18,6 +19,17 @@ impl<Q, S> Actor<Q, S> {
             alpha: Vec::from_iter(tape),
             ptr: Head::new(State(state), 0),
         }
+    }
+
+    pub fn from_state(State(state): State<Q>) -> Self {
+        Self::new(State(state), Vec::new())
+    }
+
+    pub fn from_tape(tape: impl IntoIterator<Item = S>) -> Self
+    where
+        Q: Default,
+    {
+        Self::new(State::default(), tape)
     }
 
     pub const fn head(&self) -> &Head<Q, usize> {
@@ -41,11 +53,22 @@ impl<Q, S> Actor<Q, S> {
         }
     }
 
+    pub fn run(self, program: Program<Q, S>) -> Executor<Q, S>
+    where
+        Q: Clone + Default + PartialEq + 'static,
+        S: Symbolic,
+    {
+        Executor::from_actor(self).with_program(program)
+    }
+
     pub fn is_empty(&self) -> bool {
         self.alpha.is_empty()
     }
 
-    pub fn is_halted(&self) -> bool where Q: 'static {
+    pub fn is_halted(&self) -> bool
+    where
+        Q: 'static,
+    {
         self.ptr.state.is_halt()
     }
 

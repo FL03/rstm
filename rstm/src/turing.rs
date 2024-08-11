@@ -2,9 +2,10 @@
     Appellation: tm <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-pub use self::model::Turing;
+pub use self::{model::Turing, state::TMS};
 
 pub(crate) mod model;
+pub(crate) mod state;
 
 use crate::prelude::{Error, Head, Symbolic, Tape};
 use crate::rules::Program;

@@ -9,10 +9,6 @@ pub trait RawSpace {
     fn space(&self) -> Self::Elem;
 }
 
-
-
 pub trait ConfigSpace {
     type Space;
-
-    
 }
