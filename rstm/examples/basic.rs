@@ -17,7 +17,6 @@ lazy_static::lazy_static! {
     ]);
 }
 
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt().with_target(false).init();
 
@@ -27,12 +26,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let rules = Program::from_iter([
         rule![(0, 0) -> Right(0, 1)],
         rule![(0, 1) -> Right(1, 0)],
-
         rule![(1, 0) -> Right(-1, 1)],
         rule![(1, 1) -> Left(1, 0)],
         rule![(-1, 0) -> Right(0, 1)],
         rule![(-1, 1) -> Stay(0, 0)],
-    ]).with_initial_state(State(0));
+    ])
+    .with_initial_state(State(0));
 
     let tape = Tape::from_iter(alpha);
     // create a new instance of the machine

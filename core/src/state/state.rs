@@ -111,8 +111,6 @@ impl<Q> State<Q> {
     {
         core::any::TypeId::of::<Self>() == core::any::TypeId::of::<State<Halt<Q>>>()
     }
-
-
 }
 
 impl<Q> State<Halt<Q>> {

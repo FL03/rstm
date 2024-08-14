@@ -85,8 +85,6 @@ impl<Q> BinaryState<Q, Q> {
     }
 }
 
-
-
 impl<Q> AsRef<Q> for BinaryState<Q, Q> {
     fn as_ref(&self) -> &Q {
         match self {
@@ -123,7 +121,10 @@ impl Default for BinState {
     }
 }
 
-impl<I, V> Default for BinaryState<V, I> where I: Default {
+impl<I, V> Default for BinaryState<V, I>
+where
+    I: Default,
+{
     fn default() -> Self {
         Self::invalid(<I>::default())
     }

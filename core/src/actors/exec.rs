@@ -37,8 +37,7 @@ where
         if self.actor.is_halted() {
             return None;
         }
-        let state = self.actor.state();
-        let symbol = self.actor.read();
+        let Head { state, symbol } = self.actor.read()?;
         let rule = self.program.get(state, symbol)?;
         Some(self.actor.handle(rule).cloned())
     }

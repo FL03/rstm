@@ -7,7 +7,6 @@ use lazy_static::lazy_static;
 use rstm::actors::Actor;
 use rstm::{rule, Program, State};
 
-
 lazy_static! {
     static ref ALPHA: Vec<u8> = vec![1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1];
     static ref RULES: Program<isize, usize> = Program::from_iter([
@@ -25,6 +24,6 @@ lazy_static! {
 fn test_actor() {
     let input = [0_usize; 10];
 
-    let actor = Actor::new(State(0), input);
-    actor.run(RULES.clone());
+    let actor = Actor::new().alpha(input).state(State(0)).build();
+    actor.exec(RULES.clone());
 }
