@@ -28,20 +28,6 @@ pub(crate) mod prelude {
 
 use crate::{Direction, State, Symbolic};
 
-pub trait Space {
-    type Elem;
-    type State;
-
-    fn state(&self) -> State<&'_ Self::State>;
-
-    fn symbol(&self) -> &Self::Elem;
-}
-
-pub trait Morphism {
-    type Input: Space;
-    type Output: Space;
-}
-
 pub trait Transition<Q, S>
 where
     S: Symbolic,
@@ -57,12 +43,15 @@ where
     fn write_symbol(&self) -> &S;
 }
 
-pub trait Header<Q, S> {
+/// The [`Scope`] trait is used to describe objects containing information or references to the
+/// current state and symbol of a Turing machine.
+pub trait Scope<Q, S> {
     fn current_state(&self) -> State<&'_ Q>;
 
     fn symbol(&self) -> &S;
 }
 
+/// [`Directive`] is a trait describing the `tail` of a typical Turing machine; 
 pub trait Directive<Q, S> {
     fn direction(&self) -> Direction;
 
@@ -77,7 +66,7 @@ pub trait Directive<Q, S> {
 
 impl<A, Q, S> Transition<Q, S> for A
 where
-    A: Header<Q, S> + Directive<Q, S>,
+    A: Scope<Q, S> + Directive<Q, S>,
     S: Symbolic,
 {
     fn direction(&self) -> Direction {
@@ -101,7 +90,7 @@ where
     }
 }
 
-impl<Q, S> Header<Q, S> for Instruction<Q, S> {
+impl<Q, S> Scope<Q, S> for Instruction<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
         self.head.state.to_ref()
     }
@@ -125,7 +114,7 @@ impl<Q, S> Directive<Q, S> for Instruction<Q, S> {
     }
 }
 
-impl<Q, S> Header<Q, S> for crate::Head<Q, S> {
+impl<Q, S> Scope<Q, S> for crate::Head<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
         self.state()
     }
@@ -149,7 +138,7 @@ impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
     }
 }
 
-impl<Q, S> Header<Q, S> for (State<Q>, S) {
+impl<Q, S> Scope<Q, S> for (State<Q>, S) {
     fn current_state(&self) -> State<&'_ Q> {
         self.0.to_ref()
     }

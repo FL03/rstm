@@ -6,13 +6,15 @@ use super::Instruction;
 use crate::{Head, State, Tail};
 use std::vec;
 
-type RuleSet<Q, S> = Vec<Instruction<Q, S>>;
+type Ruleset<Q, S> = Vec<Instruction<Q, S>>;
+
+// type Ruleset<Q, S> = std::collections::HashMap<Head<Q, S>, Tail<Q, S>>;
 
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Program<Q = String, S = char> {
     pub initial_state: State<Q>,
-    pub(crate) ruleset: RuleSet<Q, S>,
+    pub(crate) ruleset: Ruleset<Q, S>,
 }
 
 impl<Q, S> Program<Q, S> {
@@ -32,14 +34,14 @@ impl<Q, S> Program<Q, S> {
     {
         Self {
             initial_state: State::default(),
-            ruleset: RuleSet::from_iter(instructions),
+            ruleset: Ruleset::from_iter(instructions),
         }
     }
 
     pub fn from_state(State(initial_state): State<Q>) -> Self {
         Self {
             initial_state: State(initial_state),
-            ruleset: RuleSet::new(),
+            ruleset: Ruleset::new(),
         }
     }
     ///
@@ -55,7 +57,7 @@ impl<Q, S> Program<Q, S> {
         instructions: impl IntoIterator<Item = Instruction<Q, S>>,
     ) -> Self {
         Self {
-            ruleset: RuleSet::from_iter(instructions),
+            ruleset: Ruleset::from_iter(instructions),
             ..self
         }
     }
@@ -64,11 +66,11 @@ impl<Q, S> Program<Q, S> {
         self.initial_state.to_ref()
     }
     /// Returns a reference to the instructions.
-    pub const fn instructions(&self) -> &RuleSet<Q, S> {
+    pub const fn instructions(&self) -> &Ruleset<Q, S> {
         &self.ruleset
     }
     /// Returns a mutable reference to the instructions.
-    pub fn instructions_mut(&mut self) -> &mut RuleSet<Q, S> {
+    pub fn instructions_mut(&mut self) -> &mut Ruleset<Q, S> {
         &mut self.ruleset
     }
     /// Returns an iterator over the elements.
@@ -175,8 +177,8 @@ where
     }
 }
 
-impl<Q: Default, S> From<RuleSet<Q, S>> for Program<Q, S> {
-    fn from(instructions: RuleSet<Q, S>) -> Self {
+impl<Q: Default, S> From<Ruleset<Q, S>> for Program<Q, S> {
+    fn from(instructions: Ruleset<Q, S>) -> Self {
         Self {
             initial_state: State::default(),
             ruleset: instructions,
@@ -197,7 +199,7 @@ where
     fn from_iter<I: IntoIterator<Item = Instruction<Q, S>>>(iter: I) -> Self {
         Self {
             initial_state: State::default(),
-            ruleset: RuleSet::from_iter(iter),
+            ruleset: Ruleset::from_iter(iter),
         }
     }
 }

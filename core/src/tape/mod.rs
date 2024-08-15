@@ -11,11 +11,6 @@ pub use self::tape::Tape;
 
 pub(crate) mod tape;
 
-#[doc(hidden)]
-pub mod cursor;
-#[doc(hidden)]
-pub mod ds;
-
 pub(crate) mod prelude {
     pub use super::tape::Tape;
 }

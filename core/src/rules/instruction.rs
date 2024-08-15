@@ -69,6 +69,7 @@ impl<Q, S> Instruction<Q, S> {
 mod builder {
     use super::*;
 
+    #[derive(Default)]
     pub struct InstructionBuilder<Q, S> {
         direction: Direction,
         state: Option<State<Q>>,
