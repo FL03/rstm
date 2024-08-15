@@ -39,6 +39,6 @@ where
         }
         let Head { state, symbol } = self.actor.read()?;
         let rule = self.program.get(state, symbol)?;
-        Some(self.actor.handle(rule).cloned())
+        Some(self.actor.step(rule).cloned())
     }
 }

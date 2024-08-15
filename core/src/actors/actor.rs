@@ -9,7 +9,7 @@ use super::Executor;
 use crate::rules::{Directive, Program};
 use crate::{Head, State, Symbolic};
 
-/// [Actor] aptly describe the `TMH` model
+/// An [Actor] describes a Turing machine with a moving head (TMH).
 pub struct Actor<Q, S> {
     /// the input alphabet
     pub(crate) alpha: Vec<S>,
@@ -49,7 +49,7 @@ impl<Q, S> Actor<Q, S> {
         self.head.state_mut()
     }
     /// Performs a single step of the Turing machine
-    pub fn handle<D>(&mut self, rule: &D) -> Head<&Q, &S>
+    pub fn step<D>(&mut self, rule: &D) -> Head<&Q, &S>
     where
         D: Directive<Q, S>,
         S: Symbolic,
@@ -60,11 +60,7 @@ impl<Q, S> Actor<Q, S> {
     }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
-    pub fn exec(self, program: Program<Q, S>) -> Executor<Q, S>
-    where
-        Q: Clone + Default + PartialEq + 'static,
-        S: Symbolic,
-    {
+    pub fn exec(self, program: Program<Q, S>) -> Executor<Q, S> {
         Executor {
             actor: self,
             program,
@@ -109,6 +105,7 @@ mod builder {
     use super::*;
     use std::iter::FromIterator;
 
+    #[derive(Default)]
     pub struct ActorBuilder<Q, S> {
         alpha: Vec<S>,
         head: Head<Q, usize>,
