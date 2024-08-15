@@ -92,7 +92,7 @@ where
 
 impl<Q, S> Scope<Q, S> for Instruction<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
-        self.head.state.to_ref()
+        self.head.state.view()
     }
 
     fn symbol(&self) -> &S {
@@ -140,7 +140,7 @@ impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
 
 impl<Q, S> Scope<Q, S> for (State<Q>, S) {
     fn current_state(&self) -> State<&'_ Q> {
-        self.0.to_ref()
+        self.0.view()
     }
 
     fn symbol(&self) -> &S {
@@ -154,7 +154,7 @@ impl<Q, S> Directive<Q, S> for (Direction, State<Q>, S) {
     }
 
     fn next_state(&self) -> State<&'_ Q> {
-        self.1.to_ref()
+        self.1.view()
     }
 
     fn value(&self) -> &S {

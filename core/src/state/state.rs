@@ -14,17 +14,22 @@ impl<Q> State<Q> {
     pub fn new(state: Q) -> Self {
         Self(state)
     }
+
     /// Returns an immutable reference to the state.
-    pub fn as_ref(&self) -> &Q {
+    pub const fn get(&self) -> &Q {
         &self.0
     }
     /// Returns a mutable reference to the state.
-    pub fn as_mut(&mut self) -> &mut Q {
+    pub fn get_mut(&mut self) -> &mut Q {
         &mut self.0
     }
-    /// Consumes the state and returns a boxed state.
-    pub fn boxed(self) -> State<Box<Q>> {
-        State(Box::new(self.0))
+    /// Consumes and returns the inner value of the state.
+    pub fn into_inner(self) -> Q {
+        self.0
+    }
+    /// Sets the state to a new value.
+    pub fn set(&mut self, state: Q) {
+        self.0 = state;
     }
     /// Returns a halted state with an immutable reference to the state.
     pub fn as_halt(&self) -> State<Halt<&Q>> {
@@ -34,20 +39,9 @@ impl<Q> State<Q> {
     pub fn into_halt(self) -> State<Halt<Q>> {
         State(Halt(self.into_inner()))
     }
-    /// Consumes and returns the inner value of the state.
-    pub fn into_inner(self) -> Q {
-        self.0
-    }
-    /// Consumes the state and returns an owned state.
-    pub fn into_owned(self) -> State<Q>
-    where
-        Q: Clone,
-    {
-        State(self.0.clone())
-    }
-    /// Transforms the state into a shared reference.
-    pub fn into_shared(self) -> State<Arc<Q>> {
-        State(Arc::new(self.0))
+    /// Returns a new state with a boxed inner value.
+    pub fn boxed(self) -> State<Box<Q>> {
+        State(Box::new(self.0))
     }
     /// [State::map] applies a [`Fn`] closure to the state, returing a new state in the process.
     /// Essentially, the method sufficiently describes the transformation of the state.
@@ -62,7 +56,7 @@ impl<Q> State<Q> {
     where
         F: FnMut(&mut Q) -> R,
     {
-        State(f(self.as_mut()))
+        State(f(self.get_mut()))
     }
     /// Maps the state to a new state using a closure that takes the state by value.
     pub fn map_once<R, F>(self, f: F) -> State<R>
@@ -71,12 +65,9 @@ impl<Q> State<Q> {
     {
         State(f(self))
     }
-    /// Returns a state with an owned inner value.
-    pub fn to_owned(&self) -> State<Q>
-    where
-        Q: Clone,
-    {
-        State(self.0.clone())
+    /// Wraps the inner value of the state with an [`Arc`] and returns a new instance of [State]
+    pub fn shared(self) -> State<Arc<Q>> {
+        State(Arc::new(self.0))
     }
     /// Returns a shared reference to the state.
     pub fn to_shared(&self) -> State<Arc<Q>>
@@ -85,24 +76,28 @@ impl<Q> State<Q> {
     {
         State(Arc::new(self.0.clone()))
     }
-    /// Returns a state with a mutable reference to the inner value.
-    pub fn to_mut<'a>(&'a mut self) -> State<&'a mut Q> {
-        State(&mut self.0)
-    }
     /// Returns a state with an owned inner value.
-    pub fn to_ref<'a>(&'a self) -> State<&'a Q> {
+    pub fn view<'a>(&'a self) -> State<&'a Q> {
         State(&self.0)
     }
+     /// Returns a state with a mutable reference to the inner value.
+    pub fn view_mut<'a>(&'a mut self) -> State<&'a mut Q> {
+        State(&mut self.0)
+    }
     /// Returns the `name` of the generic inner type, `Q`.
-    pub fn inner_type_name(&self) -> &'static str {
+    pub fn get_inner_type_name(&self) -> &'static str {
         core::any::type_name::<Q>()
     }
     /// Returns the `type id` of the generic inner type, `Q`.
-    pub fn inner_type_id(&self) -> core::any::TypeId
+    pub fn get_inner_type_id(&self) -> core::any::TypeId
     where
         Q: 'static,
     {
         core::any::TypeId::of::<Q>()
+    }
+    /// Wraps the inner value with a [Halt] state, returning a new instance of [State].
+    pub fn halt(self) -> State<Halt<Q>> {
+        State(Halt(self.0))
     }
     /// Returns `true` if the state is a [Halt] state.
     pub fn is_halt(&self) -> bool
@@ -114,11 +109,11 @@ impl<Q> State<Q> {
 }
 
 impl<Q> State<Halt<Q>> {
-    /// Returns a new instance of [State] with a [Halt] sub-state.
-    pub fn halt(Halt(inner): Halt<Q>) -> Self {
+    /// Creates a new instance of [State] from a [Halt] state.
+    pub fn halted(Halt(inner): Halt<Q>) -> Self {
         Self(Halt(inner))
     }
-
+    
     pub fn unhalt(self) -> State<Q> {
         State(self.0.into_inner())
     }
@@ -222,21 +217,21 @@ where
     Q: PartialEq,
 {
     fn eq(&self, other: &Q) -> bool {
-        self.0 == *other
+        self.get().eq(other)
     }
 }
 
 impl<Q> PartialOrd<Q> for State<Q>
 where
-    Q: PartialOrd,
+    Q: PartialOrd<Q>,
 {
     fn partial_cmp(&self, other: &Q) -> Option<core::cmp::Ordering> {
-        self.0.partial_cmp(other)
+        self.get().partial_cmp(other)
     }
 }
 
 impl<Q> From<Q> for State<Q> {
     fn from(state: Q) -> Self {
-        Self(state)
+        State(state)
     }
 }

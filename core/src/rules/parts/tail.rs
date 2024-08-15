@@ -48,7 +48,7 @@ impl<Q, S> Tail<Q, S> {
     }
     /// Returns the next [state](State) the agent is instructed to move to
     pub fn next_state(&self) -> State<&'_ Q> {
-        self.state.to_ref()
+        self.state.view()
     }
     /// Returns the symbol the [head](Head) is instructed to write
     pub const fn write_symbol(&self) -> &S {
@@ -61,13 +61,13 @@ impl<Q, S> Tail<Q, S> {
     /// Returns an instance of the [head](Head) where each element within
     /// the created instance is an immutable reference
     pub fn to_head_ref<'a>(&'a self) -> Head<&'a Q, &'a S> {
-        super::Head::new(self.state.to_ref(), &self.symbol)
+        super::Head::new(self.state.view(), &self.symbol)
     }
 
     pub fn to_ref(&self) -> Tail<&'_ Q, &'_ S> {
         Tail {
             direction: self.direction,
-            state: self.state.to_ref(),
+            state: self.state.view(),
             symbol: &self.symbol,
         }
     }
@@ -75,7 +75,7 @@ impl<Q, S> Tail<Q, S> {
     pub fn to_mut(&mut self) -> Tail<&'_ mut Q, &'_ mut S> {
         Tail {
             direction: self.direction,
-            state: self.state.to_mut(),
+            state: self.state.view_mut(),
             symbol: &mut self.symbol,
         }
     }

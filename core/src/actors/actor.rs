@@ -85,7 +85,7 @@ impl<Q, S> Actor<Q, S> {
     /// Reads the current symbol at the head of the tape
     pub fn read(&self) -> Option<Head<&Q, &S>> {
         self.alpha.get(self.head.symbol).map(|symbol| Head {
-            state: self.head.state.to_ref(),
+            state: self.head.state.view(),
             symbol,
         })
     }

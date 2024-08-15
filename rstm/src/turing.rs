@@ -51,12 +51,12 @@ impl<Q, S> TM<Q, S> {
     /// Returns an instance of the [state](State) with an immutable
     /// reference to the internal data
     pub fn state(&self) -> State<&'_ Q> {
-        self.state.to_ref()
+        self.state.view()
     }
     /// Returns an instance of the [state](State) with a mutable
     /// reference to the internal data
     pub fn state_mut(&mut self) -> State<&'_ mut Q> {
-        self.state.to_mut()
+        self.state.view_mut()
     }
     /// Returns an immutable reference to the [tape](StdTape)
     pub const fn tape(&self) -> &Tape<S> {

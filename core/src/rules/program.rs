@@ -63,7 +63,7 @@ impl<Q, S> Program<Q, S> {
     }
     /// Returns an owned reference to the initial state of the program.
     pub fn initial_state(&self) -> State<&'_ Q> {
-        self.initial_state.to_ref()
+        self.initial_state.view()
     }
     /// Returns a reference to the instructions.
     pub const fn instructions(&self) -> &Ruleset<Q, S> {
