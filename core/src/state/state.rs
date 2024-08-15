@@ -8,7 +8,7 @@ use std::sync::Arc;
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[repr(transparent)]
-pub struct State<Q = String>(pub Q);
+pub struct State<Q: ?Sized = usize>(pub Q);
 
 impl<Q> State<Q> {
     pub fn new(state: Q) -> Self {
@@ -234,4 +234,69 @@ impl<Q> From<Q> for State<Q> {
     fn from(state: Q) -> Self {
         State(state)
     }
+}
+
+macro_rules! impl_ops {
+    (@impl $trait:ident.$call:ident) => {
+        impl<Q> ::core::ops::$trait for State<Q>
+        where
+            Q: ::core::ops::$trait,
+        {
+            type Output = State<Q::Output>;
+
+            fn $call(self, rhs: State<Q>) -> Self::Output {
+                State(::core::ops::$trait::$call(self.0, rhs.0))
+            }
+        }
+
+        impl<Q> ::core::ops::$trait<Q> for State<Q>
+        where
+            Q: core::ops::$trait<Q>,
+        {
+            type Output = State<Q::Output>;
+
+            fn $call(self, rhs: Q) -> Self::Output {
+                State(::core::ops::$trait::$call(self.0, rhs))
+            }
+        }
+
+        paste::paste! {
+            impl<Q> ::core::ops::[<$trait Assign>]<State<Q>> for State<Q>
+            where
+                Q: ::core::ops::[<$trait Assign>],
+            {
+
+                fn [<$call _assign>](&mut self, rhs: State<Q>) {
+                    ::core::ops::[<$trait Assign>]::[<$call _assign>](self.get_mut(), rhs.0)
+                }
+            }
+            impl<Q> ::core::ops::[<$trait Assign>]<Q> for State<Q>
+            where
+                Q: ::core::ops::[<$trait Assign>],
+            {
+
+                fn [<$call _assign>](&mut self, rhs: Q) {
+                    ::core::ops::[<$trait Assign>]::[<$call _assign>](self.get_mut(), rhs)
+                }
+            }
+        }
+    };
+    ($($trait:ident.$call:ident),* $(,)?) => {
+        $(
+            impl_ops!(@impl $trait.$call);
+        )*
+    };
+}
+
+impl_ops! {
+    Add.add,
+    BitAnd.bitand,
+    BitOr.bitor,
+    BitXor.bitxor,
+    Div.div,
+    Mul.mul,
+    Rem.rem,
+    Shl.shl,
+    Shr.shr,
+    Sub.sub,
 }
