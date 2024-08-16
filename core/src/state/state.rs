@@ -47,9 +47,9 @@ impl<Q> State<Q> {
     /// Essentially, the method sufficiently describes the transformation of the state.
     pub fn map<R, F>(self, f: F) -> State<R>
     where
-        F: Fn(State<Q>) -> R,
+        F: Fn(&Q) -> R,
     {
-        State(f(self))
+        State(f(self.get()))
     }
     /// [State::map_mut] applies a [`FnMut`] closure to the state, returing the transformed state.
     pub fn map_mut<R, F>(mut self, f: &mut F) -> State<R>
