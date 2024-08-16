@@ -92,7 +92,7 @@ impl<Q, S> TM<Q, S> {
                     }
                 }
                 None => {
-                    return Err(Error::unknown("Runtime Error"));
+                    return Err(Error::runtime_error(""));
                 }
             }
         }

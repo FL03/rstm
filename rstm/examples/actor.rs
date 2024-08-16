@@ -14,12 +14,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let initial_state = State(0);
     // define the ruleset for the machine
     let rules = ruleset![
-        (0, 0) -> Right(0, 0),
-        (0, 1) -> Right(1, 0),
+        (0, 0) -> Right(1, 0),
+        (0, 1) -> Right(-1, 1),
         (1, 0) -> Right(0, 1),
-        (1, 1) -> Left(1, 0),
-        (-1, 0) -> Right(0, 1),
-        (-1, 1) -> Stay(0, 0),
+        (1, 1) -> Right(-1, 0),
+        (-1, 0) -> Left(0, 0),
+        (-1, 1) -> Left(1, 1),
     ];
 
     let program = Program::new()
@@ -37,7 +37,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn _tracing() {
     let timer = tracing_subscriber::fmt::time::uptime();
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
+        .with_max_level(tracing::Level::TRACE)
         .with_target(false)
         .with_timer(timer)
         .init();

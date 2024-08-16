@@ -10,7 +10,7 @@ use crate::rules::{Directive, Program};
 use crate::{Head, State};
 
 /// An [Actor] describes a Turing machine with a moving head (TMH).
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Actor<Q, S> {
     /// the input alphabet
     pub(crate) alpha: Vec<S>,
@@ -24,11 +24,15 @@ impl<Q, S> Actor<Q, S> {
     }
 
     pub fn from_state(State(state): State<Q>) -> ActorBuilder<Q, S> {
-        ActorBuilder::from_state(State(state))
+        ActorBuilder::new().state(State(state))
     }
     /// Returns an immutable reference to the tape alphabet as a slice
     pub fn alpha(&self) -> &[S] {
         &self.alpha
+    }
+
+    pub fn cursor(&self) -> usize {
+        self.head.symbol
     }
     /// Returns an immutable reference to the head of the tape
     pub const fn head(&self) -> &Head<Q, usize> {
@@ -95,7 +99,7 @@ impl<Q, S> Actor<Q, S> {
     )]
     pub fn read(&self) -> Option<Head<&Q, &S>> {
         #[cfg(feature = "tracing")]
-        tracing::info!("Reading the tape...");
+        tracing::debug!("Reading the tape...");
         let Head { state, symbol } = self.head_ref();
         self.alpha.get(symbol).map(|value| Head::new(state, value))
     }
@@ -106,14 +110,64 @@ impl<Q, S> Actor<Q, S> {
     )]
     pub fn write(&mut self, value: S) {
         let pos = self.head.symbol;
-        if pos < self.len() {
+        if self.cursor() < self.len() {
             self.alpha[pos] = value;
         } else {
             #[cfg(feature = "tracing")]
-            tracing::info!("Appending to the tape...");
+            tracing::debug!("Appending to the tape...");
             // append to the tape
             self.alpha.push(value);
         }
+    }
+
+    pub fn print(&self) -> String
+    where
+        S: core::fmt::Display,
+    {
+        self.alpha
+            .iter()
+            .enumerate()
+            .map(|(i, c)| {
+                let c = c.to_string();
+                if i == self.cursor() {
+                    format!("[{c}]")
+                } else {
+                    format!("{c}")
+                }
+            })
+            .collect::<String>()
+    }
+}
+
+impl<Q, S> core::fmt::Debug for Actor<Q, S>
+where
+    Q: core::fmt::Debug,
+    S: core::fmt::Debug,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        for (i, c) in self.alpha.iter().enumerate() {
+            match c {
+                b if i == self.cursor() => write!(f, "[{:?}, {b:?}]", self.head.state)?,
+                _ => write!(f, "{c:?}")?,
+            }
+        }
+        Ok(())
+    }
+}
+
+impl<Q, S> core::fmt::Display for Actor<Q, S>
+where
+    Q: core::fmt::Display,
+    S: core::fmt::Display,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+        for (i, c) in self.alpha.iter().enumerate() {
+            match c {
+                b if i == self.cursor() => write!(f, "[{}, {b}]", self.head.state)?,
+                _ => write!(f, "{c}")?,
+            }
+        }
+        Ok(())
     }
 }
 
