@@ -119,7 +119,7 @@ impl<Q, S> Actor<Q, S> {
 
 mod builder {
     use super::*;
-    use std::iter::FromIterator;
+    use core::iter::FromIterator;
 
     #[derive(Default)]
     pub struct ActorBuilder<Q, S> {

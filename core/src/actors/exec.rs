@@ -20,7 +20,10 @@ impl<Q, S> Executor<Q, S> {
     {
         Self {
             actor,
-            program: Program::new(),
+            program: Program {
+                initial_state: Default::default(),
+                rules: Vec::new(),
+            },
         }
     }
 

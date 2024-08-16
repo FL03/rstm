@@ -3,17 +3,27 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{program::*, rule::*};
+pub use self::{
+    builders::{ProgramBuilder, RuleBuilder},
+    program::Program,
+    rule::Rule,
+};
 
 pub(crate) mod program;
 pub(crate) mod rule;
 
 #[doc(hidden)]
-pub mod entry;
+pub(crate) mod builders {
+    pub use self::{program::ProgramBuilder, rule::RuleBuilder};
+
+    mod program;
+    mod rule;
+}
 
 pub(crate) mod prelude {
     pub use super::program::Program;
     pub use super::rule::Rule;
+    pub use super::{Directive, Scope, Transition};
 }
 
 use crate::{Direction, State, Symbolic};

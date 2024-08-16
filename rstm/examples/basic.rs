@@ -32,9 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (-1, 1) -> Stay(0, 0),
     ];
     // create a new program with the rules
-    let program = Program::new()
-        .with_instructions(rules)
-        .with_initial_state(State(0));
+    let program = Program::new().initial_state(State(0)).rules(rules).build();
     // create a new tape with the data
     let tape = Tape::from_iter(alpha);
     // create a new instance of the machine

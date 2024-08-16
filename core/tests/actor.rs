@@ -28,8 +28,9 @@ fn test_actor() {
     let input = [0_usize; 10];
 
     let program = Program::new()
-        .with_instructions(RULES.clone())
-        .with_initial_state(INITIAL_STATE);
+        .rules(RULES.clone())
+        .initial_state(INITIAL_STATE)
+        .build();
 
     let actor = Actor::new().alpha(input).state(State(0)).build();
     assert!(actor.execute(program).run().is_ok());

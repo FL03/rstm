@@ -23,8 +23,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ];
 
     let program = Program::new()
-        .with_initial_state(initial_state)
-        .with_instructions(rules);
+        .initial_state(initial_state)
+        .rules(rules)
+        .build();
 
     // create a new instance of the machine
     let tm = dbg!(Actor::new().alpha(alpha).state(initial_state).build());

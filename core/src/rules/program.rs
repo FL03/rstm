@@ -2,7 +2,7 @@
     Appellation: program <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Rule;
+use super::{ProgramBuilder, Rule};
 use crate::{Head, State, Tail};
 use std::vec;
 
@@ -13,19 +13,13 @@ type Ruleset<Q, S> = Vec<Rule<Q, S>>;
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Program<Q = String, S = char> {
-    pub initial_state: State<Q>,
-    pub(crate) ruleset: Ruleset<Q, S>,
+    pub(crate) initial_state: State<Q>,
+    pub(crate) rules: Ruleset<Q, S>,
 }
 
 impl<Q, S> Program<Q, S> {
-    pub fn new() -> Self
-    where
-        Q: Default,
-    {
-        Self {
-            initial_state: State::default(),
-            ruleset: Vec::new(),
-        }
+    pub fn new() -> ProgramBuilder<Q, S> {
+        ProgramBuilder::new()
     }
 
     pub fn from_iter(instructions: impl IntoIterator<Item = Rule<Q, S>>) -> Self
@@ -34,14 +28,14 @@ impl<Q, S> Program<Q, S> {
     {
         Self {
             initial_state: State::default(),
-            ruleset: Ruleset::from_iter(instructions),
+            rules: Ruleset::from_iter(instructions),
         }
     }
 
     pub fn from_state(State(initial_state): State<Q>) -> Self {
         Self {
             initial_state: State(initial_state),
-            ruleset: Ruleset::new(),
+            rules: Ruleset::new(),
         }
     }
     ///
@@ -54,7 +48,7 @@ impl<Q, S> Program<Q, S> {
     ///
     pub fn with_instructions(self, instructions: impl IntoIterator<Item = Rule<Q, S>>) -> Self {
         Self {
-            ruleset: Ruleset::from_iter(instructions),
+            rules: Ruleset::from_iter(instructions),
             ..self
         }
     }
@@ -64,19 +58,19 @@ impl<Q, S> Program<Q, S> {
     }
     /// Returns a reference to the instructions.
     pub const fn instructions(&self) -> &Ruleset<Q, S> {
-        &self.ruleset
+        &self.rules
     }
     /// Returns a mutable reference to the instructions.
     pub fn instructions_mut(&mut self) -> &mut Ruleset<Q, S> {
-        &mut self.ruleset
+        &mut self.rules
     }
     /// Returns an iterator over the elements.
     pub fn iter(&self) -> core::slice::Iter<Rule<Q, S>> {
-        self.ruleset.iter()
+        self.rules.iter()
     }
     /// Returns a mutable iterator over the elements.
     pub fn iter_mut(&mut self) -> core::slice::IterMut<Rule<Q, S>> {
-        self.ruleset.iter_mut()
+        self.rules.iter_mut()
     }
 
     pub fn get(&self, State(state): State<&Q>, symbol: &S) -> Option<&Tail<Q, S>>
@@ -138,13 +132,13 @@ impl<Q, S> Program<Q, S> {
 
 impl<Q, S> AsRef<[Rule<Q, S>]> for Program<Q, S> {
     fn as_ref(&self) -> &[Rule<Q, S>] {
-        &self.ruleset
+        &self.rules
     }
 }
 
 impl<Q, S> AsMut<[Rule<Q, S>]> for Program<Q, S> {
     fn as_mut(&mut self) -> &mut [Rule<Q, S>] {
-        &mut self.ruleset
+        &mut self.rules
     }
 }
 
@@ -152,13 +146,13 @@ impl<Q, S> core::ops::Deref for Program<Q, S> {
     type Target = [Rule<Q, S>];
 
     fn deref(&self) -> &Self::Target {
-        &self.ruleset
+        &self.rules
     }
 }
 
 impl<Q, S> core::ops::DerefMut for Program<Q, S> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.ruleset
+        &mut self.rules
     }
 }
 
@@ -178,14 +172,14 @@ impl<Q: Default, S> From<Ruleset<Q, S>> for Program<Q, S> {
     fn from(instructions: Ruleset<Q, S>) -> Self {
         Self {
             initial_state: State::default(),
-            ruleset: instructions,
+            rules: instructions,
         }
     }
 }
 
 impl<Q, S> Extend<Rule<Q, S>> for Program<Q, S> {
     fn extend<I: IntoIterator<Item = Rule<Q, S>>>(&mut self, iter: I) {
-        self.ruleset.extend(iter)
+        self.rules.extend(iter)
     }
 }
 
@@ -196,7 +190,7 @@ where
     fn from_iter<I: IntoIterator<Item = Rule<Q, S>>>(iter: I) -> Self {
         Self {
             initial_state: State::default(),
-            ruleset: Ruleset::from_iter(iter),
+            rules: Ruleset::from_iter(iter),
         }
     }
 }
@@ -206,6 +200,6 @@ impl<Q, S> IntoIterator for Program<Q, S> {
     type IntoIter = vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.ruleset.into_iter()
+        self.rules.into_iter()
     }
 }
