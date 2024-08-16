@@ -4,14 +4,11 @@
 */
 
 macro_rules! unit_impl_fmt {
-    (@impl $trait:ident::<$T:ty>($($fmt:tt)*)) => {
+    ($trait:ident::<$T:ty>($fmt:expr)) => {
         impl core::fmt::$trait for $T {
             fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-                core::fmt::$trait::fmt(self, f, $($fmt)*)
+                $fmt(&self, f)
             }
         }
-    };
-    ($T:ty: $($trait:ident($($fmt:tt)*)),*) => {
-        $(impl_fmt!(@impl $trait::<$T>($($fmt)*));)*
     };
 }

@@ -56,11 +56,11 @@ impl<Q, S> Head<Q, S> {
     }
     /// Returns a reference to the current [state](State)
     pub fn state(&self) -> State<&Q> {
-        self.state.view()
+        self.state.to_ref()
     }
     /// Returns a mutable reference to the current [state](State)
     pub fn state_mut(&mut self) -> State<&mut Q> {
-        self.state.view_mut()
+        self.state.to_mut()
     }
     /// Returns a reference to the current symbol
     pub const fn symbol(&self) -> &S {
@@ -80,16 +80,24 @@ impl<Q, S> Head<Q, S> {
         }
     }
 
-    pub fn to_ref<'a>(&'a self) -> Head<&'a Q, &'a S> {
+    pub fn to_ref<'a>(&'a self) -> Head<&Q, &S>
+    where
+        Q: 'a,
+        S: 'a,
+    {
         Head {
-            state: self.state.view(),
+            state: self.state.to_ref(),
             symbol: &self.symbol,
         }
     }
 
-    pub fn to_mut<'a>(&'a mut self) -> Head<&'a mut Q, &'a mut S> {
+    pub fn to_mut<'a>(&'a mut self) -> Head<&mut Q, &mut S>
+    where
+        Q: 'a,
+        S: 'a,
+    {
         Head {
-            state: self.state.view_mut(),
+            state: self.state.to_mut(),
             symbol: &mut self.symbol,
         }
     }

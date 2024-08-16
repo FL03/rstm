@@ -30,9 +30,9 @@ pub trait IntoDirection {
     strum::VariantNames,
 )]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-#[repr(i8)]
 #[strum(serialize_all = "lowercase")]
 pub enum Direction {
+    /// Represents a single left shift
     #[cfg_attr(
         feature = "serde",
         serde(
@@ -54,6 +54,7 @@ pub enum Direction {
             alias = "Right"
         )
     )]
+    /// Represents a single right shift
     Right = 1,
     #[default]
     #[cfg_attr(
@@ -66,6 +67,7 @@ pub enum Direction {
             alias = "Stay"
         )
     )]
+    /// Represents no movement
     Stay = 0,
 }
 
@@ -104,20 +106,36 @@ impl Direction {
             _ => Self::Stay,
         }
     }
+    /// Converts a [str] value into a [Direction] by matching the value to the corresponding
+    /// variant; defaults to [`Stay`](Direction::Stay) if the value does not match accepted
+    /// representations of neither [left](Direction::Left) nor [right](Direction::Right).
+    pub fn from_str(value: &str) -> Self {
+        match value {
+            "left" | "Left" | "LEFT" | "l" | "L" => Self::Left,
+            "right" | "Right" | "RIGHT" | "r" | "R" => Self::Right,
+            _ => Self::Stay,
+        }
+    }
     /// Returns a [char] representation of the [direction](Direction).
+    ///
+    /// ### standard [char] representation
+    ///
+    /// 'L' => [Direction::Left]
+    /// 'R' => [Direction::Right]
+    /// 'S' => [Direction::Stay]
     pub fn as_char(&self) -> char {
-        (*self).into_char()
-    }
-
-    pub fn as_str(&self) -> &str {
-        (*self).as_ref()
-    }
-    /// Consumes the instance, returning a [char] representation of the [direction](Direction).
-    pub fn into_char(self) -> char {
         match self {
             Self::Left => 'L',
             Self::Right => 'R',
             Self::Stay => 'S',
+        }
+    }
+    /// Returns a [str] representation of the [direction](Direction).
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Left => "left",
+            Self::Right => "right",
+            Self::Stay => "stay",
         }
     }
     /// Applies the shift to the given position in the [direction](Direction) specified by the

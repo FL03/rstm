@@ -147,16 +147,24 @@ impl<S> Tape<S> {
         (tape, head)
     }
 
-    pub fn update_inplace<Q>(&mut self, tail: Tail<Q, S>) -> State<Q> {
+    pub fn update_inplace<Q>(
+        &mut self,
+        direction: Direction,
+        state: State<Q>,
+        symbol: S,
+    ) -> State<Q> {
+        self.write(direction, symbol);
+        self.shift(direction);
+        state
+    }
+
+    pub fn apply_inplace<Q>(&mut self, tail: Tail<Q, S>) -> State<Q> {
         let Tail {
             direction,
             state,
             symbol,
         } = tail;
-
-        self.write(direction, symbol);
-        self.shift(direction);
-        state
+        self.update_inplace(direction, state, symbol)
     }
 
     fn on_update(&self) {

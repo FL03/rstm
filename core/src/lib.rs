@@ -15,8 +15,16 @@ pub use self::{
     traits::prelude::*, types::prelude::*,
 };
 
+#[allow(unused_macros)]
 #[macro_use]
-pub(crate) mod macros;
+pub(crate) mod macros {
+    #[macro_use]
+    pub mod fmt;
+    #[macro_use]
+    pub mod rules;
+    #[macro_use]
+    pub mod states;
+}
 #[macro_use]
 pub(crate) mod seal;
 

@@ -51,12 +51,12 @@ impl<Q, S> TM<Q, S> {
     /// Returns an instance of the [state](State) with an immutable
     /// reference to the internal data
     pub fn state(&self) -> State<&'_ Q> {
-        self.state.view()
+        self.state.to_ref()
     }
     /// Returns an instance of the [state](State) with a mutable
     /// reference to the internal data
     pub fn state_mut(&mut self) -> State<&'_ mut Q> {
-        self.state.view_mut()
+        self.state.to_mut()
     }
     /// Returns an immutable reference to the [tape](StdTape)
     pub const fn tape(&self) -> &Tape<S> {
@@ -100,7 +100,7 @@ impl<Q, S> TM<Q, S> {
 
     #[cfg_attr(
         feature = "tracing",
-        tracing::instrument(skip_all, name = "step", target = "turing")
+        tracing::instrument(skip_all, name = "process", target = "turing")
     )]
     fn process(&mut self) -> Option<Head<&'_ Q, &'_ S>>
     where
@@ -114,7 +114,7 @@ impl<Q, S> TM<Q, S> {
         }
         // Get the first instruction for the current head
         if let Some(tail) = self.program.get_head_ref(self.read()?) {
-            self.state = self.tape.update_inplace(tail.cloned());
+            self.state = self.tape.apply_inplace(tail.cloned());
             return self.read();
         }
         unreachable!("No instruction found for the current head")

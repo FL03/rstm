@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Actor;
-use crate::{Head, Program, Symbolic};
+use crate::{Error, Head, Program, Symbolic};
 
 pub struct Executor<Q, S> {
     pub(crate) actor: Actor<Q, S>,
@@ -11,6 +11,9 @@ pub struct Executor<Q, S> {
 }
 
 impl<Q, S> Executor<Q, S> {
+    pub(crate) fn new(actor: Actor<Q, S>, program: Program<Q, S>) -> Self {
+        Self { actor, program }
+    }
     pub fn from_actor(actor: Actor<Q, S>) -> Self
     where
         Q: Default,
@@ -24,6 +27,31 @@ impl<Q, S> Executor<Q, S> {
     pub fn with_program(self, program: Program<Q, S>) -> Self {
         Executor { program, ..self }
     }
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "run", target = "actor")
+    )]
+    pub fn run(&mut self) -> Result<Vec<S>, Error>
+    where
+        Q: Clone + PartialEq + 'static,
+        S: Symbolic,
+    {
+        #[cfg(feature = "tracing")]
+        tracing::info!("Executing the program using the given actor...");
+        loop {
+            match self.next() {
+                Some(_) => continue,
+                None => {
+                    if self.actor.is_halted() {
+                        break;
+                    } else {
+                        return Err(Error::runtime_error("Unknown Error".to_string()));
+                    }
+                }
+            }
+        }
+        Ok(self.actor.alpha().to_vec())
+    }
 }
 
 impl<Q, S> Iterator for Executor<Q, S>
@@ -33,12 +61,18 @@ where
 {
     type Item = Head<Q, S>;
 
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "next", target = "actor")
+    )]
     fn next(&mut self) -> Option<Self::Item> {
         if self.actor.is_halted() {
+            #[cfg(feature = "tracing")]
+            tracing::info!("Halted");
             return None;
         }
         let Head { state, symbol } = self.actor.read()?;
         let rule = self.program.get(state, symbol)?;
-        Some(self.actor.step(rule).cloned())
+        self.actor.step(rule).map(|h| h.cloned())
     }
 }

@@ -2,7 +2,7 @@
     Appellation: entry <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-pub use crate::rules::{Head, Tail};
+pub use crate::{Head, Tail};
 
 pub struct Entry<'a, Q, S> {
     key: &'a mut Head<Q, S>,

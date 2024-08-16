@@ -13,7 +13,9 @@ repository.workspace = true
 version.workspace = true
 
 [features]
-default = []
+default = [
+    "alloc",
+]
 
 full = [
     "default",
@@ -22,9 +24,9 @@ full = [
 ]
 
 # ********* [FF] Dependencies *********
-# alloc = [
-#     "serde?/alloc",
-# ]
+alloc = [
+    "serde?/alloc",
+]
 
 serde = [
     "dep:serde",
@@ -50,11 +52,11 @@ doctest = false
 test = true
 
 [[example]]
-name = "basic"
+name = "actor"
 required-features = ["tracing"]
 
 [[example]]
-name = "utm"
+name = "basic"
 required-features = ["tracing"]
 
 # ****************** Dependencies ******************

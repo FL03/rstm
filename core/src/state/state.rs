@@ -77,11 +77,11 @@ impl<Q> State<Q> {
         State(Arc::new(self.0.clone()))
     }
     /// Returns a state with an owned inner value.
-    pub fn view<'a>(&'a self) -> State<&'a Q> {
+    pub fn to_ref(&self) -> State<&Q> {
         State(&self.0)
     }
-     /// Returns a state with a mutable reference to the inner value.
-    pub fn view_mut<'a>(&'a mut self) -> State<&'a mut Q> {
+    /// Returns a state with a mutable reference to the inner value.
+    pub fn to_mut(&mut self) -> State<&mut Q> {
         State(&mut self.0)
     }
     /// Returns the `name` of the generic inner type, `Q`.
@@ -113,7 +113,7 @@ impl<Q> State<Halt<Q>> {
     pub fn halted(Halt(inner): Halt<Q>) -> Self {
         Self(Halt(inner))
     }
-    
+
     pub fn unhalt(self) -> State<Q> {
         State(self.0.into_inner())
     }

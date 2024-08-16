@@ -3,27 +3,17 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{instruction::*, parts::*, program::*};
+pub use self::{program::*, rule::*};
 
-pub(crate) mod instruction;
 pub(crate) mod program;
+pub(crate) mod rule;
 
 #[doc(hidden)]
 pub mod entry;
 
-pub mod parts {
-    pub use self::{head::*, tail::*};
-
-    pub(crate) mod head;
-    pub(crate) mod tail;
-
-    pub type IndexedHead<Q> = Head<Q, usize>;
-}
-
 pub(crate) mod prelude {
-    pub use super::instruction::Instruction;
-    pub use super::parts::{Head, Tail};
     pub use super::program::Program;
+    pub use super::rule::Rule;
 }
 
 use crate::{Direction, State, Symbolic};
@@ -51,7 +41,7 @@ pub trait Scope<Q, S> {
     fn symbol(&self) -> &S;
 }
 
-/// [`Directive`] is a trait describing the `tail` of a typical Turing machine; 
+/// [`Directive`] is a trait describing the `tail` of a typical Turing machine;
 pub trait Directive<Q, S> {
     fn direction(&self) -> Direction;
 
@@ -90,9 +80,9 @@ where
     }
 }
 
-impl<Q, S> Scope<Q, S> for Instruction<Q, S> {
+impl<Q, S> Scope<Q, S> for Rule<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
-        self.head.state.view()
+        self.head.state.to_ref()
     }
 
     fn symbol(&self) -> &S {
@@ -100,7 +90,7 @@ impl<Q, S> Scope<Q, S> for Instruction<Q, S> {
     }
 }
 
-impl<Q, S> Directive<Q, S> for Instruction<Q, S> {
+impl<Q, S> Directive<Q, S> for Rule<Q, S> {
     fn direction(&self) -> Direction {
         self.direction()
     }
@@ -140,7 +130,7 @@ impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
 
 impl<Q, S> Scope<Q, S> for (State<Q>, S) {
     fn current_state(&self) -> State<&'_ Q> {
-        self.0.view()
+        self.0.to_ref()
     }
 
     fn symbol(&self) -> &S {
@@ -154,7 +144,7 @@ impl<Q, S> Directive<Q, S> for (Direction, State<Q>, S) {
     }
 
     fn next_state(&self) -> State<&'_ Q> {
-        self.1.view()
+        self.1.to_ref()
     }
 
     fn value(&self) -> &S {

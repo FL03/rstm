@@ -7,9 +7,10 @@ pub use self::builder::ActorBuilder;
 
 use super::Executor;
 use crate::rules::{Directive, Program};
-use crate::{Head, State, Symbolic};
+use crate::{Head, State};
 
 /// An [Actor] describes a Turing machine with a moving head (TMH).
+#[derive(Clone, Debug)]
 pub struct Actor<Q, S> {
     /// the input alphabet
     pub(crate) alpha: Vec<S>,
@@ -18,10 +19,7 @@ pub struct Actor<Q, S> {
 }
 
 impl<Q, S> Actor<Q, S> {
-    pub fn new() -> ActorBuilder<Q, S>
-    where
-        Q: Default,
-    {
+    pub fn new() -> ActorBuilder<Q, S> {
         ActorBuilder::new()
     }
 
@@ -36,6 +34,13 @@ impl<Q, S> Actor<Q, S> {
     pub const fn head(&self) -> &Head<Q, usize> {
         &self.head
     }
+
+    pub fn head_ref(&self) -> Head<&Q, usize> {
+        Head {
+            state: self.head.state.to_ref(),
+            symbol: self.head.symbol,
+        }
+    }
     /// Returns a mutable reference to the head of the tape
     pub fn head_mut(&mut self) -> &mut Head<Q, usize> {
         &mut self.head
@@ -49,22 +54,23 @@ impl<Q, S> Actor<Q, S> {
         self.head.state_mut()
     }
     /// Performs a single step of the Turing machine
-    pub fn step<D>(&mut self, rule: &D) -> Head<&Q, &S>
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "step", target = "actor")
+    )]
+    pub fn step<D>(&mut self, rule: &D) -> Option<Head<&Q, &S>>
     where
         D: Directive<Q, S>,
-        S: Symbolic,
+        S: Clone,
     {
-        self.write(*rule.value());
+        self.write(rule.value().clone());
         self.head.shift_inplace(rule.direction());
-        self.read().expect("Invalid head position")
+        self.read()
     }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
-    pub fn exec(self, program: Program<Q, S>) -> Executor<Q, S> {
-        Executor {
-            actor: self,
-            program,
-        }
+    pub fn execute(self, program: Program<Q, S>) -> Executor<Q, S> {
+        Executor::new(self, program)
     }
     /// Checks if the tape is empty
     pub fn is_empty(&self) -> bool {
@@ -83,20 +89,30 @@ impl<Q, S> Actor<Q, S> {
         self.alpha.len()
     }
     /// Reads the current symbol at the head of the tape
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "read", target = "actor")
+    )]
     pub fn read(&self) -> Option<Head<&Q, &S>> {
-        self.alpha.get(self.head.symbol).map(|symbol| Head {
-            state: self.head.state.view(),
-            symbol,
-        })
+        #[cfg(feature = "tracing")]
+        tracing::info!("Reading the tape...");
+        let Head { state, symbol } = self.head_ref();
+        self.alpha.get(symbol).map(|value| Head::new(state, value))
     }
     /// Writes the given symbol to the tape
-    pub fn write(&mut self, symbol: S) {
-        let head = self.head();
-        if head.symbol < self.len() {
-            self.alpha[self.head.symbol] = symbol;
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "write", target = "actor")
+    )]
+    pub fn write(&mut self, value: S) {
+        let pos = self.head.symbol;
+        if pos < self.len() {
+            self.alpha[pos] = value;
         } else {
+            #[cfg(feature = "tracing")]
+            tracing::info!("Appending to the tape...");
             // append to the tape
-            self.alpha.push(symbol);
+            self.alpha.push(value);
         }
     }
 }
@@ -108,24 +124,24 @@ mod builder {
     #[derive(Default)]
     pub struct ActorBuilder<Q, S> {
         alpha: Vec<S>,
-        head: Head<Q, usize>,
+        state: Option<State<Q>>,
+        symbol: usize,
     }
 
     impl<Q, S> ActorBuilder<Q, S> {
-        pub fn new() -> Self
-        where
-            Q: Default,
-        {
+        pub fn new() -> Self {
             Self {
                 alpha: Vec::new(),
-                head: Head::default(),
+                state: None,
+                symbol: 0,
             }
         }
 
         pub fn from_state(State(state): State<Q>) -> Self {
             Self {
                 alpha: Vec::new(),
-                head: Head::new(State(state), 0),
+                state: Some(State(state)),
+                symbol: 0,
             }
         }
 
@@ -140,36 +156,39 @@ mod builder {
         }
 
         pub fn head(self, head: Head<Q, usize>) -> Self {
-            Self { head, ..self }
+            Self {
+                state: Some(head.state),
+                symbol: head.symbol,
+                ..self
+            }
         }
 
         pub fn state(self, State(state): State<Q>) -> Self {
             Self {
-                head: Head {
-                    state: State(state),
-                    ..self.head
-                },
+                state: Some(State(state)),
                 ..self
             }
         }
 
         pub fn position(self, symbol: usize) -> Self {
-            Self {
-                head: Head {
-                    symbol,
-                    ..self.head
-                },
-                ..self
-            }
+            Self { symbol, ..self }
         }
 
         pub fn build(self) -> Actor<Q, S>
         where
             Q: Default,
         {
+            let ActorBuilder {
+                alpha,
+                state,
+                symbol,
+            } = self;
             Actor {
-                alpha: self.alpha,
-                head: self.head,
+                alpha,
+                head: Head {
+                    state: state.unwrap_or_default(),
+                    symbol,
+                },
             }
         }
     }

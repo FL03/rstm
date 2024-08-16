@@ -2,20 +2,20 @@
     Appellation: instruction <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-pub use self::builder::InstructionBuilder;
+pub use self::builder::RuleBuilder;
 
 use crate::prelude::{Direction, Head, State, Tail};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Instruction<Q = String, S = char> {
+pub struct Rule<Q = String, S = char> {
     pub head: Head<Q, S>,
     pub tail: Tail<Q, S>,
 }
 
-impl<Q, S> Instruction<Q, S> {
-    pub fn new() -> InstructionBuilder<Q, S> {
-        InstructionBuilder::new()
+impl<Q, S> Rule<Q, S> {
+    pub fn new() -> RuleBuilder<Q, S> {
+        RuleBuilder::new()
     }
     /// Returns an immutable reference to the [Head]
     pub const fn head(&self) -> &Head<Q, S> {
@@ -70,7 +70,7 @@ mod builder {
     use super::*;
 
     #[derive(Default)]
-    pub struct InstructionBuilder<Q, S> {
+    pub struct RuleBuilder<Q, S> {
         direction: Direction,
         state: Option<State<Q>>,
         symbol: Option<S>,
@@ -78,7 +78,7 @@ mod builder {
         write_symbol: Option<S>,
     }
 
-    impl<Q, S> InstructionBuilder<Q, S> {
+    impl<Q, S> RuleBuilder<Q, S> {
         pub fn new() -> Self {
             Self {
                 direction: Direction::Right,
@@ -125,8 +125,8 @@ mod builder {
             }
         }
 
-        pub fn build(self) -> Instruction<Q, S> {
-            Instruction {
+        pub fn build(self) -> Rule<Q, S> {
+            Rule {
                 head: Head {
                     state: self.state.expect("state is required"),
                     symbol: self.symbol.expect("symbol is required"),
