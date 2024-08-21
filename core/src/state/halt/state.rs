@@ -2,16 +2,7 @@
     Appellation: halting <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::{RawState, State};
-
-#[doc(hidden)]
-pub trait Haltable<Q = String> {
-    const HALT: bool = true;
-
-    type State: RawState<Ctx = Q>;
-
-    private!();
-}
+use crate::state::{halt::Haltable, State};
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]

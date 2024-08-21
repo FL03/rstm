@@ -3,16 +3,17 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{state::State, states::*};
+pub use self::{halt::Halt, state::State, states::*};
 
 pub(crate) mod state;
 
+pub mod halt;
+
 pub(crate) mod states {
     #[doc(inline)]
-    pub use self::{binary::*, halting::*};
+    pub use self::binary::*;
 
     pub(crate) mod binary;
-    pub(crate) mod halting;
 }
 
 pub(crate) mod prelude {
