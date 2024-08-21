@@ -42,11 +42,8 @@ impl<Q, S> Executor<Q, S> {
     {
         #[cfg(feature = "tracing")]
         tracing::info!("Executing the program using the given actor...");
-        loop {
-            match self.next() {
-                Some(_) => continue,
-                None => break,
-            }
+        while let Some(_) = self.next() {
+            continue;
         }
         Ok(self.actor.alpha().to_vec())
     }
@@ -69,19 +66,25 @@ where
             tracing::info!("Halted");
             return None;
         }
-        match self.actor.read() {
-            Some(Head { state, symbol }) => {
-                #[cfg(feature = "tracing")]
-                tracing::info!("{tape:?}", tape = self.actor);
-                let rule = self.program.get(state, symbol).expect("No instruction found for the current head");
-                return self.actor.step(rule).map(|h| h.cloned());
-            }
-            None => {
-                #[cfg(feature = "tracing")]
-                tracing::error!("No instruction found for the current head");
-                panic!("No head found at the current position");
-            }
+        if let Some(head) = self.actor.read() {
+            #[cfg(feature = "tracing")]
+            tracing::info!("{tape:?}", tape = self.actor);
+            let crate::Tail {
+                direction,
+                state,
+                symbol,
+            } = self
+                .program
+                .get_head_ref(head)
+                .expect("No instruction found for the current head");
+            return self
+                .actor
+                .step(direction, state.cloned(), *symbol)
+                .map(|h| h.cloned());
+        } else {
+            #[cfg(feature = "tracing")]
+            tracing::error!("No instruction found for the current head");
+            panic!("No head found at the current position");
         }
-        
     }
 }

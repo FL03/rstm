@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // create a new instance of the machine
     let tm = dbg!(Actor::new().alpha(alpha).state(initial_state).build());
     let out = tm.execute(program).run()?;
-    println!("{out:?}");
+    println!("Output: {out:?}");
     Ok(())
 }
 

@@ -113,7 +113,15 @@ impl<Q, S> TM<Q, S> {
             return None;
         }
         // Get the first instruction for the current head
-        if let Some(Tail { direction, state, symbol }) = self.program.get_head_ref(self.read()?).map(|tail| tail.cloned()) {
+        if let Some(Tail {
+            direction,
+            state,
+            symbol,
+        }) = self
+            .program
+            .get_head_ref(self.read()?)
+            .map(|tail| tail.cloned())
+        {
             self.state = self.tape.update_inplace(direction, state, symbol);
             return self.read();
         }

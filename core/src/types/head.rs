@@ -4,24 +4,20 @@
 */
 use crate::state::State;
 
-/// The [Head] struct represent the state and symbol of an actor at a given moment in time. 
-/// With respect to a Turing machine, the head defines the current state and symbol of the 
+/// The [Head] struct represent the state and symbol of an actor at a given moment in time.
+/// With respect to a Turing machine, the head defines the current state and symbol of the
 /// machine. When associated with a direction the head becomes a tail, instructing the machine
 /// to move, write, and transition to a new state.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize), serde(rename_all = "lowercase"))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(rename_all = "lowercase")
+)]
 pub struct Head<Q = String, S = char> {
-    #[cfg_attr(
-        feature = "serde",
-        serde(
-            alias = "current_state"
-        )
-    )]
+    #[cfg_attr(feature = "serde", serde(alias = "current_state"))]
     pub state: State<Q>,
-    #[cfg_attr(
-        feature = "serde",
-        serde(flatten, alias = "current_symbol")
-    )]
+    #[cfg_attr(feature = "serde", serde(flatten, alias = "current_symbol"))]
     pub symbol: S,
 }
 
@@ -105,7 +101,7 @@ impl<Q> Head<Q, usize> {
     pub fn read_tape<'a, S>(&self, tape: &'a [S]) -> Option<&'a S> {
         tape.get(self.symbol)
     }
-    
+
     pub fn shift(self, direction: crate::Direction) -> Self {
         Self {
             symbol: direction.apply(self.symbol),
@@ -189,7 +185,6 @@ impl<'a, Q, S> Head<*const Q, *const S> {
         }
     }
 }
-
 
 impl<Q, S> From<(Q, S)> for Head<Q, S> {
     fn from((state, symbol): (Q, S)) -> Self {

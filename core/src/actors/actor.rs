@@ -6,11 +6,11 @@
 pub use self::builder::ActorBuilder;
 
 use super::Executor;
-use crate::rules::{Directive, Program};
-use crate::{Head, State};
+use crate::rules::Program;
+use crate::{Direction, Head, State};
 
 /// An [Actor] describes a Turing machine with a moving head (TMH).
-/// 
+///
 /// [Actor]'s abstractly define actionable surfaces capable of executing a [Program].
 #[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
 pub struct Actor<Q, S> {
@@ -59,22 +59,7 @@ impl<Q, S> Actor<Q, S> {
     pub fn state_mut(&mut self) -> State<&mut Q> {
         self.head.state_mut()
     }
-    /// Performs a single step of the Turing machine
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "step", target = "actor")
-    )]
-    pub fn step<D>(&mut self, rule: &D) -> Option<Head<&Q, &S>>
-    where
-        D: Directive<Q, S>,
-        S: Clone,
-    {
-        #[cfg(feature = "tracing")]
-        tracing::debug!("Stepping the tape...");
-        self.write(rule.value().clone());
-        self.head.shift_inplace(rule.direction());
-        self.read()
-    }
+
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
     pub fn execute(self, program: Program<Q, S>) -> Executor<Q, S> {
@@ -113,15 +98,38 @@ impl<Q, S> Actor<Q, S> {
         tracing::instrument(skip_all, name = "write", target = "actor")
     )]
     pub fn write(&mut self, value: S) {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Writing to the tape...");
         let pos = self.head.symbol;
-        if self.cursor() < self.len() {
-            self.alpha[pos] = value;
-        } else {
+        if pos >= self.len() {
             #[cfg(feature = "tracing")]
             tracing::debug!("Appending to the tape...");
             // append to the tape
             self.alpha.push(value);
+        } else {
+            self.alpha[pos] = value;
         }
+    }
+    /// Performs a single step of the Turing machine
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "step", target = "actor")
+    )]
+    pub fn step(
+        &mut self,
+        direction: Direction,
+        State(state): State<Q>,
+        symbol: S,
+    ) -> Option<Head<&Q, &S>>
+    where
+        S: Clone,
+    {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Stepping the tape...");
+        self.write(symbol);
+        self.head.set_state(State(state));
+        self.head.shift_inplace(direction);
+        self.read()
     }
 }
 
