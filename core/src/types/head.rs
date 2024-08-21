@@ -28,6 +28,38 @@ impl<Q, S> Head<Q, S> {
             symbol,
         }
     }
+    /// Create a new instance of the [Head] using the given state and default symbol.
+    pub fn from_state(State(state): State<Q>) -> Self where S: Default {
+        Self {
+            state: State(state),
+            symbol: Default::default(),
+        }
+    }
+    /// Create a new instance of the [Head] using the given symbol and default state.
+    pub fn from_symbol(symbol: S) -> Self where Q: Default {
+        Self {
+            state: Default::default(),
+            symbol,
+        }
+    }
+    /// Create a new instance from a 2-tuple: ([state](State), symbol)
+    pub fn from_tuple((state, symbol): (State<Q>, S)) -> Self {
+        Self {
+            state,
+            symbol,
+        }
+    }
+    /// Updates the current [state](State) and returns a new head
+    pub fn with_state(self, State(state): State<Q>) -> Self {
+        Self {
+            state: State(state),
+            ..self
+        }
+    }
+    /// Updates the current symbol and returns a new head
+    pub fn with_symbol(self, symbol: S) -> Self {
+        Self { symbol, ..self }
+    }
     /// Returns a reference to the current [state](State) and symbol returing a 2-tuple
     pub fn as_tuple(&self) -> (&State<Q>, &S) {
         (&self.state, &self.symbol)

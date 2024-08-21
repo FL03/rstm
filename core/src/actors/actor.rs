@@ -51,15 +51,14 @@ impl<Q, S> Actor<Q, S> {
     pub fn head_mut(&mut self) -> &mut Head<Q, usize> {
         &mut self.head
     }
-    /// Returns the current state of the tape
+    /// Returns an instance of the state with an immutable reference to the inner value
     pub fn state(&self) -> State<&Q> {
         self.head.state()
     }
-    /// Returns a mutable reference to the current state of the tape
+    /// Returns an instance of the state with a mutable reference to the inner value
     pub fn state_mut(&mut self) -> State<&mut Q> {
         self.head.state_mut()
     }
-
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
     pub fn execute(self, program: Program<Q, S>) -> Executor<Q, S> {
@@ -115,7 +114,7 @@ impl<Q, S> Actor<Q, S> {
         feature = "tracing",
         tracing::instrument(skip_all, name = "step", target = "actor")
     )]
-    pub fn step(
+    pub(crate) fn step(
         &mut self,
         direction: Direction,
         State(state): State<Q>,
@@ -127,7 +126,9 @@ impl<Q, S> Actor<Q, S> {
         #[cfg(feature = "tracing")]
         tracing::debug!("Stepping the tape...");
         self.write(symbol);
+        // set the state of the head
         self.head.set_state(State(state));
+        // shift the head in the given direction
         self.head.shift_inplace(direction);
         self.read()
     }

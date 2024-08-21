@@ -3,12 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 
-/// [Alphabet] abstractly describes the set of symbols used for both
-/// the input and output of any given Turing machine.
-///
-/// ### Definition
-///
-/// An alphabet is formally defines to be a finite set of symbols.
+/// [Alphabet] describes a finite set of symbols used to construct a formal language.
 ///
 /// Ideally, the alphabet should be implemented on unit enums since
 /// each symbol can be represented as a unique variant and assigned
@@ -16,13 +11,21 @@
 /// as pointers, specifiying the location of the symbol w.r.t. the
 /// alphabet.
 pub trait Alphabet {
-    type Sym;
+    type Elem;
 
-    fn len(&self) -> usize {
-        self.to_vec().len()
+    fn as_slice(&self) -> &[Self::Elem];
+
+    fn as_mut_slice(&mut self) -> &mut [Self::Elem];
+
+    fn is_empty(&self) -> bool {
+        self.as_slice().is_empty()
     }
 
-    fn to_vec(&self) -> Vec<Self::Sym>;
+    fn len(&self) -> usize {
+        self.as_slice().len()
+    }
+
+    fn to_vec(&self) -> Vec<Self::Elem>;
 }
 
 /// [Symbolic] is a trait denoting types that can be used as symbols;
@@ -48,9 +51,51 @@ where
 /*
  ************* Implementations *************
 */
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
+
+impl<S: Symbolic> Alphabet for [S] {
+    type Elem = S;
+
+    fn as_slice(&self) -> &[S] {
+        self
+    }
+
+    fn as_mut_slice(&mut self) -> &mut [S] {
+        self
+    }
+
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+
+    fn len(&self) -> usize {
+        self.len()
+    }
+
+    fn to_vec(&self) -> Vec<S> {
+        self.to_vec()
+    }
+}
 
 impl<S: Symbolic> Alphabet for Vec<S> {
-    type Sym = S;
+    type Elem = S;
+
+    fn as_slice(&self) -> &[S] {
+        self.as_slice()
+    }
+
+    fn as_mut_slice(&mut self) -> &mut [S] {
+        self.as_mut_slice()
+    }
+
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+
+    fn len(&self) -> usize {
+        self.len()
+    }
 
     fn to_vec(&self) -> Vec<S> {
         self.clone()

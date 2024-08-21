@@ -25,6 +25,13 @@ pub trait RawTape {
     fn as_slice(&self) -> &[Self::Elem];
 }
 
+#[doc(hidden)]
+pub trait Reader {
+    type Output;
+
+    fn read(&self) -> Self::Output;
+}
+
 /*
  ************* Implementations *************
 */

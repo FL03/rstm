@@ -6,7 +6,9 @@
 pub trait RawBuf {
     type Elem;
 
+    /// Returns an immutable reference to the buffer as a slice
     fn as_slice(&self) -> &[Self::Elem];
+    /// Returns a mutable reference to the buffer as a slice
     fn as_mut_slice(&mut self) -> &mut [Self::Elem];
 }
 
