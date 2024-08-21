@@ -7,7 +7,7 @@ pub use self::{model::Turing, state::TMS};
 pub(crate) mod model;
 pub(crate) mod state;
 
-use crate::prelude::{Error, Head, Symbolic, Tape};
+use crate::prelude::{Error, Head, Symbolic, Tail, Tape};
 use crate::rules::Program;
 use crate::state::State;
 
@@ -113,8 +113,8 @@ impl<Q, S> TM<Q, S> {
             return None;
         }
         // Get the first instruction for the current head
-        if let Some(tail) = self.program.get_head_ref(self.read()?) {
-            self.state = self.tape.apply_inplace(tail.cloned());
+        if let Some(Tail { direction, state, symbol }) = self.program.get_head_ref(self.read()?).map(|tail| tail.cloned()) {
+            self.state = self.tape.update_inplace(direction, state, symbol);
             return self.read();
         }
         unreachable!("No instruction found for the current head")

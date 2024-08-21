@@ -4,24 +4,23 @@
 */
 use crate::state::State;
 
-/// The head of a turing machine generally speaks to the current state and symbol of the
-/// machine w.r.t. the [tape](crate::Tape).
+/// The [Head] struct represent the state and symbol of an actor at a given moment in time. 
+/// With respect to a Turing machine, the head defines the current state and symbol of the 
+/// machine. When associated with a direction the head becomes a tail, instructing the machine
+/// to move, write, and transition to a new state.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize), serde(rename_all = "lowercase"))]
 pub struct Head<Q = String, S = char> {
     #[cfg_attr(
         feature = "serde",
         serde(
-            flatten,
-            alias = "state",
-            alias = "current_state",
-            alias = "head_state"
+            alias = "current_state"
         )
     )]
     pub state: State<Q>,
     #[cfg_attr(
         feature = "serde",
-        serde(flatten, alias = "symbol", alias = "current_symbol", alias = "value")
+        serde(flatten, alias = "current_symbol")
     )]
     pub symbol: S,
 }
@@ -45,7 +44,6 @@ impl<Q, S> Head<Q, S> {
     pub fn as_mut_tuple(&mut self) -> (&mut State<Q>, &mut S) {
         (&mut self.state, &mut self.symbol)
     }
-
     /// Updates the current [state](State)
     pub fn set_state(&mut self, state: State<Q>) {
         self.state = state;
@@ -79,7 +77,7 @@ impl<Q, S> Head<Q, S> {
             self.symbol = symbol;
         }
     }
-
+    /// Converts the current head into a new head with immutable references to the current state and symbol
     pub fn to_ref<'a>(&'a self) -> Head<&Q, &S>
     where
         Q: 'a,
@@ -90,7 +88,7 @@ impl<Q, S> Head<Q, S> {
             symbol: &self.symbol,
         }
     }
-
+    /// Converts the current head into a new head with mutable references to the current state and symbol
     pub fn to_mut<'a>(&'a mut self) -> Head<&mut Q, &mut S>
     where
         Q: 'a,
@@ -104,6 +102,10 @@ impl<Q, S> Head<Q, S> {
 }
 
 impl<Q> Head<Q, usize> {
+    pub fn read_tape<'a, S>(&self, tape: &'a [S]) -> Option<&'a S> {
+        tape.get(self.symbol)
+    }
+    
     pub fn shift(self, direction: crate::Direction) -> Self {
         Self {
             symbol: direction.apply(self.symbol),
@@ -127,7 +129,67 @@ impl<'a, Q, S> Head<&'a Q, &'a S> {
             symbol: self.symbol.clone(),
         }
     }
+
+    pub fn copied(&self) -> Head<Q, S>
+    where
+        Q: Copy,
+        S: Copy,
+    {
+        Head {
+            state: self.state.copied(),
+            symbol: self.symbol.clone(),
+        }
+    }
 }
+
+impl<'a, Q, S> Head<&'a mut Q, &'a mut S> {
+    pub fn cloned(&self) -> Head<Q, S>
+    where
+        Q: Clone,
+        S: Clone,
+    {
+        Head {
+            state: self.state.cloned(),
+            symbol: self.symbol.clone(),
+        }
+    }
+
+    pub fn copied(&self) -> Head<Q, S>
+    where
+        Q: Copy,
+        S: Copy,
+    {
+        Head {
+            state: self.state.copied(),
+            symbol: *self.symbol,
+        }
+    }
+}
+
+impl<'a, Q, S> Head<*const Q, *const S> {
+    pub fn cloned(&self) -> Head<*const Q, *const S>
+    where
+        Q: Clone,
+        S: Clone,
+    {
+        Head {
+            state: self.state.clone(),
+            symbol: self.symbol.clone(),
+        }
+    }
+
+    pub unsafe fn copied(&self) -> Head<Q, S>
+    where
+        Q: Copy,
+        S: Copy,
+    {
+        Head {
+            state: State(*self.state.0),
+            symbol: *self.symbol,
+        }
+    }
+}
+
 
 impl<Q, S> From<(Q, S)> for Head<Q, S> {
     fn from((state, symbol): (Q, S)) -> Self {

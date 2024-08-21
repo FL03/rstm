@@ -10,7 +10,9 @@ use crate::rules::{Directive, Program};
 use crate::{Head, State};
 
 /// An [Actor] describes a Turing machine with a moving head (TMH).
-#[derive(Clone)]
+/// 
+/// [Actor]'s abstractly define actionable surfaces capable of executing a [Program].
+#[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
 pub struct Actor<Q, S> {
     /// the input alphabet
     pub(crate) alpha: Vec<S>,
@@ -67,6 +69,8 @@ impl<Q, S> Actor<Q, S> {
         D: Directive<Q, S>,
         S: Clone,
     {
+        #[cfg(feature = "tracing")]
+        tracing::debug!("Stepping the tape...");
         self.write(rule.value().clone());
         self.head.shift_inplace(rule.direction());
         self.read()
@@ -119,24 +123,6 @@ impl<Q, S> Actor<Q, S> {
             self.alpha.push(value);
         }
     }
-
-    pub fn print(&self) -> String
-    where
-        S: core::fmt::Display,
-    {
-        self.alpha
-            .iter()
-            .enumerate()
-            .map(|(i, c)| {
-                let c = c.to_string();
-                if i == self.cursor() {
-                    format!("[{c}]")
-                } else {
-                    format!("{c}")
-                }
-            })
-            .collect::<String>()
-    }
 }
 
 impl<Q, S> core::fmt::Debug for Actor<Q, S>
@@ -146,9 +132,10 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         for (i, c) in self.alpha.iter().enumerate() {
-            match c {
-                b if i == self.cursor() => write!(f, "[{:?}, {b:?}]", self.head.state)?,
-                _ => write!(f, "{c:?}")?,
+            if i == self.cursor() {
+                write!(f, "[{c:?}]")?;
+            } else {
+                write!(f, "{c:?}")?;
             }
         }
         Ok(())
@@ -162,9 +149,10 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         for (i, c) in self.alpha.iter().enumerate() {
-            match c {
-                b if i == self.cursor() => write!(f, "[{}, {b}]", self.head.state)?,
-                _ => write!(f, "{c}")?,
+            if i == self.cursor() {
+                write!(f, "[{c}]")?;
+            } else {
+                write!(f, "{c}")?;
             }
         }
         Ok(())
