@@ -24,7 +24,7 @@ lazy_static::lazy_static! {
 }
 
 #[test]
-fn test_actor() {
+fn busy_beaver() {
     let input = [0_usize; 10];
 
     let program = Program::new()
@@ -32,6 +32,6 @@ fn test_actor() {
         .initial_state(INITIAL_STATE)
         .build();
 
-    let actor = Actor::new().alpha(input).state(State(0)).build();
+    let actor = Actor::new(State(0)).with_tape(input);
     assert!(actor.execute(program).run().is_ok());
 }

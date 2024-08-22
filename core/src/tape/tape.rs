@@ -8,12 +8,12 @@ use core::cell::Cell;
 #[cfg(feature = "alloc")]
 use alloc::vec::Vec;
 
-/// The [`Tape`] is defined to be a one-dimensional surface evenly divided into cells capable
-/// of storing symbols. The tape is infinite in both directions allowing the head, or actor, to
-/// move without bounds, extending the tape as needed.
+/// In-line with the Turing machine model, the [`Tape`] is a one-dimensional surface evenly
+/// divided into cells capable of storing symbols. The tape is infinite in both directions
+/// allowing the head, or actor, to move without bounds, extending the tape as needed.
 ///
 ///
-/// Here, the [Tape] employs the use of a [Vec] to store symbols while leveraging a
+/// Here, the tape employs the use of a [Vec] to store symbols while leveraging a
 /// [usize] to keep track of the current position of the tape head. Moreover, the tape
 /// stores the number of steps or operations taken by the tape head in a [Cell<usize>].
 /// This is done to quantify the impact of operations whose directions are defined to

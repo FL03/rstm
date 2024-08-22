@@ -21,31 +21,44 @@ pub struct Actor<Q, S> {
 }
 
 impl<Q, S> Actor<Q, S> {
-    pub fn new() -> ActorBuilder<Q, S> {
-        ActorBuilder::new()
+    pub fn new(State(state): State<Q>) -> Self {
+        Self {
+            alpha: Vec::new(),
+            head: Head {
+                state: State(state),
+                symbol: 0,
+            },
+        }
     }
 
-    pub fn from_state(State(state): State<Q>) -> ActorBuilder<Q, S> {
-        ActorBuilder::new().state(State(state))
+    pub fn with_tape<I>(self, alpha: I) -> Self
+    where
+        I: IntoIterator<Item = S>,
+    {
+        Self {
+            alpha: Vec::from_iter(alpha),
+            ..self
+        }
+    }
+    ///
+    pub fn builder() -> ActorBuilder<Q, S> {
+        ActorBuilder::new()
     }
     /// Returns an immutable reference to the tape alphabet as a slice
     pub fn alpha(&self) -> &[S] {
         &self.alpha
     }
-
-    pub fn cursor(&self) -> usize {
-        self.head.symbol
-    }
-    /// Returns an immutable reference to the head of the tape
-    pub const fn head(&self) -> &Head<Q, usize> {
-        &self.head
-    }
-
-    pub fn head_ref(&self) -> Head<&Q, usize> {
+    /// Returns an instance of the [Head] with an immutable reference to the state's inner
+    /// value
+    pub fn get_head_ref(&self) -> Head<&Q, usize> {
         Head {
             state: self.head.state.to_ref(),
             symbol: self.head.symbol,
         }
+    }
+    /// Returns an immutable reference to the head of the tape
+    pub const fn head(&self) -> &Head<Q, usize> {
+        &self.head
     }
     /// Returns a mutable reference to the head of the tape
     pub fn head_mut(&mut self) -> &mut Head<Q, usize> {
@@ -80,6 +93,10 @@ impl<Q, S> Actor<Q, S> {
     pub fn len(&self) -> usize {
         self.alpha.len()
     }
+    /// Returns the current position of the head on the tape
+    pub fn position(&self) -> usize {
+        self.head.symbol
+    }
     /// Reads the current symbol at the head of the tape
     #[cfg_attr(
         feature = "tracing",
@@ -88,7 +105,7 @@ impl<Q, S> Actor<Q, S> {
     pub fn read(&self) -> Option<Head<&Q, &S>> {
         #[cfg(feature = "tracing")]
         tracing::debug!("Reading the tape...");
-        let Head { state, symbol } = self.head_ref();
+        let Head { state, symbol } = self.get_head_ref();
         self.alpha.get(symbol).map(|value| Head::new(state, value))
     }
     /// Writes the given symbol to the tape
@@ -102,7 +119,7 @@ impl<Q, S> Actor<Q, S> {
         let pos = self.head.symbol;
         if pos >= self.len() {
             #[cfg(feature = "tracing")]
-            tracing::debug!("Appending to the tape...");
+            tracing::trace!("Appending to the tape...");
             // append to the tape
             self.alpha.push(value);
         } else {
@@ -124,12 +141,14 @@ impl<Q, S> Actor<Q, S> {
         S: Clone,
     {
         #[cfg(feature = "tracing")]
-        tracing::debug!("Stepping the tape...");
+        tracing::debug!("Transitioning the actor...");
+        // write the symbol to the tape
         self.write(symbol);
         // set the state of the head
         self.head.set_state(State(state));
         // shift the head in the given direction
         self.head.shift_inplace(direction);
+        // read the tape
         self.read()
     }
 }
@@ -141,7 +160,7 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         for (i, c) in self.alpha.iter().enumerate() {
-            if i == self.cursor() {
+            if i == self.position() {
                 write!(f, "[{c:?}]")?;
             } else {
                 write!(f, "{c:?}")?;
@@ -158,7 +177,7 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         for (i, c) in self.alpha.iter().enumerate() {
-            if i == self.cursor() {
+            if i == self.position() {
                 write!(f, "[{c}]")?;
             } else {
                 write!(f, "{c}")?;

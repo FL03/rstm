@@ -18,7 +18,7 @@ pub trait Alphabet {
     fn as_mut_slice(&mut self) -> &mut [Self::Elem];
 
     fn is_empty(&self) -> bool {
-        self.as_slice().is_empty()
+        self.len() == 0
     }
 
     fn len(&self) -> usize {

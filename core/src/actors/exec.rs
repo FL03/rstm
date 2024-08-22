@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Actor;
-use crate::{Error, Head, Program, Symbolic};
+use crate::{Error, Head, Program, Symbolic, Tail};
 
 pub struct Executor<Q, S> {
     pub(crate) actor: Actor<Q, S>,
@@ -14,6 +14,7 @@ impl<Q, S> Executor<Q, S> {
     pub(crate) fn new(actor: Actor<Q, S>, program: Program<Q, S>) -> Self {
         Self { actor, program }
     }
+
     pub fn from_actor(actor: Actor<Q, S>) -> Self
     where
         Q: Default,
@@ -26,26 +27,31 @@ impl<Q, S> Executor<Q, S> {
             },
         }
     }
-
-    pub fn with_program(self, program: Program<Q, S>) -> Self {
+    /// Load a program into the executor
+    pub fn load(self, program: Program<Q, S>) -> Self {
         Executor { program, ..self }
+    }
+
+    pub fn actor(&self) -> &Actor<Q, S> {
+        &self.actor
     }
 
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "run", target = "actor")
     )]
-    pub fn run(&mut self) -> Result<Vec<S>, Error>
+    pub fn run(&mut self) -> Result<(), Error>
     where
         Q: Clone + PartialEq + core::fmt::Debug + 'static,
         S: Symbolic,
     {
         #[cfg(feature = "tracing")]
-        tracing::info!("Executing the program using the given actor...");
-        while let Some(_) = self.next() {
-            continue;
+        tracing::info!("Running the program...");
+        for i in self {
+            #[cfg(feature = "tracing")]
+            tracing::info!("{head:?}", head = i);
         }
-        Ok(self.actor.alpha().to_vec())
+        Ok(())
     }
 }
 
@@ -65,17 +71,16 @@ where
             #[cfg(feature = "tracing")]
             tracing::info!("Halted");
             return None;
-        }
-        if let Some(head) = self.actor.read() {
+        } else if let Some(h) = self.actor().read() {
             #[cfg(feature = "tracing")]
-            tracing::info!("{tape:?}", tape = self.actor);
-            let crate::Tail {
+            tracing::info!("{tape:?}", tape = self.actor());
+            let Tail {
                 direction,
                 state,
                 symbol,
             } = self
                 .program
-                .get_head_ref(head)
+                .get_head_ref(h)
                 .expect("No instruction found for the current head");
             return self
                 .actor

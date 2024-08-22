@@ -18,19 +18,25 @@ pub enum StateError {
 )]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Error {
-    #[error("[IndexError] Out of Bounds: {index} is out of bounds for a length of {len}")]
+    #[error("[Execution Error] {0}")]
+    ExecutionError(String),
+    #[error("[Index Error] Out of Bounds: {index} is out of bounds for a length of {len}")]
     IndexOutOfBounds { index: usize, len: usize },
-    #[error("[Runtime] Runtime Error: {0}")]
+    #[error("[Runtime Error] {0}")]
     RuntimeError(String),
-    #[error("State Error: {0}")]
+    #[error("[State Error] {0}")]
     StateError(#[from] StateError),
-    #[error("Transformation error: {0}")]
+    #[error("[Transformation Error]: {0}")]
     TransformationError(String),
-    #[error("Unknown error: {0}")]
+    #[error("[Unknown Error] {0}")]
     Unknown(String),
 }
 
 impl Error {
+    pub fn execution_error(message: impl ToString) -> Self {
+        Error::ExecutionError(message.to_string())
+    }
+
     pub fn index_out_of_bounds(index: usize, len: usize) -> Self {
         Error::IndexOutOfBounds { index, len }
     }

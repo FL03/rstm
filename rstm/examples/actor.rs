@@ -28,7 +28,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build();
 
     // create a new instance of the machine
-    let tm = dbg!(Actor::new().alpha(alpha).state(initial_state).build());
+    let tm = dbg!(Actor::new(initial_state).with_tape(alpha));
     let out = tm.execute(program).run()?;
     println!("Output: {out:?}");
     Ok(())

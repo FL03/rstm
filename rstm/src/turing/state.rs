@@ -35,7 +35,7 @@ impl<Q> TMS<Q> {
     pub fn into_halt(self) -> State<Halt<Q>> {
         match self {
             TMS::Halt(state) => state,
-            TMS::State(state) => State(Halt(state.into_inner())),
+            TMS::State(state) => state.halt(),
         }
     }
 
