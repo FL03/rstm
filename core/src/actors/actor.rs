@@ -7,7 +7,7 @@ pub use self::builder::ActorBuilder;
 
 use super::Executor;
 use crate::rules::Program;
-use crate::{Direction, Head, State};
+use crate::{Direction, Error, Head, State};
 
 /// An [Actor] describes a Turing machine with a moving head (TMH).
 ///
@@ -18,16 +18,25 @@ pub struct Actor<Q, S> {
     pub(crate) alpha: Vec<S>,
     /// the head of the tape
     pub(crate) head: Head<Q, usize>,
+    /// the number of steps taken by the actor
+    pub(crate) steps: usize,
 }
 
 impl<Q, S> Actor<Q, S> {
-    pub fn new(State(state): State<Q>) -> Self {
+    ///
+    pub fn new() -> ActorBuilder<Q, S> {
+        ActorBuilder::new()
+    }
+    /// Constructs a new [Actor] with the given state; assumes the tape is empty and the head
+    /// is located at `0`.
+    pub fn from_state(State(state): State<Q>) -> Self {
         Self {
             alpha: Vec::new(),
             head: Head {
                 state: State(state),
                 symbol: 0,
             },
+            steps: 0,
         }
     }
 
@@ -40,10 +49,7 @@ impl<Q, S> Actor<Q, S> {
             ..self
         }
     }
-    ///
-    pub fn builder() -> ActorBuilder<Q, S> {
-        ActorBuilder::new()
-    }
+
     /// Returns an immutable reference to the tape alphabet as a slice
     pub fn alpha(&self) -> &[S] {
         &self.alpha
@@ -117,13 +123,16 @@ impl<Q, S> Actor<Q, S> {
         feature = "tracing",
         tracing::instrument(skip_all, name = "read", target = "actor")
     )]
-    pub fn read(&self) -> Option<Head<&Q, &S>> {
+    pub fn read(&self) -> Result<Head<&Q, &S>, Error> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Reading the tape...");
-        self.alpha.get(self.position()).map(|symbol| Head {
-            state: self.head.state(),
-            symbol,
-        })
+        self.alpha
+            .get(self.position())
+            .map(|symbol| Head {
+                state: self.head.state(),
+                symbol,
+            })
+            .ok_or(Error::index_out_of_bounds(self.position(), self.len()))
     }
 
     /// Writes the given symbol to the tape
@@ -149,12 +158,7 @@ impl<Q, S> Actor<Q, S> {
         feature = "tracing",
         tracing::instrument(skip_all, name = "handle", target = "actor")
     )]
-    pub(crate) fn handle(
-        &mut self,
-        direction: Direction,
-        State(next_state): State<Q>,
-        symbol: S,
-    ) {
+    pub(crate) fn handle(&mut self, direction: Direction, State(next_state): State<Q>, symbol: S) {
         #[cfg(feature = "tracing")]
         tracing::trace!("Transitioning the actor...");
         // write the symbol to the tape
@@ -175,7 +179,7 @@ impl<Q, S> Actor<Q, S> {
         direction: Direction,
         State(state): State<Q>,
         symbol: S,
-    ) -> Option<Head<&Q, &S>>
+    ) -> Result<Head<&Q, &S>, Error>
     where
         S: Clone,
     {
@@ -191,6 +195,10 @@ impl<Q, S> Actor<Q, S> {
         };
         // read the tape
         self.read()
+    }
+
+    fn on_update(&mut self) {
+        self.steps += 1;
     }
 }
 
@@ -238,18 +246,10 @@ mod builder {
     }
 
     impl<Q, S> ActorBuilder<Q, S> {
-        pub fn new() -> Self {
+        pub(crate) fn new() -> Self {
             Self {
                 alpha: Vec::new(),
                 state: None,
-                symbol: 0,
-            }
-        }
-
-        pub fn from_state(State(state): State<Q>) -> Self {
-            Self {
-                alpha: Vec::new(),
-                state: Some(State(state)),
                 symbol: 0,
             }
         }
@@ -298,6 +298,7 @@ mod builder {
                     state: state.unwrap_or_default(),
                     symbol,
                 },
+                steps: 0,
             }
         }
     }

@@ -32,6 +32,6 @@ fn busy_beaver() {
         .initial_state(INITIAL_STATE)
         .build();
 
-    let actor = Actor::new(State(0)).with_tape(input);
+    let actor = Actor::from_state(State(0)).with_tape(input);
     assert!(actor.execute(program).run().is_ok());
 }

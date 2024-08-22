@@ -15,21 +15,21 @@ pub(crate) mod prelude {
     pub use super::tape::Tape;
 }
 
-/// A trait for tape-like structures.
-#[doc(hidden)]
+/// [RawTape] is a trait that provides a common interface for tape-like structures.
 pub trait RawTape {
     type Elem;
 
     private!();
 
     fn as_slice(&self) -> &[Self::Elem];
-}
 
-#[doc(hidden)]
-pub trait Reader {
-    type Output;
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 
-    fn read(&self) -> Self::Output;
+    fn len(&self) -> usize {
+        self.as_slice().len()
+    }
 }
 
 /*
@@ -43,6 +43,14 @@ impl<T> RawTape for [T] {
     fn as_slice(&self) -> &[Self::Elem] {
         &self
     }
+
+    fn is_empty(&self) -> bool {
+        <[T]>::is_empty(self)
+    }
+
+    fn len(&self) -> usize {
+        <[T]>::len(self)
+    }
 }
 
 impl<T> RawTape for Vec<T> {
@@ -52,5 +60,13 @@ impl<T> RawTape for Vec<T> {
 
     fn as_slice(&self) -> &[Self::Elem] {
         Vec::as_slice(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        Vec::is_empty(self)
+    }
+
+    fn len(&self) -> usize {
+        Vec::len(self)
     }
 }

@@ -63,19 +63,19 @@ impl<Q, S> Head<Q, S> {
     pub fn with_symbol(self, symbol: S) -> Self {
         Self { symbol, ..self }
     }
-    /// Returns a reference to the current [state](State) and symbol returing a 2-tuple
+    /// Returns a reference to the current state and symbol returing a 2-tuple
     pub fn as_tuple(&self) -> (&State<Q>, &S) {
         (&self.state, &self.symbol)
     }
-    /// Consumes the head and returns the current [state](State) and symbol as a 2-tuple
+    /// Consumes the head and returns the current state and symbol as a 2-tuple
     pub fn into_tuple(self) -> (State<Q>, S) {
         (self.state, self.symbol)
     }
-    /// Returns a mutable reference to the current [state](State) and symbol as a 2-tuple
+    /// Returns a mutable reference to the current state and symbol as a 2-tuple
     pub fn as_mut_tuple(&mut self) -> (&mut State<Q>, &mut S) {
         (&mut self.state, &mut self.symbol)
     }
-    /// Updates the current [state](State)
+    /// Updates the current state
     pub fn set_state(&mut self, state: State<Q>) {
         self.state = state;
     }
@@ -83,11 +83,11 @@ impl<Q, S> Head<Q, S> {
     pub fn set_symbol(&mut self, symbol: S) {
         self.symbol = symbol;
     }
-    /// Returns a reference to the current [state](State)
+    /// Returns a reference to the current state
     pub fn state(&self) -> State<&Q> {
         self.state.to_ref()
     }
-    /// Returns a mutable reference to the current [state](State)
+    /// Returns a mutable reference to the current [State]
     pub fn state_mut(&mut self) -> State<&mut Q> {
         self.state.to_mut()
     }
@@ -99,7 +99,7 @@ impl<Q, S> Head<Q, S> {
     pub fn symbol_mut(&mut self) -> &mut S {
         &mut self.symbol
     }
-    /// Updates the current [state](State) and symbol
+    /// Updates the current [State] and symbol
     pub fn update(&mut self, state: Option<State<Q>>, symbol: Option<S>) {
         if let Some(state) = state {
             self.state = state;
@@ -109,43 +109,36 @@ impl<Q, S> Head<Q, S> {
         }
     }
     /// Converts the current head into a new head with immutable references to the current state and symbol
-    pub fn to_ref<'a>(&'a self) -> Head<&Q, &S>
-    where
-        Q: 'a,
-        S: 'a,
-    {
+    pub fn to_ref(&self) -> Head<&Q, &S> {
         Head {
             state: self.state.to_ref(),
             symbol: &self.symbol,
         }
     }
     /// Converts the current head into a new head with mutable references to the current state and symbol
-    pub fn to_mut<'a>(&'a mut self) -> Head<&mut Q, &mut S>
-    where
-        Q: 'a,
-        S: 'a,
-    {
+    pub fn to_mut(&mut self) -> Head<&mut Q, &mut S> {
         Head {
             state: self.state.to_mut(),
             symbol: &mut self.symbol,
         }
     }
 
-    pub fn read<'a, T>(self, tape: &'a [T]) -> Option<&'a <S>::Output> where S: core::slice::SliceIndex<[T]> {
+    pub fn read<T>(self, tape: &'_ [T]) -> Option<&<S>::Output>
+    where
+        S: core::slice::SliceIndex<[T]>,
+    {
         tape.get(self.symbol)
     }
 }
 
 impl<Q> Head<Q, usize> {
-    
-
     pub fn shift(self, direction: crate::Direction) -> Self {
         Self {
             symbol: direction.apply(self.symbol),
             ..self
         }
     }
-    
+
     pub fn shift_inplace(&mut self, direction: crate::Direction) {
         self.symbol = direction.apply(self.symbol);
     }

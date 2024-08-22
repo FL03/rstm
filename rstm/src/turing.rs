@@ -114,12 +114,10 @@ impl<Q, S> TM<Q, S> {
             direction,
             state,
             symbol,
-        }) = self
-            .program
-            .get_head_ref(self.read()?)
+        }) = self.program.get_head_ref(self.read()?)
         {
             //
-            self.tape.update_inplace(direction, symbol.clone());
+            self.tape.update(direction, symbol.clone());
             self.state = state.cloned();
             return Some(Head::new(state, symbol));
         }

@@ -57,7 +57,7 @@ impl<Q, S> Executor<Q, S> {
 
 impl<Q, S> Iterator for Executor<Q, S>
 where
-    Q: Clone + PartialEq + core::fmt::Debug + 'static,
+    Q: Clone + PartialEq + 'static,
     S: Symbolic,
 {
     type Item = Head<Q, S>;
@@ -71,7 +71,7 @@ where
             #[cfg(feature = "tracing")]
             tracing::info!("Halted");
             return None;
-        } else if let Some(h) = self.actor().read() {
+        } else if let Ok(h) = self.actor().read() {
             #[cfg(feature = "tracing")]
             tracing::info!("{tape:?}", tape = self.actor());
             let Tail {
@@ -83,11 +83,11 @@ where
                 .get_head_ref(h)
                 .expect("No instruction found for the current head");
             self.actor.handle(direction, state.cloned(), *symbol);
-            return self.actor.read().map(|h| h.cloned());
+            return self.actor.read().map(|h| h.cloned()).ok();
         } else {
             #[cfg(feature = "tracing")]
-            tracing::error!("No instruction found for the current head");
-            panic!("No head found at the current position");
+            tracing::error!("No symbol found at {}", self.actor.position());
+            panic!("No symbol found at {}", self.actor.position());
         }
     }
 }
