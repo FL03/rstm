@@ -35,6 +35,7 @@ pub trait Symbolic
 where
     Self: Clone
         + Copy
+        + Default
         + Eq
         + Ord
         + PartialEq
@@ -104,6 +105,7 @@ impl<S: Symbolic> Alphabet for Vec<S> {
 
 impl<S> Symbolic for S where
     S: Copy
+        + Default
         + Eq
         + Ord
         + core::fmt::Debug

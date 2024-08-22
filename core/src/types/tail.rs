@@ -46,12 +46,16 @@ impl<Q, S> Tail<Q, S> {
     pub fn direction(&self) -> Direction {
         self.direction
     }
-    /// Returns the next [state](State) the agent is instructed to move to
-    pub fn next_state(&self) -> State<&'_ Q> {
+    /// Returns the next state with an immutable reference to the inner value
+    pub fn state(&self) -> State<&'_ Q> {
         self.state.to_ref()
     }
+    /// Returns the next state with a mutable reference to the inner value
+    pub fn state_mut(&mut self) -> State<&'_ mut Q> {
+        self.state.to_mut()
+    }
     /// Returns the symbol the [head](Head) is instructed to write
-    pub const fn write_symbol(&self) -> &S {
+    pub const fn symbol(&self) -> &S {
         &self.symbol
     }
     /// Consumes the tail and returns a new instance of the [Head]

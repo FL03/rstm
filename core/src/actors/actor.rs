@@ -23,7 +23,6 @@ pub struct Actor<Q, S> {
 }
 
 impl<Q, S> Actor<Q, S> {
-    ///
     pub fn new() -> ActorBuilder<Q, S> {
         ActorBuilder::new()
     }
@@ -49,18 +48,9 @@ impl<Q, S> Actor<Q, S> {
             ..self
         }
     }
-
     /// Returns an immutable reference to the tape alphabet as a slice
     pub fn alpha(&self) -> &[S] {
         &self.alpha
-    }
-    /// Returns an instance of the [Head] with an immutable reference to the state's inner
-    /// value
-    pub fn get_head_ref(&self) -> Head<&Q, usize> {
-        Head {
-            state: self.head.state.to_ref(),
-            symbol: self.head.symbol,
-        }
     }
     /// Returns an immutable reference to the head of the tape
     pub const fn head(&self) -> &Head<Q, usize> {
@@ -70,6 +60,14 @@ impl<Q, S> Actor<Q, S> {
     pub fn head_mut(&mut self) -> &mut Head<Q, usize> {
         &mut self.head
     }
+    /// Returns an instance of the [Head] with an immutable reference to the state's inner
+    /// value
+    pub fn head_ref(&self) -> Head<&Q, usize> {
+        Head {
+            state: self.head.state.to_ref(),
+            symbol: self.head.symbol,
+        }
+    }
     /// Returns an instance of the state with an immutable reference to the inner value
     pub fn state(&self) -> State<&Q> {
         self.head.state()
@@ -78,10 +76,22 @@ impl<Q, S> Actor<Q, S> {
     pub fn state_mut(&mut self) -> State<&mut Q> {
         self.head.state_mut()
     }
+    /// Returns the number of steps taken by the actor
+    pub fn steps(&self) -> usize {
+        self.steps
+    }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
     pub fn execute(self, program: Program<Q, S>) -> Executor<Q, S> {
         Executor::new(self, program)
+    }
+    /// Reads the current symbol at the head of the tape
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "get", target = "actor")
+    )]
+    pub fn get(&self) -> Option<&S> {
+        self.alpha().get(self.position())
     }
     /// Checks if the tape is empty
     pub fn is_empty(&self) -> bool {
@@ -102,21 +112,6 @@ impl<Q, S> Actor<Q, S> {
     /// Returns the current position of the head on the tape
     pub fn position(&self) -> usize {
         self.head.symbol
-    }
-    /// Reads the current symbol at the head of the tape
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "get", target = "actor")
-    )]
-    pub fn get(&self) -> Option<&S> {
-        self.alpha().get(self.position())
-    }
-
-    pub fn get_head(&self) -> Option<Head<&Q, &S>> {
-        self.get().map(|symbol| Head {
-            state: self.head.state(),
-            symbol,
-        })
     }
     /// Reads the current symbol at the head of the tape
     #[cfg_attr(
@@ -143,8 +138,13 @@ impl<Q, S> Actor<Q, S> {
     pub fn write(&mut self, value: S) {
         #[cfg(feature = "tracing")]
         tracing::trace!("Writing to the tape...");
-        let pos = self.head.symbol;
-        if pos >= self.len() {
+        let pos = self.position();
+        
+        if pos == usize::MAX {
+            #[cfg(feature = "tracing")]
+            tracing::trace!("Prepending to the tape...");
+            
+        } else if pos >= self.len() {
             #[cfg(feature = "tracing")]
             tracing::trace!("Appending to the tape...");
             // append to the tape
@@ -158,14 +158,14 @@ impl<Q, S> Actor<Q, S> {
         feature = "tracing",
         tracing::instrument(skip_all, name = "handle", target = "actor")
     )]
-    pub(crate) fn handle(&mut self, direction: Direction, State(next_state): State<Q>, symbol: S) {
+    pub(crate) fn handle(&mut self, direction: Direction, State(state): State<Q>, symbol: S) {
         #[cfg(feature = "tracing")]
         tracing::trace!("Transitioning the actor...");
         // write the symbol to the tape
         self.write(symbol);
         // update the head of the actor
         self.head = Head {
-            state: State(next_state),
+            state: State(state),
             symbol: direction.apply(self.head.symbol),
         };
     }

@@ -58,10 +58,10 @@ impl<Q, S> Rule<Q, S> {
     }
     /// Returns the next [State] of the system
     pub fn next_state(&self) -> State<&'_ Q> {
-        self.tail().next_state()
+        self.tail().state()
     }
     /// Returns the value which for which the current object will be replaced with
     pub const fn write_symbol(&self) -> &S {
-        self.tail().write_symbol()
+        self.tail().symbol()
     }
 }

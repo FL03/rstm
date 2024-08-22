@@ -106,7 +106,7 @@ impl<Q, S> Directive<Q, S> for Rule<Q, S> {
     }
 
     fn next_state(&self) -> State<&'_ Q> {
-        self.tail().next_state()
+        self.tail().state()
     }
 
     fn value(&self) -> &S {
@@ -130,11 +130,11 @@ impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
     }
 
     fn next_state(&self) -> State<&'_ Q> {
-        self.next_state()
+        self.state()
     }
 
     fn value(&self) -> &S {
-        &self.write_symbol()
+        &self.symbol()
     }
 }
 

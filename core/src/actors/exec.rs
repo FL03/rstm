@@ -3,16 +3,18 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Actor;
-use crate::{Error, Head, Program, Symbolic, Tail};
+use crate::{Error, Head, Program, Symbolic};
 
 pub struct Executor<Q, S> {
     pub(crate) actor: Actor<Q, S>,
     pub(crate) program: Program<Q, S>,
+    /// the number of steps taken by the actor
+    pub(crate) steps: usize,
 }
 
 impl<Q, S> Executor<Q, S> {
     pub(crate) fn new(actor: Actor<Q, S>, program: Program<Q, S>) -> Self {
-        Self { actor, program }
+        Self { actor, program, steps: 0 }
     }
 
     pub fn from_actor(actor: Actor<Q, S>) -> Self
@@ -25,6 +27,7 @@ impl<Q, S> Executor<Q, S> {
                 initial_state: Default::default(),
                 rules: Vec::new(),
             },
+            steps: 0,
         }
     }
     /// Load a program into the executor
@@ -42,14 +45,13 @@ impl<Q, S> Executor<Q, S> {
     )]
     pub fn run(&mut self) -> Result<(), Error>
     where
-        Q: Clone + PartialEq + core::fmt::Debug + 'static,
+        Q: Clone + PartialEq + 'static,
         S: Symbolic,
     {
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
-        for i in self {
-            #[cfg(feature = "tracing")]
-            tracing::info!("{head:?}", head = i);
+        for _h in self {
+            continue;
         }
         Ok(())
     }
@@ -67,23 +69,29 @@ where
         tracing::instrument(skip_all, name = "next", target = "actor")
     )]
     fn next(&mut self) -> Option<Self::Item> {
+        // increment the number of steps taken
+        self.steps += 1;
+        #[cfg(feature = "tracing")]
+        tracing::info!("{tape:?}", tape = self.actor());
+        // check if the actor is halted
         if self.actor.is_halted() {
             #[cfg(feature = "tracing")]
-            tracing::info!("Halted");
+            tracing::warn!("Detected a halted state; terminating the program...");
             return None;
-        } else if let Ok(h) = self.actor().read() {
-            #[cfg(feature = "tracing")]
-            tracing::info!("{tape:?}", tape = self.actor());
-            let Tail {
-                direction,
-                state,
-                symbol,
-            } = self
+        } 
+        // read the tape
+        let head = Head { state: self.actor.state().cloned(), symbol: self.actor.get().copied().unwrap_or_default() };
+        // execute the program
+        if let Some(tail) = self
                 .program
-                .get_head_ref(h)
-                .expect("No instruction found for the current head");
-            self.actor.handle(direction, state.cloned(), *symbol);
-            return self.actor.read().map(|h| h.cloned()).ok();
+                .get_head_ref(head.to_ref()) {
+            // get the next head
+            let next = tail.cloned().into_head();
+            // process the instruction
+            self.actor
+                .handle(tail.direction(), tail.state.cloned(), *tail.symbol);
+            // return the head
+            return Some(next);
         } else {
             #[cfg(feature = "tracing")]
             tracing::error!("No symbol found at {}", self.actor.position());
