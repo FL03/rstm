@@ -114,7 +114,7 @@ impl<Q, S> TM<Q, S> {
             direction,
             state,
             symbol,
-        }) = self.program.get_head_ref(self.read()?)
+        }) = self.program.get_ref(self.read()?)
         {
             //
             self.tape.update(direction, symbol.clone());

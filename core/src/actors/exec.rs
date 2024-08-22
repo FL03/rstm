@@ -14,7 +14,11 @@ pub struct Executor<Q, S> {
 
 impl<Q, S> Executor<Q, S> {
     pub(crate) fn new(actor: Actor<Q, S>, program: Program<Q, S>) -> Self {
-        Self { actor, program, steps: 0 }
+        Self {
+            actor,
+            program,
+            steps: 0,
+        }
     }
 
     pub fn from_actor(actor: Actor<Q, S>) -> Self
@@ -35,8 +39,12 @@ impl<Q, S> Executor<Q, S> {
         Executor { program, ..self }
     }
 
-    pub fn actor(&self) -> &Actor<Q, S> {
+    pub const fn actor(&self) -> &Actor<Q, S> {
         &self.actor
+    }
+    /// Reads the current symbol at the head of the tape
+    pub fn read(&self) -> Result<Head<&Q, &S>, Error> {
+        self.actor.read()
     }
 
     #[cfg_attr(
@@ -78,20 +86,21 @@ where
             #[cfg(feature = "tracing")]
             tracing::warn!("Detected a halted state; terminating the program...");
             return None;
-        } 
+        }
         // read the tape
-        let head = Head { state: self.actor.state().cloned(), symbol: self.actor.get().copied().unwrap_or_default() };
+        let head = if let Ok(cur) = self.read() {
+            cur.cloned()
+        } else {
+            #[cfg(feature = "tracing")]
+            tracing::warn!("Unable to locate the value of the head...");
+            Head::from_state(self.actor.state().cloned())
+        };
         // execute the program
-        if let Some(tail) = self
-                .program
-                .get_head_ref(head.to_ref()) {
-            // get the next head
-            let next = tail.cloned().into_head();
+        if let Some(tail) = self.program.get(&head).cloned() {
             // process the instruction
-            self.actor
-                .handle(tail.direction(), tail.state.cloned(), *tail.symbol);
+            self.actor.process(tail.clone());
             // return the head
-            return Some(next);
+            return Some(tail.into_head());
         } else {
             #[cfg(feature = "tracing")]
             tracing::error!("No symbol found at {}", self.actor.position());

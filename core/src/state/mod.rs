@@ -22,7 +22,9 @@ pub(crate) mod prelude {
     pub use super::states::*;
 }
 
-pub type AnyState = State<Box<dyn std::any::Any + Send + Sync>>;
+pub type AnyState = State<Box<dyn std::any::Any>>;
+
+pub trait BaseState: Eq + PartialOrd + core::hash::Hash {}
 
 #[doc(hidden)]
 pub trait RawState {

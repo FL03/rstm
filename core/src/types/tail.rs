@@ -121,6 +121,18 @@ impl<'a, Q, S> Tail<&'a Q, &'a S> {
             symbol: self.symbol.clone(),
         }
     }
+
+    pub fn copied(&self) -> Tail<Q, S>
+    where
+        Q: Copy,
+        S: Copy,
+    {
+        Tail {
+            direction: self.direction,
+            state: self.state.copied(),
+            symbol: *self.symbol,
+        }
+    }
 }
 
 impl<'a, Q, S> Tail<&'a mut Q, &'a mut S> {
@@ -133,6 +145,18 @@ impl<'a, Q, S> Tail<&'a mut Q, &'a mut S> {
             direction: self.direction,
             state: self.state.cloned(),
             symbol: self.symbol.clone(),
+        }
+    }
+
+    pub fn copied(&self) -> Tail<Q, S>
+    where
+        Q: Copy,
+        S: Copy,
+    {
+        Tail {
+            direction: self.direction,
+            state: self.state.copied(),
+            symbol: *self.symbol,
         }
     }
 }

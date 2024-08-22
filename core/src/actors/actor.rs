@@ -7,7 +7,7 @@ pub use self::builder::ActorBuilder;
 
 use super::Executor;
 use crate::rules::Program;
-use crate::{Direction, Error, Head, State};
+use crate::{Direction, Error, Head, State, Tail};
 
 /// An [Actor] describes a Turing machine with a moving head (TMH).
 ///
@@ -18,8 +18,6 @@ pub struct Actor<Q, S> {
     pub(crate) alpha: Vec<S>,
     /// the head of the tape
     pub(crate) head: Head<Q, usize>,
-    /// the number of steps taken by the actor
-    pub(crate) steps: usize,
 }
 
 impl<Q, S> Actor<Q, S> {
@@ -35,7 +33,6 @@ impl<Q, S> Actor<Q, S> {
                 state: State(state),
                 symbol: 0,
             },
-            steps: 0,
         }
     }
 
@@ -75,10 +72,6 @@ impl<Q, S> Actor<Q, S> {
     /// Returns an instance of the state with a mutable reference to the inner value
     pub fn state_mut(&mut self) -> State<&mut Q> {
         self.head.state_mut()
-    }
-    /// Returns the number of steps taken by the actor
-    pub fn steps(&self) -> usize {
-        self.steps
     }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
@@ -139,11 +132,10 @@ impl<Q, S> Actor<Q, S> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Writing to the tape...");
         let pos = self.position();
-        
+
         if pos == usize::MAX {
             #[cfg(feature = "tracing")]
             tracing::trace!("Prepending to the tape...");
-            
         } else if pos >= self.len() {
             #[cfg(feature = "tracing")]
             tracing::trace!("Appending to the tape...");
@@ -169,36 +161,9 @@ impl<Q, S> Actor<Q, S> {
             symbol: direction.apply(self.head.symbol),
         };
     }
-    /// Performs a single step of the Turing machine
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "step", target = "actor")
-    )]
-    pub(crate) fn step(
-        &mut self,
-        direction: Direction,
-        State(state): State<Q>,
-        symbol: S,
-    ) -> Result<Head<&Q, &S>, Error>
-    where
-        S: Clone,
-    {
-        #[cfg(feature = "tracing")]
-        tracing::trace!("Transitioning the actor...");
 
-        // write the symbol to the tape
-        self.write(symbol);
-        // update the head of the actor
-        self.head = Head {
-            state: State(state),
-            symbol: direction.apply(self.head.symbol),
-        };
-        // read the tape
-        self.read()
-    }
-
-    fn on_update(&mut self) {
-        self.steps += 1;
+    pub(crate) fn process(&mut self, rule: Tail<Q, S>) {
+        self.handle(rule.direction, rule.state, rule.symbol);
     }
 }
 
@@ -298,7 +263,6 @@ mod builder {
                     state: state.unwrap_or_default(),
                     symbol,
                 },
-                steps: 0,
             }
         }
     }

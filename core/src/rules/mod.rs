@@ -12,6 +12,8 @@ pub use self::{
 pub(crate) mod program;
 pub(crate) mod rule;
 
+pub mod workload;
+
 #[doc(hidden)]
 pub(crate) mod builders {
     pub use self::{program::ProgramBuilder, rule::RuleBuilder};
@@ -26,12 +28,9 @@ pub(crate) mod prelude {
     pub use super::{Directive, Scope, Transition};
 }
 
-use crate::{Direction, State, Symbolic};
+use crate::{Direction, Head, State, Symbolic, Tail};
 
-pub trait Transition<Q, S>
-where
-    S: Symbolic,
-{
+pub trait Transition<Q, S> {
     fn direction(&self) -> Direction;
 
     fn current_state(&self) -> State<&'_ Q>;
@@ -41,6 +40,28 @@ where
     fn symbol(&self) -> &S;
 
     fn write_symbol(&self) -> &S;
+
+    fn head(&self) -> Head<&Q, &S> {
+        Head {
+            state: self.current_state(),
+            symbol: self.symbol(),
+        }
+    }
+
+    fn tail(&self) -> Tail<&Q, &S> {
+        Tail {
+            direction: self.direction(),
+            state: self.next_state(),
+            symbol: self.write_symbol(),
+        }
+    }
+
+    fn as_rule(&self) -> Rule<&Q, &S> {
+        Rule {
+            head: self.head(),
+            tail: self.tail(),
+        }
+    }
 }
 
 /// The [`Scope`] trait is used to describe objects containing information or references to the
