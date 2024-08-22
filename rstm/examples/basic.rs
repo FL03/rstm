@@ -7,7 +7,7 @@ extern crate rstm;
 use rstm::{ruleset, Program, State, Tape, TM};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt().with_target(false).init();
+    _tracing("debug");
 
     // initialize the tape data
     let alpha = [0_usize; 10];
@@ -28,4 +28,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let tm = TM::new(program, tape);
     tm.execute()?;
     Ok(())
+}
+
+fn _tracing(level: &str) {
+    let level = match level {
+        "debug" => tracing::Level::DEBUG,
+        "error" => tracing::Level::ERROR,
+        "trace" => tracing::Level::TRACE,
+        "warn" => tracing::Level::WARN,
+        _ => tracing::Level::INFO,
+    };
+    let timer = tracing_subscriber::fmt::time::uptime();
+    tracing_subscriber::fmt()
+        .with_max_level(level)
+        .with_target(false)
+        .with_timer(timer)
+        .init();
+    tracing::info!("Welcome to rstm!");
 }

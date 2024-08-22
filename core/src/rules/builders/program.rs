@@ -4,6 +4,8 @@
 */
 use crate::rules::{Program, Rule};
 use crate::State;
+
+#[derive(Default)]
 pub struct ProgramBuilder<Q, S> {
     initial_state: Option<State<Q>>,
     rules: Vec<Rule<Q, S>>,

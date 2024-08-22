@@ -9,7 +9,7 @@ use rstm::{ruleset, Actor, Program, State};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     _tracing();
     // initialize the tape data
-    let alpha: Vec<i8> = vec![0, 1, 1, 0, 1, 0, 1, 0];
+    let alpha = vec![0_i8; 10];
     // initialize the state of the machine
     let initial_state = State(0);
     // define the ruleset for the machine
@@ -37,9 +37,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn _tracing() {
     let timer = tracing_subscriber::fmt::time::uptime();
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::TRACE)
+        .with_max_level(tracing::Level::INFO)
         .with_target(false)
         .with_timer(timer)
         .init();
     tracing::info!("Welcome to rstm!");
+}
+
+pub enum S3 {
+    A,
+    B,
+    C,
 }

@@ -130,12 +130,14 @@ impl<Q, S> Head<Q, S> {
             symbol: &mut self.symbol,
         }
     }
+
+    pub fn read<'a, T>(self, tape: &'a [T]) -> Option<&'a <S>::Output> where S: core::slice::SliceIndex<[T]> {
+        tape.get(self.symbol)
+    }
 }
 
 impl<Q> Head<Q, usize> {
-    pub fn read_tape<'a, S>(&self, tape: &'a [S]) -> Option<&'a S> {
-        tape.get(self.symbol)
-    }
+    
 
     pub fn shift(self, direction: crate::Direction) -> Self {
         Self {
@@ -143,7 +145,7 @@ impl<Q> Head<Q, usize> {
             ..self
         }
     }
-
+    
     pub fn shift_inplace(&mut self, direction: crate::Direction) {
         self.symbol = direction.apply(self.symbol);
     }
@@ -168,7 +170,7 @@ impl<'a, Q, S> Head<&'a Q, &'a S> {
     {
         Head {
             state: self.state.copied(),
-            symbol: self.symbol.clone(),
+            symbol: *self.symbol,
         }
     }
 }
@@ -192,30 +194,6 @@ impl<'a, Q, S> Head<&'a mut Q, &'a mut S> {
     {
         Head {
             state: self.state.copied(),
-            symbol: *self.symbol,
-        }
-    }
-}
-
-impl<'a, Q, S> Head<*const Q, *const S> {
-    pub fn cloned(&self) -> Head<*const Q, *const S>
-    where
-        Q: Clone,
-        S: Clone,
-    {
-        Head {
-            state: self.state.clone(),
-            symbol: self.symbol.clone(),
-        }
-    }
-
-    pub unsafe fn copied(&self) -> Head<Q, S>
-    where
-        Q: Copy,
-        S: Copy,
-    {
-        Head {
-            state: State(*self.state.0),
             symbol: *self.symbol,
         }
     }

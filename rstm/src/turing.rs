@@ -79,10 +79,10 @@ impl<Q, S> TM<Q, S> {
         S: Symbolic,
     {
         #[cfg(feature = "tracing")]
-        tracing::info!("Running the program...");
+        tracing::trace!("Executing the program...");
         loop {
             #[cfg(feature = "tracing")]
-            tracing::info!("{}", &self.tape);
+            tracing::info!("{tape}", tape = self.tape());
             match self.process() {
                 Some(_) => {
                     if self.state.is_halt() {
@@ -104,14 +104,11 @@ impl<Q, S> TM<Q, S> {
     )]
     fn process(&mut self) -> Option<Head<&'_ Q, &'_ S>>
     where
-        Q: Clone + PartialEq + 'static,
+        Q: Clone + PartialEq,
         S: Clone + PartialEq,
     {
         #[cfg(feature = "tracing")]
-        tracing::info!("Stepping...");
-        if self.state.is_halt() {
-            return None;
-        }
+        tracing::trace!("Processing the current instruction...");
         // Get the first instruction for the current head
         if let Some(Tail {
             direction,
@@ -120,10 +117,11 @@ impl<Q, S> TM<Q, S> {
         }) = self
             .program
             .get_head_ref(self.read()?)
-            .map(|tail| tail.cloned())
         {
-            self.state = self.tape.update_inplace(direction, state, symbol);
-            return self.read();
+            //
+            self.tape.update_inplace(direction, symbol.clone());
+            self.state = state.cloned();
+            return Some(Head::new(state, symbol));
         }
         unreachable!("No instruction found for the current head")
     }

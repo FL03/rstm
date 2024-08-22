@@ -115,14 +115,7 @@ impl<S> Tape<S> {
             .ok_or(Error::index_out_of_bounds(self.cursor, self.len()))
     }
     ///
-    pub fn write(&mut self, direction: Direction, symbol: S) {
-        self.write_symbol(symbol);
-        self.shift(direction);
-        self.on_update();
-    }
-
-    ///
-    fn write_symbol(&mut self, symbol: S) {
+    pub fn write(&mut self, symbol: S) {
         if self.cursor < self.store.len() {
             self.store[self.cursor] = symbol;
         } else {
@@ -142,20 +135,18 @@ impl<S> Tape<S> {
     {
         let head = Head::new(state, symbol.clone());
         let mut tape = self;
-        tape.write(direction, symbol);
+        tape.write(symbol);
         tape.shift(direction);
         (tape, head)
     }
 
-    pub fn update_inplace<Q>(
+    pub fn update_inplace(
         &mut self,
         direction: Direction,
-        state: State<Q>,
         symbol: S,
-    ) -> State<Q> {
-        self.write(direction, symbol);
+    ) {
+        self.write(symbol);
         self.shift(direction);
-        state
     }
 
     pub fn apply_inplace<Q>(&mut self, tail: Tail<Q, S>) -> State<Q> {
@@ -164,7 +155,8 @@ impl<S> Tape<S> {
             state,
             symbol,
         } = tail;
-        self.update_inplace(direction, state, symbol)
+        self.update_inplace(direction, symbol);
+        state
     }
 
     fn on_update(&self) {

@@ -100,14 +100,32 @@ impl<Q, S> Actor<Q, S> {
     /// Reads the current symbol at the head of the tape
     #[cfg_attr(
         feature = "tracing",
+        tracing::instrument(skip_all, name = "get", target = "actor")
+    )]
+    pub fn get(&self) -> Option<&S> {
+        self.alpha().get(self.position())
+    }
+
+    pub fn get_head(&self) -> Option<Head<&Q, &S>> {
+        self.get().map(|symbol| Head {
+            state: self.head.state(),
+            symbol,
+        })
+    }
+    /// Reads the current symbol at the head of the tape
+    #[cfg_attr(
+        feature = "tracing",
         tracing::instrument(skip_all, name = "read", target = "actor")
     )]
     pub fn read(&self) -> Option<Head<&Q, &S>> {
         #[cfg(feature = "tracing")]
-        tracing::debug!("Reading the tape...");
-        let Head { state, symbol } = self.get_head_ref();
-        self.alpha.get(symbol).map(|value| Head::new(state, value))
+        tracing::trace!("Reading the tape...");
+        self.alpha.get(self.position()).map(|symbol| Head {
+            state: self.head.state(),
+            symbol,
+        })
     }
+
     /// Writes the given symbol to the tape
     #[cfg_attr(
         feature = "tracing",
@@ -115,7 +133,7 @@ impl<Q, S> Actor<Q, S> {
     )]
     pub fn write(&mut self, value: S) {
         #[cfg(feature = "tracing")]
-        tracing::debug!("Writing to the tape...");
+        tracing::trace!("Writing to the tape...");
         let pos = self.head.symbol;
         if pos >= self.len() {
             #[cfg(feature = "tracing")]
@@ -125,6 +143,27 @@ impl<Q, S> Actor<Q, S> {
         } else {
             self.alpha[pos] = value;
         }
+    }
+    /// Performs a single step of the Turing machine
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "handle", target = "actor")
+    )]
+    pub(crate) fn handle(
+        &mut self,
+        direction: Direction,
+        State(next_state): State<Q>,
+        symbol: S,
+    ) {
+        #[cfg(feature = "tracing")]
+        tracing::trace!("Transitioning the actor...");
+        // write the symbol to the tape
+        self.write(symbol);
+        // update the head of the actor
+        self.head = Head {
+            state: State(next_state),
+            symbol: direction.apply(self.head.symbol),
+        };
     }
     /// Performs a single step of the Turing machine
     #[cfg_attr(
@@ -141,13 +180,15 @@ impl<Q, S> Actor<Q, S> {
         S: Clone,
     {
         #[cfg(feature = "tracing")]
-        tracing::debug!("Transitioning the actor...");
+        tracing::trace!("Transitioning the actor...");
+
         // write the symbol to the tape
         self.write(symbol);
-        // set the state of the head
-        self.head.set_state(State(state));
-        // shift the head in the given direction
-        self.head.shift_inplace(direction);
+        // update the head of the actor
+        self.head = Head {
+            state: State(state),
+            symbol: direction.apply(self.head.symbol),
+        };
         // read the tape
         self.read()
     }
@@ -155,7 +196,6 @@ impl<Q, S> Actor<Q, S> {
 
 impl<Q, S> core::fmt::Debug for Actor<Q, S>
 where
-    Q: core::fmt::Debug,
     S: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -172,7 +212,6 @@ where
 
 impl<Q, S> core::fmt::Display for Actor<Q, S>
 where
-    Q: core::fmt::Display,
     S: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {

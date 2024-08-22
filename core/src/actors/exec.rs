@@ -82,10 +82,8 @@ where
                 .program
                 .get_head_ref(h)
                 .expect("No instruction found for the current head");
-            return self
-                .actor
-                .step(direction, state.cloned(), *symbol)
-                .map(|h| h.cloned());
+            self.actor.handle(direction, state.cloned(), *symbol);
+            return self.actor.read().map(|h| h.cloned());
         } else {
             #[cfg(feature = "tracing")]
             tracing::error!("No instruction found for the current head");
