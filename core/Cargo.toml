@@ -13,21 +13,30 @@ repository.workspace = true
 version.workspace = true
 
 [features]
-default = []
+default = [
+    "alloc",
+]
 
 full = [
     "default",
+    "rand",
     "serde",
     "tracing",
 ]
 
 # ********* [FF] Dependencies *********
 alloc = [
+    "num/alloc",
     "serde?/alloc",
+]
+
+rand = [
+    "num/rand",
 ]
 
 serde = [
     "dep:serde",
+    "num/serde",
 ]
 
 tracing = [
@@ -50,6 +59,10 @@ test = true
 [dependencies]
 thiserror.workspace = true
 paste.workspace = true
+
+[dependencies.num]
+# default-features = false
+version = "0.4"
 
 [dependencies.serde]
 # default-features = false

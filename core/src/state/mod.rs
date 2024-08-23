@@ -3,39 +3,59 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{state::State, states::*};
+pub use self::{halt::*, state::State, states::*};
 
 pub(crate) mod state;
 
+pub mod halt;
+
 pub(crate) mod states {
     #[doc(inline)]
-    pub use self::{binary::*, halting::*};
+    pub use self::binary::*;
 
     pub(crate) mod binary;
-    pub(crate) mod halting;
 }
 
 pub(crate) mod prelude {
-
+    pub use super::halt::*;
     pub use super::state::State;
     pub use super::states::*;
+    pub use super::AnyState;
 }
+
+pub type AnyState = State<Box<dyn std::any::Any>>;
+
+pub trait BaseState: Eq + PartialOrd + core::hash::Hash {}
 
 #[doc(hidden)]
 pub trait RawState {
-    type Data;
+    type Ctx;
+}
+
+#[doc(hidden)]
+pub trait Stated<Q>: RawState<Ctx = Q> {
+    fn cloned(&self) -> Self
+    where
+        Q: Clone;
+    fn copied(&self) -> Self
+    where
+        Q: Copy;
 }
 
 #[doc(hidden)]
 pub trait Stateful<Q> {
-    type State: RawState<Data = Q>;
+    type State: RawState<Ctx = Q>;
 }
 
 /*
  ************* Implementations *************
 */
+impl<Q> RawState for Halt<Q> {
+    type Ctx = Q;
+}
+
 impl<Q> RawState for State<Q> {
-    type Data = Q;
+    type Ctx = Q;
 }
 
 impl<Q> Stateful<Q> for State<Q> {

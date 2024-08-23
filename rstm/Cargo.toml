@@ -13,7 +13,9 @@ repository.workspace = true
 version.workspace = true
 
 [features]
-default = []
+default = [
+    "alloc",
+]
 
 full = [
     "default",
@@ -22,9 +24,9 @@ full = [
 ]
 
 # ********* [FF] Dependencies *********
-# alloc = [
-#     "serde?/alloc",
-# ]
+alloc = [
+    "serde?/alloc",
+]
 
 serde = [
     "dep:serde",
@@ -50,11 +52,11 @@ doctest = false
 test = true
 
 [[example]]
-name = "basic"
+name = "actor"
 required-features = ["tracing"]
 
 [[example]]
-name = "utm"
+name = "basic"
 required-features = ["tracing"]
 
 # ****************** Dependencies ******************
@@ -63,7 +65,7 @@ thiserror.workspace = true
 
 [dependencies.rstm-core]
 path = "../core"
-version = "0.0.2"
+version = "0.0.3"
 
 [dependencies.serde]
 # default-features = false
@@ -84,7 +86,7 @@ version = "0.1"
 # ****************** Dev Dependencies ******************
 [dev-dependencies]
 lazy_static.workspace = true
-tracing-subscriber = { features = [], version = "0.3" }
+tracing-subscriber = "0.3"
 
 [package.metadata.docs.rs]
 all-features = true

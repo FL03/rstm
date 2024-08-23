@@ -4,41 +4,33 @@
 */
 #[doc(inline)]
 pub use self::{
-    instruction::*,
-    parts::{Head, Tail},
-    program::*,
+    builders::{ProgramBuilder, RuleBuilder},
+    program::Program,
+    rule::Rule,
 };
 
-pub(crate) mod instruction;
 pub(crate) mod program;
+pub(crate) mod rule;
+
+pub mod workload;
 
 #[doc(hidden)]
-pub mod entry;
+pub(crate) mod builders {
+    pub use self::{program::ProgramBuilder, rule::RuleBuilder};
 
-pub mod parts {
-    pub use self::{head::*, tail::*};
-
-    pub(crate) mod head;
-    pub(crate) mod tail;
+    mod program;
+    mod rule;
 }
 
 pub(crate) mod prelude {
-    pub use super::instruction::Instruction;
-    pub use super::parts::{Head, Tail};
     pub use super::program::Program;
+    pub use super::rule::Rule;
+    pub use super::{Directive, Scope, Transition};
 }
 
-use crate::{Direction, State, Symbolic};
+use crate::{Direction, Head, State, Symbolic, Tail};
 
-pub trait Rule {
-    type Elem;
-    type State;
-}
-
-pub trait Transition<Q, S>
-where
-    S: Symbolic,
-{
+pub trait Transition<Q, S> {
     fn direction(&self) -> Direction;
 
     fn current_state(&self) -> State<&'_ Q>;
@@ -48,20 +40,45 @@ where
     fn symbol(&self) -> &S;
 
     fn write_symbol(&self) -> &S;
+
+    fn head(&self) -> Head<&Q, &S> {
+        Head {
+            state: self.current_state(),
+            symbol: self.symbol(),
+        }
+    }
+
+    fn tail(&self) -> Tail<&Q, &S> {
+        Tail {
+            direction: self.direction(),
+            state: self.next_state(),
+            symbol: self.write_symbol(),
+        }
+    }
+
+    fn as_rule(&self) -> Rule<&Q, &S> {
+        Rule {
+            head: self.head(),
+            tail: self.tail(),
+        }
+    }
 }
 
-pub trait Header<Q, S> {
+/// The [`Scope`] trait is used to describe objects containing information or references to the
+/// current state and symbol of a Turing machine.
+pub trait Scope<Q, S> {
     fn current_state(&self) -> State<&'_ Q>;
 
     fn symbol(&self) -> &S;
 }
 
+/// [`Directive`] is a trait describing the `tail` of a typical Turing machine;
 pub trait Directive<Q, S> {
     fn direction(&self) -> Direction;
 
     fn next_state(&self) -> State<&'_ Q>;
 
-    fn write_symbol(&self) -> &S;
+    fn value(&self) -> &S;
 }
 
 /*
@@ -70,7 +87,7 @@ pub trait Directive<Q, S> {
 
 impl<A, Q, S> Transition<Q, S> for A
 where
-    A: Header<Q, S> + Directive<Q, S>,
+    A: Scope<Q, S> + Directive<Q, S>,
     S: Symbolic,
 {
     fn direction(&self) -> Direction {
@@ -90,11 +107,11 @@ where
     }
 
     fn write_symbol(&self) -> &S {
-        self.write_symbol()
+        self.value()
     }
 }
 
-impl<Q, S> Header<Q, S> for Instruction<Q, S> {
+impl<Q, S> Scope<Q, S> for Rule<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
         self.head.state.to_ref()
     }
@@ -104,23 +121,23 @@ impl<Q, S> Header<Q, S> for Instruction<Q, S> {
     }
 }
 
-impl<Q, S> Directive<Q, S> for Instruction<Q, S> {
+impl<Q, S> Directive<Q, S> for Rule<Q, S> {
     fn direction(&self) -> Direction {
         self.direction()
     }
 
     fn next_state(&self) -> State<&'_ Q> {
-        self.tail().next_state()
+        self.tail().state()
     }
 
-    fn write_symbol(&self) -> &S {
+    fn value(&self) -> &S {
         &self.write_symbol()
     }
 }
 
-impl<Q, S> Header<Q, S> for crate::Head<Q, S> {
+impl<Q, S> Scope<Q, S> for crate::Head<Q, S> {
     fn current_state(&self) -> State<&'_ Q> {
-        self.state().to_ref()
+        self.state()
     }
 
     fn symbol(&self) -> &S {
@@ -134,15 +151,15 @@ impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
     }
 
     fn next_state(&self) -> State<&'_ Q> {
-        self.next_state()
+        self.state()
     }
 
-    fn write_symbol(&self) -> &S {
-        &self.write_symbol()
+    fn value(&self) -> &S {
+        &self.symbol()
     }
 }
 
-impl<Q, S> Header<Q, S> for (State<Q>, S) {
+impl<Q, S> Scope<Q, S> for (State<Q>, S) {
     fn current_state(&self) -> State<&'_ Q> {
         self.0.to_ref()
     }
@@ -161,7 +178,7 @@ impl<Q, S> Directive<Q, S> for (Direction, State<Q>, S) {
         self.1.to_ref()
     }
 
-    fn write_symbol(&self) -> &S {
+    fn value(&self) -> &S {
         &self.2
     }
 }

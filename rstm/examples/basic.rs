@@ -4,28 +4,45 @@
 */
 extern crate rstm;
 
-use rstm::{
-    rule,
-    state::{self, State},
-    StdTape, TM,
-};
-
-use state::BinState::*;
+use rstm::{ruleset, Program, State, StdTape, Turm};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing_subscriber::fmt().with_target(false).init();
-    println!("{}", -1_isize as u8);
-    let tape_data: Vec<u8> = vec![0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1];
+    _tracing("debug");
 
-    let rules = vec![
-        rule![(Invalid, 0) -> Left(Invalid, 0)],
-        rule![(Invalid, 1) -> Right(Valid, 0)],
-        rule![(Valid, 0) -> Right(Valid, 1)],
-        rule![(Valid, 1) -> Left(Valid, 0)],
+    // initialize the tape data
+    let alpha = [0_usize; 10];
+    // define the rules for the machine
+    let rules = ruleset![
+        (0, 0) -> Right(1, 0),
+        (0, 1) -> Right(-1, 1),
+        (1, 0) -> Right(0, 1),
+        (1, 1) -> Right(-1, 0),
+        (-1, 0) -> Left(0, 0),
+        (-1, 1) -> Left(1, 1),
     ];
-
-    let tape = StdTape::from_iter(tape_data);
-    let tm = TM::new(State(Invalid), rules, tape);
-    tm.run()?;
+    // create a new program with the rules
+    let program = Program::new().initial_state(State(0)).rules(rules).build();
+    // create a new tape with the data
+    let tape = StdTape::from_iter(alpha);
+    // create a new instance of the machine
+    let tm = Turm::new(program, tape);
+    tm.execute()?;
     Ok(())
+}
+
+fn _tracing(level: &str) {
+    let level = match level {
+        "debug" => tracing::Level::DEBUG,
+        "error" => tracing::Level::ERROR,
+        "trace" => tracing::Level::TRACE,
+        "warn" => tracing::Level::WARN,
+        _ => tracing::Level::INFO,
+    };
+    let timer = tracing_subscriber::fmt::time::uptime();
+    tracing_subscriber::fmt()
+        .with_max_level(level)
+        .with_target(false)
+        .with_timer(timer)
+        .init();
+    tracing::info!("Welcome to rstm!");
 }

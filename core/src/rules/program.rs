@@ -2,34 +2,40 @@
     Appellation: program <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Instruction;
+use super::{ProgramBuilder, Rule};
 use crate::{Head, State, Tail};
 use std::vec;
 
-type RuleSet<Q, S> = Vec<Instruction<Q, S>>;
+type Ruleset<Q, S> = Vec<Rule<Q, S>>;
+
+// type Ruleset<Q, S> = std::collections::HashMap<Head<Q, S>, Tail<Q, S>>;
 
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Program<Q = String, S = char> {
-    pub initial_state: State<Q>,
-    pub(crate) ruleset: RuleSet<Q, S>,
+    pub(crate) initial_state: State<Q>,
+    pub(crate) rules: Ruleset<Q, S>,
 }
 
 impl<Q, S> Program<Q, S> {
-    pub fn new(State(initial_state): State<Q>) -> Self {
-        Self {
-            initial_state: State(initial_state),
-            ruleset: RuleSet::new(),
-        }
+    pub fn new() -> ProgramBuilder<Q, S> {
+        ProgramBuilder::new()
     }
 
-    pub fn from_iter(instructions: impl IntoIterator<Item = Instruction<Q, S>>) -> Self
+    pub fn from_iter(instructions: impl IntoIterator<Item = Rule<Q, S>>) -> Self
     where
         Q: Default,
     {
         Self {
             initial_state: State::default(),
-            ruleset: RuleSet::from_iter(instructions),
+            rules: Ruleset::from_iter(instructions),
+        }
+    }
+
+    pub fn from_state(State(initial_state): State<Q>) -> Self {
+        Self {
+            initial_state: State(initial_state),
+            rules: Ruleset::new(),
         }
     }
     ///
@@ -40,12 +46,9 @@ impl<Q, S> Program<Q, S> {
         }
     }
     ///
-    pub fn with_instructions(
-        self,
-        instructions: impl IntoIterator<Item = Instruction<Q, S>>,
-    ) -> Self {
+    pub fn with_instructions(self, instructions: impl IntoIterator<Item = Rule<Q, S>>) -> Self {
         Self {
-            ruleset: RuleSet::from_iter(instructions),
+            rules: Ruleset::from_iter(instructions),
             ..self
         }
     }
@@ -54,76 +57,135 @@ impl<Q, S> Program<Q, S> {
         self.initial_state.to_ref()
     }
     /// Returns a reference to the instructions.
-    pub const fn instructions(&self) -> &RuleSet<Q, S> {
-        &self.ruleset
+    pub const fn instructions(&self) -> &Ruleset<Q, S> {
+        &self.rules
     }
     /// Returns a mutable reference to the instructions.
-    pub fn instructions_mut(&mut self) -> &mut RuleSet<Q, S> {
-        &mut self.ruleset
+    pub fn instructions_mut(&mut self) -> &mut Ruleset<Q, S> {
+        &mut self.rules
     }
     /// Returns an iterator over the elements.
-    pub fn iter(&self) -> core::slice::Iter<Instruction<Q, S>> {
-        self.ruleset.iter()
+    pub fn iter(&self) -> core::slice::Iter<Rule<Q, S>> {
+        self.rules.iter()
     }
-    /// Returns an owned reference to the element(s) specified by the index.
-    pub fn get<I>(&self, idx: I) -> Option<&I::Output>
-    where
-        I: core::slice::SliceIndex<[Instruction<Q, S>]>,
-    {
-        self.ruleset.get(idx)
+    /// Returns a mutable iterator over the elements.
+    pub fn iter_mut(&mut self) -> core::slice::IterMut<Rule<Q, S>> {
+        self.rules.iter_mut()
     }
     /// Returns a collection of tails for a given head.
-    pub fn get_head(&self, head: &Head<Q, S>) -> Vec<Tail<&'_ Q, &'_ S>>
+    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
     {
-        self.iter()
-            .filter_map(|i| {
-                if i.head() == head {
-                    Some(i.tail().to_ref())
-                } else {
-                    None
-                }
-            })
-            .collect()
+        self.iter().find_map(|i| {
+            if i.head() == head {
+                Some(i.tail())
+            } else {
+                None
+            }
+        })
     }
-
-    pub fn find_head(&self, head: Head<&'_ Q, &'_ S>) -> Option<&Tail<Q, S>>
+    /// Returns a mutable collection of tails for a given head.
+    pub fn get_mut(&mut self, head: &Head<Q, S>) -> Option<&mut Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
     {
-        self.iter().find(|i| i.head().to_ref() == head).map(|i| i.tail())
+        self.iter_mut().find_map(|i| {
+            if i.head() == head {
+                Some(i.tail_mut())
+            } else {
+                None
+            }
+        })
+    }
+    /// Returns a collection of tails for a given head.
+    pub fn get_ref(&self, head: Head<&'_ Q, &'_ S>) -> Option<Tail<&'_ Q, &'_ S>>
+    where
+        Q: PartialEq,
+        S: PartialEq,
+    {
+        self.iter().find_map(|i| {
+            if i.head_ref() == head {
+                Some(i.tail_ref())
+            } else {
+                None
+            }
+        })
     }
 }
 
-impl<Q: Default, S> From<RuleSet<Q, S>> for Program<Q, S> {
-    fn from(instructions: RuleSet<Q, S>) -> Self {
+impl<Q, S> AsRef<[Rule<Q, S>]> for Program<Q, S> {
+    fn as_ref(&self) -> &[Rule<Q, S>] {
+        &self.rules
+    }
+}
+
+impl<Q, S> AsMut<[Rule<Q, S>]> for Program<Q, S> {
+    fn as_mut(&mut self) -> &mut [Rule<Q, S>] {
+        &mut self.rules
+    }
+}
+
+impl<Q, S> core::ops::Deref for Program<Q, S> {
+    type Target = [Rule<Q, S>];
+
+    fn deref(&self) -> &Self::Target {
+        &self.rules
+    }
+}
+
+impl<Q, S> core::ops::DerefMut for Program<Q, S> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.rules
+    }
+}
+
+impl<Q, S> core::ops::Index<Head<Q, S>> for Program<Q, S>
+where
+    Q: PartialEq,
+    S: PartialEq,
+{
+    type Output = Tail<Q, S>;
+
+    fn index(&self, index: Head<Q, S>) -> &Self::Output {
+        self.get(&index).unwrap()
+    }
+}
+
+impl<Q: Default, S> From<Ruleset<Q, S>> for Program<Q, S> {
+    fn from(instructions: Ruleset<Q, S>) -> Self {
         Self {
             initial_state: State::default(),
-            ruleset: instructions,
+            rules: instructions,
         }
     }
 }
 
-impl<Q, S> FromIterator<Instruction<Q, S>> for Program<Q, S>
+impl<Q, S> Extend<Rule<Q, S>> for Program<Q, S> {
+    fn extend<I: IntoIterator<Item = Rule<Q, S>>>(&mut self, iter: I) {
+        self.rules.extend(iter)
+    }
+}
+
+impl<Q, S> FromIterator<Rule<Q, S>> for Program<Q, S>
 where
     Q: Default,
 {
-    fn from_iter<I: IntoIterator<Item = Instruction<Q, S>>>(iter: I) -> Self {
+    fn from_iter<I: IntoIterator<Item = Rule<Q, S>>>(iter: I) -> Self {
         Self {
             initial_state: State::default(),
-            ruleset: RuleSet::from_iter(iter),
+            rules: Ruleset::from_iter(iter),
         }
     }
 }
 
 impl<Q, S> IntoIterator for Program<Q, S> {
-    type Item = Instruction<Q, S>;
+    type Item = Rule<Q, S>;
     type IntoIter = vec::IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.ruleset.into_iter()
+        self.rules.into_iter()
     }
 }

@@ -3,72 +3,116 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 
-/// [Alphabet] abstractly describes the set of symbols used for both
-/// the input and output of any given Turing machine.
-///
-/// ### Definition
-///
-/// An alphabet is formally defines to be a finite set of symbols.
+/// [Alphabet] describes a finite set of symbols used to construct a formal language.
 ///
 /// Ideally, the alphabet should be implemented on unit enums since
 /// each symbol can be represented as a unique variant and assigned
 /// a particular value. The values of the variants may then be used
 /// as pointers, specifiying the location of the symbol w.r.t. the
 /// alphabet.
-pub trait Alphabet: IntoIterator<Item = Self::Sym> {
-    type Sym;
+pub trait Alphabet {
+    type Elem;
 
-    fn len(&self) -> usize {
-        self.to_vec().len()
+    fn as_slice(&self) -> &[Self::Elem];
+
+    fn as_mut_slice(&mut self) -> &mut [Self::Elem];
+
+    fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 
-    fn to_vec(&self) -> Vec<Self::Sym>;
+    fn len(&self) -> usize {
+        self.as_slice().len()
+    }
+
+    fn to_vec(&self) -> Vec<Self::Elem>;
 }
 
-/// [Symbolic] is a generic trait automatically implemented for any
-/// type that satisfies the following conditions:
-/// - Clone
-/// - Eq
-/// - Ord
+/// [Symbolic] is a trait denoting types that can be used as symbols;
+/// this is useful for allowing symbols to represented with [char] or
+/// be a position on the tape, value mapping for an alphabet,.
 pub trait Symbolic
 where
     Self: Clone
+        + Copy
+        + Default
         + Eq
         + Ord
         + PartialEq
         + PartialOrd
         + core::fmt::Debug
         + core::fmt::Display
-        + core::hash::Hash,
+        + core::hash::Hash
+        + Send
+        + Sync
+        + 'static,
 {
-}
-
-#[doc(hidden)]
-pub trait Symbol: Symbolic {
-    type Z;
-
-    fn symbol(&self) -> char;
-
-    fn is_symbol(&self, symbol: char) -> bool {
-        self.symbol() == symbol
-    }
-    /// Returns the value assigned to the symbol;
-    fn value(&self) -> Self::Z;
 }
 
 /*
  ************* Implementations *************
 */
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
 
-impl Alphabet for Vec<char> {
-    type Sym = char;
+impl<S: Symbolic> Alphabet for [S] {
+    type Elem = S;
 
-    fn to_vec(&self) -> Vec<char> {
+    fn as_slice(&self) -> &[S] {
+        self
+    }
+
+    fn as_mut_slice(&mut self) -> &mut [S] {
+        self
+    }
+
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+
+    fn len(&self) -> usize {
+        self.len()
+    }
+
+    fn to_vec(&self) -> Vec<S> {
+        self.to_vec()
+    }
+}
+
+impl<S: Symbolic> Alphabet for Vec<S> {
+    type Elem = S;
+
+    fn as_slice(&self) -> &[S] {
+        self.as_slice()
+    }
+
+    fn as_mut_slice(&mut self) -> &mut [S] {
+        self.as_mut_slice()
+    }
+
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+
+    fn len(&self) -> usize {
+        self.len()
+    }
+
+    fn to_vec(&self) -> Vec<S> {
         self.clone()
     }
 }
 
 impl<S> Symbolic for S where
-    S: Clone + Eq + Ord + core::fmt::Debug + core::fmt::Display + core::hash::Hash
+    S: Copy
+        + Default
+        + Eq
+        + Ord
+        + core::fmt::Debug
+        + core::fmt::Display
+        + core::hash::Hash
+        + Send
+        + Sync
+        + 'static
 {
 }

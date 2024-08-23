@@ -23,15 +23,15 @@ thiserror = "1"
 
 [workspace.package]
 authors = ["Joe McCain III <jo3mccain@icloud.com>",]
-categories = [ ]
+categories = [ "mathematics", "science", "simulation" ]
 description = "This crate focuses on building concrete implementations for Turing Machines."
 edition = "2021"
 homepage = "https://github.com/FL03/rstm/wiki"
-keywords = [ ]
+keywords = [ "turing", "turing-machine", "utm" ]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/FL03/rstm.git"
-version = "0.0.2"
+version = "0.0.3"
 
 [profile.dev]
 opt-level = 0
