@@ -158,7 +158,7 @@ impl<Q, S> Actor<Q, S> {
         // update the head of the actor
         self.head = Head {
             state: State(state),
-            symbol: direction.apply(self.head.symbol),
+            symbol: direction.apply_unsigned(self.head.symbol),
         };
     }
 

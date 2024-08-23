@@ -20,7 +20,7 @@ extern crate alloc;
 pub use rstm_core::*;
 
 #[doc(inline)]
-pub use self::turing::TM;
+pub use self::turing::Turm;
 
 #[macro_use]
 pub(crate) mod macros {}
@@ -28,6 +28,6 @@ pub(crate) mod macros {}
 pub mod turing;
 
 pub mod prelude {
-    pub use crate::turing::TM;
+    pub use crate::turing::Turm;
     pub use rstm_core::prelude::*;
 }

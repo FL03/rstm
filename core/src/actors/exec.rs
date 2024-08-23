@@ -5,6 +5,7 @@
 use super::Actor;
 use crate::{Error, Head, Program, Symbolic};
 
+///
 pub struct Executor<Q, S> {
     pub(crate) actor: Actor<Q, S>,
     pub(crate) program: Program<Q, S>,

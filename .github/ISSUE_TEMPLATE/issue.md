@@ -3,7 +3,7 @@ about: A generic issue template
 assignees:
     - FL03
 labels: []
-projects: ['@FL03/concision:features']
+projects: ['@FL03/rstm:dev']
 name: Generic Issue
 title: ''
 ---

@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{halt::Halt, state::State, states::*};
+pub use self::{halt::*, state::State, states::*};
 
 pub(crate) mod state;
 
@@ -17,9 +17,10 @@ pub(crate) mod states {
 }
 
 pub(crate) mod prelude {
-
+    pub use super::halt::*;
     pub use super::state::State;
     pub use super::states::*;
+    pub use super::AnyState;
 }
 
 pub type AnyState = State<Box<dyn std::any::Any>>;
@@ -31,6 +32,7 @@ pub trait RawState {
     type Ctx;
 }
 
+#[doc(hidden)]
 pub trait Stated<Q>: RawState<Ctx = Q> {
     fn cloned(&self) -> Self
     where

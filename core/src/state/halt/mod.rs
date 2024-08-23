@@ -6,7 +6,7 @@
 //!
 //!
 #[doc(inline)]
-pub use self::{state::Halt, wrap::Halting};
+pub use self::{state::Halt, wrap::HaltState};
 
 pub(crate) mod state;
 pub(crate) mod wrap;

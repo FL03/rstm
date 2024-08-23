@@ -8,7 +8,7 @@ use crate::state::State;
 /// With respect to a Turing machine, the head defines the current state and symbol of the
 /// machine. When associated with a direction the head becomes a tail, instructing the machine
 /// to move, write, and transition to a new state.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
+#[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(
     feature = "serde",
     derive(serde::Deserialize, serde::Serialize),
@@ -17,7 +17,7 @@ use crate::state::State;
 pub struct Head<Q = String, S = char> {
     #[cfg_attr(feature = "serde", serde(alias = "current_state"))]
     pub state: State<Q>,
-    #[cfg_attr(feature = "serde", serde(flatten, alias = "current_symbol"))]
+    #[cfg_attr(feature = "serde", serde(alias = "current_symbol"))]
     pub symbol: S,
 }
 
@@ -134,13 +134,13 @@ impl<Q, S> Head<Q, S> {
 impl<Q> Head<Q, usize> {
     pub fn shift(self, direction: crate::Direction) -> Self {
         Self {
-            symbol: direction.apply(self.symbol),
+            symbol: direction.apply_unsigned(self.symbol),
             ..self
         }
     }
 
     pub fn shift_inplace(&mut self, direction: crate::Direction) {
-        self.symbol = direction.apply(self.symbol);
+        self.symbol = direction.apply_unsigned(self.symbol);
     }
 }
 
@@ -189,6 +189,29 @@ impl<'a, Q, S> Head<&'a mut Q, &'a mut S> {
             state: self.state.copied(),
             symbol: *self.symbol,
         }
+    }
+}
+
+impl<Q, S> core::fmt::Debug for Head<Q, S>
+where
+    Q: core::fmt::Debug,
+    S: core::fmt::Debug,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_tuple("Head")
+            .field(&self.state)
+            .field(&self.symbol)
+            .finish()
+    }
+}
+
+impl<Q, S> core::fmt::Display for Head<Q, S>
+where
+    Q: core::fmt::Display,
+    S: core::fmt::Display,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "({}, {})", self.state, self.symbol)
     }
 }
 

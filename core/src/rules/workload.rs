@@ -5,14 +5,24 @@
 // #![cfg(feature = "std")]
 use super::Rule;
 use crate::{Head, State, Tail};
-use std::collections::HashMap;
+use std::collections::hash_map::{self, HashMap};
 
-pub struct RuleSet<Q, S> {
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct RuleSet<Q, S>
+where
+    Q: Eq + core::hash::Hash,
+    S: Eq + core::hash::Hash,
+{
     pub(crate) initial_state: State<Q>,
     pub(crate) rules: HashMap<Head<Q, S>, Tail<Q, S>>,
 }
 
-impl<Q, S> RuleSet<Q, S> {
+impl<Q, S> RuleSet<Q, S>
+where
+    Q: Eq + core::hash::Hash,
+    S: Eq + core::hash::Hash,
+{
     pub fn new() -> Self
     where
         Q: Default,
@@ -30,31 +40,6 @@ impl<Q, S> RuleSet<Q, S> {
         }
     }
 
-    pub fn with_initial_state(self, State(state): State<Q>) -> Self {
-        Self {
-            initial_state: State(state),
-            ..self
-        }
-    }
-    /// Returns an instance of [State] which owns a reference to the interval value.
-    pub fn initial_state(&self) -> State<&'_ Q> {
-        self.initial_state.to_ref()
-    }
-    /// Returns an immutable reference to the set of rules.
-    pub const fn rules(&self) -> &HashMap<Head<Q, S>, Tail<Q, S>> {
-        &self.rules
-    }
-    /// Returns a mutable reference to the set of rules.
-    pub fn rules_mut(&mut self) -> &mut HashMap<Head<Q, S>, Tail<Q, S>> {
-        &mut self.rules
-    }
-}
-
-impl<Q, S> RuleSet<Q, S>
-where
-    Q: Eq + core::hash::Hash,
-    S: Eq + core::hash::Hash,
-{
     pub fn from_iter<I>(iter: I) -> Self
     where
         Q: Default,
@@ -81,6 +66,13 @@ where
         }
     }
 
+    pub fn with_initial_state(self, State(state): State<Q>) -> Self {
+        Self {
+            initial_state: State(state),
+            ..self
+        }
+    }
+
     pub fn with_instructions(
         self,
         instructions: impl IntoIterator<Item = (Head<Q, S>, Tail<Q, S>)>,
@@ -91,9 +83,25 @@ where
         }
         Self { rules, ..self }
     }
+    /// Returns an instance of [State] which owns a reference to the interval value.
+    pub fn initial_state(&self) -> State<&'_ Q> {
+        self.initial_state.to_ref()
+    }
+    /// Returns an immutable reference to the set of rules.
+    pub const fn rules(&self) -> &HashMap<Head<Q, S>, Tail<Q, S>> {
+        &self.rules
+    }
+    /// Returns a mutable reference to the set of rules.
+    pub fn rules_mut(&mut self) -> &mut HashMap<Head<Q, S>, Tail<Q, S>> {
+        &mut self.rules
+    }
     /// Clears the set of rules.
     pub fn clear(&mut self) {
         self.rules.clear();
+    }
+    /// Returns an the entry for the given head within the set of rules.
+    pub fn entry(&mut self, head: Head<Q, S>) -> hash_map::Entry<Head<Q, S>, Tail<Q, S>> {
+        self.rules.entry(head)
     }
     /// Returns an immutable reference to the tail of the rule for the given head; returns none
     /// if the head is not found.
@@ -125,6 +133,28 @@ where
     /// Returns the number of rules in the set.
     pub fn len(&self) -> usize {
         self.rules.len()
+    }
+    /// Returns a mutable reference to the tail of the rule for the given head; inserts the
+    /// tail if the head is not found.
+    pub fn or_insert(&mut self, head: Head<Q, S>, tail: Tail<Q, S>) -> &mut Tail<Q, S> {
+        self.rules.entry(head).or_insert(tail)
+    }
+    /// Returns a mutable reference to the tail of the rule for the given head; inserts the
+    /// tail if the head is not found.
+    pub fn or_insert_with<F>(&mut self, head: Head<Q, S>, f: F) -> &mut Tail<Q, S>
+    where
+        F: FnOnce() -> Tail<Q, S>,
+    {
+        self.rules.entry(head).or_insert_with(f)
+    }
+    /// Returns a mutable reference to the tail of the rule for the given head; inserts the
+    /// default tail if the head is not found.
+    pub fn or_insert_default(&mut self, head: Head<Q, S>) -> &mut Tail<Q, S>
+    where
+        Q: Default,
+        S: Default,
+    {
+        self.or_insert(head, Tail::default())
     }
     /// Removes a rule from the set of rules.
     pub fn remove(&mut self, head: &Head<Q, S>) -> Option<Tail<Q, S>> {
@@ -162,6 +192,18 @@ where
     }
 }
 
+impl<Q, S> core::ops::Index<Head<Q, S>> for RuleSet<Q, S>
+where
+    Q: Eq + core::hash::Hash,
+    S: Eq + core::hash::Hash,
+{
+    type Output = Tail<Q, S>;
+
+    fn index(&self, head: Head<Q, S>) -> &Self::Output {
+        &self.rules[&head]
+    }
+}
+
 impl<Q, S> core::iter::FromIterator<(Head<Q, S>, Tail<Q, S>)> for RuleSet<Q, S>
 where
     Q: Default + Eq + core::hash::Hash,
@@ -188,7 +230,11 @@ where
     }
 }
 
-impl<Q, S> core::iter::IntoIterator for RuleSet<Q, S> {
+impl<Q, S> core::iter::IntoIterator for RuleSet<Q, S>
+where
+    Q: Eq + core::hash::Hash,
+    S: Eq + core::hash::Hash,
+{
     type Item = (Head<Q, S>, Tail<Q, S>);
     type IntoIter = std::collections::hash_map::IntoIter<Head<Q, S>, Tail<Q, S>>;
 
@@ -197,7 +243,11 @@ impl<Q, S> core::iter::IntoIterator for RuleSet<Q, S> {
     }
 }
 
-impl<'a, Q, S> core::iter::IntoIterator for &'a RuleSet<Q, S> {
+impl<'a, Q, S> core::iter::IntoIterator for &'a RuleSet<Q, S>
+where
+    Q: Eq + core::hash::Hash,
+    S: Eq + core::hash::Hash,
+{
     type Item = (&'a Head<Q, S>, &'a Tail<Q, S>);
     type IntoIter = std::collections::hash_map::Iter<'a, Head<Q, S>, Tail<Q, S>>;
 
@@ -206,7 +256,11 @@ impl<'a, Q, S> core::iter::IntoIterator for &'a RuleSet<Q, S> {
     }
 }
 
-impl<'a, Q, S> core::iter::IntoIterator for &'a mut RuleSet<Q, S> {
+impl<'a, Q, S> core::iter::IntoIterator for &'a mut RuleSet<Q, S>
+where
+    Q: Eq + core::hash::Hash,
+    S: Eq + core::hash::Hash,
+{
     type Item = (&'a Head<Q, S>, &'a mut Tail<Q, S>);
     type IntoIter = std::collections::hash_map::IterMut<'a, Head<Q, S>, Tail<Q, S>>;
 

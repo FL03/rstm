@@ -2,38 +2,35 @@
     Appellation: tm <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-pub use self::{model::Turing, state::TMS};
 
-pub(crate) mod model;
-pub(crate) mod state;
 
-use crate::prelude::{Error, Head, Symbolic, Tail, Tape};
+use crate::prelude::{Error, HaltState, Head, StdTape, Symbolic, Tail};
 use crate::rules::Program;
 use crate::state::State;
 
-/// # Turing Machine ([TM])
+/// # Turing Machine ([Turm])
 ///
 /// The Turing Machine is a mathematical model of computation that uses a set of rules to determine
 /// how a machine should manipulate a tape. The machine can read, write, and move linearly across the tape.
 /// Each pre-defined rule maps a head, consisting of a state and symbol, to a new state and symbol along with a direction.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct TM<Q = String, S = char> {
+pub struct Turm<Q = String, S = char> {
     pub(crate) program: Program<Q, S>,
-    pub(crate) state: State<Q>,
-    pub(crate) tape: Tape<S>,
+    pub(crate) state: HaltState<Q>,
+    pub(crate) tape: StdTape<S>,
 }
 
-impl<Q, S> TM<Q, S> {
-    pub fn new(program: Program<Q, S>, tape: Tape<S>) -> Self
+impl<Q, S> Turm<Q, S> {
+    pub fn new(program: Program<Q, S>, tape: StdTape<S>) -> Self
     where
         Q: Clone + Default,
         S: Default,
     {
         let state = program.initial_state().cloned();
-        TM {
+        Turm {
             program,
-            state,
+            state: HaltState::state(state),
             tape,
         }
     }
@@ -51,19 +48,19 @@ impl<Q, S> TM<Q, S> {
     /// Returns an instance of the [state](State) with an immutable
     /// reference to the internal data
     pub fn state(&self) -> State<&'_ Q> {
-        self.state.to_ref()
+        self.state.as_state()
     }
     /// Returns an instance of the [state](State) with a mutable
     /// reference to the internal data
     pub fn state_mut(&mut self) -> State<&'_ mut Q> {
-        self.state.to_mut()
+        self.state.as_mut_state()
     }
     /// Returns an immutable reference to the [tape](StdTape)
-    pub const fn tape(&self) -> &Tape<S> {
+    pub const fn tape(&self) -> &StdTape<S> {
         &self.tape
     }
     /// Returns a mutable reference to the [tape](StdTape)
-    pub fn tape_mut(&mut self) -> &mut Tape<S> {
+    pub fn tape_mut(&mut self) -> &mut StdTape<S> {
         &mut self.tape
     }
     /// Runs the program until the
@@ -116,16 +113,17 @@ impl<Q, S> TM<Q, S> {
             symbol,
         }) = self.program.get_ref(self.read()?)
         {
+            
             //
             self.tape.update(direction, symbol.clone());
-            self.state = state.cloned();
+            self.state = state.cloned().into();
             return Some(Head::new(state, symbol));
         }
         unreachable!("No instruction found for the current head")
     }
 }
 
-impl<Q, S> core::iter::Iterator for TM<Q, S>
+impl<Q, S> core::iter::Iterator for Turm<Q, S>
 where
     Q: Clone + PartialEq + 'static,
     S: Clone + PartialEq,

@@ -8,7 +8,7 @@ use core::cell::Cell;
 #[cfg(feature = "alloc")]
 use alloc::vec::Vec;
 
-/// In-line with the Turing machine model, the [`Tape`] is a one-dimensional surface evenly
+/// In-line with the Turing machine model, the [`StdTape`] is a one-dimensional surface evenly
 /// divided into cells capable of storing symbols. The tape is infinite in both directions
 /// allowing the head, or actor, to move without bounds, extending the tape as needed.
 ///
@@ -23,15 +23,15 @@ use alloc::vec::Vec;
 /// is an operation that does result in some change in-time.
 #[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Tape<S = char> {
+pub struct StdTape<S = char> {
     cursor: usize,
     store: Vec<S>,
     ticks: Cell<usize>,
 }
 
-impl<S> Tape<S> {
+impl<S> StdTape<S> {
     pub fn new() -> Self {
-        Tape {
+        StdTape {
             cursor: 0,
             store: Vec::<S>::new(),
             ticks: Cell::default(),
@@ -39,7 +39,7 @@ impl<S> Tape<S> {
     }
     /// Constructs a new tape from an iterator.
     pub fn from_iter(iter: impl IntoIterator<Item = S>) -> Self {
-        Tape {
+        StdTape {
             cursor: 0,
             store: Vec::from_iter(iter),
             ticks: Cell::default(),
@@ -47,7 +47,7 @@ impl<S> Tape<S> {
     }
     /// Constructs a new, empty tape with the specified capacity.
     pub fn with_capacity(capacity: usize) -> Self {
-        Tape {
+        StdTape {
             cursor: 0,
             store: Vec::<S>::with_capacity(capacity),
             ticks: Cell::default(),
@@ -139,18 +139,18 @@ impl<S> Tape<S> {
     }
 
     fn on_update(&self) {
-        self.ticks.set(self.ticks.get() + 1);
+        self.ticks.set(self.ticks() + 1);
     }
 
     fn shift(&mut self, direction: Direction) -> usize {
-        self.cursor = direction.apply(self.cursor) % self.store.len();
+        self.cursor = direction.apply_unsigned(self.cursor) % self.store.len();
         self.position()
     }
 }
 
-impl Tape {
-    pub fn from_str(input: &str) -> Tape {
-        Tape {
+impl StdTape {
+    pub fn from_str(input: &str) -> StdTape {
+        StdTape {
             cursor: 0,
             store: input.chars().collect(),
             ticks: Cell::default(),
@@ -158,31 +158,31 @@ impl Tape {
     }
 }
 
-impl<S> AsRef<[S]> for Tape<S> {
+impl<S> AsRef<[S]> for StdTape<S> {
     fn as_ref(&self) -> &[S] {
         &self.store
     }
 }
 
-impl<S> AsMut<[S]> for Tape<S> {
+impl<S> AsMut<[S]> for StdTape<S> {
     fn as_mut(&mut self) -> &mut [S] {
         &mut self.store
     }
 }
 
-impl<S> core::borrow::Borrow<[S]> for Tape<S> {
+impl<S> core::borrow::Borrow<[S]> for StdTape<S> {
     fn borrow(&self) -> &[S] {
         &self.store
     }
 }
 
-impl<S> core::borrow::BorrowMut<[S]> for Tape<S> {
+impl<S> core::borrow::BorrowMut<[S]> for StdTape<S> {
     fn borrow_mut(&mut self) -> &mut [S] {
         &mut self.store
     }
 }
 
-impl<S> core::ops::Deref for Tape<S> {
+impl<S> core::ops::Deref for StdTape<S> {
     type Target = [S];
 
     fn deref(&self) -> &Self::Target {
@@ -190,13 +190,13 @@ impl<S> core::ops::Deref for Tape<S> {
     }
 }
 
-impl<S> core::ops::DerefMut for Tape<S> {
+impl<S> core::ops::DerefMut for StdTape<S> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.store
     }
 }
 
-impl<S> core::fmt::Debug for Tape<S>
+impl<S> core::fmt::Debug for StdTape<S>
 where
     S: core::fmt::Debug,
 {
@@ -211,7 +211,7 @@ where
     }
 }
 
-impl<S> core::fmt::Display for Tape<S>
+impl<S> core::fmt::Display for StdTape<S>
 where
     S: core::fmt::Display,
 {
@@ -226,7 +226,7 @@ where
     }
 }
 
-impl<S> core::iter::Extend<S> for Tape<S> {
+impl<S> core::iter::Extend<S> for StdTape<S> {
     fn extend<T>(&mut self, iter: T)
     where
         T: IntoIterator<Item = S>,
@@ -235,16 +235,16 @@ impl<S> core::iter::Extend<S> for Tape<S> {
     }
 }
 
-impl<S> core::iter::FromIterator<S> for Tape<S> {
+impl<S> core::iter::FromIterator<S> for StdTape<S> {
     fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = S>,
     {
-        Tape::from_iter(iter)
+        StdTape::from_iter(iter)
     }
 }
 
-impl<S> core::iter::IntoIterator for Tape<S> {
+impl<S> core::iter::IntoIterator for StdTape<S> {
     type Item = S;
     type IntoIter = std::vec::IntoIter<S>;
 
@@ -253,7 +253,7 @@ impl<S> core::iter::IntoIterator for Tape<S> {
     }
 }
 
-impl<S, I> core::ops::Index<I> for Tape<S>
+impl<S, I> core::ops::Index<I> for StdTape<S>
 where
     I: core::slice::SliceIndex<[S]>,
 {
@@ -264,7 +264,7 @@ where
     }
 }
 
-impl<S, I> core::ops::IndexMut<I> for Tape<S>
+impl<S, I> core::ops::IndexMut<I> for StdTape<S>
 where
     I: core::slice::SliceIndex<[S]>,
 {

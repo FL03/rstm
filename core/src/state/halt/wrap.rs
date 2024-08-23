@@ -4,66 +4,77 @@
 */
 use crate::state::{Halt, State};
 
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub enum Halting<Q> {
-    Step(State<Q>),
+/// [HaltState] extends the [State] by allowing for an 'imaginary' state that is not actually
+/// part of the machine's state space.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, strum::EnumDiscriminants, strum::EnumIs,)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize), strum_discriminants(derive(serde::Deserialize, serde::Serialize)))]
+#[strum_discriminants(name(HaltTag), derive(Hash, Ord, PartialOrd))]
+pub enum HaltState<Q> {
     Halt(Halt<Q>),
+    State(State<Q>),
 }
 
-impl<Q> Halting<Q> {
-    pub fn is_halted(&self) -> bool {
-        match self {
-            Self::Halt(_) => true,
-            _ => false,
-        }
+impl<Q> HaltState<Q> {
+    /// Creates a new instance of a [HaltState] with a halted state.
+    pub fn halt(Halt(state): Halt<Q>) -> Self {
+        Self::Halt(Halt(state))
     }
-
-    pub fn is_continuing(&self) -> bool {
-        match self {
-            Self::Step(_) => true,
-            _ => false,
-        }
+    /// Creates a new instance of a [HaltState] with a continuing state.
+    pub fn state(state: State<Q>) -> Self {
+        Self::State(state)
     }
 
     pub fn into_state(self) -> State<Q> {
         match self {
-            Self::Step(state) => state,
+            Self::State(state) => state,
             Self::Halt(halt) => State(halt.0),
         }
     }
 
     pub fn as_state(&self) -> State<&Q> {
-        match self {
-            Self::Step(state) => state.to_ref(),
-            Self::Halt(halt) => State(halt.view().0),
-        }
+        State(self.get())
+    }
+
+    pub fn as_mut_state(&mut self) -> State<&mut Q> {
+        State(self.get_mut())
     }
 
     pub fn get(&self) -> &Q {
         match self {
-            Self::Step(inner) => inner.get(),
+            Self::State(inner) => inner.get(),
             Self::Halt(inner) => inner.get(),
         }
     }
 
     pub fn get_mut(&mut self) -> &mut Q {
         match self {
-            Self::Step(inner) => inner.get_mut(),
+            Self::State(inner) => inner.get_mut(),
             Self::Halt(inner) => inner.get_mut(),
         }
     }
 
     pub fn set(&mut self, state: Q) {
         match self {
-            Self::Step(inner) => inner.set(state),
+            Self::State(inner) => inner.set(state),
             Self::Halt(inner) => inner.set(state),
         }
     }
 }
 
-impl<Q: Default> Default for Halting<Q> {
+impl<Q: Default> Default for HaltState<Q> {
     fn default() -> Self {
-        Self::Step(State::default())
+        Self::State(State::default())
+    }
+}
+
+impl<Q> From<State<Q>> for HaltState<Q> {
+    fn from(state: State<Q>) -> Self {
+        Self::State(state)
+    }
+}
+
+impl<Q> From<Halt<Q>> for HaltState<Q> {
+    fn from(halt: Halt<Q>) -> Self {
+        Self::Halt(halt)
     }
 }

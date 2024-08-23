@@ -1,9 +1,14 @@
 name: clippy
 
+concurrency:
+  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ github.ref }}
+
 on:
   pull_request:
     branches: [ main ]
   release:
+    types: [ created ]
   repository_dispatch:
     types: [ clippy ]
   schedule:

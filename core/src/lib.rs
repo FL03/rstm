@@ -14,9 +14,10 @@ pub use self::{
     actors::Actor,
     error::Error,
     rules::{Program, Rule},
+    shift::Direction,
     state::State,
-    tape::Tape,
-    traits::prelude::*,
+    tape::StdTape,
+    traits::*,
     types::prelude::*,
 };
 
@@ -37,6 +38,7 @@ pub(crate) mod seal;
 pub mod actors;
 pub mod error;
 pub mod rules;
+pub mod shift;
 pub mod state;
 pub mod tape;
 pub mod traits;
@@ -46,6 +48,7 @@ pub mod prelude {
     pub use crate::actors::prelude::*;
     pub use crate::error::Error;
     pub use crate::rules::prelude::*;
+    pub use crate::shift::prelude::*;
     pub use crate::state::prelude::*;
     pub use crate::tape::prelude::*;
     pub use crate::traits::prelude::*;

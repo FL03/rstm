@@ -41,11 +41,11 @@ impl<Q> Halt<Q> {
         State(self)
     }
     /// Returns an instance of [`Halt`] with an immutable reference to the inner value.
-    pub fn view<'a>(&'a self) -> Halt<&'a Q> {
+    pub fn view(&self) -> Halt<&Q> {
         Halt(&self.0)
     }
     /// Returns an instance of [`Halt`] with a mutable reference to the inner value.
-    pub fn view_mut<'a>(&'a mut self) -> Halt<&'a mut Q> {
+    pub fn view_mut(&mut self) -> Halt<&mut Q> {
         Halt(&mut self.0)
     }
 }

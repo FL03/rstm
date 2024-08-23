@@ -6,18 +6,21 @@ pub use self::builder::TailBuilder;
 
 use crate::{Direction, Head, State};
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+/// The [Tail] is a 3-tuple containing the direction, state, and symbol that an actor is
+/// instructed to execute whenever it assumes the head configuration assigned to the tail.
+#[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(rename_all = "lowercase")
+)]
 pub struct Tail<Q = String, S = char> {
     pub direction: Direction,
-    #[cfg_attr(
-        feature = "serde",
-        serde(flatten, alias = "state", alias = "next_state")
-    )]
+    #[cfg_attr(feature = "serde", serde(alias = "next_state"))]
     pub state: State<Q>,
     #[cfg_attr(
         feature = "serde",
-        serde(flatten, alias = "symbol", alias = "write_symbol")
+        serde(alias = "next_symbol", alias = "write_symbol")
     )]
     pub symbol: S,
 }
@@ -158,6 +161,30 @@ impl<'a, Q, S> Tail<&'a mut Q, &'a mut S> {
             state: self.state.copied(),
             symbol: *self.symbol,
         }
+    }
+}
+
+impl<Q, S> core::fmt::Debug for Tail<Q, S>
+where
+    Q: core::fmt::Debug,
+    S: core::fmt::Debug,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_tuple("Tail")
+            .field(&self.direction)
+            .field(&self.state)
+            .field(&self.symbol)
+            .finish()
+    }
+}
+
+impl<Q, S> core::fmt::Display for Tail<Q, S>
+where
+    Q: core::fmt::Display,
+    S: core::fmt::Display,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "{}({}, {})", self.direction, self.state, self.symbol)
     }
 }
 

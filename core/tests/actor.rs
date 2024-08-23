@@ -33,5 +33,8 @@ fn busy_beaver() {
         .build();
 
     let actor = Actor::from_state(State(0)).with_tape(input);
-    assert!(actor.execute(program).run().is_ok());
+    let mut rt = actor.execute(program);
+    for _ in 0..10 {
+        assert!(rt.next().is_some());
+    }
 }

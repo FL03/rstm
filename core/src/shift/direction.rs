@@ -2,14 +2,6 @@
     Appellation: direction <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-/// The [AsDirection] trait provides a convience method for converting a type into a [Direction].
-pub trait AsDirection {
-    fn as_direction(&self) -> Direction;
-}
-/// The [IntoDirection] trait provides a convience method for converting a type into a [Direction].
-pub trait IntoDirection {
-    fn into_direction(self) -> Direction;
-}
 
 /// [Direction] enumerates the various directions a head can move, namely: left, right, and stay.
 /// The included methods and implementations aim to streamline the conversion between [Direction] and other types.
@@ -138,34 +130,61 @@ impl Direction {
             Self::Stay => "stay",
         }
     }
+
     /// Applies the shift to the given position in the [direction](Direction) specified by the
     /// current instance. This is done using the [`wrapping_add_signed`](usize::wrapping_add_signed)
     /// method.
-    pub fn apply(self, cur: usize) -> usize {
+    pub fn apply_unsigned(self, cur: usize) -> usize {
         cur.wrapping_add_signed(self as isize)
     }
 }
 
-impl<T> AsDirection for T
+impl<T> core::ops::Add<T> for Direction
 where
-    T: Clone + Into<Direction>,
+    T: crate::Decrement + crate::Increment,
 {
-    fn as_direction(&self) -> Direction {
-        self.clone().into()
+    type Output = T;
+
+    fn add(self, rhs: T) -> Self::Output {
+        match self {
+            Self::Left => rhs.decrement(),
+            Self::Right => rhs.increment(),
+            Self::Stay => rhs,
+        }
     }
 }
 
-impl<T> IntoDirection for T
-where
-    T: Into<Direction>,
-{
-    fn into_direction(self) -> Direction {
-        self.into()
+impl core::ops::Add<Direction> for isize {
+    type Output = isize;
+
+    fn add(self, rhs: Direction) -> Self::Output {
+        self + rhs as isize
+    }
+}
+
+impl core::ops::Add<Direction> for usize {
+    type Output = usize;
+
+    fn add(self, rhs: Direction) -> Self::Output {
+        self.wrapping_add_signed(rhs as isize)
+    }
+}
+
+impl core::ops::AddAssign<Direction> for usize {
+    fn add_assign(&mut self, rhs: Direction) {
+        *self = core::ops::Add::add(*self, rhs);
+    }
+}
+
+impl core::ops::AddAssign<Direction> for isize {
+    fn add_assign(&mut self, rhs: Direction) {
+        *self = core::ops::Add::add(*self, rhs);
     }
 }
 
 mod impl_from {
     use super::*;
+    use crate::shift::IntoDirection;
 
     macro_rules! impl_from_direction {
         ($($T:ident),*) => {
