@@ -11,8 +11,6 @@ pub(crate) mod symbolic;
 pub(crate) mod transform;
 
 #[doc(hidden)]
-pub mod cspace;
-#[doc(hidden)]
 pub mod io;
 
 pub(crate) mod prelude {

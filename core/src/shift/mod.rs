@@ -11,6 +11,7 @@ pub(crate) mod prelude {
     pub use super::direction::Direction;
 }
 
+/// [Directional] 
 pub trait Directional {
     fn direction(&self) -> Direction;
 }
@@ -23,15 +24,24 @@ pub trait IntoDirection {
     fn into_direction(self) -> Direction;
 }
 
+/// [`Shift`] describes a generalized shift operation;
+/// w.r.t. Turing machines, Moore (1990) describes a shift operation as a _movement_ of the
+/// tape head
+pub trait Shift<T> {
+    type Output;
+
+    fn shift(&self, step: T) -> Self::Output;
+}
+
 /*
  ************* Implementations *************
 */
 impl<T> AsDirection for T
 where
-    T: Clone + Into<Direction>,
+    T: Clone + IntoDirection,
 {
     fn as_direction(&self) -> Direction {
-        self.clone().into()
+        self.clone().into_direction()
     }
 }
 
