@@ -11,7 +11,7 @@ pub(crate) mod prelude {
     pub use super::direction::Direction;
 }
 
-/// [Directional] 
+/// [Directional]
 pub trait Directional {
     fn direction(&self) -> Direction;
 }

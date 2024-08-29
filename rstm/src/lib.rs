@@ -13,12 +13,10 @@
 extern crate alloc;
 
 #[doc(inline)]
-pub use self::models::Turm;
+pub use self::models::StdTM;
 #[doc(inline)]
 pub use rstm_core::*;
 
-#[doc(hidden)]
-pub mod cspace;
 pub mod models;
 
 pub mod prelude {

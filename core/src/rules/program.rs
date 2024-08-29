@@ -8,8 +8,6 @@ use std::vec;
 
 type Ruleset<Q, S> = Vec<Rule<Q, S>>;
 
-// type Ruleset<Q, S> = std::collections::HashMap<Head<Q, S>, Tail<Q, S>>;
-
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct Program<Q = String, S = char> {

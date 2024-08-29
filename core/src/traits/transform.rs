@@ -3,7 +3,6 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 
-
 /// [`Transform`] is describes a binary operation capable of applying some transformation.
 /// More commonly, the typical "rustic" manner of which an object is transformed is through
 /// the [`map`] method, which applies a function to a value and returns a new value.

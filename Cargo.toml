@@ -9,7 +9,8 @@ exclude = [
 
 members = [
     "rstm",
-    "core",
+    "core", 
+    "rulial",
 ]
 
 resolver = "2"

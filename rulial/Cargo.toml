@@ -1,0 +1,51 @@
+[package]
+name = "rulial"
+authors.workspace = true
+categories.workspace = true
+description.workspace = true
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+version.workspace = true
+
+[features]
+default = [
+    "alloc",
+]
+
+
+# ********* [FF] Dependencies *********
+alloc = [
+    "rstm-core/alloc",
+    "serde?/alloc",
+]
+
+serde = [
+    "dep:serde",
+]
+
+# ********* [FF] Environments *********
+# std = [
+#     "alloc",
+#     "rstm-core/std",
+#     "serde?/std",
+# ]
+
+[build-dependencies]
+
+[dependencies]
+thiserror.workspace = true
+smart-default.workspace = true
+[dependencies.rstm-core]
+default-features = false
+path = "../core"
+version = "0.0.4"
+
+[dependencies.serde]
+default-features = false
+features = ["derive"]
+optional = true
+version = "1"

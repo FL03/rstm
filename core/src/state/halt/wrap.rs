@@ -6,8 +6,23 @@ use crate::state::{Halt, State};
 
 /// [HaltState] extends the [State] by allowing for an 'imaginary' state that is not actually
 /// part of the machine's state space.
-#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, strum::EnumDiscriminants, strum::EnumIs,)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize), strum_discriminants(derive(serde::Deserialize, serde::Serialize)))]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    strum::EnumDiscriminants,
+    strum::EnumIs,
+)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    strum_discriminants(derive(serde::Deserialize, serde::Serialize))
+)]
 #[strum_discriminants(name(HaltTag), derive(Hash, Ord, PartialOrd))]
 pub enum HaltState<Q> {
     Halt(Halt<Q>),

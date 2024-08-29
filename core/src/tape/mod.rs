@@ -11,7 +11,7 @@ pub use self::tape::StdTape;
 
 pub(crate) mod tape;
 
-#[doc(hidden)]
+#[cfg(feature = "std")]
 pub mod hash_tape;
 
 pub(crate) mod prelude {

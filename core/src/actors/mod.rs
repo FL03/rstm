@@ -3,8 +3,8 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 //! # Actors
-//! 
-//! An actor describes an abstract model of computation that may find the solution to any 
+//!
+//! An actor describes an abstract model of computation that may find the solution to any
 //! computable sequence, or algorithm.
 #[doc(inline)]
 pub use self::{actor::Actor, exec::Executor};
