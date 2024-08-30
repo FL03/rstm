@@ -9,20 +9,11 @@ pub(crate) mod direction;
 pub(crate) mod head;
 pub(crate) mod tail;
 
-#[doc(hidden)]
-pub mod cursor;
-
 pub(crate) mod prelude {
     pub use super::direction::*;
     pub use super::head::Head;
     pub use super::tail::Tail;
-    pub use super::IndexedHead;
-
-    #[allow(unused)]
-    pub(crate) use super::Idx;
 }
 
-/// A type alias generally used to represent the position of a value within a collection.
-pub(crate) type Idx = usize;
-/// A type alias for a head which store an index as its symbol
-pub type IndexedHead<Q> = Head<Q, Idx>;
+/// A type alias for a [Result] with our custom error type: [`Error`](crate::Error)
+pub type Result<T = ()> = core::result::Result<T, crate::Error>;

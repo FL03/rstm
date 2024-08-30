@@ -22,10 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (-1, 1) -> Left(1, 1),
     ];
 
-    let program = Program::new()
-        .initial_state(initial_state)
-        .rules(rules)
-        .build();
+    let program = Program::from_iter(rules);
 
     // create a new instance of the machine
     let tm = dbg!(Actor::from_state(initial_state).with_tape(alpha));

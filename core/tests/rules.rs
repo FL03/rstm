@@ -20,14 +20,9 @@ fn ruleset() {
     // validate the number of rules within the ruleset
     assert_eq!(rules.len(), 6);
     // create a new program using the ruleset
-    let program = Program::new()
-        .initial_state(State(0isize))
-        .rules(rules)
-        .build();
+    let program = Program::from_iter(rules);
     // validate the number of rules within the program
     assert_eq!(rules.len(), program.len());
-    // compare the inner value of the initial state
-    assert_eq!(program.initial_state(), &0);
     // create a new head for a rule within the program
     let head = Head::new(State(0), 0);
     // retrieve and validate the tail for the given head

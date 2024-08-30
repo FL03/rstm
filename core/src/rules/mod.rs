@@ -3,22 +3,16 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{
-    builders::{ProgramBuilder, RuleBuilder},
-    program::Program,
-    rule::Rule,
-    ruleset::RuleSet,
-};
+pub use self::{builders::RuleBuilder, program::Program, rule::Rule, ruleset::RuleSet};
 
 pub(crate) mod program;
 pub(crate) mod rule;
 pub mod ruleset;
 
 #[doc(hidden)]
-pub(crate) mod builders {
-    pub use self::{program::ProgramBuilder, rule::RuleBuilder};
+mod builders {
+    pub use self::rule::RuleBuilder;
 
-    mod program;
     mod rule;
 }
 

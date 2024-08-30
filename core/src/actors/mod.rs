@@ -12,24 +12,44 @@ pub use self::{actor::Actor, exec::Executor};
 pub(crate) mod actor;
 pub(crate) mod exec;
 
+#[allow(unused)]
 #[doc(hidden)]
-pub mod engine;
+mod engine;
 
 pub(crate) mod prelude {
     pub use super::actor::Actor;
     pub use super::exec::Executor;
 }
 
-use crate::{rules::Program, Alphabet};
+pub trait Program<Q, S> {
+    fn get(&self, state: crate::State<&Q>, symbol: &S) -> Option<&crate::Rule<Q, S>>;
 
-#[doc(hidden)]
-pub trait Model {
-    type Alpha: Alphabet;
+    fn get_mut(&mut self, state: crate::State<&Q>, symbol: &S) -> Option<&mut crate::Rule<Q, S>>;
 }
 
 #[doc(hidden)]
 pub trait Runtime<Q, S> {
-    fn load(&mut self, program: Program<Q, S>);
+    fn load<I>(&mut self, program: I)
+    where
+        I: IntoIterator<Item = crate::Rule<Q, S>>;
 
-    fn run(&mut self);
+    fn run(&mut self) -> Result<(), crate::Error>;
+}
+
+impl<Q, S> Runtime<Q, S> for Executor<Q, S>
+where
+    Q: Clone + PartialEq + 'static,
+    S: crate::Symbolic,
+{
+    fn load<I>(&mut self, program: I)
+    where
+        I: IntoIterator<Item = crate::Rule<Q, S>>,
+    {
+        self.program.rules.clear();
+        self.program.extend(program);
+    }
+
+    fn run(&mut self) -> Result<(), crate::Error> {
+        Executor::run(self)
+    }
 }

@@ -46,10 +46,10 @@ pub(crate) mod macros {
 #[macro_use]
 pub(crate) mod seal;
 
-#[doc(hidden)]
 pub mod actors;
 pub mod error;
 pub mod rules;
+#[doc(hidden)]
 pub mod shift;
 pub mod state;
 pub mod tape;

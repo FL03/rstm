@@ -4,7 +4,7 @@
 */
 extern crate rstm;
 
-use rstm::{ruleset, Program, State, StdTM, StdTape};
+use rstm::{ruleset, Program, StdTM, StdTape};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     _tracing("debug");
@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (-1, 1) -> Left(1, 1),
     ];
     // create a new program with the rules
-    let program = Program::new().initial_state(State(0)).rules(rules).build();
+    let program = Program::from_iter(rules);
     // create a new tape with the data
     let tape = StdTape::from_iter(alpha);
     // create a new instance of the machine

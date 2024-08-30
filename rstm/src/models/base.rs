@@ -26,7 +26,10 @@ impl<Q, S> StdTM<Q, S> {
         Q: Clone + Default,
         S: Default,
     {
-        let state = program.initial_state().cloned();
+        let state = program
+            .initial_state()
+            .map(|q| q.cloned())
+            .unwrap_or_default();
         StdTM {
             program,
             state: HaltState::state(state),

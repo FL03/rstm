@@ -147,6 +147,36 @@ impl<Q, S> core::borrow::BorrowMut<Tail<Q, S>> for Rule<Q, S> {
     }
 }
 
+impl<Q, S> PartialEq<(Head<Q, S>, Tail<Q, S>)> for Rule<Q, S>
+where
+    Q: PartialEq,
+    S: PartialEq,
+{
+    fn eq(&self, other: &(Head<Q, S>, Tail<Q, S>)) -> bool {
+        &self.head == &other.0 && &self.tail == &other.1
+    }
+}
+
+impl<Q, S> PartialEq<Head<Q, S>> for Rule<Q, S>
+where
+    Q: PartialEq,
+    S: PartialEq,
+{
+    fn eq(&self, other: &Head<Q, S>) -> bool {
+        &self.head == other
+    }
+}
+
+impl<Q, S> PartialEq<Tail<Q, S>> for Rule<Q, S>
+where
+    Q: PartialEq,
+    S: PartialEq,
+{
+    fn eq(&self, other: &Tail<Q, S>) -> bool {
+        &self.tail == other
+    }
+}
+
 impl<Q, S> From<(Head<Q, S>, Tail<Q, S>)> for Rule<Q, S> {
     fn from((head, tail): (Head<Q, S>, Tail<Q, S>)) -> Self {
         Self { head, tail }
