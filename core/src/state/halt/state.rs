@@ -2,7 +2,7 @@
     Appellation: halting <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::{halt::Haltable, State};
+use crate::state::{RawState, State};
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -12,7 +12,7 @@ impl<Q> Halt<Q> {
     pub fn new(halt: Q) -> Self {
         Self(halt)
     }
-
+    #[inline]
     pub fn into_inner(self) -> Q {
         self.0
     }
@@ -24,9 +24,28 @@ impl<Q> Halt<Q> {
     pub fn get_mut(&mut self) -> &mut Q {
         &mut self.0
     }
+    /// Replaces the inner value of the halted state with the given value, returning the
+    /// previous value.
+    pub fn replace(&mut self, halt: Q) -> Q {
+        core::mem::replace(&mut self.0, halt)
+    }
 
+    pub fn reset(&mut self)
+    where
+        Q: Default,
+    {
+        self.set(Default::default());
+    }
+    /// Sets the inner value of the halted state to that of the given value.
     pub fn set(&mut self, halt: Q) {
         self.0 = halt;
+    }
+    /// Swaps the inner value of the halted state with that of the given state.
+    pub fn swap<S>(&mut self, other: &mut S)
+    where
+        S: RawState<Inner = Q>,
+    {
+        core::mem::swap(&mut self.0, other.get_mut());
     }
     /// Converts the halted state into a new [State] with an immutable reference to the inner value.
     pub fn as_state(&self) -> State<Halt<&Q>> {
@@ -88,12 +107,8 @@ impl<Q> From<State<Q>> for Halt<Q> {
     }
 }
 
-impl<Q> Haltable<Q> for Halt<Q> {
-    type State = State<Q>;
-    seal!();
-}
-
-impl<Q> Haltable<Q> for State<Halt<Q>> {
-    type State = State<Q>;
-    seal!();
+impl<Q> From<Halt<Q>> for State<Q> {
+    fn from(Halt(state): Halt<Q>) -> Self {
+        Self(state)
+    }
 }

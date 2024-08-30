@@ -46,7 +46,6 @@ use alloc::vec::Vec;
 #[cfg(feature = "std")]
 use std::collections::HashMap;
 
-
 #[cfg(feature = "alloc")]
 impl<V> Mem for Vec<V> {
     type Key = usize;

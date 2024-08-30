@@ -5,16 +5,16 @@
 //! # rstm-core
 //!
 //! The `rstm-core` crate provides the core functionality for the `rstm` library.
-//! 
+//!
 //! ## Features
-//! 
+//!
 //! ### Components
-//! 
+//!
 //! - [x] Rules
 //! - [x] States
-//! 
+//!
 //! ### Tapes
-//! 
+//!
 //! - [x] [StdTape]
 //! - [x] [HashTape](tape::hash_tape::HashTape)
 

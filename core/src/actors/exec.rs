@@ -90,14 +90,17 @@ where
         }
         // read the tape
         let head = if let Ok(cur) = self.read() {
-            cur.cloned()
+            cur
         } else {
             #[cfg(feature = "tracing")]
-            tracing::warn!("Unable to locate the value of the head...");
-            Head::from_state(self.actor.state().cloned())
+            tracing::warn!("[Index Error] the current position ({pos}) of the head is out of bounds, assuming the symbol to be its default value...", pos = self.actor.head.symbol);
+            Head {
+                state: self.actor.state(),
+                symbol: &S::default(),
+            }
         };
         // execute the program
-        if let Some(tail) = self.program.get(&head).cloned() {
+        if let Some(tail) = self.program.get(head.state, head.symbol).cloned() {
             // process the instruction
             self.actor.process(tail.clone());
             // return the head

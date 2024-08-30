@@ -17,17 +17,27 @@
     strum::EnumCount,
     strum::EnumIs,
 )]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize), strum_discriminants(derive(serde::Deserialize, serde::Serialize)))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    strum_discriminants(derive(serde::Deserialize, serde::Serialize))
+)]
 #[strum(serialize_all = "lowercase")]
-#[strum_discriminants(name(ShiftDirection), derive(Hash,
-    Ord,
-    PartialOrd,
-    strum::AsRefStr,
-    strum::Display,
-    strum::EnumCount,
-    strum::EnumIs,
-    strum::EnumIter,
-    strum::VariantNames,), strum(serialize_all = "lowercase"))]
+#[strum_discriminants(
+    name(ShiftDirection),
+    derive(
+        Hash,
+        Ord,
+        PartialOrd,
+        strum::AsRefStr,
+        strum::Display,
+        strum::EnumCount,
+        strum::EnumIs,
+        strum::EnumIter,
+        strum::VariantNames,
+    ),
+    strum(serialize_all = "lowercase")
+)]
 pub enum LinearShift<T> {
     /// Represents a single left shift
     #[cfg_attr(

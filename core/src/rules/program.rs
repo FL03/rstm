@@ -70,8 +70,22 @@ impl<Q, S> Program<Q, S> {
     pub fn iter_mut(&mut self) -> core::slice::IterMut<Rule<Q, S>> {
         self.rules.iter_mut()
     }
+
+    pub fn get(&self, State(state): State<&Q>, symbol: &S) -> Option<&Tail<Q, S>>
+    where
+        Q: PartialEq,
+        S: PartialEq,
+    {
+        self.iter().find_map(|i| {
+            if i.head().state() == state && i.head().symbol() == symbol {
+                Some(i.tail())
+            } else {
+                None
+            }
+        })
+    }
     /// Returns a collection of tails for a given head.
-    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
+    pub fn get_head(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
@@ -148,7 +162,7 @@ where
     type Output = Tail<Q, S>;
 
     fn index(&self, index: Head<Q, S>) -> &Self::Output {
-        self.get(&index).unwrap()
+        self.get_head(&index).unwrap()
     }
 }
 

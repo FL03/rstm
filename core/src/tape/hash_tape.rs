@@ -43,7 +43,10 @@ impl<V> HashTape<V> {
         }
     }
 
-    pub fn from_seq<I>(seq: I) -> HashTape<V> where I: IntoIterator<Item = V> {
+    pub fn from_seq<I>(seq: I) -> HashTape<V>
+    where
+        I: IntoIterator<Item = V>,
+    {
         let iter = seq.into_iter().enumerate().map(|(i, v)| (i as Hdx, v));
         Self::from_iter(iter)
     }
@@ -75,7 +78,10 @@ impl<V> HashTape<V> {
         self.store.contains_key(&index)
     }
     /// Returns true if the tape contains the given value.
-    pub fn contains_value(&self, value: &V) -> bool where V: PartialEq {
+    pub fn contains_value(&self, value: &V) -> bool
+    where
+        V: PartialEq,
+    {
         self.values().any(|v| v == value)
     }
     /// Returns a reference to the value at the given index.
@@ -139,13 +145,13 @@ impl<V> HashTape<V> {
     pub fn values(&self) -> hash_map::Values<Hdx, V> {
         self.store.values()
     }
-    
+
     /// Shifts the cursor in the given direction.
     pub fn shift(&mut self, direction: Direction) {
         self.cursor += direction;
         self.ticks += 1;
     }
-    
+
     /// Returns a reference to the value at the current cursor position.
     pub fn read(&self) -> Option<&V> {
         self.store.get(&self.cursor)

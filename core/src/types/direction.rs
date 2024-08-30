@@ -8,7 +8,6 @@ pub trait Directional {
     fn direction(&self) -> Direction;
 }
 
-
 /// [Direction] enumerates the various directions a head can move, namely: left, right, and stay.
 /// The included methods and implementations aim to streamline the conversion between [Direction] and other types.
 #[derive(

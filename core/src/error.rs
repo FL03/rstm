@@ -38,6 +38,8 @@ pub enum Error {
     StateError(#[from] StateError),
     #[error("[Transformation Error]: {0}")]
     TransformationError(String),
+    #[error("[Type Error] {0}")]
+    TypeError(String),
     #[error("[Unknown Error] {0}")]
     Unknown(String),
 }
@@ -61,6 +63,10 @@ impl Error {
 
     pub fn transformation_error(message: impl ToString) -> Self {
         Error::TransformationError(message.to_string())
+    }
+
+    pub fn type_error(message: impl ToString) -> Self {
+        Error::TypeError(message.to_string())
     }
 
     pub fn unknown(message: impl ToString) -> Self {
@@ -87,6 +93,7 @@ impl Error {
             Error::RuntimeError(message) => message.clone(),
             Error::StateError(err) => err.to_string(),
             Error::TransformationError(message) => message.clone(),
+            Error::TypeError(message) => message.clone(),
             Error::Unknown(message) => message.clone(),
         }
     }

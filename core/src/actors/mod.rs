@@ -12,6 +12,9 @@ pub use self::{actor::Actor, exec::Executor};
 pub(crate) mod actor;
 pub(crate) mod exec;
 
+#[doc(hidden)]
+pub mod engine;
+
 pub(crate) mod prelude {
     pub use super::actor::Actor;
     pub use super::exec::Executor;

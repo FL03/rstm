@@ -2,7 +2,8 @@
     Appellation: state <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::Halt;
+use super::{Halt, RawState};
+use crate::Error;
 use std::sync::Arc;
 ///
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -14,7 +15,14 @@ impl<Q> State<Q> {
     pub fn new(state: Q) -> Self {
         Self(state)
     }
-
+    /// Casts the state to a new type, returning a new instance of [State].
+    ///
+    /// ### Saftey
+    ///
+    /// *
+    pub unsafe fn cast<R>(self) -> State<R> {
+        State(core::ptr::read(&self.0 as *const Q as *const R))
+    }
     /// Returns an immutable reference to the state.
     pub const fn get(&self) -> &Q {
         &self.0
@@ -26,22 +34,6 @@ impl<Q> State<Q> {
     /// Consumes and returns the inner value of the state.
     pub fn into_inner(self) -> Q {
         self.0
-    }
-    /// Sets the state to a new value.
-    pub fn set(&mut self, state: Q) {
-        self.0 = state;
-    }
-    /// Returns a halted state with an immutable reference to the state.
-    pub fn as_halt(&self) -> State<Halt<&Q>> {
-        State(Halt(self))
-    }
-    /// Consumes the state and returns a halted state.
-    pub fn into_halt(self) -> State<Halt<Q>> {
-        State(Halt(self.into_inner()))
-    }
-    /// Returns a new state with a boxed inner value.
-    pub fn boxed(self) -> State<Box<Q>> {
-        State(Box::new(self.0))
     }
     /// [State::map] applies a [`Fn`] closure to the state, returing a new state in the process.
     /// Essentially, the method sufficiently describes the transformation of the state.
@@ -61,28 +53,76 @@ impl<Q> State<Q> {
     /// Maps the state to a new state using a closure that takes the state by value.
     pub fn map_once<R, F>(self, f: F) -> State<R>
     where
-        F: FnOnce(State<Q>) -> R,
+        F: FnOnce(Q) -> R,
     {
-        State(f(self))
+        State(f(self.into_inner()))
+    }
+    /// Replaces the state with a new value, returning the old value.
+    pub fn replace(&mut self, state: Q) -> Q {
+        core::mem::replace(&mut self.0, state)
+    }
+    /// Clears the state, setting it to its default value.
+    pub fn reset(&mut self)
+    where
+        Q: Default,
+    {
+        self.set(Default::default());
+    }
+    /// Sets the state to a new value.
+    pub fn set(&mut self, state: Q) {
+        self.0 = state;
+    }
+    /// Replaces the state with a new value, returning the old value.
+    pub fn swap<S>(&mut self, other: &mut S)
+    where
+        S: RawState<Inner = Q>,
+    {
+        core::mem::swap(&mut self.0, other.get_mut());
+    }
+    /// Returns a halted state with an immutable reference to the state.
+    pub fn as_halt(&self) -> State<Halt<&Q>> {
+        State(Halt(self))
+    }
+    /// Consumes the state and returns a halted state.
+    pub fn into_halt(self) -> State<Halt<Q>> {
+        State(Halt(self.into_inner()))
+    }
+    /// Returns a new state with a boxed inner value.
+    pub fn boxed(self) -> State<Box<Q>> {
+        self.map_once(Box::new)
+    }
+    /// Converts the inner type into a boxed "any" state, returning a new instance of state
+    pub fn as_any(&self) -> State<Box<dyn std::any::Any>>
+    where
+        Q: Clone + 'static,
+    {
+        State(Box::new(self.get().clone()))
+    }
+    /// Converts the inner type into a boxed "any" state, returning a new instance of state
+    pub fn into_any(self) -> State<Box<dyn std::any::Any>>
+    where
+        Q: 'static,
+    {
+        State(Box::new(self.into_inner()))
     }
     /// Wraps the inner value of the state with an [`Arc`] and returns a new instance of [State]
     pub fn shared(self) -> State<Arc<Q>> {
-        State(Arc::new(self.0))
+        self.map_once(Arc::new)
     }
     /// Returns a shared reference to the state.
     pub fn to_shared(&self) -> State<Arc<Q>>
     where
         Q: Clone,
     {
-        State(Arc::new(self.0.clone()))
+        State(Arc::new(self.get().clone()))
     }
     /// Returns a state with an owned inner value.
     pub fn to_ref(&self) -> State<&Q> {
-        State(&self.0)
+        State(self.get())
     }
     /// Returns a state with a mutable reference to the inner value.
     pub fn to_mut(&mut self) -> State<&mut Q> {
-        State(&mut self.0)
+        State(self.get_mut())
     }
     /// Returns the `name` of the generic inner type, `Q`.
     pub fn get_inner_type_name(&self) -> &'static str {
@@ -108,6 +148,32 @@ impl<Q> State<Q> {
     }
 }
 
+impl State<()> {
+    /// Creates a new instance of [State] with an empty state.
+    pub fn empty() -> Self {
+        Self(())
+    }
+}
+
+impl State<Box<dyn core::any::Any>> {
+    /// Downcasts the state to a new type, returning a new instance of [State].
+    pub fn downcast<Q>(self) -> Result<State<Box<Q>>, Error>
+    where
+        Q: core::any::Any,
+    {
+        self.into_inner()
+            .downcast()
+            .map(State)
+            .map_err(|_| Error::type_error("Failed to downcast state"))
+    }
+
+    pub fn downcast_ref<Q>(&self) -> Option<State<&Q>>
+    where
+        Q: core::any::Any,
+    {
+        self.get().downcast_ref().map(State)
+    }
+}
 impl<Q> State<Halt<Q>> {
     /// Creates a new instance of [State] from a [Halt] state.
     pub fn halted(Halt(inner): Halt<Q>) -> Self {
@@ -153,13 +219,13 @@ impl<'a, Q> State<&'a mut Q> {
     }
 }
 
-impl<Q> AsRef<Q> for State<Q> {
+impl<Q> core::convert::AsRef<Q> for State<Q> {
     fn as_ref(&self) -> &Q {
         &self.0
     }
 }
 
-impl<Q> AsMut<Q> for State<Q> {
+impl<Q> core::convert::AsMut<Q> for State<Q> {
     fn as_mut(&mut self) -> &mut Q {
         &mut self.0
     }
@@ -212,18 +278,18 @@ unsafe impl<Q> core::marker::Send for State<Q> where Q: core::marker::Send {}
 
 unsafe impl<Q> core::marker::Sync for State<Q> where Q: core::marker::Sync {}
 
-impl<Q> PartialEq<Q> for State<Q>
+impl<Q> core::cmp::PartialEq<Q> for State<Q>
 where
-    Q: PartialEq,
+    Q: core::cmp::PartialEq,
 {
     fn eq(&self, other: &Q) -> bool {
         self.get().eq(other)
     }
 }
 
-impl<Q> PartialOrd<Q> for State<Q>
+impl<Q> core::cmp::PartialOrd<Q> for State<Q>
 where
-    Q: PartialOrd<Q>,
+    Q: core::cmp::PartialOrd<Q>,
 {
     fn partial_cmp(&self, other: &Q) -> Option<core::cmp::Ordering> {
         self.get().partial_cmp(other)
@@ -237,7 +303,20 @@ impl<Q> From<Q> for State<Q> {
 }
 
 macro_rules! impl_ops {
-    (@impl $trait:ident.$call:ident) => {
+    (@alt $trait:ident::$call:ident) => {
+        impl<Q, R> ::core::ops::$trait<R> for State<Q>
+        where
+            Q: ::core::ops::$trait,
+            R: $crate::state::RawState<Inner = Q>,
+        {
+            type Output = State<Q::Output>;
+
+            fn $call(self, rhs: State<Q>) -> Self::Output {
+                State(::core::ops::$trait::$call(self.into_inner(), rhs.into_inner()))
+            }
+        }
+    };
+    (@impl $trait:ident::$call:ident) => {
         impl<Q> ::core::ops::$trait for State<Q>
         where
             Q: ::core::ops::$trait,
@@ -245,7 +324,7 @@ macro_rules! impl_ops {
             type Output = State<Q::Output>;
 
             fn $call(self, rhs: State<Q>) -> Self::Output {
-                State(::core::ops::$trait::$call(self.0, rhs.0))
+                State(::core::ops::$trait::$call(self.into_inner(), rhs.into_inner()))
             }
         }
 
@@ -256,7 +335,7 @@ macro_rules! impl_ops {
             type Output = State<Q::Output>;
 
             fn $call(self, rhs: Q) -> Self::Output {
-                State(::core::ops::$trait::$call(self.0, rhs))
+                State(::core::ops::$trait::$call(self.into_inner(), rhs))
             }
         }
 
@@ -267,7 +346,7 @@ macro_rules! impl_ops {
             {
 
                 fn [<$call _assign>](&mut self, rhs: State<Q>) {
-                    ::core::ops::[<$trait Assign>]::[<$call _assign>](self.get_mut(), rhs.0)
+                    ::core::ops::[<$trait Assign>]::[<$call _assign>](self.get_mut(), rhs.into_inner())
                 }
             }
             impl<Q> ::core::ops::[<$trait Assign>]<Q> for State<Q>
@@ -281,22 +360,22 @@ macro_rules! impl_ops {
             }
         }
     };
-    ($($trait:ident.$call:ident),* $(,)?) => {
+    ($($trait:ident::$call:ident),* $(,)?) => {
         $(
-            impl_ops!(@impl $trait.$call);
+            impl_ops!(@impl $trait::$call);
         )*
     };
 }
 
 impl_ops! {
-    Add.add,
-    BitAnd.bitand,
-    BitOr.bitor,
-    BitXor.bitxor,
-    Div.div,
-    Mul.mul,
-    Rem.rem,
-    Shl.shl,
-    Shr.shr,
-    Sub.sub,
+    Add::add,
+    BitAnd::bitand,
+    BitOr::bitor,
+    BitXor::bitxor,
+    Div::div,
+    Mul::mul,
+    Rem::rem,
+    Shl::shl,
+    Shr::shr,
+    Sub::sub,
 }
