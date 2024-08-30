@@ -3,8 +3,9 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{head::Head, tail::Tail};
+pub use self::{direction::Direction, head::Head, tail::Tail};
 
+pub(crate) mod direction;
 pub(crate) mod head;
 pub(crate) mod tail;
 
@@ -12,6 +13,7 @@ pub(crate) mod tail;
 pub mod cursor;
 
 pub(crate) mod prelude {
+    pub use super::direction::*;
     pub use super::head::Head;
     pub use super::tail::Tail;
     pub use super::IndexedHead;

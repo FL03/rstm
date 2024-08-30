@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #![cfg(feature = "std")]
-use crate::shift::Direction;
+use crate::Direction;
 use std::collections::hash_map::{self, HashMap};
 
 pub(crate) type Hdx = isize;
@@ -23,6 +23,30 @@ impl<V> HashTape<V> {
             ticks: 0,
         }
     }
+
+    pub fn from_data(data: HashMap<Hdx, V>) -> HashTape<V> {
+        HashTape {
+            cursor: 0,
+            store: data,
+            ticks: 0,
+        }
+    }
+
+    pub fn from_iter<I>(iter: I) -> HashTape<V>
+    where
+        I: IntoIterator<Item = (Hdx, V)>,
+    {
+        HashTape {
+            cursor: 0,
+            store: HashMap::from_iter(iter),
+            ticks: 0,
+        }
+    }
+
+    pub fn from_seq<I>(seq: I) -> HashTape<V> where I: IntoIterator<Item = V> {
+        let iter = seq.into_iter().enumerate().map(|(i, v)| (i as Hdx, v));
+        Self::from_iter(iter)
+    }
     /// Returns the current position of the head.
     pub fn cursor(&self) -> Hdx {
         self.cursor
@@ -31,13 +55,17 @@ impl<V> HashTape<V> {
     pub fn ticks(&self) -> usize {
         self.ticks
     }
-    
+    /// clears the tape.
     pub fn clear(&mut self) {
         self.cursor = 0;
         self.store.clear();
         self.ticks = 0;
     }
-    
+    /// Returns the entry in the tape at the current index.
+    pub fn current_entry(&mut self) -> hash_map::Entry<Hdx, V> {
+        self.store.entry(self.cursor)
+    }
+    /// Returns a mutable entry in the tape at the given index.
     pub fn entry(&mut self, index: Hdx) -> hash_map::Entry<Hdx, V> {
         self.store.entry(index)
     }
@@ -123,7 +151,7 @@ impl<V> HashTape<V> {
         self.store.get(&self.cursor)
     }
 
-    pub fn read_or_default(&mut self) -> &V
+    pub fn read_mut(&mut self) -> &mut V
     where
         V: Default,
     {

@@ -4,6 +4,19 @@
 */
 //! # rstm-core
 //!
+//! The `rstm-core` crate provides the core functionality for the `rstm` library.
+//! 
+//! ## Features
+//! 
+//! ### Components
+//! 
+//! - [x] Rules
+//! - [x] States
+//! 
+//! ### Tapes
+//! 
+//! - [x] [StdTape]
+//! - [x] [HashTape](tape::hash_tape::HashTape)
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #[cfg(feature = "alloc")]
@@ -14,10 +27,9 @@ pub use self::{
     actors::Actor,
     error::Error,
     rules::{Program, Rule},
-    shift::Direction,
     state::State,
     tape::StdTape,
-    traits::*,
+    traits::prelude::*,
     types::prelude::*,
 };
 
