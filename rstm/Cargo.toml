@@ -55,10 +55,6 @@ test = true
 name = "actor"
 required-features = ["alloc", "tracing"]
 
-[[example]]
-name = "basic"
-required-features = ["alloc", "tracing"]
-
 # ****************** Dependencies ******************
 [dependencies]
 thiserror.workspace = true

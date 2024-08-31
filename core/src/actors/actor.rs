@@ -35,13 +35,37 @@ impl<Q, S> Actor<Q, S> {
             },
         }
     }
-
-    pub fn with_tape<I>(self, alpha: I) -> Self
+    /// Consumes the current instance and returns a new instance with the given alphabet
+    pub fn with_alpha<I>(self, alpha: I) -> Self
     where
         I: IntoIterator<Item = S>,
     {
         Self {
             alpha: Vec::from_iter(alpha),
+            ..self
+        }
+    }
+    /// Consumes the current instance and returns a new instance with the given head
+    pub fn with_head(self, head: Head<Q, usize>) -> Self {
+        Self { head, ..self }
+    }
+    /// Consumes the current instance and returns a new instance with the given position
+    pub fn with_position(self, symbol: usize) -> Self {
+        Self {
+            head: Head {
+                state: self.head.state,
+                symbol,
+            },
+            ..self
+        }
+    }
+    /// Consumes the current instance and returns a new instance with the given state
+    pub fn with_state(self, State(state): State<Q>) -> Self {
+        Self {
+            head: Head {
+                state: State(state),
+                symbol: self.head.symbol,
+            },
             ..self
         }
     }
@@ -65,6 +89,10 @@ impl<Q, S> Actor<Q, S> {
             symbol: self.head.symbol,
         }
     }
+    /// Returns the current position of the head on the tape
+    pub fn position(&self) -> usize {
+        self.head.symbol
+    }
     /// Returns an instance of the state with an immutable reference to the inner value
     pub fn state(&self) -> State<&Q> {
         self.head.state()
@@ -77,14 +105,6 @@ impl<Q, S> Actor<Q, S> {
     /// but will return an [Executor] that is better suited for managing the runtime.
     pub fn execute(self, program: Program<Q, S>) -> Executor<Q, S> {
         Executor::new(self, program)
-    }
-    /// Reads the current symbol at the head of the tape
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "get", target = "actor")
-    )]
-    pub fn get(&self) -> Option<&S> {
-        self.alpha().get(self.position())
     }
     /// Checks if the tape is empty
     pub fn is_empty(&self) -> bool {
@@ -101,10 +121,6 @@ impl<Q, S> Actor<Q, S> {
     #[inline]
     pub fn len(&self) -> usize {
         self.alpha.len()
-    }
-    /// Returns the current position of the head on the tape
-    pub fn position(&self) -> usize {
-        self.head.symbol
     }
     /// Reads the current symbol at the head of the tape
     #[cfg_attr(
