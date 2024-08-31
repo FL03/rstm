@@ -17,63 +17,70 @@ pub(crate) mod states {
 }
 
 pub(crate) mod prelude {
-    pub use super::halt::*;
+    pub use super::halt::Haltable;
     pub use super::state::State;
     pub use super::states::*;
     pub use super::AnyState;
 }
-
+/// A type alias for a [State] whose inner value is the dynamically sized type of a boxed [`Any`](core::any::Any).
 pub type AnyState = State<Box<dyn std::any::Any>>;
 
 /// [RawState] is a trait describing objects capable of being used as states in our library.
 /// The trait contains a single associated trait, the context, or inner value of the state.
 #[doc(hidden)]
 pub trait RawState {
-    type Inner;
+    type Q;
 
     private!();
 
-    fn into_inner(self) -> Self::Inner;
+    fn into_inner(self) -> Self::Q;
 
-    fn get(&self) -> &Self::Inner;
+    fn get(&self) -> &Self::Q;
 
-    fn get_mut(&mut self) -> &mut Self::Inner;
+    fn get_mut(&mut self) -> &mut Self::Q;
 
-    fn set(&mut self, inner: Self::Inner);
+    fn set(&mut self, inner: Self::Q);
 }
 
 #[doc(hidden)]
 pub trait Stateful<Q> {
-    type State: RawState<Inner = Q>;
-}
+    type State: RawState<Q = Q>;
 
-pub trait StatefulView<Q>: Stateful<Q> {
-    fn state(&self) -> &Self::State;
+    fn get(self) -> Q;
+
+    fn get_mut(&mut self) -> &mut Q;
+
+    fn set(&mut self, state: Q);
+
+    fn map<U, F>(self, f: F) -> Option<U>
+    where
+        F: FnOnce(Q) -> U,
+        Self: Sized;
 }
 
 /*
  ************* Implementations *************
 */
 macro_rules! impl_raw_state {
-    (@impl $T:ident($($field:tt)*)) => {
-        impl<Q> RawState for $T<Q> {
-            type Inner = Q;
+    (@impl $state:ident($($field:tt)*)) => {
+        impl<Q> RawState for $state<Q> {
+            type Q = Q;
 
             seal!();
 
-            fn into_inner(self) -> Self::Inner {
+            fn into_inner(self) -> Q {
                 self.$($field)*
             }
 
-            fn get(&self) -> &Self::Inner {
+            fn get(&self) -> &Q {
                 &self.$($field)*
             }
 
-            fn get_mut(&mut self) -> &mut Self::Inner {
+            fn get_mut(&mut self) -> &mut Q {
                 &mut self.$($field)*
             }
 
-            fn set(&mut self, inner: Self::Inner) {
+            fn set(&mut self, inner: Q) {
                 self.$($field)* = inner;
             }
         }
@@ -88,12 +95,4 @@ macro_rules! impl_raw_state {
 impl_raw_state! {
     Halt(0),
     State(0),
-}
-
-impl<Q> Stateful<Q> for Halt<Q> {
-    type State = State<Q>;
-}
-
-impl<Q> Stateful<Q> for State<Q> {
-    type State = State<Q>;
 }

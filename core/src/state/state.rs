@@ -23,39 +23,27 @@ impl<Q> State<Q> {
     pub unsafe fn cast<R>(self) -> State<R> {
         State(core::ptr::read(&self.0 as *const Q as *const R))
     }
-    /// Returns an immutable reference to the state.
-    pub const fn get(&self) -> &Q {
-        &self.0
-    }
-    /// Returns a mutable reference to the state.
-    pub fn get_mut(&mut self) -> &mut Q {
-        &mut self.0
-    }
+    #[inline]
     /// Consumes and returns the inner value of the state.
-    pub fn into_inner(self) -> Q {
+    pub fn get(self) -> Q {
         self.0
     }
-    /// [State::map] applies a [`Fn`] closure to the state, returing a new state in the process.
-    /// Essentially, the method sufficiently describes the transformation of the state.
+    /// Returns an immutable reference to the inner value of the state.
+    pub const fn get_ref(&self) -> &Q {
+        &self.0
+    }
+    /// Returns a mutable reference to the inner value of the state.
+    pub fn get_mut(&mut self) -> &mut Q {
+        self.as_mut()
+    }
+    /// [State::map] applies the given function onto the inner value of the state, returning a
+    /// new state with the result. Essentially, the method describes the mechanism for
+    /// transfroming the state.
     pub fn map<R, F>(self, f: F) -> State<R>
-    where
-        F: Fn(&Q) -> R,
-    {
-        State(f(self.get()))
-    }
-    /// [State::map_mut] applies a [`FnMut`] closure to the state, returing the transformed state.
-    pub fn map_mut<R, F>(mut self, f: &mut F) -> State<R>
-    where
-        F: FnMut(&mut Q) -> R,
-    {
-        State(f(self.get_mut()))
-    }
-    /// Maps the state to a new state using a closure that takes the state by value.
-    pub fn map_once<R, F>(self, f: F) -> State<R>
     where
         F: FnOnce(Q) -> R,
     {
-        State(f(self.into_inner()))
+        State(f(self.get()))
     }
     /// Replaces the state with a new value, returning the old value.
     pub fn replace(&mut self, state: Q) -> Q {
@@ -72,12 +60,20 @@ impl<Q> State<Q> {
     pub fn set(&mut self, state: Q) {
         self.0 = state;
     }
-    /// Replaces the state with a new value, returning the old value.
+    /// Swaps the inner value of the state with that of the given state.
     pub fn swap<S>(&mut self, other: &mut S)
     where
-        S: RawState<Inner = Q>,
+        S: RawState<Q = Q>,
     {
         core::mem::swap(&mut self.0, other.get_mut());
+    }
+    /// Takes the inner value of the state, replacing it with the default value and returning
+    /// the previous value.
+    pub fn take(&mut self) -> Q
+    where
+        Q: Default,
+    {
+        core::mem::take(&mut self.0)
     }
     /// Returns a halted state with an immutable reference to the state.
     pub fn as_halt(&self) -> State<Halt<&Q>> {
@@ -85,40 +81,40 @@ impl<Q> State<Q> {
     }
     /// Consumes the state and returns a halted state.
     pub fn into_halt(self) -> State<Halt<Q>> {
-        State(Halt(self.into_inner()))
+        State(Halt(self.get()))
     }
     /// Returns a new state with a boxed inner value.
     pub fn boxed(self) -> State<Box<Q>> {
-        self.map_once(Box::new)
+        self.map(Box::new)
     }
     /// Converts the inner type into a boxed "any" state, returning a new instance of state
     pub fn as_any(&self) -> State<Box<dyn std::any::Any>>
     where
         Q: Clone + 'static,
     {
-        State(Box::new(self.get().clone()))
+        State(Box::new(self.get_ref().clone()))
     }
     /// Converts the inner type into a boxed "any" state, returning a new instance of state
     pub fn into_any(self) -> State<Box<dyn std::any::Any>>
     where
         Q: 'static,
     {
-        State(Box::new(self.into_inner()))
+        State(Box::new(self.get()))
     }
     /// Wraps the inner value of the state with an [`Arc`] and returns a new instance of [State]
     pub fn shared(self) -> State<Arc<Q>> {
-        self.map_once(Arc::new)
+        self.map(Arc::new)
     }
     /// Returns a shared reference to the state.
     pub fn to_shared(&self) -> State<Arc<Q>>
     where
         Q: Clone,
     {
-        State(Arc::new(self.get().clone()))
+        State(Arc::new(self.get_ref().clone()))
     }
     /// Returns a state with an owned inner value.
     pub fn to_ref(&self) -> State<&Q> {
-        State(self.get())
+        State(self.get_ref())
     }
     /// Returns a state with a mutable reference to the inner value.
     pub fn to_mut(&mut self) -> State<&mut Q> {
@@ -161,7 +157,7 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.into_inner()
+        self.get()
             .downcast()
             .map(State)
             .map_err(|_| Error::type_error("Failed to downcast state"))
@@ -171,7 +167,7 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.get().downcast_ref().map(State)
+        self.get_ref().downcast_ref().map(State)
     }
 }
 impl<Q> State<Halt<Q>> {
@@ -283,7 +279,7 @@ where
     Q: core::cmp::PartialEq,
 {
     fn eq(&self, other: &Q) -> bool {
-        self.get().eq(other)
+        self.get_ref().eq(other)
     }
 }
 
@@ -292,7 +288,7 @@ where
     Q: core::cmp::PartialOrd<Q>,
 {
     fn partial_cmp(&self, other: &Q) -> Option<core::cmp::Ordering> {
-        self.get().partial_cmp(other)
+        self.get_ref().partial_cmp(other)
     }
 }
 

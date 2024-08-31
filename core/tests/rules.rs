@@ -27,7 +27,7 @@ fn ruleset() {
     let head = Head::new(State(0), 0);
     // retrieve and validate the tail for the given head
     assert_eq!(
-        program.get_head(&head),
+        program.get_by_head(&head),
         Some(&Tail::new(Direction::Right, State(1), 1))
     )
 }

@@ -2,12 +2,6 @@
     Appellation: direction <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-
-/// [Directional] describes a type containing a direction
-pub trait Directional {
-    fn direction(&self) -> Direction;
-}
-
 /// [Direction] enumerates the various directions a head can move, namely: left, right, and stay.
 /// The included methods and implementations aim to streamline the conversion between [Direction] and other types.
 #[derive(
@@ -152,46 +146,75 @@ impl Default for Direction {
 
 impl<T> core::ops::Add<T> for Direction
 where
-    T: crate::Decrement + crate::Increment,
+    T: core::ops::Add<Output = T> + core::ops::Sub<Output = T> + num::One,
 {
     type Output = T;
 
     fn add(self, rhs: T) -> Self::Output {
         match self {
-            Self::Left => rhs.decrement(),
-            Self::Right => rhs.increment(),
+            Self::Left => rhs - T::one(),
+            Self::Right => rhs + T::one(),
             Self::Stay => rhs,
         }
     }
 }
 
-impl core::ops::Add<Direction> for isize {
-    type Output = isize;
+macro_rules! impl_apply_direction {
+    (@impl unsigned: $T:ty) => {
+        impl core::ops::Add<Direction> for $T {
+            type Output = $T;
 
-    fn add(self, rhs: Direction) -> Self::Output {
-        self + rhs as isize
-    }
+            fn add(self, rhs: Direction) -> Self::Output {
+                match rhs {
+                    Direction::Left => self.wrapping_sub(1),
+                    Direction::Right => self.wrapping_add(1),
+                    Direction::Stay => self,
+                }
+            }
+        }
+
+        impl core::ops::AddAssign<Direction> for $T {
+            fn add_assign(&mut self, rhs: Direction) {
+                *self = match rhs {
+                    Direction::Left => self.wrapping_sub(1),
+                    Direction::Right => self.wrapping_add(1),
+                    Direction::Stay => 0,
+                };
+            }
+        }
+
+    };
+    (@impl $T:ty) => {
+        impl core::ops::Add<Direction> for $T {
+            type Output = $T;
+
+            fn add(self, rhs: Direction) -> Self::Output {
+                self + rhs as $T
+            }
+        }
+
+        impl core::ops::AddAssign<Direction> for $T {
+
+            fn add_assign(&mut self, rhs: Direction) {
+                *self += rhs as $T;
+            }
+        }
+
+    };
+    (unsigned: $($T:ty),* $(,)?) => {
+        $(
+            impl_apply_direction!(@impl unsigned: $T);
+        )*
+    };
+    ($($T:ty),* $(,)?) => {
+        $(
+            impl_apply_direction!(@impl $T);
+        )*
+    };
 }
 
-impl core::ops::Add<Direction> for usize {
-    type Output = usize;
-
-    fn add(self, rhs: Direction) -> Self::Output {
-        self.wrapping_add_signed(rhs as isize)
-    }
-}
-
-impl core::ops::AddAssign<Direction> for usize {
-    fn add_assign(&mut self, rhs: Direction) {
-        *self = core::ops::Add::add(*self, rhs);
-    }
-}
-
-impl core::ops::AddAssign<Direction> for isize {
-    fn add_assign(&mut self, rhs: Direction) {
-        *self = core::ops::Add::add(*self, rhs);
-    }
-}
+impl_apply_direction!(i8, i16, i32, i64, i128, isize,);
+impl_apply_direction!(unsigned: u8, u16, u32, u64, u128, usize);
 
 mod impl_from {
     use super::*;

@@ -43,7 +43,7 @@ impl<Q> Halt<Q> {
     /// Swaps the inner value of the halted state with that of the given state.
     pub fn swap<S>(&mut self, other: &mut S)
     where
-        S: RawState<Inner = Q>,
+        S: RawState<Q = Q>,
     {
         core::mem::swap(&mut self.0, other.get_mut());
     }

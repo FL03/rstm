@@ -18,24 +18,18 @@ pub struct Actor<Q, S> {
 }
 
 impl<Q, S> Actor<Q, S> {
-    pub fn new(alpha: impl IntoIterator<Item = S>, State(state): State<Q>, symbol: usize) -> Self {
+    pub fn new(alpha: impl IntoIterator<Item = S>, state: State<Q>, symbol: usize) -> Self {
         Self {
             alpha: Vec::from_iter(alpha),
-            head: Head {
-                state: State(state),
-                symbol,
-            },
+            head: Head { state, symbol },
         }
     }
     /// Constructs a new [Actor] with the given state; assumes the tape is empty and the head
     /// is located at `0`.
-    pub fn from_state(State(state): State<Q>) -> Self {
+    pub fn from_state(state: State<Q>) -> Self {
         Self {
             alpha: Vec::new(),
-            head: Head {
-                state: State(state),
-                symbol: 0,
-            },
+            head: Head { state, symbol: 0 },
         }
     }
     /// Consumes the current instance and returns a new instance with the given alphabet
@@ -56,25 +50,26 @@ impl<Q, S> Actor<Q, S> {
     pub fn with_position(self, symbol: usize) -> Self {
         Self {
             head: Head {
-                state: self.head.state,
                 symbol,
+                ..self.head
             },
             ..self
         }
     }
     /// Consumes the current instance and returns a new instance with the given state
-    pub fn with_state(self, State(state): State<Q>) -> Self {
+    pub fn with_state(self, state: State<Q>) -> Self {
         Self {
-            head: Head {
-                state: State(state),
-                symbol: self.head.symbol,
-            },
+            head: Head { state, ..self.head },
             ..self
         }
     }
-    /// Returns an immutable reference to the tape alphabet as a slice
+    /// Returns an immutable reference to the tape, as a slice
     pub fn alpha(&self) -> &[S] {
         &self.alpha
+    }
+    /// Returns a mutable reference of the tape as a slice
+    pub fn alpha_mut(&mut self) -> &mut [S] {
+        &mut self.alpha
     }
     /// Returns an immutable reference to the head of the tape
     pub const fn head(&self) -> &Head<Q, usize> {
@@ -118,7 +113,7 @@ impl<Q, S> Actor<Q, S> {
     where
         Q: 'static,
     {
-        self.head.state.is_halt()
+        self.head().state.is_halt()
     }
     /// Returns the length of the tape
     #[inline]
@@ -155,6 +150,8 @@ impl<Q, S> Actor<Q, S> {
         if pos == usize::MAX {
             #[cfg(feature = "tracing")]
             tracing::trace!("Prepending to the tape...");
+            // prepend to the tape
+            self.alpha.insert(0, value);
         } else if pos >= self.len() {
             #[cfg(feature = "tracing")]
             tracing::trace!("Appending to the tape...");
@@ -164,25 +161,27 @@ impl<Q, S> Actor<Q, S> {
             self.alpha[pos] = value;
         }
     }
-    /// Performs a single step of the Turing machine
+    /// Performs a single step of the Turing machine; returns the previous head of the tape
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "handle", target = "actor")
     )]
-    pub(crate) fn handle(&mut self, direction: Direction, State(state): State<Q>, symbol: S) {
+    pub(crate) fn handle(
+        &mut self,
+        direction: Direction,
+        state: State<Q>,
+        symbol: S,
+    ) -> Head<Q, usize> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Transitioning the actor...");
         // write the symbol to the tape
         self.write(symbol);
         // update the head of the actor
-        self.head = Head {
-            state: State(state),
-            symbol: direction.apply_unsigned(self.head.symbol),
-        };
+        self.head.replace(state, self.position() + direction)
     }
 
-    pub(crate) fn process(&mut self, rule: Tail<Q, S>) {
-        self.handle(rule.direction, rule.state, rule.symbol);
+    pub(crate) fn process(&mut self, rule: Tail<Q, S>) -> Head<Q, usize> {
+        self.handle(rule.direction, rule.state, rule.symbol)
     }
 }
 

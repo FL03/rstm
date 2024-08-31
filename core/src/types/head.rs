@@ -63,6 +63,22 @@ impl<Q, S> Head<Q, S> {
     pub fn with_symbol(self, symbol: S) -> Self {
         Self { symbol, ..self }
     }
+    /// Returns a reference to the current state
+    pub fn state(&self) -> State<&Q> {
+        self.state.to_ref()
+    }
+    /// Returns a mutable reference to the current [State]
+    pub fn state_mut(&mut self) -> State<&mut Q> {
+        self.state.to_mut()
+    }
+    /// Returns a reference to the current symbol
+    pub const fn symbol(&self) -> &S {
+        &self.symbol
+    }
+    /// Returns a mutable reference to the current symbol
+    pub fn symbol_mut(&mut self) -> &mut S {
+        &mut self.symbol
+    }
     /// Returns a reference to the current state and symbol returing a 2-tuple
     pub fn as_tuple(&self) -> (&State<Q>, &S) {
         (&self.state, &self.symbol)
@@ -83,21 +99,20 @@ impl<Q, S> Head<Q, S> {
     pub fn set_symbol(&mut self, symbol: S) {
         self.symbol = symbol;
     }
-    /// Returns a reference to the current state
-    pub fn state(&self) -> State<&Q> {
-        self.state.to_ref()
+
+    pub fn replace(&mut self, state: State<Q>, symbol: S) -> Self {
+        Head {
+            state: core::mem::replace(&mut self.state, state),
+            symbol: core::mem::replace(&mut self.symbol, symbol),
+        }
     }
-    /// Returns a mutable reference to the current [State]
-    pub fn state_mut(&mut self) -> State<&mut Q> {
-        self.state.to_mut()
+
+    pub fn replace_state(&mut self, state: State<Q>) -> State<Q> {
+        core::mem::replace(&mut self.state, state)
     }
-    /// Returns a reference to the current symbol
-    pub const fn symbol(&self) -> &S {
-        &self.symbol
-    }
-    /// Returns a mutable reference to the current symbol
-    pub fn symbol_mut(&mut self) -> &mut S {
-        &mut self.symbol
+
+    pub fn replace_symbol(&mut self, symbol: S) -> S {
+        core::mem::replace(&mut self.symbol, symbol)
     }
     /// Updates the current [State] and symbol
     pub fn update(&mut self, state: Option<State<Q>>, symbol: Option<S>) {
@@ -212,6 +227,73 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "({}, {})", self.state, self.symbol)
+    }
+}
+
+impl<Q, S> PartialEq<State<Q>> for Head<Q, S>
+where
+    Q: PartialEq,
+{
+    fn eq(&self, state: &State<Q>) -> bool {
+        &self.state == state
+    }
+}
+
+impl<Q, S> PartialEq<Head<Q, S>> for State<Q>
+where
+    Q: PartialEq,
+{
+    fn eq(&self, head: &Head<Q, S>) -> bool {
+        *self == *head.state
+    }
+}
+
+impl<'a, Q, S> PartialEq<Head<Q, S>> for State<&'a Q>
+where
+    Q: PartialEq,
+{
+    fn eq(&self, head: &Head<Q, S>) -> bool {
+        *self == head.state()
+    }
+}
+
+impl<'a, Q, S> PartialEq<State<&'a Q>> for Head<Q, S>
+where
+    Q: PartialEq,
+{
+    fn eq(&self, state: &State<&'a Q>) -> bool {
+        self.state() == *state
+    }
+}
+
+impl<Q, S> PartialEq<(State<Q>, S)> for Head<Q, S>
+where
+    Q: PartialEq,
+    S: PartialEq,
+{
+    fn eq(&self, (state, symbol): &(State<Q>, S)) -> bool {
+        &self.state == state && &self.symbol == symbol
+    }
+}
+
+impl<Q, S> PartialEq<(Q, S)> for Head<Q, S>
+where
+    State<Q>: PartialEq,
+    Q: PartialEq,
+    S: PartialEq,
+{
+    fn eq(&self, (state, symbol): &(Q, S)) -> bool {
+        &self.state == state && &self.symbol == symbol
+    }
+}
+
+impl<Q, S> PartialEq<Head<Q, S>> for (State<Q>, S)
+where
+    Q: PartialEq,
+    S: PartialEq,
+{
+    fn eq(&self, head: &Head<Q, S>) -> bool {
+        &head.state == &self.0 && &head.symbol == &self.1
     }
 }
 

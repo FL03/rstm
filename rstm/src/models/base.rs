@@ -2,10 +2,9 @@
     Appellation: tm <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-
-use crate::prelude::{Error, HaltState, Head, StdTape, Symbolic, Tail};
 use crate::rules::Program;
-use crate::state::State;
+use crate::state::{halt::HaltState, State};
+use crate::{Error, Head, StdTape, Symbolic, Tail};
 
 /// # Turing Machine ([StdTm])
 ///
