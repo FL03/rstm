@@ -29,7 +29,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-
 fn _tracing(level: &str) {
     let level = match level {
         "debug" => tracing::Level::DEBUG,
