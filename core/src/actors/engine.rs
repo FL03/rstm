@@ -2,10 +2,11 @@
     Appellation: engine <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+#![cfg(feature = "std")]
 use crate::state::RawState;
-use crate::{Error, Head, Program};
+use crate::{Direction, Error, Head, Program, State};
 
-use std::collections::HashMap;
+use std::collections::hash_map::{self, HashMap};
 
 pub struct Engine<Q, A>
 where
@@ -42,12 +43,33 @@ where
     pub fn with_program(self, program: Program<Q, A>) -> Self {
         Self { program, ..self }
     }
+
+    pub fn position(&self) -> isize {
+        self.scope.symbol
+    }
+
+    pub fn cell(&self) -> &Head<Q, isize> {
+        &self.scope
+    }
+
+    pub fn entry(&mut self) -> hash_map::Entry<'_, isize, A> {
+        self.tape.entry(self.position())
+    }
+
     pub fn read(&self) -> Option<&A> {
         self.tape.get(&self.scope.symbol)
     }
 
-    pub fn write(&mut self, symbol: A) {
-        self.tape.insert(self.scope.symbol, symbol);
+    pub fn write(&mut self, data: A) -> Option<A> {
+        self.tape.insert(self.position(), data)
+    }
+
+    fn handle(&mut self, direction: Direction, state: State<Q>, symbol: A) {
+        let next = Head {
+            state,
+            symbol: self.position() + direction,
+        };
+        core::mem::replace(&mut self.scope, next);
     }
 
     pub fn process<I>(&mut self) -> Result<(), Error>
@@ -55,16 +77,16 @@ where
         A: crate::Symbolic,
         Q: Clone + Eq + std::hash::Hash,
     {
-        let symbol = self.read().expect("no symbol found");
-        if let Some(rule) = self.program.get(self.scope.state(), symbol) {
-            let next = Head {
-                state: rule.state.clone(),
-                symbol: self.scope.symbol + rule.direction,
-            };
-            self.write(rule.symbol);
-            self.scope = next;
-        }
+        let scope = self.cell();
+        let symbol = match self.read() {
+            Some(symbol) => symbol,
+            None => return Err( Error::runtime_error("Engine::process")),
+        };
 
-        Ok(())
+        if let Some(rule) = self.program.get(self.scope.state(), &symbol) {
+            self.handle(rule.direction, rule.state.clone(), rule.symbol.clone());
+        } 
+
+       Ok(())
     }
 }

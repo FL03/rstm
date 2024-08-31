@@ -17,7 +17,10 @@ pub use self::models::StdTM;
 #[doc(inline)]
 pub use rstm_core::*;
 
+#[doc(hidden)]
 pub mod models;
+#[doc(hidden)]
+pub mod shift;
 
 pub mod prelude {
     pub use super::models::prelude::*;

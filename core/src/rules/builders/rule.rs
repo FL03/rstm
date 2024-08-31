@@ -75,3 +75,9 @@ impl<Q, S> RuleBuilder<Q, S> {
         }
     }
 }
+
+impl<Q, S> From<RuleBuilder<Q, S>> for Rule<Q, S> {
+    fn from(builder: RuleBuilder<Q, S>) -> Self {
+        builder.build()
+    }
+}
