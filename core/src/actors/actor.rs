@@ -2,9 +2,6 @@
     Appellation: actor <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-#[doc(inline)]
-pub use self::builder::ActorBuilder;
-
 use super::Executor;
 use crate::rules::Program;
 use crate::{Direction, Error, Head, State, Tail};
@@ -21,8 +18,14 @@ pub struct Actor<Q, S> {
 }
 
 impl<Q, S> Actor<Q, S> {
-    pub fn new() -> ActorBuilder<Q, S> {
-        ActorBuilder::new()
+    pub fn new(alpha: impl IntoIterator<Item = S>, State(state): State<Q>, symbol: usize) -> Self {
+        Self {
+            alpha: Vec::from_iter(alpha),
+            head: Head {
+                state: State(state),
+                symbol,
+            },
+        }
     }
     /// Constructs a new [Actor] with the given state; assumes the tape is empty and the head
     /// is located at `0`.
@@ -212,74 +215,5 @@ where
             }
         }
         Ok(())
-    }
-}
-
-mod builder {
-    use super::*;
-    use core::iter::FromIterator;
-
-    #[derive(Default)]
-    pub struct ActorBuilder<Q, S> {
-        alpha: Vec<S>,
-        state: Option<State<Q>>,
-        symbol: usize,
-    }
-
-    impl<Q, S> ActorBuilder<Q, S> {
-        pub(crate) fn new() -> Self {
-            Self {
-                alpha: Vec::new(),
-                state: None,
-                symbol: 0,
-            }
-        }
-
-        pub fn alpha<I>(self, alpha: I) -> Self
-        where
-            I: IntoIterator<Item = S>,
-        {
-            Self {
-                alpha: Vec::from_iter(alpha),
-                ..self
-            }
-        }
-
-        pub fn head(self, head: Head<Q, usize>) -> Self {
-            Self {
-                state: Some(head.state),
-                symbol: head.symbol,
-                ..self
-            }
-        }
-
-        pub fn state(self, State(state): State<Q>) -> Self {
-            Self {
-                state: Some(State(state)),
-                ..self
-            }
-        }
-
-        pub fn position(self, symbol: usize) -> Self {
-            Self { symbol, ..self }
-        }
-
-        pub fn build(self) -> Actor<Q, S>
-        where
-            Q: Default,
-        {
-            let ActorBuilder {
-                alpha,
-                state,
-                symbol,
-            } = self;
-            Actor {
-                alpha,
-                head: Head {
-                    state: state.unwrap_or_default(),
-                    symbol,
-                },
-            }
-        }
     }
 }

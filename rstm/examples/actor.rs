@@ -21,11 +21,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (-1, 0) -> Left(0, 0),
         (-1, 1) -> Left(1, 1),
     ];
-
+    // create a new program from the ruleset
     let program = Program::from_iter(rules);
-
     // create a new instance of the machine
-    let tm = dbg!(Actor::from_state(initial_state).with_alpha(alpha));
+    let tm = dbg!(Actor::new(alpha, initial_state, 0));
     tm.execute(program).run()?;
     Ok(())
 }
