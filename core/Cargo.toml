@@ -14,7 +14,7 @@ version.workspace = true
 
 [features]
 default = [
-    "alloc",
+    "std",
 ]
 
 full = [
@@ -44,17 +44,29 @@ tracing = [
 ]
 
 # ********* [FF] Environments *********
-# std = [
-#     "alloc",
-#     "serde?/std",
-#     "strum/std",
-# ]
+std = [
+    "alloc",
+    "serde?/std",
+    "strum/std",
+]
 
 [lib]
 bench = true
 crate-type = ["cdylib", "rlib"]
 doctest = false
 test = true
+
+[[test]]
+name = "actor"
+required-features = ["alloc"]
+
+[[test]]
+name = "rules"
+required-features = ["alloc"]
+
+[[test]]
+name = "tape"
+required-features = ["alloc"]
 
 [dependencies]
 thiserror.workspace = true

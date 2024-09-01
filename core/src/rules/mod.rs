@@ -3,22 +3,16 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{
-    builders::{ProgramBuilder, RuleBuilder},
-    program::Program,
-    rule::Rule,
-};
+pub use self::{builders::RuleBuilder, program::Program, rule::Rule, ruleset::RuleSet};
 
 pub(crate) mod program;
 pub(crate) mod rule;
-
-pub mod workload;
+pub mod ruleset;
 
 #[doc(hidden)]
-pub(crate) mod builders {
-    pub use self::{program::ProgramBuilder, rule::RuleBuilder};
+mod builders {
+    pub use self::rule::RuleBuilder;
 
-    mod program;
     mod rule;
 }
 
@@ -29,6 +23,19 @@ pub(crate) mod prelude {
 }
 
 use crate::{Direction, Head, State, Symbolic, Tail};
+
+pub trait Rules<Q, S> {
+    type Key: Scope<Q, S>;
+    type Val: Directive<Q, S>;
+
+    fn get(&self, key: &Self::Key) -> Option<&Self::Val>;
+
+    fn insert(&mut self, key: Self::Key, val: Self::Val) -> Option<Self::Val>;
+
+    fn remove(&mut self, key: &Self::Key) -> Option<Self::Val>;
+
+    fn contains_key(&self, key: &Self::Key) -> bool;
+}
 
 pub trait Transition<Q, S> {
     fn direction(&self) -> Direction;

@@ -11,12 +11,14 @@ pub use self::tape::StdTape;
 
 pub(crate) mod tape;
 
-#[doc(hidden)]
+#[cfg(feature = "std")]
 pub mod hash_tape;
 
 pub(crate) mod prelude {
     pub use super::tape::StdTape;
 }
+
+use core::option::Option;
 
 #[doc(hidden)]
 pub trait Mem {
@@ -36,82 +38,15 @@ pub trait Mem {
     fn len(&self) -> usize;
 }
 
-#[doc(hidden)]
-/// [RawTape] defines the basic interface used for tape-like structures; i.e., a contiguous,
-/// sequential array of elements.
-pub trait RawTape {
-    type Elem;
-
-    private!();
-
-    fn as_slice(&self) -> &[Self::Elem];
-
-    fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
-    fn len(&self) -> usize {
-        self.as_slice().len()
-    }
-}
-
-#[doc(hidden)]
-/// [Tape] is a
-pub trait Tape: RawTape {
-    type Idx;
-
-    fn clear(&mut self);
-
-    fn get(&self, idx: &Self::Idx) -> Option<&Self::Elem>;
-
-    fn get_mut(&mut self, idx: &Self::Idx) -> Option<&mut Self::Elem>;
-
-    fn insert(&mut self, idx: Self::Idx, elem: Self::Elem);
-}
-
 /*
  ************* Implementations *************
 */
 #[cfg(feature = "alloc")]
 use alloc::vec::Vec;
+#[cfg(feature = "std")]
 use std::collections::HashMap;
 
-impl<T> RawTape for [T] {
-    type Elem = T;
-
-    seal!();
-
-    fn as_slice(&self) -> &[Self::Elem] {
-        &self
-    }
-
-    fn is_empty(&self) -> bool {
-        <[T]>::is_empty(self)
-    }
-
-    fn len(&self) -> usize {
-        <[T]>::len(self)
-    }
-}
-
-impl<T> RawTape for Vec<T> {
-    type Elem = T;
-
-    seal!();
-
-    fn as_slice(&self) -> &[Self::Elem] {
-        Vec::as_slice(self)
-    }
-
-    fn is_empty(&self) -> bool {
-        Vec::is_empty(self)
-    }
-
-    fn len(&self) -> usize {
-        Vec::len(self)
-    }
-}
-
+#[cfg(feature = "alloc")]
 impl<V> Mem for Vec<V> {
     type Key = usize;
     type Value = V;
@@ -147,6 +82,7 @@ impl<V> Mem for Vec<V> {
     }
 }
 
+#[cfg(feature = "std")]
 impl<K, V> Mem for HashMap<K, V>
 where
     K: Eq + std::hash::Hash,

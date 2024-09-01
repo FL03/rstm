@@ -6,6 +6,7 @@ concurrency:
 
 env:
   BASENAME: ${{ github.event.repository.name }}
+  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
   CARGO_TERM_COLOR: always
 
 on:
@@ -19,43 +20,18 @@ jobs:
   base:
     env:
       CRATE_NAME: ${{ github.event.repository.name }}-${{ matrix.suffix }}
-    name: Publish (${{ matrix.suffix }})
+    name: Publish Base Modules
     runs-on: ubuntu-latest
     strategy:
       matrix:
         suffix: [ core ]
     steps:
       - uses: actions/checkout@v4
-      - name: cache
-        uses: actions/cache@v4
-        with:
-          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target/debug
-            target/release
-          restore-keys: |
-            cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-            cargo-${{ runner.os }}-
-            cargo-
-      - run: cargo publish --all-features -v -p ${{ env.CRATE_NAME }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - run: cargo publish --all-features -v -p ${{ env.CRATE_NAME }}
   publish:
-    name: Publish (${{ github.event.repository.name }})
+    name: Publish SDK
     needs: base
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: cache
-        uses: actions/cache@v4
-        with:
-          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target/release
-          restore-keys: |
-            cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-            cargo-${{ runner.os }}-
-            cargo-
       - run: cargo publish --all-features -v -p ${{ github.event.repository.name }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}

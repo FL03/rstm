@@ -2,33 +2,34 @@
     Appellation: tm <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-
-
-use crate::prelude::{Error, HaltState, Head, StdTape, Symbolic, Tail};
 use crate::rules::Program;
-use crate::state::State;
+use crate::state::{halt::HaltState, State};
+use crate::{Error, Head, StdTape, Symbolic, Tail};
 
-/// # Turing Machine ([Turm])
+/// # Turing Machine ([StdTm])
 ///
 /// The Turing Machine is a mathematical model of computation that uses a set of rules to determine
 /// how a machine should manipulate a tape. The machine can read, write, and move linearly across the tape.
 /// Each pre-defined rule maps a head, consisting of a state and symbol, to a new state and symbol along with a direction.
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Turm<Q = String, S = char> {
+pub struct StdTM<Q = String, S = char> {
     pub(crate) program: Program<Q, S>,
     pub(crate) state: HaltState<Q>,
     pub(crate) tape: StdTape<S>,
 }
 
-impl<Q, S> Turm<Q, S> {
+impl<Q, S> StdTM<Q, S> {
     pub fn new(program: Program<Q, S>, tape: StdTape<S>) -> Self
     where
         Q: Clone + Default,
         S: Default,
     {
-        let state = program.initial_state().cloned();
-        Turm {
+        let state = program
+            .initial_state()
+            .map(|q| q.cloned())
+            .unwrap_or_default();
+        StdTM {
             program,
             state: HaltState::state(state),
             tape,
@@ -113,7 +114,6 @@ impl<Q, S> Turm<Q, S> {
             symbol,
         }) = self.program.get_ref(self.read()?)
         {
-            
             //
             self.tape.update(direction, symbol.clone());
             self.state = state.cloned().into();
@@ -123,7 +123,7 @@ impl<Q, S> Turm<Q, S> {
     }
 }
 
-impl<Q, S> core::iter::Iterator for Turm<Q, S>
+impl<Q, S> core::iter::Iterator for StdTM<Q, S>
 where
     Q: Clone + PartialEq + 'static,
     S: Clone + PartialEq,

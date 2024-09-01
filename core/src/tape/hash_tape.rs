@@ -2,13 +2,11 @@
     Appellation: hash_tape <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-// #![cfg(feature = "std")]
-use crate::shift::Direction;
+#![cfg(feature = "std")]
+use crate::Direction;
 use std::collections::hash_map::{self, HashMap};
 
-pub trait HashIndex: Eq + core::hash::Hash + core::ops::Neg {}
-
-pub type Hdx = isize;
+pub(crate) type Hdx = isize;
 
 #[derive(Clone, Debug, Default)]
 pub struct HashTape<V = char> {
@@ -26,24 +24,67 @@ impl<V> HashTape<V> {
         }
     }
 
-    pub fn reset(&mut self) {
+    pub fn from_data(data: HashMap<Hdx, V>) -> HashTape<V> {
+        HashTape {
+            cursor: 0,
+            store: data,
+            ticks: 0,
+        }
+    }
+
+    pub fn from_iter<I>(iter: I) -> HashTape<V>
+    where
+        I: IntoIterator<Item = (Hdx, V)>,
+    {
+        HashTape {
+            cursor: 0,
+            store: HashMap::from_iter(iter),
+            ticks: 0,
+        }
+    }
+
+    pub fn from_seq<I>(seq: I) -> HashTape<V>
+    where
+        I: IntoIterator<Item = V>,
+    {
+        let iter = seq.into_iter().enumerate().map(|(i, v)| (i as Hdx, v));
+        Self::from_iter(iter)
+    }
+    /// Returns the current position of the head.
+    pub fn cursor(&self) -> Hdx {
+        self.cursor
+    }
+    /// Returns the total number of steps taken by the head.
+    pub fn ticks(&self) -> usize {
+        self.ticks
+    }
+    /// clears the tape.
+    pub fn clear(&mut self) {
         self.cursor = 0;
         self.store.clear();
         self.ticks = 0;
     }
-
-    pub fn cursor(&self) -> Hdx {
-        self.cursor
+    /// Returns the entry in the tape at the current index.
+    pub fn current_entry(&mut self) -> hash_map::Entry<Hdx, V> {
+        self.store.entry(self.cursor)
     }
-
-    pub fn ticks(&self) -> usize {
-        self.ticks
-    }
-
+    /// Returns a mutable entry in the tape at the given index.
     pub fn entry(&mut self, index: Hdx) -> hash_map::Entry<Hdx, V> {
         self.store.entry(index)
     }
 
+    /// Returns true if the tape contains the given index.
+    pub fn contains_key(&self, index: Hdx) -> bool {
+        self.store.contains_key(&index)
+    }
+    /// Returns true if the tape contains the given value.
+    pub fn contains_value(&self, value: &V) -> bool
+    where
+        V: PartialEq,
+    {
+        self.values().any(|v| v == value)
+    }
+    /// Returns a reference to the value at the given index.
     pub fn get(&self, index: Hdx) -> Option<&V> {
         self.store.get(&index)
     }
@@ -59,18 +100,21 @@ impl<V> HashTape<V> {
     pub fn is_empty(&self) -> bool {
         self.store.is_empty()
     }
+    /// Returns an immutable iterator over the tape.
+    pub fn iter(&self) -> hash_map::Iter<Hdx, V> {
+        self.store.iter()
+    }
+    /// Returns a mutable iterator over the tape.
+    pub fn iter_mut(&mut self) -> hash_map::IterMut<Hdx, V> {
+        self.store.iter_mut()
+    }
+    /// Returns an iterator over the keys of the tape.
+    pub fn keys(&self) -> hash_map::Keys<Hdx, V> {
+        self.store.keys()
+    }
     /// Returns the number of elements in the tape.
     pub fn len(&self) -> usize {
         self.store.len()
-    }
-    /// Removes the value at the given index.
-    pub fn remove(&mut self, index: Hdx) -> Option<V> {
-        self.store.remove(&index)
-    }
-    /// Shifts the cursor in the given direction.
-    pub fn shift(&mut self, direction: Direction) {
-        self.cursor += direction;
-        self.ticks += 1;
     }
     /// Returns a mutable reference to the value of the head at the current position; on empty,
     /// the given value is inserted and returned.
@@ -93,12 +137,35 @@ impl<V> HashTape<V> {
     {
         self.store.entry(self.cursor).or_default()
     }
+    /// Removes the value at the given index.
+    pub fn remove(&mut self, index: Hdx) -> Option<V> {
+        self.store.remove(&index)
+    }
+    /// Returns an iterator over the values of the tape.
+    pub fn values(&self) -> hash_map::Values<Hdx, V> {
+        self.store.values()
+    }
+
+    /// Shifts the cursor in the given direction.
+    pub fn shift(&mut self, direction: Direction) {
+        self.cursor += direction;
+        self.ticks += 1;
+    }
+
     /// Returns a reference to the value at the current cursor position.
     pub fn read(&self) -> Option<&V> {
         self.store.get(&self.cursor)
     }
 
-    pub fn write(&mut self, value: V) {
+    pub fn read_mut(&mut self) -> &mut V
+    where
+        V: Default,
+    {
+        self.or_default()
+    }
+
+    pub fn write(&mut self, step: Direction, value: V) {
         let _ = self.store.insert(self.cursor, value);
+        self.shift(step);
     }
 }

@@ -53,11 +53,7 @@ test = true
 
 [[example]]
 name = "actor"
-required-features = ["tracing"]
-
-[[example]]
-name = "basic"
-required-features = ["tracing"]
+required-features = ["alloc", "tracing"]
 
 # ****************** Dependencies ******************
 [dependencies]

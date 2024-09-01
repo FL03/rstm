@@ -79,6 +79,7 @@ impl<S: Symbolic> Alphabet for [S] {
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<S: Symbolic> Alphabet for Vec<S> {
     type Elem = S;
 

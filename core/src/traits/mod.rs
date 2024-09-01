@@ -3,21 +3,17 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{execute::*, increment::*, symbolic::*, transform::*};
+pub use self::{convert::*, increment::*, symbols::*};
 
-pub(crate) mod execute;
+pub(crate) mod convert;
 pub(crate) mod increment;
-pub(crate) mod symbolic;
-pub(crate) mod transform;
+pub(crate) mod symbols;
 
-#[doc(hidden)]
-pub mod cspace;
 #[doc(hidden)]
 pub mod io;
 
 pub(crate) mod prelude {
-    pub use super::execute::*;
+    pub use super::convert::*;
     pub use super::increment::*;
-    pub use super::symbolic::*;
-    pub use super::transform::*;
+    pub use super::symbols::*;
 }

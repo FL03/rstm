@@ -14,8 +14,18 @@ pub enum StateError {
 }
 
 #[derive(
-    Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, strum::VariantNames, thiserror::Error,
+    Clone,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    strum::EnumDiscriminants,
+    strum::VariantNames,
+    thiserror::Error,
 )]
+#[strum_discriminants(derive(Hash, Ord, PartialOrd))]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum Error {
     #[error("[Execution Error] {0}")]
@@ -28,6 +38,8 @@ pub enum Error {
     StateError(#[from] StateError),
     #[error("[Transformation Error]: {0}")]
     TransformationError(String),
+    #[error("[Type Error] {0}")]
+    TypeError(String),
     #[error("[Unknown Error] {0}")]
     Unknown(String),
 }
@@ -53,6 +65,10 @@ impl Error {
         Error::TransformationError(message.to_string())
     }
 
+    pub fn type_error(message: impl ToString) -> Self {
+        Error::TypeError(message.to_string())
+    }
+
     pub fn unknown(message: impl ToString) -> Self {
         Error::Unknown(message.to_string())
     }
@@ -63,6 +79,23 @@ impl Error {
 
     pub fn state_not_found() -> Self {
         Error::StateError(StateError::StateNotFound)
+    }
+
+    pub fn message(&self) -> String {
+        match self {
+            Error::ExecutionError(message) => message.clone(),
+            Error::IndexOutOfBounds { index, len } => {
+                format!(
+                    "Out of Bounds: {} is out of bounds for a length of {}",
+                    index, len
+                )
+            }
+            Error::RuntimeError(message) => message.clone(),
+            Error::StateError(err) => err.to_string(),
+            Error::TransformationError(message) => message.clone(),
+            Error::TypeError(message) => message.clone(),
+            Error::Unknown(message) => message.clone(),
+        }
     }
 }
 

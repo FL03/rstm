@@ -2,9 +2,6 @@
     Appellation: actor <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-#[doc(inline)]
-pub use self::builder::ActorBuilder;
-
 use super::Executor;
 use crate::rules::Program;
 use crate::{Direction, Error, Head, State, Tail};
@@ -21,22 +18,22 @@ pub struct Actor<Q, S> {
 }
 
 impl<Q, S> Actor<Q, S> {
-    pub fn new() -> ActorBuilder<Q, S> {
-        ActorBuilder::new()
+    pub fn new(alpha: impl IntoIterator<Item = S>, state: State<Q>, symbol: usize) -> Self {
+        Self {
+            alpha: Vec::from_iter(alpha),
+            head: Head { state, symbol },
+        }
     }
     /// Constructs a new [Actor] with the given state; assumes the tape is empty and the head
     /// is located at `0`.
-    pub fn from_state(State(state): State<Q>) -> Self {
+    pub fn from_state(state: State<Q>) -> Self {
         Self {
             alpha: Vec::new(),
-            head: Head {
-                state: State(state),
-                symbol: 0,
-            },
+            head: Head { state, symbol: 0 },
         }
     }
-
-    pub fn with_tape<I>(self, alpha: I) -> Self
+    /// Consumes the current instance and returns a new instance with the given alphabet
+    pub fn with_alpha<I>(self, alpha: I) -> Self
     where
         I: IntoIterator<Item = S>,
     {
@@ -45,9 +42,34 @@ impl<Q, S> Actor<Q, S> {
             ..self
         }
     }
-    /// Returns an immutable reference to the tape alphabet as a slice
+    /// Consumes the current instance and returns a new instance with the given head
+    pub fn with_head(self, head: Head<Q, usize>) -> Self {
+        Self { head, ..self }
+    }
+    /// Consumes the current instance and returns a new instance with the given position
+    pub fn with_position(self, symbol: usize) -> Self {
+        Self {
+            head: Head {
+                symbol,
+                ..self.head
+            },
+            ..self
+        }
+    }
+    /// Consumes the current instance and returns a new instance with the given state
+    pub fn with_state(self, state: State<Q>) -> Self {
+        Self {
+            head: Head { state, ..self.head },
+            ..self
+        }
+    }
+    /// Returns an immutable reference to the tape, as a slice
     pub fn alpha(&self) -> &[S] {
         &self.alpha
+    }
+    /// Returns a mutable reference of the tape as a slice
+    pub fn alpha_mut(&mut self) -> &mut [S] {
+        &mut self.alpha
     }
     /// Returns an immutable reference to the head of the tape
     pub const fn head(&self) -> &Head<Q, usize> {
@@ -65,6 +87,10 @@ impl<Q, S> Actor<Q, S> {
             symbol: self.head.symbol,
         }
     }
+    /// Returns the current position of the head on the tape
+    pub fn position(&self) -> usize {
+        self.head.symbol
+    }
     /// Returns an instance of the state with an immutable reference to the inner value
     pub fn state(&self) -> State<&Q> {
         self.head.state()
@@ -78,14 +104,6 @@ impl<Q, S> Actor<Q, S> {
     pub fn execute(self, program: Program<Q, S>) -> Executor<Q, S> {
         Executor::new(self, program)
     }
-    /// Reads the current symbol at the head of the tape
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "get", target = "actor")
-    )]
-    pub fn get(&self) -> Option<&S> {
-        self.alpha().get(self.position())
-    }
     /// Checks if the tape is empty
     pub fn is_empty(&self) -> bool {
         self.alpha.is_empty()
@@ -95,16 +113,12 @@ impl<Q, S> Actor<Q, S> {
     where
         Q: 'static,
     {
-        self.head.state.is_halt()
+        self.head().state.is_halt()
     }
     /// Returns the length of the tape
     #[inline]
     pub fn len(&self) -> usize {
         self.alpha.len()
-    }
-    /// Returns the current position of the head on the tape
-    pub fn position(&self) -> usize {
-        self.head.symbol
     }
     /// Reads the current symbol at the head of the tape
     #[cfg_attr(
@@ -136,6 +150,8 @@ impl<Q, S> Actor<Q, S> {
         if pos == usize::MAX {
             #[cfg(feature = "tracing")]
             tracing::trace!("Prepending to the tape...");
+            // prepend to the tape
+            self.alpha.insert(0, value);
         } else if pos >= self.len() {
             #[cfg(feature = "tracing")]
             tracing::trace!("Appending to the tape...");
@@ -145,25 +161,27 @@ impl<Q, S> Actor<Q, S> {
             self.alpha[pos] = value;
         }
     }
-    /// Performs a single step of the Turing machine
+    /// Performs a single step of the Turing machine; returns the previous head of the tape
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "handle", target = "actor")
     )]
-    pub(crate) fn handle(&mut self, direction: Direction, State(state): State<Q>, symbol: S) {
+    pub(crate) fn handle(
+        &mut self,
+        direction: Direction,
+        state: State<Q>,
+        symbol: S,
+    ) -> Head<Q, usize> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Transitioning the actor...");
         // write the symbol to the tape
         self.write(symbol);
         // update the head of the actor
-        self.head = Head {
-            state: State(state),
-            symbol: direction.apply_unsigned(self.head.symbol),
-        };
+        self.head.replace(state, self.position() + direction)
     }
 
-    pub(crate) fn process(&mut self, rule: Tail<Q, S>) {
-        self.handle(rule.direction, rule.state, rule.symbol);
+    pub(crate) fn process(&mut self, rule: Tail<Q, S>) -> Head<Q, usize> {
+        self.handle(rule.direction, rule.state, rule.symbol)
     }
 }
 
@@ -196,74 +214,5 @@ where
             }
         }
         Ok(())
-    }
-}
-
-mod builder {
-    use super::*;
-    use core::iter::FromIterator;
-
-    #[derive(Default)]
-    pub struct ActorBuilder<Q, S> {
-        alpha: Vec<S>,
-        state: Option<State<Q>>,
-        symbol: usize,
-    }
-
-    impl<Q, S> ActorBuilder<Q, S> {
-        pub(crate) fn new() -> Self {
-            Self {
-                alpha: Vec::new(),
-                state: None,
-                symbol: 0,
-            }
-        }
-
-        pub fn alpha<I>(self, alpha: I) -> Self
-        where
-            I: IntoIterator<Item = S>,
-        {
-            Self {
-                alpha: Vec::from_iter(alpha),
-                ..self
-            }
-        }
-
-        pub fn head(self, head: Head<Q, usize>) -> Self {
-            Self {
-                state: Some(head.state),
-                symbol: head.symbol,
-                ..self
-            }
-        }
-
-        pub fn state(self, State(state): State<Q>) -> Self {
-            Self {
-                state: Some(State(state)),
-                ..self
-            }
-        }
-
-        pub fn position(self, symbol: usize) -> Self {
-            Self { symbol, ..self }
-        }
-
-        pub fn build(self) -> Actor<Q, S>
-        where
-            Q: Default,
-        {
-            let ActorBuilder {
-                alpha,
-                state,
-                symbol,
-            } = self;
-            Actor {
-                alpha,
-                head: Head {
-                    state: state.unwrap_or_default(),
-                    symbol,
-                },
-            }
-        }
     }
 }
