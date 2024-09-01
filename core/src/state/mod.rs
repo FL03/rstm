@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{halt::*, state::State, states::*};
+pub use self::{halt::*, state::State};
 
 pub(crate) mod state;
 
@@ -14,22 +14,18 @@ mod impls {
     pub mod impl_ops;
     pub mod impl_repr;
 }
-
-pub(crate) mod states {
-    #[doc(inline)]
-    pub use self::binary::*;
-
-    pub(crate) mod binary;
-}
-
 pub(crate) mod prelude {
     pub use super::halt::Haltable;
     pub use super::state::State;
-    pub use super::states::*;
+    #[cfg(feature = "std")]
     pub use super::AnyState;
+    pub use super::MaybeState;
 }
+#[cfg(feature = "std")]
 /// A type alias for a [State] whose inner value is the dynamically sized type of a boxed [`Any`](core::any::Any).
-pub type AnyState = State<Box<dyn std::any::Any>>;
+pub type AnyState = State<Box<dyn core::any::Any>>;
+/// A type alias for a [State] whose inner value is a [core::mem::MaybeUninit] of generic type `Q`.
+pub type MaybeState<Q = bool> = State<core::mem::MaybeUninit<Q>>;
 
 /// [RawState] is a trait describing objects capable of being used as states in our library.
 /// The trait contains a single associated trait, the context, or inner value of the state.
@@ -39,9 +35,9 @@ pub trait RawState {
 
     private!();
 
-    fn into_inner(self) -> Self::Q;
+    fn get(self) -> Self::Q;
 
-    fn get(&self) -> &Self::Q;
+    fn get_ref(&self) -> &Self::Q;
 
     fn get_mut(&mut self) -> &mut Self::Q;
 
@@ -49,19 +45,10 @@ pub trait RawState {
 }
 
 #[doc(hidden)]
-pub trait Stateful<Q> {
-    type State: RawState<Q = Q>;
+pub trait Apply<Q, R> {
+    type Output;
 
-    fn get(self) -> Q;
-
-    fn get_mut(&mut self) -> &mut Q;
-
-    fn set(&mut self, state: Q);
-
-    fn map<U, F>(self, f: F) -> Option<U>
-    where
-        F: FnOnce(Q) -> U,
-        Self: Sized;
+    fn apply<F>(self, f: F) -> Self::Output where F: FnOnce(Q) -> R;
 }
 
 /*
@@ -74,11 +61,11 @@ macro_rules! impl_raw_state {
 
             seal!();
 
-            fn into_inner(self) -> Q {
+            fn get(self) -> Q {
                 self.$($field)*
             }
 
-            fn get(&self) -> &Q {
+            fn get_ref(&self) -> &Q {
                 &self.$($field)*
             }
 
@@ -102,3 +89,4 @@ impl_raw_state! {
     Halt(0),
     State(0),
 }
+
