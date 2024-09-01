@@ -47,6 +47,13 @@ impl<Q> State<*const Q> {
     }
 }
 
+impl<Q> State<*mut Q> {
+    /// Creates a new instance of state with a mutable raw pointer to the inner value.
+    pub fn from_mut_ptr(ptr: *mut Q) -> Self {
+        Self(ptr)
+    }
+}
+
 impl<Q> State<MaybeUninit<Q>> {
     /// Creates a new instance of state with an initialized inner value.
     pub fn init(value: Q) -> Self {
@@ -59,6 +66,10 @@ impl<Q> State<MaybeUninit<Q>> {
     /// Converts the state into a new instance of [State] with an initialized state.
     pub fn assume_init(self) -> State<Q> {
         State(unsafe { self.get().assume_init() })
+    }
+    /// Writes a value to the inner state.
+    pub fn write(&mut self, value: Q) -> &mut Q {
+        self.get_mut().write(value)
     }
 }
 
