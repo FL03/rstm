@@ -9,6 +9,12 @@ pub(crate) mod state;
 
 pub mod halt;
 
+mod impls {
+    pub mod impl_ext;
+    pub mod impl_ops;
+    pub mod impl_repr;
+}
+
 pub(crate) mod states {
     #[doc(inline)]
     pub use self::binary::*;

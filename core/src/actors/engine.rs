@@ -80,13 +80,13 @@ where
         let scope = self.cell();
         let symbol = match self.read() {
             Some(symbol) => symbol,
-            None => return Err( Error::runtime_error("Engine::process")),
+            None => return Err(Error::runtime_error("Engine::process")),
         };
 
         if let Some(rule) = self.program.get(self.scope.state(), &symbol) {
             self.handle(rule.direction, rule.state.clone(), rule.symbol.clone());
-        } 
+        }
 
-       Ok(())
+        Ok(())
     }
 }

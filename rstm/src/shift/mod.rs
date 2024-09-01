@@ -7,6 +7,7 @@ pub use self::direction::{LinearShift, ShiftDirection};
 
 pub(crate) mod direction;
 
+#[allow(unused_imports)]
 pub(crate) mod prelude {
     pub use super::direction::*;
 }

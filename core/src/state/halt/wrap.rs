@@ -57,7 +57,7 @@ impl<Q> HaltState<Q> {
     pub fn get(&self) -> &Q {
         match self {
             Self::State(inner) => inner.get_ref(),
-            Self::Halt(inner) => inner.get(),
+            Self::Halt(inner) => inner.get_ref(),
         }
     }
 

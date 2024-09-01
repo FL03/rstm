@@ -102,7 +102,7 @@ impl<'a, Q, A> Rule<&'a Q, &'a A> {
 mod impls {
     use super::Rule;
     use crate::{Head, Tail};
-    
+
     impl<Q, S> core::convert::AsRef<Head<Q, S>> for Rule<Q, S> {
         fn as_ref(&self) -> &Head<Q, S> {
             self.head()

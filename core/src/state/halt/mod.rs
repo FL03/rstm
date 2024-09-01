@@ -83,6 +83,16 @@ impl<Q> Haltable<Q> for Option<State<Q>> {
     }
 }
 
+impl<Q> HaltableExt<Q> for Halt<Q> {
+    fn get(self) -> Option<Q> {
+        Some(self.0)
+    }
+
+    fn get_mut(&mut self) -> Option<&mut Q> {
+        Some(&mut self.0)
+    }
+}
+
 impl<Q> HaltableExt<Q> for Option<State<Q>> {
     fn get(self) -> Option<Q> {
         self.map(|state| state.get())
