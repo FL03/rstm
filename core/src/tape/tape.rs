@@ -29,6 +29,12 @@ pub struct StdTape<S = char> {
     ticks: Cell<usize>,
 }
 
+impl<S> Default for StdTape<S> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<S> StdTape<S> {
     pub fn new() -> Self {
         StdTape {

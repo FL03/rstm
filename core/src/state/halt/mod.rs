@@ -35,7 +35,7 @@ pub trait HaltableExt<Q>: Haltable<Q> {
         F: FnOnce(Q) -> U,
         Self: Sized,
     {
-        self.get().map(|state| f(state))
+        self.get().map(f)
     }
 }
 

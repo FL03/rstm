@@ -25,7 +25,7 @@ fn busy_beaver() {
     let initial_state = State(0_isize);
     let input = [0_usize; 10];
 
-    let program = Program::from_iter(RULES.clone());
+    let program = Program::from_iter(*RULES);
 
     let actor = Actor::from_state(initial_state).with_alpha(input);
     let mut rt = actor.execute(program);

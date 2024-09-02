@@ -124,7 +124,7 @@ impl<Q, S> Scope<Q, S> for Rule<Q, S> {
     }
 
     fn symbol(&self) -> &S {
-        &self.symbol()
+        self.symbol()
     }
 }
 
@@ -138,7 +138,7 @@ impl<Q, S> Directive<Q, S> for Rule<Q, S> {
     }
 
     fn value(&self) -> &S {
-        &self.write_symbol()
+        self.write_symbol()
     }
 }
 
@@ -162,7 +162,7 @@ impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
     }
 
     fn value(&self) -> &S {
-        &self.symbol()
+        self.symbol()
     }
 }
 

@@ -72,7 +72,7 @@ where
         core::mem::replace(&mut self.scope, next);
     }
 
-    pub fn process<I>(&mut self) -> Result<(), Error>
+    pub fn process(&mut self) -> Result<(), Error>
     where
         A: crate::Symbolic,
         Q: Clone + Eq + std::hash::Hash,
@@ -83,8 +83,8 @@ where
             None => return Err(Error::runtime_error("Engine::process")),
         };
 
-        if let Some(rule) = self.program.get(self.scope.state(), &symbol) {
-            self.handle(rule.direction, rule.state.clone(), rule.symbol.clone());
+        if let Some(rule) = self.program.get(self.scope.state(), symbol) {
+            self.handle(rule.direction, rule.state.clone(), rule.symbol);
         }
 
         Ok(())

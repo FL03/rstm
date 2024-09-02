@@ -157,7 +157,7 @@ mod impls {
         S: PartialEq,
     {
         fn eq(&self, other: &(Head<Q, S>, Tail<Q, S>)) -> bool {
-            &self.head == &other.0 && &self.tail == &other.1
+            self.head == other.0 && self.tail == other.1
         }
     }
 

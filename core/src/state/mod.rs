@@ -48,7 +48,9 @@ pub trait RawState {
 pub trait Apply<Q, R> {
     type Output;
 
-    fn apply<F>(self, f: F) -> Self::Output where F: FnOnce(Q) -> R;
+    fn apply<F>(self, f: F) -> Self::Output
+    where
+        F: FnOnce(Q) -> R;
 }
 
 /*
@@ -89,4 +91,3 @@ impl_raw_state! {
     Halt(0),
     State(0),
 }
-

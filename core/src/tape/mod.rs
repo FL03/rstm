@@ -100,7 +100,7 @@ where
     }
 
     fn get_mut(&mut self, key: &Self::Key) -> Option<&mut Self::Value> {
-        HashMap::get_mut(self, &key)
+        HashMap::get_mut(self, key)
     }
 
     fn insert(&mut self, key: Self::Key, value: Self::Value) {

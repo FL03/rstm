@@ -48,7 +48,10 @@ where
     }
 }
 
-impl<Q> num::traits::Num for State<Q> where Q: num::traits::Num {
+impl<Q> num::traits::Num for State<Q>
+where
+    Q: num::traits::Num,
+{
     type FromStrRadixErr = Q::FromStrRadixErr;
 
     fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {

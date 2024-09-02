@@ -25,7 +25,7 @@ impl<Q> State<Q> {
     }
     /// Casts the state to a new type, returning a new instance of [State].
     ///
-    /// ### Saftey
+    /// # Saftey
     ///
     /// *
     pub unsafe fn cast<R>(self) -> State<R> {

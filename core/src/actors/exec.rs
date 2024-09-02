@@ -104,7 +104,7 @@ where
             // process the instruction
             self.actor.process(tail.clone());
             // return the head
-            return Some(tail.into_head());
+            Some(tail.into_head())
         } else {
             #[cfg(feature = "tracing")]
             tracing::error!("No symbol found at {}", self.actor.position());
