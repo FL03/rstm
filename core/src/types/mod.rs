@@ -9,6 +9,9 @@ pub(crate) mod direction;
 pub(crate) mod head;
 pub(crate) mod tail;
 
+#[doc(hidden)]
+pub mod snapshot;
+
 pub(crate) mod prelude {
     pub use super::direction::*;
     pub use super::head::Head;

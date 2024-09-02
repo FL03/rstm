@@ -64,12 +64,12 @@ where
         self.tape.insert(self.position(), data)
     }
 
-    fn handle(&mut self, direction: Direction, state: State<Q>, symbol: A) {
+    fn handle(&mut self, direction: Direction, state: State<Q>, symbol: A) -> Head<Q, isize> {
         let next = Head {
             state,
             symbol: self.position() + direction,
         };
-        core::mem::replace(&mut self.scope, next);
+        core::mem::replace(&mut self.scope, next)
     }
 
     pub fn process(&mut self) -> Result<(), Error>
@@ -84,7 +84,7 @@ where
         };
 
         if let Some(rule) = self.program.get(self.scope.state(), symbol) {
-            self.handle(rule.direction, rule.state.clone(), rule.symbol);
+            let prev = self.handle(rule.direction, rule.state.clone(), rule.symbol);
         }
 
         Ok(())

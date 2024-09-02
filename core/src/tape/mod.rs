@@ -38,6 +38,24 @@ pub trait Mem {
     fn len(&self) -> usize;
 }
 
+#[doc(hidden)]
+pub trait Tape<A = char> {
+    type Index;
+    type Elem;
+
+    fn clear(&mut self);
+
+    fn get(&self, index: &Self::Index) -> Option<&A>;
+
+    fn get_mut(&mut self, index: &Self::Index) -> Option<&mut A>;
+
+    fn insert(&mut self, index: Self::Index, symbol: A);
+
+    fn is_empty(&self) -> bool;
+
+    fn len(&self) -> usize;
+}
+
 /*
  ************* Implementations *************
 */

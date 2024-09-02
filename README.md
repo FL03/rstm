@@ -11,7 +11,7 @@
 
 _**The library is currently in the early stages of development and is still settling in on a feel for the api.**_
 
-This library focuses on building concrete implementations for Turing Machines.
+Welcome to `rstm`! This crate provides a simple and easy-to-use interface for creating and executing Turing machines. The crate is designed to be flexible and extensible, allowing developers to create and execute a wide range of Turing machines. Furthermore, the crate focuses on efficiency and leverages feature-gating to reduce overhead.
 
 ## Getting Started
 
@@ -36,7 +36,14 @@ cargo run -f F --example {actor}
 
 ## Usage
 
-### Creating a new ruleset
+### Rulesets
+
+To faciliate the creation of rules for the machine, the crate provides a `ruleset!` macro. The macro mimics the
+structure of the transition function $\delta$ defined by "On topological dynamics of Turing machines" by Petr Kůrka.
+
+$$\delta : Q\times{A}\rarr{Q\times{A}\times{(0, \pm{1})}}$$
+
+The syntax of the macro is as follows:
 
 ```rust
     ruleset![
@@ -45,20 +52,20 @@ cargo run -f F --example {actor}
     ]
 ```
 
-Programs are essentially collections of rules that define the behavior of the machine. Facilitating the creation of these rules is the `ruleset!` macro. The macro allows developers to define a set of rules for the machine in a concise and readable manner while further emulating the transition function $\delta$ defined by "On topological dynamics of Turing machines" by Petr Kůrka:
-
-$$
-\delta: Q \times A \rarr Q\times{A}\times{\bigl\{0, \pm{1}\bigr\}}.
-$$
-
 The macro expands into a `Vec<Rule>` where `Rule` is structure consisting of two other structures, namely: `Head<Q, S>` and the `Tail<Q, S>`. Each of these structures is a direct representation of the two sides of the transition function defined above
+
+#### _Rules_
 
 ```rust
     pub struct Rule<Q, S> {
         pub head: Head<Q, S>,
         pub tail: Tail<Q, S>,
     }
+```
 
+where `Head` and `Tail` are defined as follows:
+
+```rust
     pub struct Head<Q, S> {
         pub state: Q,
         pub symbol: S,
@@ -73,7 +80,7 @@ The macro expands into a `Vec<Rule>` where `Rule` is structure consisting of two
 
 **Note:** the macro is hygenic, meaning developers will not need to import the `Direction` enum nor its variants in order to use the macro.
 
-#### _Example_
+#### _Example usage_
 
 The following example demonstrates the use of the `ruleset!` macro to define a set of rules for a three-state, two-symbol Turing machine.
 
