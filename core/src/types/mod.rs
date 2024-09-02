@@ -10,6 +10,8 @@ pub(crate) mod head;
 pub(crate) mod tail;
 
 #[doc(hidden)]
+pub mod header;
+#[doc(hidden)]
 pub mod snapshot;
 
 pub(crate) mod prelude {

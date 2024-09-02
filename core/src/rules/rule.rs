@@ -55,7 +55,7 @@ impl<Q, A> Rule<Q, A> {
     }
     /// Returns the next [Head] of the system
     pub fn next_head(&self) -> Head<&'_ Q, &'_ A> {
-        self.tail().to_head_ref()
+        self.tail().as_head_ref()
     }
     /// Consumes the current object and returns the next [Head] of the system
     pub fn into_next_head(self) -> Head<Q, A> {

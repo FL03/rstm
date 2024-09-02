@@ -67,7 +67,7 @@ impl<Q, S> Tail<Q, S> {
     }
     /// Returns an instance of the [head](Head) where each element within
     /// the created instance is an immutable reference
-    pub fn to_head_ref(&self) -> Head<&Q, &S> {
+    pub fn as_head_ref(&self) -> Head<&Q, &S> {
         super::Head::new(self.state.to_ref(), &self.symbol)
     }
 
