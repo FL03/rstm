@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Actor;
-use crate::{Error, Head, Program, Symbolic};
+use crate::{Error, Head, Program, State, Symbolic};
 
 ///
 pub struct Executor<Q, S> {
@@ -42,6 +42,10 @@ impl<Q, S> Executor<Q, S> {
 
     pub const fn actor(&self) -> &Actor<Q, S> {
         &self.actor
+    }
+
+    pub fn current_state(&self) -> State<&'_ Q> {
+        self.actor.state()
     }
     /// Reads the current symbol at the head of the tape
     pub fn read(&self) -> Result<Head<&Q, &S>, Error> {
@@ -100,11 +104,14 @@ where
             }
         };
         // execute the program
-        if let Some(tail) = self.program.get(head.state, head.symbol).cloned() {
+        if let Some(tail) = self.program.get(head.state, head.symbol) {
+            let next = tail.as_head().cloned();
             // process the instruction
-            self.actor.process(tail.clone());
+            let _prev = self
+                .actor
+                .step(tail.direction, tail.state.clone(), tail.symbol);
             // return the head
-            Some(tail.into_head())
+            Some(next)
         } else {
             #[cfg(feature = "tracing")]
             tracing::error!("No symbol found at {}", self.actor.position());

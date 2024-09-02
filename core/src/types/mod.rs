@@ -10,9 +10,9 @@ pub(crate) mod head;
 pub(crate) mod tail;
 
 #[doc(hidden)]
-pub mod header;
+pub mod cell;
 #[doc(hidden)]
-pub mod snapshot;
+pub mod transition;
 
 pub(crate) mod prelude {
     pub use super::direction::*;

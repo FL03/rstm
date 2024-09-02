@@ -4,21 +4,24 @@
 */
 use super::Executor;
 use crate::rules::Program;
-use crate::{Direction, Error, Head, State, Tail};
+use crate::{Direction, Error, Head, State};
 
-/// An [Actor] describes a Turing machine with a moving head (TMH).
+/// An [Actor] is an implementation of a Turing machine with a moving head (TMH).
 ///
-/// [Actor]'s abstractly define actionable surfaces capable of executing a [Program].
+/// The model contains the following components:
+///
+/// - `alpha`: the input alphabet
+/// - `head`: the head of the tape
 #[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
-pub struct Actor<Q, S> {
+pub struct Actor<Q, A> {
     /// the input alphabet
-    pub(crate) alpha: Vec<S>,
+    pub(crate) alpha: Vec<A>,
     /// the head of the tape
     pub(crate) head: Head<Q, usize>,
 }
 
-impl<Q, S> Actor<Q, S> {
-    pub fn new(alpha: impl IntoIterator<Item = S>, state: State<Q>, symbol: usize) -> Self {
+impl<Q, A> Actor<Q, A> {
+    pub fn new(alpha: impl IntoIterator<Item = A>, state: State<Q>, symbol: usize) -> Self {
         Self {
             alpha: Vec::from_iter(alpha),
             head: Head { state, symbol },
@@ -35,7 +38,7 @@ impl<Q, S> Actor<Q, S> {
     /// Consumes the current instance and returns a new instance with the given alphabet
     pub fn with_alpha<I>(self, alpha: I) -> Self
     where
-        I: IntoIterator<Item = S>,
+        I: IntoIterator<Item = A>,
     {
         Self {
             alpha: Vec::from_iter(alpha),
@@ -64,11 +67,11 @@ impl<Q, S> Actor<Q, S> {
         }
     }
     /// Returns an immutable reference to the tape, as a slice
-    pub fn alpha(&self) -> &[S] {
+    pub fn alpha(&self) -> &[A] {
         &self.alpha
     }
     /// Returns a mutable reference of the tape as a slice
-    pub fn alpha_mut(&mut self) -> &mut [S] {
+    pub fn alpha_mut(&mut self) -> &mut [A] {
         &mut self.alpha
     }
     /// Returns an immutable reference to the head of the tape
@@ -101,7 +104,7 @@ impl<Q, S> Actor<Q, S> {
     }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
-    pub fn execute(self, program: Program<Q, S>) -> Executor<Q, S> {
+    pub fn execute(self, program: Program<Q, A>) -> Executor<Q, A> {
         Executor::new(self, program)
     }
     /// Checks if the tape is empty
@@ -125,7 +128,7 @@ impl<Q, S> Actor<Q, S> {
         feature = "tracing",
         tracing::instrument(skip_all, name = "read", target = "actor")
     )]
-    pub fn read(&self) -> Result<Head<&Q, &S>, Error> {
+    pub fn read(&self) -> Result<Head<&Q, &A>, Error> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Reading the tape...");
         self.alpha
@@ -142,7 +145,7 @@ impl<Q, S> Actor<Q, S> {
         feature = "tracing",
         tracing::instrument(skip_all, name = "write", target = "actor")
     )]
-    pub fn write(&mut self, value: S) {
+    pub fn write(&mut self, value: A) {
         #[cfg(feature = "tracing")]
         tracing::trace!("Writing to the tape...");
         let pos = self.position();
@@ -161,16 +164,18 @@ impl<Q, S> Actor<Q, S> {
             self.alpha[pos] = value;
         }
     }
-    /// Performs a single step of the Turing machine; returns the previous head of the tape
+    /// Performs a single step of the Turing machine; returns the previous head of the tape.
+    /// Each step writes the given symbol to the tape, updates the state of the head, and moves
+    /// the head by a single unit in the specified direction.
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "handle", target = "actor")
     )]
-    pub(crate) fn handle(
+    pub(crate) fn step(
         &mut self,
         direction: Direction,
         state: State<Q>,
-        symbol: S,
+        symbol: A,
     ) -> Head<Q, usize> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Transitioning the actor...");
@@ -178,10 +183,6 @@ impl<Q, S> Actor<Q, S> {
         self.write(symbol);
         // update the head of the actor
         self.head.replace(state, self.position() + direction)
-    }
-
-    pub(crate) fn process(&mut self, rule: Tail<Q, S>) -> Head<Q, usize> {
-        self.handle(rule.direction, rule.state, rule.symbol)
     }
 }
 

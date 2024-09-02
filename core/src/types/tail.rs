@@ -63,12 +63,18 @@ impl<Q, S> Tail<Q, S> {
     }
     /// Consumes the tail and returns a new instance of the [Head]
     pub fn into_head(self) -> Head<Q, S> {
-        super::Head::new(self.state, self.symbol)
+        Head {
+            state: self.state,
+            symbol: self.symbol,
+        }
     }
     /// Returns an instance of the [head](Head) where each element within
     /// the created instance is an immutable reference
-    pub fn as_head_ref(&self) -> Head<&Q, &S> {
-        super::Head::new(self.state.to_ref(), &self.symbol)
+    pub fn as_head(&self) -> Head<&Q, &S> {
+        Head {
+            state: self.state.to_ref(),
+            symbol: &self.symbol,
+        }
     }
 
     pub fn to_ref(&self) -> Tail<&'_ Q, &'_ S> {
