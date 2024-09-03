@@ -26,7 +26,7 @@ extern crate alloc;
 pub use self::{
     actors::Actor,
     error::Error,
-    rules::{Program, Rule},
+    rules::{Rule, Ruleset},
     state::State,
     tape::StdTape,
     traits::prelude::*,

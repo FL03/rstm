@@ -25,6 +25,7 @@ full = [
 
 # ********* [FF] Dependencies *********
 alloc = [
+    "rstm-core/alloc",
     "serde?/alloc",
 ]
 
@@ -39,11 +40,12 @@ tracing = [
 ]
 
 # ********* [FF] Environments *********
-# std = [
-#     "alloc",
-#     "serde?/std",
-#     "strum/std",
-# ]
+std = [
+    "alloc",
+    "rstm-core/std",
+    "serde?/std",
+    "strum/std",
+]
 
 [lib]
 bench = true
@@ -60,17 +62,18 @@ required-features = ["alloc", "tracing"]
 thiserror.workspace = true
 
 [dependencies.rstm-core]
+default-features = false
 path = "../core"
 version = "0.0.4"
 
 [dependencies.serde]
-# default-features = false
+default-features = false
 features = ["derive"]
 optional = true
 version = "1"
 
 [dependencies.strum]
-# default-features = false
+default-features = false
 features = ["derive"]
 version = "0.26"
 

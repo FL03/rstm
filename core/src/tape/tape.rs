@@ -24,7 +24,7 @@ use alloc::vec::Vec;
 #[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct StdTape<S = char> {
-    cursor: usize,
+    index: usize,
     store: Vec<S>,
     ticks: Cell<usize>,
 }
@@ -38,7 +38,7 @@ impl<S> Default for StdTape<S> {
 impl<S> StdTape<S> {
     pub fn new() -> Self {
         StdTape {
-            cursor: 0,
+            index: 0,
             store: Vec::<S>::new(),
             ticks: Cell::default(),
         }
@@ -46,7 +46,7 @@ impl<S> StdTape<S> {
     /// Constructs a new tape from an iterator.
     pub fn from_iter(iter: impl IntoIterator<Item = S>) -> Self {
         StdTape {
-            cursor: 0,
+            index: 0,
             store: Vec::from_iter(iter),
             ticks: Cell::default(),
         }
@@ -54,7 +54,7 @@ impl<S> StdTape<S> {
     /// Constructs a new, empty tape with the specified capacity.
     pub fn with_capacity(capacity: usize) -> Self {
         StdTape {
-            cursor: 0,
+            index: 0,
             store: Vec::<S>::with_capacity(capacity),
             ticks: Cell::default(),
         }
@@ -120,21 +120,21 @@ impl<S> StdTape<S> {
     }
     /// Returns the current position of the tape head;
     pub fn position(&self) -> usize {
-        self.cursor
+        self.index
     }
     /// Attempts to read the symbol at the current position of the tape head.
     pub fn read(&self) -> Result<&S, Error> {
-        self.get(self.cursor)
-            .ok_or(Error::index_out_of_bounds(self.cursor, self.len()))
+        self.get(self.index)
+            .ok_or(Error::index_out_of_bounds(self.index, self.len()))
     }
     /// Writes the given symbol to the tape at the current position of the tape head.
     pub fn write(&mut self, symbol: S) {
-        if self.cursor == usize::MAX {
+        if self.index == usize::MAX {
             self.store.insert(0, symbol);
-        } else if self.cursor == self.store.len() {
+        } else if self.index == self.store.len() {
             self.store.push(symbol);
         } else {
-            self.store[self.cursor] = symbol;
+            self.store[self.index] = symbol;
         }
     }
 
@@ -149,7 +149,7 @@ impl<S> StdTape<S> {
     }
 
     fn shift(&mut self, direction: Direction) -> usize {
-        self.cursor = direction.apply_unsigned(self.cursor) % self.store.len();
+        self.index = direction.apply_unsigned(self.index) % self.store.len();
         self.position()
     }
 }
@@ -157,7 +157,7 @@ impl<S> StdTape<S> {
 impl StdTape {
     pub fn from_str(input: &str) -> StdTape {
         StdTape {
-            cursor: 0,
+            index: 0,
             store: input.chars().collect(),
             ticks: Cell::default(),
         }
@@ -209,7 +209,7 @@ where
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         for (i, c) in self.store.iter().enumerate() {
             match c {
-                s if i == self.cursor => write!(f, "[{s:?}]")?,
+                s if i == self.index => write!(f, "[{s:?}]")?,
                 _ => write!(f, "{c:?}")?,
             }
         }
@@ -224,7 +224,7 @@ where
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         for (i, c) in self.store.iter().enumerate() {
             match c {
-                b if i == self.cursor => write!(f, "[{b}]")?,
+                b if i == self.index => write!(f, "[{b}]")?,
                 _ => write!(f, "{c}")?,
             }
         }

@@ -11,7 +11,6 @@ pub use self::tape::StdTape;
 
 pub(crate) mod tape;
 
-#[cfg(feature = "std")]
 pub mod hash_tape;
 
 pub(crate) mod prelude {
@@ -21,27 +20,28 @@ pub(crate) mod prelude {
 use core::option::Option;
 
 #[doc(hidden)]
-pub trait Mem {
-    type Key;
-    type Value;
+pub trait RawIndex {
+    private!();
+}
 
-    fn clear(&mut self);
+pub trait Index: RawIndex {
+    fn increment(self) -> Self;
 
-    fn get(&self, key: &Self::Key) -> Option<&Self::Value>;
+    fn decrement(self) -> Self;
+}
 
-    fn get_mut(&mut self, key: &Self::Key) -> Option<&mut Self::Value>;
+pub trait HashIndex: Index + core::cmp::Eq + core::hash::Hash {}
 
-    fn insert(&mut self, key: Self::Key, value: Self::Value);
+#[doc(hidden)]
+pub trait RawTape {
+    type Elem;
 
-    fn is_empty(&self) -> bool;
-
-    fn len(&self) -> usize;
+    private!();
 }
 
 #[doc(hidden)]
-pub trait Tape<A = char> {
+pub trait Tape<A = char>: RawTape<Elem = A> {
     type Index;
-    type Elem;
 
     fn clear(&mut self);
 
@@ -65,29 +65,42 @@ use alloc::vec::Vec;
 use std::collections::HashMap;
 
 #[cfg(feature = "alloc")]
-impl<V> Mem for Vec<V> {
-    type Key = usize;
-    type Value = V;
+impl<A> RawTape for Vec<A> {
+    type Elem = A;
+
+    seal!();
+}
+
+#[cfg(feature = "std")]
+impl<K, A> RawTape for HashMap<K, A> {
+    type Elem = A;
+
+    seal!();
+}
+
+#[cfg(feature = "alloc")]
+impl<V> Tape<V> for Vec<V> {
+    type Index = usize;
 
     fn clear(&mut self) {
         Vec::clear(self);
     }
 
-    fn get(&self, key: &Self::Key) -> Option<&Self::Value> {
+    fn get(&self, key: &Self::Index) -> Option<&V> {
         match key {
             key if *key < self.len() => Some(&self[*key]),
             _ => None,
         }
     }
 
-    fn get_mut(&mut self, key: &Self::Key) -> Option<&mut Self::Value> {
+    fn get_mut(&mut self, key: &Self::Index) -> Option<&mut V> {
         match key {
             key if *key < self.len() => Some(&mut self[*key]),
             _ => None,
         }
     }
 
-    fn insert(&mut self, key: Self::Key, value: Self::Value) {
+    fn insert(&mut self, key: Self::Index, value: V) {
         Vec::insert(self, key, value);
     }
 
@@ -101,27 +114,26 @@ impl<V> Mem for Vec<V> {
 }
 
 #[cfg(feature = "std")]
-impl<K, V> Mem for HashMap<K, V>
+impl<K, V> Tape<V> for HashMap<K, V>
 where
     K: Eq + std::hash::Hash,
     V: Eq + std::hash::Hash,
 {
-    type Key = K;
-    type Value = V;
+    type Index = K;
 
     fn clear(&mut self) {
         HashMap::clear(self);
     }
 
-    fn get(&self, key: &Self::Key) -> Option<&Self::Value> {
+    fn get(&self, key: &K) -> Option<&V> {
         HashMap::get(self, key)
     }
 
-    fn get_mut(&mut self, key: &Self::Key) -> Option<&mut Self::Value> {
+    fn get_mut(&mut self, key: &K) -> Option<&mut V> {
         HashMap::get_mut(self, key)
     }
 
-    fn insert(&mut self, key: Self::Key, value: Self::Value) {
+    fn insert(&mut self, key: K, value: V) {
         HashMap::insert(self, key, value);
     }
 
@@ -133,3 +145,33 @@ where
         HashMap::len(self)
     }
 }
+
+macro_rules! impl_index {
+    (@impl $T:ty) => {
+        impl RawIndex for $T {
+            seal!();
+        }
+    };
+    ($($T:ty),* $(,)?) => {
+        $(
+            impl_index!(@impl $T);
+        )*
+    };
+}
+
+impl_index!(i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, usize);
+
+impl<T> Index for T
+where
+    T: RawIndex + core::ops::Add<Output = T> + core::ops::Sub<Output = T> + num::One,
+{
+    fn increment(self) -> Self {
+        self + T::one()
+    }
+
+    fn decrement(self) -> Self {
+        self - T::one()
+    }
+}
+
+impl<T> HashIndex for T where T: Index + core::cmp::Eq + core::hash::Hash {}

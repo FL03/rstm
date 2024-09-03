@@ -5,6 +5,11 @@
 use super::{Direction, Head};
 use crate::State;
 
+/// [Transition] is a type representing the tail of a Turing machine;
+///
+/// Formally, a tail is defined to be a 3-tuple (direction, state, symbol). Considering the
+/// head of a machine is a 2-tuple (state, symbol), the tail simply extends the head with a
+/// direction.
 #[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(
     feature = "serde",

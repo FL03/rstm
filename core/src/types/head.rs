@@ -22,31 +22,22 @@ pub struct Head<Q = String, S = char> {
 }
 
 impl<Q, S> Head<Q, S> {
-    pub fn new(State(state): State<Q>, symbol: S) -> Self {
-        Self {
-            state: State(state),
-            symbol,
-        }
+    pub fn new(state: State<Q>, symbol: S) -> Self {
+        Self { state, symbol }
     }
     /// Create a new instance of the [Head] using the given state and default symbol.
-    pub fn from_state(State(state): State<Q>) -> Self
+    pub fn from_state(state: State<Q>) -> Self
     where
         S: Default,
     {
-        Self {
-            state: State(state),
-            symbol: Default::default(),
-        }
+        Self::new(state, S::default())
     }
     /// Create a new instance of the [Head] using the given symbol and default state.
     pub fn from_symbol(symbol: S) -> Self
     where
         Q: Default,
     {
-        Self {
-            state: Default::default(),
-            symbol,
-        }
+        Self::new(State::default(), symbol)
     }
     /// Create a new instance from a 2-tuple: ([state](State), symbol)
     pub fn from_tuple((state, symbol): (State<Q>, S)) -> Self {

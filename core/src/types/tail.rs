@@ -33,9 +33,25 @@ impl<Q, S> Tail<Q, S> {
             symbol,
         }
     }
-
-    pub fn create() -> TailBuilder<Q, S> {
-        TailBuilder::new(Direction::Right)
+    /// Returns an instance of [TailBuilder] allowing developers to construct a [Tail] with
+    /// a fluent API
+    pub fn init() -> TailBuilder<Q, S> {
+        TailBuilder::new()
+    }
+    /// Configures the tail with a new direction
+    pub fn with_direction(self, direction: Direction) -> Self {
+        Self { direction, ..self }
+    }
+    /// Configures the tail with a new state
+    pub fn with_state(self, State(state): State<Q>) -> Self {
+        Self {
+            state: State(state),
+            ..self
+        }
+    }
+    /// Configures the tail with a new symbol
+    pub fn with_symbol(self, symbol: S) -> Self {
+        Self { symbol, ..self }
     }
     /// Returns the direction, state, and symbol as a 3-tuple
     pub fn as_tuple(&self) -> (Direction, &State<Q>, &S) {
@@ -204,7 +220,15 @@ mod builder {
     }
 
     impl<Q, S> TailBuilder<Q, S> {
-        pub fn new(direction: Direction) -> Self {
+        pub fn new() -> Self {
+            Self {
+                direction: Direction::Right,
+                state: None,
+                symbol: None,
+            }
+        }
+
+        pub fn from_direction(direction: Direction) -> Self {
             Self {
                 direction,
                 state: None,

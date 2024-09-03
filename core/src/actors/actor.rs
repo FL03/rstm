@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Executor;
-use crate::rules::Program;
+use crate::rules::Ruleset;
 use crate::{Direction, Error, Head, State};
 
 /// An [Actor] is an implementation of a Turing machine with a moving head (TMH).
@@ -14,25 +14,25 @@ use crate::{Direction, Error, Head, State};
 /// - `head`: the head of the tape
 #[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
 pub struct Actor<Q, A> {
-    /// the input alphabet
-    pub(crate) alpha: Vec<A>,
     /// the head of the tape
     pub(crate) head: Head<Q, usize>,
+    /// the input alphabet
+    pub(crate) tape: Vec<A>,
 }
 
 impl<Q, A> Actor<Q, A> {
     pub fn new(alpha: impl IntoIterator<Item = A>, state: State<Q>, symbol: usize) -> Self {
         Self {
-            alpha: Vec::from_iter(alpha),
             head: Head { state, symbol },
+            tape: Vec::from_iter(alpha),
         }
     }
     /// Constructs a new [Actor] with the given state; assumes the tape is empty and the head
     /// is located at `0`.
     pub fn from_state(state: State<Q>) -> Self {
         Self {
-            alpha: Vec::new(),
             head: Head { state, symbol: 0 },
+            tape: Vec::new(),
         }
     }
     /// Consumes the current instance and returns a new instance with the given alphabet
@@ -41,7 +41,7 @@ impl<Q, A> Actor<Q, A> {
         I: IntoIterator<Item = A>,
     {
         Self {
-            alpha: Vec::from_iter(alpha),
+            tape: Vec::from_iter(alpha),
             ..self
         }
     }
@@ -67,12 +67,12 @@ impl<Q, A> Actor<Q, A> {
         }
     }
     /// Returns an immutable reference to the tape, as a slice
-    pub fn alpha(&self) -> &[A] {
-        &self.alpha
+    pub fn tape(&self) -> &[A] {
+        &self.tape
     }
     /// Returns a mutable reference of the tape as a slice
-    pub fn alpha_mut(&mut self) -> &mut [A] {
-        &mut self.alpha
+    pub fn tape_mu(&mut self) -> &mut [A] {
+        &mut self.tape
     }
     /// Returns an immutable reference to the head of the tape
     pub const fn head(&self) -> &Head<Q, usize> {
@@ -92,24 +92,24 @@ impl<Q, A> Actor<Q, A> {
     }
     /// Returns the current position of the head on the tape
     pub fn position(&self) -> usize {
-        self.head.symbol
+        self.head().symbol
     }
     /// Returns an instance of the state with an immutable reference to the inner value
     pub fn state(&self) -> State<&Q> {
-        self.head.state()
+        self.head().state()
     }
     /// Returns an instance of the state with a mutable reference to the inner value
     pub fn state_mut(&mut self) -> State<&mut Q> {
-        self.head.state_mut()
+        self.head_mut().state_mut()
     }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
-    pub fn execute(self, program: Program<Q, A>) -> Executor<Q, A> {
+    pub fn execute(self, program: Ruleset<Q, A>) -> Executor<Q, A> {
         Executor::new(self, program)
     }
     /// Checks if the tape is empty
     pub fn is_empty(&self) -> bool {
-        self.alpha.is_empty()
+        self.tape.is_empty()
     }
     /// Checks if the tape is halted
     pub fn is_halted(&self) -> bool
@@ -121,20 +121,20 @@ impl<Q, A> Actor<Q, A> {
     /// Returns the length of the tape
     #[inline]
     pub fn len(&self) -> usize {
-        self.alpha.len()
+        self.tape.len()
     }
     /// Reads the current symbol at the head of the tape
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "read", target = "actor")
     )]
-    pub fn read(&self) -> Result<Head<&Q, &A>, Error> {
+    pub fn read(&self) -> Result<Head<&'_ Q, &'_ A>, Error> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Reading the tape...");
-        self.alpha
+        self.tape
             .get(self.position())
             .map(|symbol| Head {
-                state: self.head.state(),
+                state: self.state(),
                 symbol,
             })
             .ok_or(Error::index_out_of_bounds(self.position(), self.len()))
@@ -154,14 +154,14 @@ impl<Q, A> Actor<Q, A> {
             #[cfg(feature = "tracing")]
             tracing::trace!("Prepending to the tape...");
             // prepend to the tape
-            self.alpha.insert(0, value);
+            self.tape.insert(0, value);
         } else if pos >= self.len() {
             #[cfg(feature = "tracing")]
             tracing::trace!("Appending to the tape...");
             // append to the tape
-            self.alpha.push(value);
+            self.tape.push(value);
         } else {
-            self.alpha[pos] = value;
+            self.tape[pos] = value;
         }
     }
     /// Performs a single step of the Turing machine; returns the previous head of the tape.
@@ -186,12 +186,23 @@ impl<Q, A> Actor<Q, A> {
     }
 }
 
+use crate::traits::transform::Handle;
+use crate::Tail;
+
+impl<Q, A> Handle<Tail<Q, A>> for Actor<Q, A> {
+    type Output = Head<Q, usize>;
+
+    fn handle(&mut self, args: Tail<Q, A>) -> Self::Output {
+        self.step(args.direction, args.state, args.symbol)
+    }
+}
+
 impl<Q, S> core::fmt::Debug for Actor<Q, S>
 where
     S: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        for (i, c) in self.alpha.iter().enumerate() {
+        for (i, c) in self.tape.iter().enumerate() {
             if i == self.position() {
                 write!(f, "[{c:?}]")?;
             } else {
@@ -207,7 +218,7 @@ where
     S: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        for (i, c) in self.alpha.iter().enumerate() {
+        for (i, c) in self.tape.iter().enumerate() {
             if i == self.position() {
                 write!(f, "[{c}]")?;
             } else {

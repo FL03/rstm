@@ -4,7 +4,7 @@
 */
 extern crate rstm_core as rstm;
 
-use rstm::rules::Program;
+use rstm::rules::Ruleset;
 use rstm::{ruleset, Direction, Head, State, Tail};
 
 #[test]
@@ -20,7 +20,7 @@ fn ruleset() {
     // validate the number of rules within the ruleset
     assert_eq!(rules.len(), 6);
     // create a new program using the ruleset
-    let program = Program::from_iter(rules);
+    let program = Ruleset::from_iter(rules);
     // validate the number of rules within the program
     assert_eq!(rules.len(), program.len());
     // create a new head for a rule within the program

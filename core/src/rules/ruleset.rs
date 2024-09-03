@@ -9,12 +9,12 @@ use std::collections::hash_map::{self, HashMap};
 
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize))]
-pub struct RuleSet<Q, S> {
+pub struct RuleMap<Q, S> {
     pub(crate) initial_state: Option<State<Q>>,
     pub(crate) rules: HashMap<Head<Q, S>, Tail<Q, S>>,
 }
 
-impl<Q, S> RuleSet<Q, S> {
+impl<Q, S> RuleMap<Q, S> {
     pub fn new() -> Self {
         Self {
             initial_state: None,
@@ -199,7 +199,7 @@ impl<Q, S> RuleSet<Q, S> {
 }
 
 #[cfg(feature = "serde")]
-impl<'a, Q, S> serde::Deserialize<'a> for RuleSet<Q, S>
+impl<'a, Q, S> serde::Deserialize<'a> for RuleMap<Q, S>
 where
     Q: Eq + core::hash::Hash + serde::Deserialize<'a>,
     S: Eq + core::hash::Hash + serde::Deserialize<'a>,
@@ -217,7 +217,7 @@ where
             Q: Eq + core::hash::Hash + serde::Deserialize<'a>,
             S: Eq + core::hash::Hash + serde::Deserialize<'a>,
         {
-            type Value = RuleSet<Q, S>;
+            type Value = RuleMap<Q, S>;
 
             fn expecting(&self, formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
                 formatter.write_str("a map of rules")
@@ -231,7 +231,7 @@ where
                 while let Some((head, tail)) = map.next_entry()? {
                     rules.insert(head, tail);
                 }
-                Ok(RuleSet {
+                Ok(RuleMap {
                     initial_state: None,
                     rules,
                 })
@@ -244,7 +244,7 @@ where
     }
 }
 
-impl<Q, S> core::iter::Extend<(Head<Q, S>, Tail<Q, S>)> for RuleSet<Q, S>
+impl<Q, S> core::iter::Extend<(Head<Q, S>, Tail<Q, S>)> for RuleMap<Q, S>
 where
     Q: Eq + core::hash::Hash,
     S: Eq + core::hash::Hash,
@@ -259,7 +259,7 @@ where
     }
 }
 
-impl<Q, S> core::iter::Extend<Rule<Q, S>> for RuleSet<Q, S>
+impl<Q, S> core::iter::Extend<Rule<Q, S>> for RuleMap<Q, S>
 where
     Q: Eq + core::hash::Hash,
     S: Eq + core::hash::Hash,
@@ -274,7 +274,7 @@ where
     }
 }
 
-impl<Q, S> core::ops::Index<Head<Q, S>> for RuleSet<Q, S>
+impl<Q, S> core::ops::Index<Head<Q, S>> for RuleMap<Q, S>
 where
     Q: Eq + core::hash::Hash,
     S: Eq + core::hash::Hash,
@@ -286,7 +286,7 @@ where
     }
 }
 
-impl<Q, S> core::iter::FromIterator<(Head<Q, S>, Tail<Q, S>)> for RuleSet<Q, S>
+impl<Q, S> core::iter::FromIterator<(Head<Q, S>, Tail<Q, S>)> for RuleMap<Q, S>
 where
     Q: Default + Eq + core::hash::Hash,
     S: Eq + core::hash::Hash,
@@ -299,7 +299,7 @@ where
     }
 }
 
-impl<Q, S> core::iter::FromIterator<Rule<Q, S>> for RuleSet<Q, S>
+impl<Q, S> core::iter::FromIterator<Rule<Q, S>> for RuleMap<Q, S>
 where
     Q: Default + Eq + core::hash::Hash,
     S: Eq + core::hash::Hash,
@@ -312,7 +312,7 @@ where
     }
 }
 
-impl<Q, S> core::iter::IntoIterator for RuleSet<Q, S>
+impl<Q, S> core::iter::IntoIterator for RuleMap<Q, S>
 where
     Q: Eq + core::hash::Hash,
     S: Eq + core::hash::Hash,
@@ -325,7 +325,7 @@ where
     }
 }
 
-impl<'a, Q, S> core::iter::IntoIterator for &'a RuleSet<Q, S>
+impl<'a, Q, S> core::iter::IntoIterator for &'a RuleMap<Q, S>
 where
     Q: Eq + core::hash::Hash,
     S: Eq + core::hash::Hash,
@@ -338,7 +338,7 @@ where
     }
 }
 
-impl<'a, Q, S> core::iter::IntoIterator for &'a mut RuleSet<Q, S>
+impl<'a, Q, S> core::iter::IntoIterator for &'a mut RuleMap<Q, S>
 where
     Q: Eq + core::hash::Hash,
     S: Eq + core::hash::Hash,

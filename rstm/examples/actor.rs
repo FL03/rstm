@@ -4,7 +4,7 @@
 */
 extern crate rstm;
 
-use rstm::{ruleset, Actor, Program, State};
+use rstm::{ruleset, Actor, Ruleset, State};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     _tracing("debug");
@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (-1, 1) -> Left(1, 1),
     ];
     // create a new program from the ruleset
-    let program = Program::from_iter(rules);
+    let program = Ruleset::from_iter(rules);
     // create a new instance of the machine
     let tm = dbg!(Actor::new(alpha, initial_state, 0));
     tm.execute(program).run()?;

@@ -3,18 +3,18 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Actor;
-use crate::{Error, Head, Program, State, Symbolic};
+use crate::{Error, Head, Ruleset, State, Symbolic};
 
 ///
 pub struct Executor<Q, S> {
     pub(crate) actor: Actor<Q, S>,
-    pub(crate) program: Program<Q, S>,
+    pub(crate) program: Ruleset<Q, S>,
     /// the number of steps taken by the actor
     pub(crate) steps: usize,
 }
 
 impl<Q, S> Executor<Q, S> {
-    pub(crate) fn new(actor: Actor<Q, S>, program: Program<Q, S>) -> Self {
+    pub(crate) fn new(actor: Actor<Q, S>, program: Ruleset<Q, S>) -> Self {
         Self {
             actor,
             program,
@@ -28,7 +28,7 @@ impl<Q, S> Executor<Q, S> {
     {
         Self {
             actor,
-            program: Program {
+            program: Ruleset {
                 initial_state: Default::default(),
                 rules: Vec::new(),
             },
@@ -36,7 +36,7 @@ impl<Q, S> Executor<Q, S> {
         }
     }
     /// Load a program into the executor
-    pub fn load(self, program: Program<Q, S>) -> Self {
+    pub fn load(self, program: Ruleset<Q, S>) -> Self {
         Executor { program, ..self }
     }
 

@@ -3,34 +3,35 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #![cfg(feature = "std")]
+use crate::rules::Rule;
 use crate::state::RawState;
-use crate::{Direction, Error, Head, Program, State};
+use crate::{Direction, Error, Head, Ruleset, State};
 
 use std::collections::hash_map::{self, HashMap};
 
-pub struct Engine<Q, A>
+pub struct TMH<Q, A = char>
 where
     Q: RawState,
 {
-    pub(crate) program: Program<Q, A>,
+    pub(crate) program: Ruleset<Q, A>,
     pub(crate) scope: Head<Q, isize>, // Head<Q, *const A::Elem>,
     pub(crate) tape: HashMap<isize, A>,
 }
 
-impl<Q, A> Engine<Q, A>
+impl<Q, A> TMH<Q, A>
 where
     Q: RawState,
 {
-    // pub fn new(initial_state: State<Q>) -> Self {
-    //     Self {
-    //         program: Program::new().initial_state(state),
-    //         scope: Head {
-    //             state: initial_state,
-    //             symbol: 0,
-    //         },
-    //         tape: HashMap::new(),
-    //     }
-    // }
+    pub fn new(initial_state: State<Q>) -> Self {
+        Self {
+            program: Ruleset::new(),
+            scope: Head {
+                state: initial_state,
+                symbol: 0,
+            },
+            tape: HashMap::new(),
+        }
+    }
     pub fn with_input<I>(self, input: I) -> Self
     where
         I: IntoIterator<Item = A>,
@@ -40,8 +41,15 @@ where
             ..self
         }
     }
-    pub fn with_program(self, program: Program<Q, A>) -> Self {
+    pub fn with_program(self, program: Ruleset<Q, A>) -> Self {
         Self { program, ..self }
+    }
+
+    pub fn load<I>(&mut self, rules: I)
+    where
+        I: IntoIterator<Item = Rule<Q, A>>,
+    {
+        self.program.extend(rules);
     }
 
     pub fn current_state(&self) -> State<&'_ Q> {

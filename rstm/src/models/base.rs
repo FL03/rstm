@@ -2,7 +2,7 @@
     Appellation: tm <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::rules::Program;
+use crate::rules::Ruleset;
 use crate::state::{halt::HaltState, State};
 use crate::{Error, Head, StdTape, Symbolic, Tail};
 
@@ -14,13 +14,13 @@ use crate::{Error, Head, StdTape, Symbolic, Tail};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct StdTM<Q = String, S = char> {
-    pub(crate) program: Program<Q, S>,
+    pub(crate) program: Ruleset<Q, S>,
     pub(crate) state: HaltState<Q>,
     pub(crate) tape: StdTape<S>,
 }
 
 impl<Q, S> StdTM<Q, S> {
-    pub fn new(program: Program<Q, S>, tape: StdTape<S>) -> Self
+    pub fn new(program: Ruleset<Q, S>, tape: StdTape<S>) -> Self
     where
         Q: Clone + Default,
         S: Default,
@@ -36,7 +36,7 @@ impl<Q, S> StdTM<Q, S> {
         }
     }
     /// Returns an immutable reference to the [program](Program)
-    pub const fn program(&self) -> &Program<Q, S> {
+    pub const fn program(&self) -> &Ruleset<Q, S> {
         &self.program
     }
     /// Creates a new instance of a [head](Head) from references to the current state and symbol;

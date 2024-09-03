@@ -80,6 +80,24 @@ impl State<()> {
     }
 }
 
+impl State<bool> {
+    pub fn from_true() -> Self {
+        Self(true)
+    }
+
+    pub fn from_false() -> Self {
+        Self(false)
+    }
+
+    pub fn is_true(&self) -> bool {
+        self.get()
+    }
+
+    pub fn is_false(&self) -> bool {
+        !self.get()
+    }
+}
+
 impl State<Box<dyn core::any::Any>> {
     /// Attempts to downcast the state to a concrete type `Q`; returns an error if the state
     /// is not of type `Q`.

@@ -10,7 +10,7 @@ pub(crate) type Hdx = isize;
 
 #[derive(Clone, Debug, Default)]
 pub struct HashTape<V = char> {
-    cursor: Hdx,
+    index: Hdx,
     store: HashMap<Hdx, V>,
     ticks: usize,
 }
@@ -18,7 +18,7 @@ pub struct HashTape<V = char> {
 impl<V> HashTape<V> {
     pub fn new() -> HashTape<V> {
         HashTape {
-            cursor: 0,
+            index: 0,
             store: HashMap::new(),
             ticks: 0,
         }
@@ -26,7 +26,7 @@ impl<V> HashTape<V> {
 
     pub fn from_data(data: HashMap<Hdx, V>) -> HashTape<V> {
         HashTape {
-            cursor: 0,
+            index: 0,
             store: data,
             ticks: 0,
         }
@@ -37,7 +37,7 @@ impl<V> HashTape<V> {
         I: IntoIterator<Item = (Hdx, V)>,
     {
         HashTape {
-            cursor: 0,
+            index: 0,
             store: HashMap::from_iter(iter),
             ticks: 0,
         }
@@ -51,8 +51,8 @@ impl<V> HashTape<V> {
         Self::from_iter(iter)
     }
     /// Returns the current position of the head.
-    pub fn cursor(&self) -> Hdx {
-        self.cursor
+    pub fn current_position(&self) -> Hdx {
+        self.index
     }
     /// Returns the total number of steps taken by the head.
     pub fn ticks(&self) -> usize {
@@ -60,13 +60,13 @@ impl<V> HashTape<V> {
     }
     /// clears the tape.
     pub fn clear(&mut self) {
-        self.cursor = 0;
+        self.index = 0;
         self.store.clear();
         self.ticks = 0;
     }
     /// Returns the entry in the tape at the current index.
     pub fn current_entry(&mut self) -> hash_map::Entry<Hdx, V> {
-        self.store.entry(self.cursor)
+        self.store.entry(self.index)
     }
     /// Returns a mutable entry in the tape at the given index.
     pub fn entry(&mut self, index: Hdx) -> hash_map::Entry<Hdx, V> {
@@ -119,7 +119,7 @@ impl<V> HashTape<V> {
     /// Returns a mutable reference to the value of the head at the current position; on empty,
     /// the given value is inserted and returned.
     pub fn or_insert(&mut self, default: V) -> &mut V {
-        self.store.entry(self.cursor).or_insert(default)
+        self.store.entry(self.index).or_insert(default)
     }
     /// Returns a mutable reference to the value of the head at the current position; on empty,
     /// the function is evaluated and the result is inserted and returned.
@@ -127,7 +127,7 @@ impl<V> HashTape<V> {
     where
         F: FnOnce() -> V,
     {
-        self.store.entry(self.cursor).or_insert_with(default)
+        self.store.entry(self.index).or_insert_with(default)
     }
     /// Returns a mutable reference to the value of the head at the current position; if the
     /// value is not present, the default value is inserted and returned.
@@ -135,7 +135,7 @@ impl<V> HashTape<V> {
     where
         V: Default,
     {
-        self.store.entry(self.cursor).or_default()
+        self.store.entry(self.index).or_default()
     }
     /// Removes the value at the given index.
     pub fn remove(&mut self, index: Hdx) -> Option<V> {
@@ -148,13 +148,13 @@ impl<V> HashTape<V> {
 
     /// Shifts the cursor in the given direction.
     pub fn shift(&mut self, direction: Direction) {
-        self.cursor += direction;
+        self.index += direction;
         self.ticks += 1;
     }
 
     /// Returns a reference to the value at the current cursor position.
     pub fn read(&self) -> Option<&V> {
-        self.store.get(&self.cursor)
+        self.store.get(&self.index)
     }
 
     pub fn read_mut(&mut self) -> &mut V
@@ -165,7 +165,7 @@ impl<V> HashTape<V> {
     }
 
     pub fn write(&mut self, step: Direction, value: V) {
-        let _ = self.store.insert(self.cursor, value);
+        let _ = self.store.insert(self.index, value);
         self.shift(step);
     }
 }
