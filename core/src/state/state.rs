@@ -27,7 +27,7 @@ impl<Q> State<Q> {
     ///
     /// # Saftey
     ///
-    /// *
+    /// This method is unsafe because it is up to the caller to ensure that the cast is valid.
     pub unsafe fn cast<R>(self) -> State<R> {
         State(core::ptr::read(&self.0 as *const Q as *const R))
     }

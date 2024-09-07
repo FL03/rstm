@@ -17,22 +17,34 @@ pub(crate) mod prelude {
     pub use super::exec::Executor;
 }
 
-pub trait Program<Q, S> {
-    fn get(&self, state: crate::State<&Q>, symbol: &S) -> Option<&crate::Rule<Q, S>>;
+use crate::{Direction, Error, Head, Rule, State};
 
-    fn get_mut(&mut self, state: crate::State<&Q>, symbol: &S) -> Option<&mut crate::Rule<Q, S>>;
+#[doc(hidden)]
+pub trait GetRule<Q, S> {
+    fn get(&self, state: State<&Q>, symbol: &S) -> Option<&Rule<Q, S>>;
+
+    fn get_mut(&mut self, state: State<&Q>, symbol: &S) -> Option<&mut Rule<Q, S>>;
 }
 
 #[doc(hidden)]
-pub trait Runtime<Q, S> {
-    fn load<I>(&mut self, program: I)
-    where
-        I: IntoIterator<Item = crate::Rule<Q, S>>;
+pub trait Dynamical<Q, F> {
+    type Output;
 
-    fn run(&mut self) -> Result<(), crate::Error>;
+    fn step(&mut self, f: F) -> Self::Output;
 }
 
-impl<Q, S> Runtime<Q, S> for Executor<Q, S>
+#[doc(hidden)]
+pub trait Engine<Q, S> {
+    fn load<I>(&mut self, program: I)
+    where
+        I: IntoIterator<Item = Rule<Q, S>>;
+
+    fn handle(&mut self, direction: Direction, state: State<Q>, symbol: S) -> Head<Q, usize>;
+
+    fn run(&mut self) -> Result<(), Error>;
+}
+
+impl<Q, S> Engine<Q, S> for Executor<Q, S>
 where
     Q: Clone + PartialEq + 'static,
     S: crate::Symbolic,
@@ -43,6 +55,10 @@ where
     {
         self.program.rules.clear();
         self.program.extend(program);
+    }
+
+    fn handle(&mut self, direction: Direction, state: State<Q>, symbol: S) -> Head<Q, usize> {
+        self.actor.step(direction, state, symbol)
     }
 
     fn run(&mut self) -> Result<(), crate::Error> {

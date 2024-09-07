@@ -19,6 +19,7 @@
 //! - [x] [HashTape](tape::hash_tape::HashTape)
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![allow(clippy::new_ret_no_self)]
 #[cfg(feature = "alloc")]
 extern crate alloc;
 

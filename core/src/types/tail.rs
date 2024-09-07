@@ -219,6 +219,12 @@ mod builder {
         symbol: Option<S>,
     }
 
+    impl<Q, S> Default for TailBuilder<Q, S> {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl<Q, S> TailBuilder<Q, S> {
         pub fn new() -> Self {
             Self {
