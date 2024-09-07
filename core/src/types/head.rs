@@ -4,10 +4,7 @@
 */
 use crate::state::State;
 
-/// The [Head] struct represent the state and symbol of an actor at a given moment in time.
-/// With respect to a Turing machine, the head defines the current state and symbol of the
-/// machine. When associated with a direction the head becomes a tail, instructing the machine
-/// to move, write, and transition to a new state.
+/// The [Head] is formally defined to be a 2-tuple consisting of a state / symbol pair.
 #[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(
     feature = "serde",
@@ -90,18 +87,19 @@ impl<Q, S> Head<Q, S> {
     pub fn set_symbol(&mut self, symbol: S) {
         self.symbol = symbol;
     }
-
+    /// Replaces the current state and symbol with the given state and symbol; returns the
+    /// previous instance of the head.
     pub fn replace(&mut self, state: State<Q>, symbol: S) -> Self {
         Head {
             state: core::mem::replace(&mut self.state, state),
             symbol: core::mem::replace(&mut self.symbol, symbol),
         }
     }
-
+    /// Replaces the current state with the given state, returing the previous state
     pub fn replace_state(&mut self, state: State<Q>) -> State<Q> {
         core::mem::replace(&mut self.state, state)
     }
-
+    /// Replaces the current symbol with the given symbol, returning the previous symbol
     pub fn replace_symbol(&mut self, symbol: S) -> S {
         core::mem::replace(&mut self.symbol, symbol)
     }

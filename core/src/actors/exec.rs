@@ -7,7 +7,9 @@ use crate::{Error, Head, Ruleset, State, Symbolic};
 
 ///
 pub struct Executor<Q, S> {
+    /// the actor that will be executing the program
     pub(crate) actor: Actor<Q, S>,
+    /// the program being executed
     pub(crate) program: Ruleset<Q, S>,
     /// the number of steps taken by the actor
     pub(crate) steps: usize,

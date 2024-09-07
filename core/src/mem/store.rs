@@ -14,29 +14,12 @@ pub trait RawMemory {
     }
 
     fn len(&self) -> usize;
-
-    fn to_vec(&self) -> Vec<Self::Elem>
-    where
-        Self::Elem: Clone;
-}
-
-/// [Sequential] extends the base trait [RawMemory] to provide sequential access to memory.
-pub trait Sequential: RawMemory {
-    fn as_ptr(&self) -> *const Self::Elem;
-
-    fn as_mut_ptr(&mut self) -> *mut Self::Elem;
-
-    fn as_slice(&self) -> &[Self::Elem];
-
-    fn as_mut_slice(&mut self) -> &mut [Self::Elem];
 }
 
 pub trait Memory: RawMemory {
-    type Key;
-
-    fn get(&self, index: &Self::Key) -> Option<&Self::Elem>;
-
-    fn get_mut(&mut self, index: &Self::Key) -> Option<&mut Self::Elem>;
+    fn to_vec(&self) -> Vec<Self::Elem>
+    where
+        Self::Elem: Clone;
 }
 
 pub trait MemoryMut: Memory {
@@ -47,9 +30,53 @@ pub trait MemoryMut: Memory {
     fn remove(&mut self, index: usize) -> Option<Self::Elem>;
 }
 
+/// [Sequential] extends the base trait [RawMemory] to provide sequential access to memory.
+pub trait SeqMemory: Memory {
+    fn as_ptr(&self) -> *const Self::Elem;
+
+    fn as_mut_ptr(&mut self) -> *mut Self::Elem;
+
+    fn as_slice(&self) -> &[Self::Elem];
+
+    fn as_mut_slice(&mut self) -> &mut [Self::Elem];
+
+    fn get<I>(&self, index: I) -> Option<&I::Output>
+    where
+        I: core::slice::SliceIndex<[Self::Elem]>;
+
+    fn get_mut<I>(&mut self, index: I) -> Option<&mut I::Output>
+    where
+        I: core::slice::SliceIndex<[Self::Elem]>;
+}
+
+#[doc(hidden)]
+pub trait Fetch<K> {
+    type Output;
+
+    fn fetch(&self, index: K) -> Option<&Self::Output>;
+
+    fn fetch_mut(&mut self, index: K) -> Option<&mut Self::Output>;
+}
+
 /*
  ************* Implementations *************
 */
+impl<I, T> Fetch<I> for [T]
+where
+    I: core::slice::SliceIndex<[T]>,
+    I::Output: Sized,
+{
+    type Output = I::Output;
+
+    fn fetch(&self, index: I) -> Option<&Self::Output> {
+        <[T]>::get(self, index)
+    }
+
+    fn fetch_mut(&mut self, index: I) -> Option<&mut Self::Output> {
+        <[T]>::get_mut(self, index)
+    }
+}
+
 impl<T> RawMemory for [T] {
     type Elem = T;
 
@@ -62,7 +89,9 @@ impl<T> RawMemory for [T] {
     fn len(&self) -> usize {
         <[T]>::len(self)
     }
+}
 
+impl<T> Memory for [T] {
     fn to_vec(&self) -> Vec<T>
     where
         T: Clone,
@@ -71,19 +100,7 @@ impl<T> RawMemory for [T] {
     }
 }
 
-impl<T> Memory for [T] {
-    type Key = usize;
-
-    fn get(&self, index: &usize) -> Option<&T> {
-        <[T]>::get(self, *index)
-    }
-
-    fn get_mut(&mut self, index: &usize) -> Option<&mut T> {
-        <[T]>::get_mut(self, *index)
-    }
-}
-
-impl<T> Sequential for [T] {
+impl<T> SeqMemory for [T] {
     fn as_ptr(&self) -> *const T {
         <[T]>::as_ptr(self)
     }
@@ -93,20 +110,33 @@ impl<T> Sequential for [T] {
     }
 
     fn as_slice(&self) -> &[T] {
-        &self
+        self
     }
 
     fn as_mut_slice(&mut self) -> &mut [T] {
         self
     }
+
+    fn get<I>(&self, index: I) -> Option<&I::Output>
+    where
+        I: core::slice::SliceIndex<[T]>,
+    {
+        <[T]>::get(self, index)
+    }
+
+    fn get_mut<I>(&mut self, index: I) -> Option<&mut I::Output>
+    where
+        I: core::slice::SliceIndex<[T]>,
+    {
+        <[T]>::get_mut(self, index)
+    }
 }
 
 #[cfg(feature = "alloc")]
 mod impl_alloc {
-    use super::{Memory, RawMemory, Sequential};
     use alloc::vec::Vec;
 
-    impl<T> RawMemory for Vec<T> {
+    impl<T> super::RawMemory for Vec<T> {
         type Elem = T;
 
         seal!();
@@ -118,7 +148,9 @@ mod impl_alloc {
         fn len(&self) -> usize {
             Vec::len(self)
         }
+    }
 
+    impl<T> super::Memory for Vec<T> {
         fn to_vec(&self) -> Vec<T>
         where
             T: Clone,
@@ -127,27 +159,10 @@ mod impl_alloc {
         }
     }
 
-    impl<T> Memory for Vec<T> {
-        type Key = usize;
-
-        fn get(&self, index: &usize) -> Option<&T> {
-            if *index < self.len() {
-                Some(&self[*index])
-            } else {
-                None
-            }
-        }
-
-        fn get_mut(&mut self, index: &usize) -> Option<&mut T> {
-            if *index < self.len() {
-                Some(&mut self[*index])
-            } else {
-                None
-            }
-        }
-    }
-
-    impl<T> Sequential for Vec<T> {
+    impl<T> super::SeqMemory for Vec<T>
+    where
+        Vec<T>: AsRef<[T]>,
+    {
         fn as_ptr(&self) -> *const T {
             Vec::as_ptr(self)
         }
@@ -163,15 +178,28 @@ mod impl_alloc {
         fn as_mut_slice(&mut self) -> &mut [T] {
             Vec::as_mut_slice(self)
         }
+
+        fn get<I>(&self, index: I) -> Option<&I::Output>
+        where
+            I: core::slice::SliceIndex<[T]>,
+        {
+            <[T]>::get(self, index)
+        }
+
+        fn get_mut<I>(&mut self, index: I) -> Option<&mut I::Output>
+        where
+            I: core::slice::SliceIndex<[T]>,
+        {
+            <[T]>::get_mut(self, index)
+        }
     }
 }
 
 #[cfg(feature = "std")]
 mod impl_std {
-    use super::{Memory, RawMemory};
     use std::collections::HashMap;
 
-    impl<K, V> RawMemory for HashMap<K, V> {
+    impl<K, V> super::RawMemory for HashMap<K, V> {
         type Elem = V;
 
         seal!();
@@ -182,28 +210,6 @@ mod impl_std {
 
         fn len(&self) -> usize {
             HashMap::len(self)
-        }
-
-        fn to_vec(&self) -> Vec<V>
-        where
-            V: Clone,
-        {
-            self.values().cloned().collect()
-        }
-    }
-
-    impl<K, V> Memory for HashMap<K, V>
-    where
-        K: Eq + core::hash::Hash,
-    {
-        type Key = K;
-
-        fn get(&self, index: &K) -> Option<&V> {
-            HashMap::get(self, index)
-        }
-
-        fn get_mut(&mut self, index: &K) -> Option<&mut V> {
-            HashMap::get_mut(self, index)
         }
     }
 }
