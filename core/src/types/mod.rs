@@ -12,6 +12,8 @@ pub(crate) mod tail;
 #[doc(hidden)]
 pub mod cell;
 #[doc(hidden)]
+pub mod snapshot;
+#[doc(hidden)]
 pub mod transition;
 
 pub(crate) mod prelude {

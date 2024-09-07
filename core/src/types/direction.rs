@@ -160,7 +160,7 @@ where
 }
 
 macro_rules! impl_apply_direction {
-    (@impl unsigned: $T:ty) => {
+    (@unsigned $T:ty) => {
         impl core::ops::Add<Direction> for $T {
             type Output = $T;
 
@@ -184,7 +184,7 @@ macro_rules! impl_apply_direction {
         }
 
     };
-    (@impl $T:ty) => {
+    (@signed $T:ty) => {
         impl core::ops::Add<Direction> for $T {
             type Output = $T;
 
@@ -201,19 +201,19 @@ macro_rules! impl_apply_direction {
         }
 
     };
+    (signed: $($T:ty),* $(,)?) => {
+        $(
+            impl_apply_direction!(@signed $T);
+        )*
+    };
     (unsigned: $($T:ty),* $(,)?) => {
         $(
-            impl_apply_direction!(@impl unsigned: $T);
+            impl_apply_direction!(@unsigned $T);
         )*
     };
-    ($($T:ty),* $(,)?) => {
-        $(
-            impl_apply_direction!(@impl $T);
-        )*
-    };
-}
 
-impl_apply_direction!(i8, i16, i32, i64, i128, isize,);
+}
+impl_apply_direction!(signed: i8, i16, i32, i64, i128, isize,);
 impl_apply_direction!(unsigned: u8, u16, u32, u64, u128, usize);
 
 mod impl_from {

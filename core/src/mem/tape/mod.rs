@@ -7,10 +7,12 @@
 //! Idealized Turing machines consider a tape, or memory, that is infinite in both directions.
 //! This tape is a one-dimensional array of symbols manipulated by the tape head according to
 //! some set of pre-defined rules.
+#[doc(inline)]
 pub use self::tape::StdTape;
 
 pub(crate) mod tape;
 
+#[cfg(feature = "std")]
 pub mod hash_tape;
 
 pub(crate) mod prelude {
@@ -18,19 +20,6 @@ pub(crate) mod prelude {
 }
 
 use core::option::Option;
-
-#[doc(hidden)]
-pub trait RawIndex {
-    private!();
-}
-
-pub trait Index: RawIndex {
-    fn increment(self) -> Self;
-
-    fn decrement(self) -> Self;
-}
-
-pub trait HashIndex: Index + core::cmp::Eq + core::hash::Hash {}
 
 #[doc(hidden)]
 pub trait RawTape {
@@ -145,33 +134,3 @@ where
         HashMap::len(self)
     }
 }
-
-macro_rules! impl_index {
-    (@impl $T:ty) => {
-        impl RawIndex for $T {
-            seal!();
-        }
-    };
-    ($($T:ty),* $(,)?) => {
-        $(
-            impl_index!(@impl $T);
-        )*
-    };
-}
-
-impl_index!(i8, i16, i32, i64, i128, u8, u16, u32, u64, u128, usize);
-
-impl<T> Index for T
-where
-    T: RawIndex + core::ops::Add<Output = T> + core::ops::Sub<Output = T> + num::One,
-{
-    fn increment(self) -> Self {
-        self + T::one()
-    }
-
-    fn decrement(self) -> Self {
-        self - T::one()
-    }
-}
-
-impl<T> HashIndex for T where T: Index + core::cmp::Eq + core::hash::Hash {}

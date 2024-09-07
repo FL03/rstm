@@ -2,7 +2,7 @@
     Appellation: hash_tape <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-#![cfg(feature = "std")]
+
 use crate::Direction;
 use std::collections::hash_map::{self, HashMap};
 

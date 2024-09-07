@@ -14,7 +14,7 @@ use crate::{Direction, Head, State};
     derive(serde::Deserialize, serde::Serialize),
     serde(rename_all = "lowercase")
 )]
-pub struct Tail<Q = String, S = char> {
+pub struct Tail<Q, S> {
     pub direction: Direction,
     #[cfg_attr(feature = "serde", serde(alias = "next_state"))]
     pub state: State<Q>,

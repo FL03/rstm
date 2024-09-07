@@ -14,7 +14,7 @@ use crate::state::State;
     derive(serde::Deserialize, serde::Serialize),
     serde(rename_all = "lowercase")
 )]
-pub struct Head<Q = String, S = char> {
+pub struct Head<Q, S> {
     #[cfg_attr(feature = "serde", serde(alias = "current_state"))]
     pub state: State<Q>,
     #[cfg_attr(feature = "serde", serde(alias = "current_symbol"))]

@@ -4,7 +4,7 @@
 */
 extern crate rstm_core as rstm;
 
-use rstm::tape::StdTape;
+use rstm::mem::tape::StdTape;
 
 #[test]
 fn stdtape() {
