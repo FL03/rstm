@@ -8,22 +8,19 @@
 //! The crate is designed to be flexible and easy to use while preserving the abstract nature
 //! of the models.
 
-// #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(not(feature = "std"), no_std)]
+#![crate_name = "rstm"]
+#![crate_type = "lib"]
+
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
 #[doc(inline)]
-pub use self::models::StdTM;
-#[doc(inline)]
 pub use rstm_core::*;
 
 #[doc(hidden)]
-pub mod models;
-#[doc(hidden)]
-pub mod shift;
+pub mod exp;
 
 pub mod prelude {
-    pub use super::models::prelude::*;
-
     pub use rstm_core::prelude::*;
 }

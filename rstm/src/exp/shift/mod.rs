@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::direction::{LinearShift, ShiftDirection};
+pub use self::direction::*;
 
 pub(crate) mod direction;
 
@@ -19,4 +19,10 @@ pub trait Shift<T> {
     type Output;
 
     fn shift(&self, step: T) -> Self::Output;
+}
+
+pub trait ApplyOnce<T, F> where F: FnOnce(T) -> Self::Output {
+    type Output;
+
+    fn apply(&self, f: F, args: T) -> F::Output;
 }
