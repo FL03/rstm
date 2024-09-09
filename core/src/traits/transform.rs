@@ -2,21 +2,57 @@
     Appellation: transform <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+use crate::{Direction, Head, State};
 
-/// [`Shift`] describes a generalized shift operation;
-/// w.r.t. Turing machines, Moore (1990) describes a shift operation as a _movement_ of the
-/// tape head
-pub trait Shift<T> {
+/// [Handle] is a generic trait describing objects capable of handling some input and producing
+/// some output.
+pub trait Handle<T> {
     type Output;
 
-    fn shift(&self, tape: &T) -> Self::Output;
+    fn handle(&mut self, args: T) -> Self::Output;
 }
-/// [`Transform`] is describes a binary operation capable of applying some transformation.
-/// More commonly, the typical "rustic" manner of which an object is transformed is through
-/// the [`map`] method, which applies a function to a value and returns a new value.
-pub trait Transform<T> {
+
+/// [TM]
+pub trait TM<Q, A> {
+    type Idx: Copy + core::ops::Add<Direction, Output = Self::Idx>;
+
+    fn process(&mut self, direction: Direction, state: State<Q>, symbol: A) -> Head<Q, Self::Idx> {
+        let pos = self.position();
+        self.write(symbol);
+        self.scope_mut().replace(state, pos + direction)
+    }
+
+    fn read(&self) -> Option<A>;
+
+    fn scope(&self) -> &Head<Q, Self::Idx>;
+
+    fn scope_mut(&mut self) -> &mut Head<Q, Self::Idx>;
+
+    fn write(&mut self, symbol: A) -> Option<A>;
+
+    fn position(&self) -> Self::Idx {
+        self.scope().symbol
+    }
+}
+
+pub trait Driver<Q, A> {
+    type Head;
+
+    fn read(&self) -> Option<A>;
+
+    fn scope(&self) -> Head<&'_ Q, &'_ A>;
+
+    fn write(&mut self, symbol: A) -> Option<A>;
+}
+
+pub trait Read {
     type Output;
-    /// [`Transform::transform`] is a method that takes a reference to `self` and a value of type
-    /// `T` and returns a value of type [`Transform::Output`].
-    fn transform(&self, delta: T) -> Self::Output;
+
+    fn read(&self) -> Self::Output;
+}
+
+pub trait Write {
+    type Output;
+
+    fn write(&self) -> Self::Output;
 }

@@ -2,7 +2,7 @@
     Appellation: halting <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::{halt::Haltable, State};
+use crate::state::{RawState, State};
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -12,27 +12,57 @@ impl<Q> Halt<Q> {
     pub fn new(halt: Q) -> Self {
         Self(halt)
     }
-
-    pub fn into_inner(self) -> Q {
+    #[inline]
+    /// Consumes the halted state and returns the inner value.
+    pub fn get(self) -> Q {
         self.0
     }
-
-    pub const fn get(&self) -> &Q {
+    /// Returns an immutable reference to the inner value of the halted state.
+    pub const fn get_ref(&self) -> &Q {
         &self.0
     }
-
+    /// Returns a mutable reference to the inner value of the halted state.
     pub fn get_mut(&mut self) -> &mut Q {
         &mut self.0
     }
-
+    /// Replaces the inner value of the halted state with the given value, returning the
+    /// previous value.
+    pub fn replace(&mut self, halt: Q) -> Q {
+        core::mem::replace(&mut self.0, halt)
+    }
+    /// Resets the inner value of the halted state to the default value of the type.
+    pub fn reset(&mut self)
+    where
+        Q: Default,
+    {
+        self.set(Default::default());
+    }
+    /// Sets the inner value of the halted state to that of the given value.
     pub fn set(&mut self, halt: Q) {
         self.0 = halt;
     }
-    /// Converts the halted state into a new [State] with an immutable reference to the inner value.
+    /// Swaps the inner value of the halted state with that of the given state.
+    pub fn swap<S>(&mut self, other: &mut S)
+    where
+        S: RawState<Q = Q>,
+    {
+        core::mem::swap(&mut self.0, other.get_mut());
+    }
+    /// Takes the inner value of the halted state and replaces it with the default value of
+    /// the type.
+    pub fn take(&mut self) -> Q
+    where
+        Q: Default,
+    {
+        core::mem::take(&mut self.0)
+    }
+    /// Converts the halted state into a new [State] with an immutable reference to the inner
+    /// value.
     pub fn as_state(&self) -> State<Halt<&Q>> {
         State(Halt(&self.0))
     }
-    /// Converts the halted state into a new [State] with a mutable reference to the inner value.
+    /// Converts the halted state into a new [State] with a mutable reference to the inner
+    /// value.
     pub fn as_state_mut(&mut self) -> State<Halt<&mut Q>> {
         State(Halt(&mut self.0))
     }
@@ -88,12 +118,8 @@ impl<Q> From<State<Q>> for Halt<Q> {
     }
 }
 
-impl<Q> Haltable<Q> for Halt<Q> {
-    type State = State<Q>;
-    seal!();
-}
-
-impl<Q> Haltable<Q> for State<Halt<Q>> {
-    type State = State<Q>;
-    seal!();
+impl<Q> From<Halt<Q>> for State<Q> {
+    fn from(Halt(state): Halt<Q>) -> Self {
+        Self(state)
+    }
 }

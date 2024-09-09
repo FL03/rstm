@@ -1,19 +1,9 @@
 /*
-    Appellation: shift <module>
+    Appellation: convert <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-#[doc(inline)]
-pub use self::direction::Direction;
+use crate::Direction;
 
-pub(crate) mod direction;
-
-pub(crate) mod prelude {
-    pub use super::direction::Direction;
-}
-
-pub trait Directional {
-    fn direction(&self) -> Direction;
-}
 /// The [AsDirection] trait provides a convience method for converting a type into a [Direction].
 pub trait AsDirection {
     fn as_direction(&self) -> Direction;
@@ -28,10 +18,10 @@ pub trait IntoDirection {
 */
 impl<T> AsDirection for T
 where
-    T: Clone + Into<Direction>,
+    T: Clone + IntoDirection,
 {
     fn as_direction(&self) -> Direction {
-        self.clone().into()
+        self.clone().into_direction()
     }
 }
 

@@ -10,11 +10,9 @@ env:
 
 on:
   pull_request:
-    branches: [ main ]
-  push:
-    tags: [ v*.*.* ]
+    branches: [ main, v*.*.* ]
   release:
-    types: [ published ]
+    types: [ created ]
   repository_dispatch:
     types: [ rust ]
   schedule:
@@ -28,33 +26,31 @@ jobs:
     name: Build
     strategy:
       matrix:
-        platform: [ ubuntu-latest ]
+        platform: [ macos-latest, ubuntu-latest, windows-latest ]
         toolchain: [ stable, nightly ]
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
-      - name: setup (rustup)
+      - name: rustup
         run: |
           rustup default ${{ matrix.toolchain }}
           rustup update
-      - name: build (workspace)
+      - name: build
         run: cargo build --all-features -r -v --workspace
-      - name: cache
-        uses: actions/cache@v4
+      - name: test
+        run: cargo test -v --workspace -F full 
+      - name: benchmark
+        if: matrix.toolchain == 'nightly'
+        run: cargo bench -F full -v --workspace
+      - uses: actions/cache@v4
         with:
-          key: cargo-${{ matrix.toolchain }}-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             target/debug
             target/release
           restore-keys: |
-            cargo-${{ matrix.toolchain }}-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-            cargo-${{ matrix.toolchain }}-${{ runner.os }}-
-            cargo-${{ matrix.toolchain }}-
-      - name: cargo test (workspace) --full
-        run: cargo test -v --workspace -F full 
-      - name: cargo (bench)
-        if: matrix.toolchain == 'nightly'
-        run: cargo bench -F full -v --workspace
-
+            ${{ runner.os }}-cargo-${{ matrix.toolchain }}-
+            ${{ runner.os }}-cargo-
+            ${{ runner.os }}-

@@ -14,7 +14,7 @@ use crate::{Direction, Head, State};
     derive(serde::Deserialize, serde::Serialize),
     serde(rename_all = "lowercase")
 )]
-pub struct Tail<Q = String, S = char> {
+pub struct Tail<Q, S> {
     pub direction: Direction,
     #[cfg_attr(feature = "serde", serde(alias = "next_state"))]
     pub state: State<Q>,
@@ -33,9 +33,25 @@ impl<Q, S> Tail<Q, S> {
             symbol,
         }
     }
-
-    pub fn create() -> TailBuilder<Q, S> {
-        TailBuilder::new(Direction::Right)
+    /// Returns an instance of [TailBuilder] allowing developers to construct a [Tail] with
+    /// a fluent API
+    pub fn init() -> TailBuilder<Q, S> {
+        TailBuilder::new()
+    }
+    /// Configures the tail with a new direction
+    pub fn with_direction(self, direction: Direction) -> Self {
+        Self { direction, ..self }
+    }
+    /// Configures the tail with a new state
+    pub fn with_state(self, State(state): State<Q>) -> Self {
+        Self {
+            state: State(state),
+            ..self
+        }
+    }
+    /// Configures the tail with a new symbol
+    pub fn with_symbol(self, symbol: S) -> Self {
+        Self { symbol, ..self }
     }
     /// Returns the direction, state, and symbol as a 3-tuple
     pub fn as_tuple(&self) -> (Direction, &State<Q>, &S) {
@@ -63,12 +79,18 @@ impl<Q, S> Tail<Q, S> {
     }
     /// Consumes the tail and returns a new instance of the [Head]
     pub fn into_head(self) -> Head<Q, S> {
-        super::Head::new(self.state, self.symbol)
+        Head {
+            state: self.state,
+            symbol: self.symbol,
+        }
     }
     /// Returns an instance of the [head](Head) where each element within
     /// the created instance is an immutable reference
-    pub fn to_head_ref<'a>(&'a self) -> Head<&'a Q, &'a S> {
-        super::Head::new(self.state.to_ref(), &self.symbol)
+    pub fn as_head(&self) -> Head<&Q, &S> {
+        Head {
+            state: self.state.to_ref(),
+            symbol: &self.symbol,
+        }
     }
 
     pub fn to_ref(&self) -> Tail<&'_ Q, &'_ S> {
@@ -197,8 +219,22 @@ mod builder {
         symbol: Option<S>,
     }
 
+    impl<Q, S> Default for TailBuilder<Q, S> {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl<Q, S> TailBuilder<Q, S> {
-        pub fn new(direction: Direction) -> Self {
+        pub fn new() -> Self {
+            Self {
+                direction: Direction::Right,
+                state: None,
+                symbol: None,
+            }
+        }
+
+        pub fn from_direction(direction: Direction) -> Self {
             Self {
                 direction,
                 state: None,

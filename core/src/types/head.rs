@@ -4,17 +4,14 @@
 */
 use crate::state::State;
 
-/// The [Head] struct represent the state and symbol of an actor at a given moment in time.
-/// With respect to a Turing machine, the head defines the current state and symbol of the
-/// machine. When associated with a direction the head becomes a tail, instructing the machine
-/// to move, write, and transition to a new state.
+/// The [Head] is formally defined to be a 2-tuple consisting of a state / symbol pair.
 #[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(
     feature = "serde",
     derive(serde::Deserialize, serde::Serialize),
     serde(rename_all = "lowercase")
 )]
-pub struct Head<Q = String, S = char> {
+pub struct Head<Q, S> {
     #[cfg_attr(feature = "serde", serde(alias = "current_state"))]
     pub state: State<Q>,
     #[cfg_attr(feature = "serde", serde(alias = "current_symbol"))]
@@ -22,31 +19,22 @@ pub struct Head<Q = String, S = char> {
 }
 
 impl<Q, S> Head<Q, S> {
-    pub fn new(State(state): State<Q>, symbol: S) -> Self {
-        Self {
-            state: State(state),
-            symbol,
-        }
+    pub fn new(state: State<Q>, symbol: S) -> Self {
+        Self { state, symbol }
     }
     /// Create a new instance of the [Head] using the given state and default symbol.
-    pub fn from_state(State(state): State<Q>) -> Self
+    pub fn from_state(state: State<Q>) -> Self
     where
         S: Default,
     {
-        Self {
-            state: State(state),
-            symbol: Default::default(),
-        }
+        Self::new(state, S::default())
     }
     /// Create a new instance of the [Head] using the given symbol and default state.
     pub fn from_symbol(symbol: S) -> Self
     where
         Q: Default,
     {
-        Self {
-            state: Default::default(),
-            symbol,
-        }
+        Self::new(State::default(), symbol)
     }
     /// Create a new instance from a 2-tuple: ([state](State), symbol)
     pub fn from_tuple((state, symbol): (State<Q>, S)) -> Self {
@@ -62,6 +50,22 @@ impl<Q, S> Head<Q, S> {
     /// Updates the current symbol and returns a new head
     pub fn with_symbol(self, symbol: S) -> Self {
         Self { symbol, ..self }
+    }
+    /// Returns a reference to the current state
+    pub fn state(&self) -> State<&Q> {
+        self.state.to_ref()
+    }
+    /// Returns a mutable reference to the current [State]
+    pub fn state_mut(&mut self) -> State<&mut Q> {
+        self.state.to_mut()
+    }
+    /// Returns a reference to the current symbol
+    pub const fn symbol(&self) -> &S {
+        &self.symbol
+    }
+    /// Returns a mutable reference to the current symbol
+    pub fn symbol_mut(&mut self) -> &mut S {
+        &mut self.symbol
     }
     /// Returns a reference to the current state and symbol returing a 2-tuple
     pub fn as_tuple(&self) -> (&State<Q>, &S) {
@@ -83,21 +87,21 @@ impl<Q, S> Head<Q, S> {
     pub fn set_symbol(&mut self, symbol: S) {
         self.symbol = symbol;
     }
-    /// Returns a reference to the current state
-    pub fn state(&self) -> State<&Q> {
-        self.state.to_ref()
+    /// Replaces the current state and symbol with the given state and symbol; returns the
+    /// previous instance of the head.
+    pub fn replace(&mut self, state: State<Q>, symbol: S) -> Self {
+        Head {
+            state: core::mem::replace(&mut self.state, state),
+            symbol: core::mem::replace(&mut self.symbol, symbol),
+        }
     }
-    /// Returns a mutable reference to the current [State]
-    pub fn state_mut(&mut self) -> State<&mut Q> {
-        self.state.to_mut()
+    /// Replaces the current state with the given state, returing the previous state
+    pub fn replace_state(&mut self, state: State<Q>) -> State<Q> {
+        core::mem::replace(&mut self.state, state)
     }
-    /// Returns a reference to the current symbol
-    pub const fn symbol(&self) -> &S {
-        &self.symbol
-    }
-    /// Returns a mutable reference to the current symbol
-    pub fn symbol_mut(&mut self) -> &mut S {
-        &mut self.symbol
+    /// Replaces the current symbol with the given symbol, returning the previous symbol
+    pub fn replace_symbol(&mut self, symbol: S) -> S {
+        core::mem::replace(&mut self.symbol, symbol)
     }
     /// Updates the current [State] and symbol
     pub fn update(&mut self, state: Option<State<Q>>, symbol: Option<S>) {
@@ -212,6 +216,73 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "({}, {})", self.state, self.symbol)
+    }
+}
+
+impl<Q, S> PartialEq<State<Q>> for Head<Q, S>
+where
+    Q: PartialEq,
+{
+    fn eq(&self, state: &State<Q>) -> bool {
+        &self.state == state
+    }
+}
+
+impl<Q, S> PartialEq<Head<Q, S>> for State<Q>
+where
+    Q: PartialEq,
+{
+    fn eq(&self, head: &Head<Q, S>) -> bool {
+        *self == *head.state
+    }
+}
+
+impl<'a, Q, S> PartialEq<Head<Q, S>> for State<&'a Q>
+where
+    Q: PartialEq,
+{
+    fn eq(&self, head: &Head<Q, S>) -> bool {
+        *self == head.state()
+    }
+}
+
+impl<'a, Q, S> PartialEq<State<&'a Q>> for Head<Q, S>
+where
+    Q: PartialEq,
+{
+    fn eq(&self, state: &State<&'a Q>) -> bool {
+        self.state() == *state
+    }
+}
+
+impl<Q, S> PartialEq<(State<Q>, S)> for Head<Q, S>
+where
+    Q: PartialEq,
+    S: PartialEq,
+{
+    fn eq(&self, (state, symbol): &(State<Q>, S)) -> bool {
+        &self.state == state && &self.symbol == symbol
+    }
+}
+
+impl<Q, S> PartialEq<(Q, S)> for Head<Q, S>
+where
+    State<Q>: PartialEq,
+    Q: PartialEq,
+    S: PartialEq,
+{
+    fn eq(&self, (state, symbol): &(Q, S)) -> bool {
+        &self.state == state && &self.symbol == symbol
+    }
+}
+
+impl<Q, S> PartialEq<Head<Q, S>> for (State<Q>, S)
+where
+    Q: PartialEq,
+    S: PartialEq,
+{
+    fn eq(&self, head: &Head<Q, S>) -> bool {
+        head.state == self.0 && head.symbol == self.1
     }
 }
 

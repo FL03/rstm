@@ -3,18 +3,24 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Actor;
-use crate::{Error, Head, Program, Symbolic};
+use crate::{Error, Head, Ruleset, State, Symbolic};
 
-///
+/// # [Executor]
+/// 
+/// The [Executor] struct is directly responsible for the execution of a program. From a rustic
+/// perspective, the [Executor] is an iterator that reads the current symbol at the head of 
+/// the tape,
 pub struct Executor<Q, S> {
+    /// the actor that will be executing the program
     pub(crate) actor: Actor<Q, S>,
-    pub(crate) program: Program<Q, S>,
+    /// the program being executed
+    pub(crate) program: Ruleset<Q, S>,
     /// the number of steps taken by the actor
     pub(crate) steps: usize,
 }
 
 impl<Q, S> Executor<Q, S> {
-    pub(crate) fn new(actor: Actor<Q, S>, program: Program<Q, S>) -> Self {
+    pub(crate) fn new(actor: Actor<Q, S>, program: Ruleset<Q, S>) -> Self {
         Self {
             actor,
             program,
@@ -28,7 +34,7 @@ impl<Q, S> Executor<Q, S> {
     {
         Self {
             actor,
-            program: Program {
+            program: Ruleset {
                 initial_state: Default::default(),
                 rules: Vec::new(),
             },
@@ -36,12 +42,16 @@ impl<Q, S> Executor<Q, S> {
         }
     }
     /// Load a program into the executor
-    pub fn load(self, program: Program<Q, S>) -> Self {
+    pub fn load(self, program: Ruleset<Q, S>) -> Self {
         Executor { program, ..self }
     }
 
     pub const fn actor(&self) -> &Actor<Q, S> {
         &self.actor
+    }
+
+    pub fn current_state(&self) -> State<&'_ Q> {
+        self.actor.state()
     }
     /// Reads the current symbol at the head of the tape
     pub fn read(&self) -> Result<Head<&Q, &S>, Error> {
@@ -90,18 +100,24 @@ where
         }
         // read the tape
         let head = if let Ok(cur) = self.read() {
-            cur.cloned()
+            cur
         } else {
             #[cfg(feature = "tracing")]
-            tracing::warn!("Unable to locate the value of the head...");
-            Head::from_state(self.actor.state().cloned())
+            tracing::warn!("[Index Error] the current position ({pos}) of the head is out of bounds, assuming the symbol to be its default value...", pos = self.actor.head.symbol);
+            Head {
+                state: self.actor.state(),
+                symbol: &S::default(),
+            }
         };
         // execute the program
-        if let Some(tail) = self.program.get(&head).cloned() {
+        if let Some(tail) = self.program.get(head.state, head.symbol) {
+            let next = tail.as_head().cloned();
             // process the instruction
-            self.actor.process(tail.clone());
+            let _prev = self
+                .actor
+                .step(tail.direction, tail.state.clone(), tail.symbol);
             // return the head
-            return Some(tail.into_head());
+            Some(next)
         } else {
             #[cfg(feature = "tracing")]
             tracing::error!("No symbol found at {}", self.actor.position());
