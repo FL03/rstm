@@ -63,11 +63,33 @@ impl<Q, S> Executor<Q, S> {
     }
 
     /// Reads the current symbol at the head of the tape
-    pub fn read_or_default(&self) -> Head<&Q, &S> {
-        self.actor.read().unwrap_or_else(|_| Head {
-            state: self.actor.state(),
-            symbol: &S::default(),
-        })
+    pub fn read_option(&self) -> Head<&Q, Option<&S>> {
+        if let Ok(Head { state, symbol }) = self.read() {
+            Head {
+                state,
+                symbol: Some(symbol),
+            }
+        } else {
+            Head {
+                state: self.actor.state(),
+                symbol: None,
+            }
+        }
+    }
+
+    /// Reads the current symbol at the head of the tape
+    pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&S>> {
+        if let Ok(Head { state, symbol }) = self.read() {
+            Head {
+                state,
+                symbol: core::mem::MaybeUninit::new(symbol),
+            }
+        } else {
+            Head {
+                state: self.actor.state(),
+                symbol: core::mem::MaybeUninit::uninit(),
+            }
+        }
     }
 
     #[cfg_attr(

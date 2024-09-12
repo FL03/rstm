@@ -2,7 +2,7 @@
     Appellation: impl_rule <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::rule::Rule;
+use crate::rules::Rule;
 use crate::types::{Head, Tail};
 
 impl<Q, S> core::convert::AsRef<Head<Q, S>> for Rule<Q, S> {

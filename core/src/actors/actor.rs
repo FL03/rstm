@@ -186,17 +186,6 @@ impl<Q, A> Actor<Q, A> {
     }
 }
 
-use crate::traits::transform::Handle;
-use crate::Tail;
-
-impl<Q, A> Handle<Tail<Q, A>> for Actor<Q, A> {
-    type Output = Head<Q, usize>;
-
-    fn handle(&mut self, args: Tail<Q, A>) -> Self::Output {
-        self.step(args.direction, args.state, args.symbol)
-    }
-}
-
 impl<Q, S> core::fmt::Debug for Actor<Q, S>
 where
     S: core::fmt::Debug,

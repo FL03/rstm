@@ -2,7 +2,7 @@
     Appellation: impl_rule_repr <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::rule::Rule;
+use crate::rules::Rule;
 
 impl<'a, 'b, Q, A> Rule<&'a Q, &'b A> {
     pub fn cloned(&self) -> Rule<Q, A>

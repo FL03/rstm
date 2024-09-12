@@ -10,6 +10,8 @@
 pub use self::{actor::Actor, exec::Executor};
 
 pub(crate) mod actor;
+#[doc(hidden)]
+pub mod base;
 pub(crate) mod exec;
 
 pub(crate) mod prelude {
