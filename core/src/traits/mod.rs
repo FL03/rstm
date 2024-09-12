@@ -12,10 +12,6 @@ mod indexing;
 mod symbols;
 
 #[doc(hidden)]
-pub mod io;
-#[doc(hidden)]
-pub mod store;
-#[doc(hidden)]
 pub mod transform;
 
 pub(crate) mod prelude {

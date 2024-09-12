@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Actor;
-use crate::{Error, Head, Ruleset, State, Symbolic};
+use crate::{Error, Head, RuleSet, State, Symbolic};
 
 /// # [Executor]
 ///
@@ -14,13 +14,13 @@ pub struct Executor<Q, S> {
     /// the actor that will be executing the program
     pub(crate) actor: Actor<Q, S>,
     /// the program being executed
-    pub(crate) program: Ruleset<Q, S>,
+    pub(crate) program: RuleSet<Q, S>,
     /// the number of steps taken by the actor
     pub(crate) steps: usize,
 }
 
 impl<Q, S> Executor<Q, S> {
-    pub(crate) fn new(actor: Actor<Q, S>, program: Ruleset<Q, S>) -> Self {
+    pub(crate) fn new(actor: Actor<Q, S>, program: RuleSet<Q, S>) -> Self {
         Self {
             actor,
             program,
@@ -34,7 +34,7 @@ impl<Q, S> Executor<Q, S> {
     {
         Self {
             actor,
-            program: Ruleset {
+            program: RuleSet {
                 initial_state: Default::default(),
                 rules: Vec::new(),
             },
@@ -42,12 +42,16 @@ impl<Q, S> Executor<Q, S> {
         }
     }
     /// Load a program into the executor
-    pub fn load(self, program: Ruleset<Q, S>) -> Self {
+    pub fn load(self, program: RuleSet<Q, S>) -> Self {
         Executor { program, ..self }
     }
 
     pub const fn actor(&self) -> &Actor<Q, S> {
         &self.actor
+    }
+
+    pub fn steps(&self) -> usize {
+        self.steps
     }
 
     pub fn current_state(&self) -> State<&'_ Q> {
@@ -56,6 +60,14 @@ impl<Q, S> Executor<Q, S> {
     /// Reads the current symbol at the head of the tape
     pub fn read(&self) -> Result<Head<&Q, &S>, Error> {
         self.actor.read()
+    }
+
+    /// Reads the current symbol at the head of the tape
+    pub fn read_or_default(&self) -> Head<&Q, &S> {
+        self.actor.read().unwrap_or_else(|_| Head {
+            state: self.actor.state(),
+            symbol: &S::default(),
+        })
     }
 
     #[cfg_attr(

@@ -5,7 +5,7 @@
 #![cfg(feature = "std")]
 use crate::rules::Rule;
 use crate::state::RawState;
-use crate::{Direction, Error, Head, Ruleset, State};
+use crate::{Direction, Error, Head, RuleSet, State};
 
 use std::collections::hash_map::{self, HashMap};
 
@@ -13,7 +13,7 @@ pub struct TMH<Q, A = char>
 where
     Q: RawState,
 {
-    pub(crate) program: Ruleset<Q, A>,
+    pub(crate) program: RuleSet<Q, A>,
     pub(crate) scope: Head<Q, isize>, // Head<Q, *const A::Elem>,
     pub(crate) tape: HashMap<isize, A>,
 }
@@ -24,7 +24,7 @@ where
 {
     pub fn new(initial_state: State<Q>) -> Self {
         Self {
-            program: Ruleset::new(),
+            program: RuleSet::new(),
             scope: Head {
                 state: initial_state,
                 symbol: 0,
@@ -41,7 +41,7 @@ where
             ..self
         }
     }
-    pub fn with_program(self, program: Ruleset<Q, A>) -> Self {
+    pub fn with_program(self, program: RuleSet<Q, A>) -> Self {
         Self { program, ..self }
     }
 

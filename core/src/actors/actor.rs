@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::Executor;
-use crate::rules::Ruleset;
+use crate::rules::RuleSet;
 use crate::{Direction, Error, Head, State};
 
 /// An [Actor] is an implementation of a Turing machine with a moving head (TMH).
@@ -71,7 +71,7 @@ impl<Q, A> Actor<Q, A> {
         &self.tape
     }
     /// Returns a mutable reference of the tape as a slice
-    pub fn tape_mu(&mut self) -> &mut [A] {
+    pub fn tape_mut(&mut self) -> &mut [A] {
         &mut self.tape
     }
     /// Returns an immutable reference to the head of the tape
@@ -104,7 +104,7 @@ impl<Q, A> Actor<Q, A> {
     }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
-    pub fn execute(self, program: Ruleset<Q, A>) -> Executor<Q, A> {
+    pub fn execute(self, program: RuleSet<Q, A>) -> Executor<Q, A> {
         Executor::new(self, program)
     }
     /// Checks if the tape is empty

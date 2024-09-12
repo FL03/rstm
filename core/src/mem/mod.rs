@@ -6,11 +6,15 @@
 //!
 //!
 #[doc(inline)]
-pub use self::store::*;
+pub use self::memory::*;
 
+pub mod memory;
+#[doc(hidden)]
 pub mod store;
 pub mod tape;
 
 pub(crate) mod prelude {
     pub use super::tape::prelude::*;
 }
+
+pub(crate) type Cell<Q, S> = crate::Head<Q, S>;

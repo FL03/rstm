@@ -41,4 +41,3 @@ impl<T, U> Apply<T, U> for Option<T> {
         self.map(f)
     }
 }
-

@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use crate::prelude::{Direction, Error, Head, Rule, StdTape, Symbolic, Tail};
-use crate::rules::Ruleset;
+use crate::rules::RuleSet;
 use crate::state::{halt::HaltState, RawState, State};
 
 /// # Turing Machine ([StdTm])
@@ -14,7 +14,7 @@ use crate::state::{halt::HaltState, RawState, State};
 #[derive(Clone, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub struct StdTM<Q, A> {
-    pub(crate) program: Ruleset<Q, A>,
+    pub(crate) program: RuleSet<Q, A>,
     pub(crate) state: State<Option<Q>>,
     pub(crate) tape: StdTape<A>,
 }
@@ -25,13 +25,13 @@ impl<Q, A> StdTM<Q, A> {
         A: Default,
     {
         StdTM {
-            program: Ruleset::from_iter(rules),
+            program: RuleSet::from_iter(rules),
             state: State::none(),
             tape,
         }
     }
     /// Returns an immutable reference to the [program](Program)
-    pub const fn program(&self) -> &Ruleset<Q, A> {
+    pub const fn program(&self) -> &RuleSet<Q, A> {
         &self.program
     }
     /// Creates a new instance of a [head](Head) from references to the current state and symbol;

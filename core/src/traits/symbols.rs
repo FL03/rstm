@@ -25,7 +25,7 @@ pub trait Alphabet {
         self.as_slice().len()
     }
 
-    fn to_vec(&self) -> Vec<Self::Elem>;
+    fn to_vec(&self) -> Vec<(K, Self::Elem)>;
 }
 
 /// [Symbolic] is a trait denoting types that can be used as symbols;

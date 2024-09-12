@@ -4,14 +4,6 @@
 */
 use crate::{Direction, Head, State};
 
-/// [Handle] is a generic trait describing objects capable of handling some input and producing
-/// some output.
-pub trait Handle<T> {
-    type Output;
-
-    fn handle(&mut self, args: T) -> Self::Output;
-}
-
 /// [TM]
 pub trait TM<Q, A> {
     type Idx: Copy + core::ops::Add<Direction, Output = Self::Idx>;
@@ -35,24 +27,14 @@ pub trait TM<Q, A> {
     }
 }
 
-pub trait Driver<Q, A> {
-    type Head;
-
-    fn read(&self) -> Option<A>;
-
-    fn scope(&self) -> Head<&'_ Q, &'_ A>;
-
-    fn write(&mut self, symbol: A) -> Option<A>;
-}
-
-pub trait Read {
+pub trait Reader {
     type Output;
 
     fn read(&self) -> Self::Output;
 }
 
-pub trait Write {
+pub trait WriteMut<T> {
     type Output;
 
-    fn write(&self) -> Self::Output;
+    fn write(&mut self, data: T) -> Option<Self::Output>;
 }
