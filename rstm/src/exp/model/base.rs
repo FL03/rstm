@@ -120,6 +120,5 @@ impl<Q, A> StdTM<Q, A> {
             tracing::trace!("Head is halted, terminating execution...");
             return None;
         }
-        
     }
 }

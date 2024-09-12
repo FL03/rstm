@@ -8,10 +8,10 @@ use core::cell::Cell;
 #[cfg(feature = "alloc")]
 use alloc::vec::Vec;
 
-/// # [StdTape] 
-/// 
+/// # [StdTape]
+///
 /// [StdTae] is a basic implementation of a tape, a one-dimensional surface evenly divided into
-/// cells capable of storing symbols. The tape is infinite in both directions allowing the 
+/// cells capable of storing symbols. The tape is infinite in both directions allowing the
 /// head, or actor, to move without bounds, extending the tape as needed.
 ///
 /// Here, the tape employs the use of a [Vec] to store symbols while leveraging a

@@ -2,6 +2,14 @@
     Appellation: container <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+use crate::{Rule, State};
+
+#[doc(hidden)]
+pub trait GetRule<Q, S> {
+    fn get(&self, state: State<&Q>, symbol: &S) -> Option<&Rule<Q, S>>;
+
+    fn get_mut(&mut self, state: State<&Q>, symbol: &S) -> Option<&mut Rule<Q, S>>;
+}
 
 pub trait RawContainer {
     type Elem;

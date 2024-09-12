@@ -6,9 +6,9 @@ use super::Actor;
 use crate::{Error, Head, Ruleset, State, Symbolic};
 
 /// # [Executor]
-/// 
+///
 /// The [Executor] struct is directly responsible for the execution of a program. From a rustic
-/// perspective, the [Executor] is an iterator that reads the current symbol at the head of 
+/// perspective, the [Executor] is an iterator that reads the current symbol at the head of
 /// the tape,
 pub struct Executor<Q, S> {
     /// the actor that will be executing the program
