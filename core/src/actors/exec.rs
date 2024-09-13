@@ -2,7 +2,7 @@
     Appellation: exec <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Actor;
+use super::{Actor, Handle};
 use crate::{Error, Head, RuleSet, State, Symbolic};
 
 /// # [Executor]
@@ -63,21 +63,6 @@ impl<Q, S> Executor<Q, S> {
     }
 
     /// Reads the current symbol at the head of the tape
-    pub fn read_option(&self) -> Head<&Q, Option<&S>> {
-        if let Ok(Head { state, symbol }) = self.read() {
-            Head {
-                state,
-                symbol: Some(symbol),
-            }
-        } else {
-            Head {
-                state: self.actor.state(),
-                symbol: None,
-            }
-        }
-    }
-
-    /// Reads the current symbol at the head of the tape
     pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&S>> {
         if let Ok(Head { state, symbol }) = self.read() {
             Head {
@@ -86,7 +71,7 @@ impl<Q, S> Executor<Q, S> {
             }
         } else {
             Head {
-                state: self.actor.state(),
+                state: self.current_state(),
                 symbol: core::mem::MaybeUninit::uninit(),
             }
         }
@@ -144,14 +129,13 @@ where
             }
         };
         // execute the program
-        if let Some(tail) = self.program.get(head.state, head.symbol) {
+        if let Some(tail) = self.program.get(head.state, head.symbol).cloned() {
+            // process the instruction
             let next = tail.as_head().cloned();
             // process the instruction
-            let _prev = self
-                .actor
-                .step(tail.direction, tail.state.clone(), tail.symbol);
+            let _prev = self.handle(tail);
             // return the head
-            Some(next)
+            return Some(next);
         } else {
             #[cfg(feature = "tracing")]
             tracing::error!("No symbol found at {}", self.actor.position());

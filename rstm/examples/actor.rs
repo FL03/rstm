@@ -13,16 +13,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // initialize the state of the machine
     let initial_state = State(0isize);
     // define the ruleset for the machine
-    let rules = ruleset![
+    let program: RuleSet<isize, u8> = ruleset! {
         (0, 0) -> Right(1, 0),
         (0, 1) -> Right(-1, 1),
         (1, 0) -> Right(0, 1),
         (1, 1) -> Right(-1, 0),
         (-1, 0) -> Left(0, 0),
         (-1, 1) -> Left(1, 1),
-    ];
-    // create a new program from the ruleset
-    let program = RuleSet::from_iter(rules);
+    };
     // create a new instance of the machine
     let tm = dbg!(Actor::new(alpha, initial_state, 0));
     tm.execute(program).run()?;

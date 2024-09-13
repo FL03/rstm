@@ -4,28 +4,23 @@
 */
 extern crate rstm_core as rstm;
 
-use rstm::actors::Actor;
-use rstm::rules::{Rule, RuleSet};
-use rstm::{ruleset, State};
+use rstm::{ruleset, Actor, RuleSet, State};
 
-lazy_static::lazy_static! {
-    static ref RULES: [Rule<isize, usize>; 6] = ruleset![
-        (0, 0) -> Right(1, 1),
-        (0, 1) -> Left(-1, 0),
-        (1, 0) -> Right(1, 1),
-        (1, 1) -> Left(-1, 1),
-        (-1, 0) -> Right(0, 0),
-        (-1, 1) -> Left(0, 1),
-    ];
-
-}
 
 #[test]
 fn busy_beaver() {
     let initial_state = State(0_isize);
     let input = [0_usize; 10];
 
-    let program = RuleSet::from_iter(*RULES);
+    let program: RuleSet<isize, usize> = ruleset! {
+        initial_state(*initial_state);
+        (0, 0) -> Right(1, 1),
+        (0, 1) -> Left(-1, 0),
+        (1, 0) -> Right(1, 1),
+        (1, 1) -> Left(-1, 1),
+        (-1, 0) -> Right(0, 0),
+        (-1, 1) -> Left(0, 1),
+    };
 
     let actor = Actor::from_state(initial_state).with_alpha(input);
     let mut rt = actor.execute(program);

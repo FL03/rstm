@@ -10,16 +10,13 @@ pub(crate) mod head;
 pub(crate) mod tail;
 
 #[doc(hidden)]
-pub mod cell;
-#[doc(hidden)]
-pub mod snapshot;
-#[doc(hidden)]
 pub mod transition;
 
 pub(crate) mod prelude {
     pub use super::direction::*;
     pub use super::head::Head;
     pub use super::tail::Tail;
+    pub use super::Result;
 }
 
 /// A type alias for a [Result] with our custom error type: [`Error`](crate::Error)
