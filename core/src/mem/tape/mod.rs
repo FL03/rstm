@@ -7,16 +7,21 @@
 //! Idealized Turing machines consider a tape, or memory, that is infinite in both directions.
 //! This tape is a one-dimensional array of symbols manipulated by the tape head according to
 //! some set of pre-defined rules.
-#[doc(inline)]
-pub use self::tape::StdTape;
-
-pub(crate) mod tape;
-
 #[cfg(feature = "std")]
+#[doc(inline)]
+pub use self::hash_tape::HashTape;
+#[cfg(feature = "alloc")]
+#[doc(inline)]
+pub use self::std_tape::StdTape;
+
 pub mod hash_tape;
+pub mod std_tape;
 
 pub(crate) mod prelude {
-    pub use super::tape::StdTape;
+    #[cfg(feature = "std")]
+    pub use super::hash_tape::HashTape;
+    #[cfg(feature = "alloc")]
+    pub use super::std_tape::StdTape;
 }
 
 use core::option::Option;

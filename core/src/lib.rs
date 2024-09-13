@@ -25,9 +25,9 @@ extern crate alloc;
 
 #[doc(inline)]
 pub use self::{
-    actors::Actor,
+    actors::{Actor, Executor, Handle},
     error::Error,
-    rules::{Rule, Ruleset},
+    rules::{Rule, RuleSet},
     state::State,
     traits::prelude::*,
     types::prelude::*,

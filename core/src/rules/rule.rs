@@ -2,8 +2,7 @@
     Appellation: instruction <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::RuleBuilder;
-
+pub use self::builder::RuleBuilder;
 use crate::{Head, State, Tail};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
@@ -75,121 +74,84 @@ impl<Q, A> Rule<Q, A> {
     }
 }
 
-impl<'a, Q, A> Rule<&'a Q, &'a A> {
-    pub fn cloned(&self) -> Rule<Q, A>
-    where
-        Q: Clone,
-        A: Clone,
-    {
-        Rule {
-            head: self.head.cloned(),
-            tail: self.tail.cloned(),
+mod builder {
+    use crate::rules::Rule;
+    use crate::{Direction, State};
+
+    #[derive(Default)]
+    pub struct RuleBuilder<Q, S> {
+        direction: Direction,
+        state: Option<State<Q>>,
+        symbol: Option<S>,
+        next_state: Option<State<Q>>,
+        write_symbol: Option<S>,
+    }
+
+    impl<Q, S> RuleBuilder<Q, S> {
+        pub fn new() -> Self {
+            Self {
+                direction: Direction::Right,
+                state: None,
+                symbol: None,
+                next_state: None,
+                write_symbol: None,
+            }
+        }
+
+        pub fn direction(self, direction: Direction) -> Self {
+            Self { direction, ..self }
+        }
+
+        pub fn left(self) -> Self {
+            self.direction(Direction::Left)
+        }
+
+        pub fn state(self, state: State<Q>) -> Self {
+            Self {
+                state: Some(state),
+                ..self
+            }
+        }
+
+        pub fn symbol(self, symbol: S) -> Self {
+            Self {
+                symbol: Some(symbol),
+                ..self
+            }
+        }
+
+        pub fn next_state(self, State(state): State<Q>) -> Self {
+            Self {
+                next_state: Some(State(state)),
+                ..self
+            }
+        }
+
+        pub fn write_symbol(self, write_symbol: S) -> Self {
+            Self {
+                write_symbol: Some(write_symbol),
+                ..self
+            }
+        }
+
+        pub fn build(self) -> Rule<Q, S> {
+            Rule {
+                head: crate::Head {
+                    state: self.state.expect("state is required"),
+                    symbol: self.symbol.expect("symbol is required"),
+                },
+                tail: crate::Tail {
+                    direction: self.direction,
+                    state: self.next_state.expect("next_state is required"),
+                    symbol: self.write_symbol.expect("write_symbol is required"),
+                },
+            }
         }
     }
 
-    pub fn copied(&self) -> Rule<Q, A>
-    where
-        Q: Copy,
-        A: Copy,
-    {
-        Rule {
-            head: self.head.copied(),
-            tail: self.tail.copied(),
-        }
-    }
-}
-
-mod impls {
-    use super::Rule;
-    use crate::{Head, Tail};
-
-    impl<Q, S> core::convert::AsRef<Head<Q, S>> for Rule<Q, S> {
-        fn as_ref(&self) -> &Head<Q, S> {
-            self.head()
-        }
-    }
-
-    impl<Q, S> core::convert::AsRef<Tail<Q, S>> for Rule<Q, S> {
-        fn as_ref(&self) -> &Tail<Q, S> {
-            self.tail()
-        }
-    }
-
-    impl<Q, S> core::convert::AsMut<Head<Q, S>> for Rule<Q, S> {
-        fn as_mut(&mut self) -> &mut Head<Q, S> {
-            self.head_mut()
-        }
-    }
-
-    impl<Q, S> core::convert::AsMut<Tail<Q, S>> for Rule<Q, S> {
-        fn as_mut(&mut self) -> &mut Tail<Q, S> {
-            self.tail_mut()
-        }
-    }
-
-    impl<Q, S> core::borrow::Borrow<Head<Q, S>> for Rule<Q, S> {
-        fn borrow(&self) -> &Head<Q, S> {
-            self.head()
-        }
-    }
-
-    impl<Q, S> core::borrow::Borrow<Tail<Q, S>> for Rule<Q, S> {
-        fn borrow(&self) -> &Tail<Q, S> {
-            self.tail()
-        }
-    }
-
-    impl<Q, S> core::borrow::BorrowMut<Head<Q, S>> for Rule<Q, S> {
-        fn borrow_mut(&mut self) -> &mut Head<Q, S> {
-            self.head_mut()
-        }
-    }
-
-    impl<Q, S> core::borrow::BorrowMut<Tail<Q, S>> for Rule<Q, S> {
-        fn borrow_mut(&mut self) -> &mut Tail<Q, S> {
-            self.tail_mut()
-        }
-    }
-
-    impl<Q, S> PartialEq<(Head<Q, S>, Tail<Q, S>)> for Rule<Q, S>
-    where
-        Q: PartialEq,
-        S: PartialEq,
-    {
-        fn eq(&self, other: &(Head<Q, S>, Tail<Q, S>)) -> bool {
-            self.head == other.0 && self.tail == other.1
-        }
-    }
-
-    impl<Q, S> PartialEq<Head<Q, S>> for Rule<Q, S>
-    where
-        Q: PartialEq,
-        S: PartialEq,
-    {
-        fn eq(&self, other: &Head<Q, S>) -> bool {
-            &self.head == other
-        }
-    }
-
-    impl<Q, S> PartialEq<Tail<Q, S>> for Rule<Q, S>
-    where
-        Q: PartialEq,
-        S: PartialEq,
-    {
-        fn eq(&self, other: &Tail<Q, S>) -> bool {
-            &self.tail == other
-        }
-    }
-
-    impl<Q, S> From<(Head<Q, S>, Tail<Q, S>)> for Rule<Q, S> {
-        fn from((head, tail): (Head<Q, S>, Tail<Q, S>)) -> Self {
-            Self { head, tail }
-        }
-    }
-
-    impl<Q, S> From<Rule<Q, S>> for (Head<Q, S>, Tail<Q, S>) {
-        fn from(rule: Rule<Q, S>) -> Self {
-            (rule.head, rule.tail)
+    impl<Q, S> From<RuleBuilder<Q, S>> for Rule<Q, S> {
+        fn from(builder: RuleBuilder<Q, S>) -> Self {
+            builder.build()
         }
     }
 }

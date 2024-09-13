@@ -64,7 +64,7 @@ thiserror.workspace = true
 [dependencies.rstm-core]
 default-features = false
 path = "../core"
-version = "0.0.4"
+version = "0.0.5"
 
 [dependencies.serde]
 default-features = false

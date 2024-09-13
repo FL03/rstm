@@ -21,7 +21,10 @@ pub trait Shift<T> {
     fn shift(&self, step: T) -> Self::Output;
 }
 
-pub trait ApplyOnce<T, F> where F: FnOnce(T) -> Self::Output {
+pub trait ApplyOnce<T, F>
+where
+    F: FnOnce(T) -> Self::Output,
+{
     type Output;
 
     fn apply(&self, f: F, args: T) -> F::Output;
