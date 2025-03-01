@@ -2,16 +2,12 @@
     Appellation: actors <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-//! # Actors
-//!
-//! An actor describes an abstract model of computation that may find the solution to any
-//! computable sequence, or algorithm.
+//! This modules implements an [Actor] struct, which is a Turing machine with a moving head 
+//! (TMH).
 #[doc(inline)]
 pub use self::{actor::Actor, exec::Executor};
 
 pub(crate) mod actor;
-#[doc(hidden)]
-pub mod base;
 pub(crate) mod exec;
 
 pub(crate) mod prelude {
