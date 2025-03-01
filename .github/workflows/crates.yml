@@ -1,11 +1,10 @@
-name: crates
+name: crates-io
 
 concurrency:
   cancel-in-progress: false
   group: ${{ github.workflow }}-${{ github.ref }}
 
 env:
-  BASENAME: ${{ github.event.repository.name }}
   CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
   CARGO_TERM_COLOR: always
 
@@ -17,21 +16,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  base:
+  release:
     env:
-      CRATE_NAME: ${{ github.event.repository.name }}-${{ matrix.suffix }}
-    name: Publish Base Modules
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        suffix: [ core ]
-    steps:
-      - uses: actions/checkout@v4
-      - run: cargo publish --all-features -v -p ${{ env.CRATE_NAME }}
-  publish:
-    name: Publish SDK
-    needs: base
+      BASENAME: ${{ github.event.repository.name }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: cargo publish --all-features -v -p ${{ github.event.repository.name }} --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - 
+        name: rustup
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          cache-workspaces: true
+      - run: |
+          cargo publish --all-features -v -p ${{ github.event.repository.name }}-core
+          cargo publish --all-features -v -p ${{ github.event.repository.name }}

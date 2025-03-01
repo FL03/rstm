@@ -11,8 +11,8 @@ updates:
   - package-ecosystem: cargo
     directory: /rstm
     schedule:
-      interval: weekly
+      interval: monthly
   - package-ecosystem: cargo
     directory: /core
     schedule:
-      interval: weekly
+      interval: monthly

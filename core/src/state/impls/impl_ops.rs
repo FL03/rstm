@@ -22,7 +22,7 @@ where
     type Output = State<<&'a Q as core::ops::Neg>::Output>;
 
     fn neg(self) -> Self::Output {
-        State(core::ops::Neg::neg(self.get_ref()))
+        State(core::ops::Neg::neg(self.get()))
     }
 }
 
@@ -44,13 +44,13 @@ where
     type Output = State<<&'a Q as core::ops::Not>::Output>;
 
     fn not(self) -> Self::Output {
-        State(core::ops::Not::not(self.get_ref()))
+        State(core::ops::Not::not(self.get()))
     }
 }
 
-impl<Q> num::traits::Num for State<Q>
+impl<Q> num_traits::Num for State<Q>
 where
-    Q: num::traits::Num,
+    Q: num_traits::Num,
 {
     type FromStrRadixErr = Q::FromStrRadixErr;
 
@@ -59,9 +59,9 @@ where
     }
 }
 
-impl<Q> num::traits::One for State<Q>
+impl<Q> num_traits::One for State<Q>
 where
-    Q: PartialEq + num::traits::One,
+    Q: PartialEq + num_traits::One,
 {
     fn one() -> Self {
         State(Q::one())
@@ -72,9 +72,9 @@ where
     }
 }
 
-impl<Q> num::traits::Zero for State<Q>
+impl<Q> num_traits::Zero for State<Q>
 where
-    Q: num::traits::Zero,
+    Q: num_traits::Zero,
 {
     fn zero() -> Self {
         State(Q::zero())
@@ -85,152 +85,32 @@ where
     }
 }
 
-macro_rules! impl_assign_ops {
-    (@impl $trait:ident::$call:ident) => {
-        impl<Q: ::core::ops::$trait> ::core::ops::$trait for $crate::state::State<Q> {
-            fn $call(&mut self, rhs: $crate::state::State<Q>) {
-                ::core::ops::$trait::$call(self.get_mut(), rhs.get())
-            }
-        }
-
-        impl<Q: ::core::ops::$trait> ::core::ops::$trait<Q> for $crate::state::State<Q> {
-            fn $call(&mut self, rhs: Q) {
-                ::core::ops::$trait::$call(self.get_mut(), rhs)
-            }
-        }
-    };
-    (alt: $($trait:ident::$call:ident),* $(,)?) => {
-        paste::paste! {
-            impl_assign_ops!($([<$trait Assign>]::[<$call _assign>]),*);
-        }
-    };
-    ($($trait:ident::$call:ident),* $(,)?) => {
-        $(
-            impl_assign_ops!(@impl $trait::$call);
-        )*
-    };
+impl_assign_op! {
+    State(
+        AddAssign::add_assign,
+        SubAssign::sub_assign,
+        MulAssign::mul_assign,
+        DivAssign::div_assign,
+        RemAssign::rem_assign,
+        BitAndAssign::bitand_assign,
+        BitOrAssign::bitor_assign,
+        BitXorAssign::bitxor_assign,
+        ShlAssign::shl_assign,
+        ShrAssign::shr_assign,
+    )
 }
 
-macro_rules! impl_ops {
-    (@impl $trait:ident::$call:ident) => {
-        impl<Q> ::core::ops::$trait for State<Q>
-        where
-            Q: ::core::ops::$trait,
-        {
-            type Output = State<Q::Output>;
-
-            fn $call(self, rhs: State<Q>) -> Self::Output {
-                State(::core::ops::$trait::$call(self.get(), rhs.get()))
-            }
-        }
-
-        impl<'a, Q> ::core::ops::$trait<&'a State<Q>> for State<Q>
-        where
-            Q: ::core::ops::$trait<&'a Q>,
-        {
-            type Output = State<Q::Output>;
-
-            fn $call(self, rhs: &'a State<Q>) -> Self::Output {
-                State(::core::ops::$trait::$call(self.get(), rhs.get_ref()))
-            }
-        }
-
-        impl<'a, Q> ::core::ops::$trait<State<Q>> for &'a State<Q>
-        where
-            &'a Q: ::core::ops::$trait<Q>,
-        {
-            type Output = State<<&'a Q as ::core::ops::$trait<Q>>::Output>;
-
-            fn $call(self, rhs: State<Q>) -> Self::Output {
-                State(::core::ops::$trait::$call(self.get_ref(), rhs.get()))
-            }
-        }
-
-        impl<'a, Q> ::core::ops::$trait<&'a State<Q>> for &'a State<Q>
-        where
-            &'a Q: ::core::ops::$trait<&'a Q>,
-        {
-            type Output = State<<&'a Q as ::core::ops::$trait<&'a Q>>::Output>;
-
-            fn $call(self, rhs: &'a State<Q>) -> Self::Output {
-                State(::core::ops::$trait::$call(self.get_ref(), rhs.get_ref()))
-            }
-        }
-    };
-    (@inner $trait:ident::$call:ident) => {
-        impl<Q> ::core::ops::$trait<Q> for State<Q>
-        where
-            Q: ::core::ops::$trait,
-        {
-            type Output = State<Q::Output>;
-
-            fn $call(self, rhs: Q) -> Self::Output {
-                State(::core::ops::$trait::$call(self.get(), rhs))
-            }
-        }
-
-        impl<'a, Q> ::core::ops::$trait<&'a Q> for State<Q>
-        where
-            Q: ::core::ops::$trait<&'a Q>,
-        {
-            type Output = State<Q::Output>;
-
-            fn $call(self, rhs: &'a Q) -> Self::Output {
-                State(::core::ops::$trait::$call(self.get(), rhs))
-            }
-        }
-
-        impl<'a, Q> ::core::ops::$trait<Q> for State<&'a Q>
-        where
-            &'a Q: ::core::ops::$trait<Q>,
-        {
-            type Output = State<<&'a Q as ::core::ops::$trait<Q>>::Output>;
-
-            fn $call(self, rhs: Q) -> Self::Output {
-                State(::core::ops::$trait::$call(self.get(), rhs))
-            }
-        }
-
-        impl<'a, Q> ::core::ops::$trait<Q> for &'a State<Q>
-        where
-            &'a Q: ::core::ops::$trait<Q>,
-        {
-            type Output = State<<&'a Q as ::core::ops::$trait<Q>>::Output>;
-
-            fn $call(self, rhs: Q) -> Self::Output {
-                State(::core::ops::$trait::$call(self.get_ref(), rhs))
-            }
-        }
-
-        impl<'a, Q> ::core::ops::$trait<&'a Q> for &'a State<Q>
-        where
-            &'a Q: ::core::ops::$trait<&'a Q>,
-        {
-            type Output = State<<&'a Q as ::core::ops::$trait<&'a Q>>::Output>;
-
-            fn $call(self, rhs: &'a Q) -> Self::Output {
-                State(::core::ops::$trait::$call(self.get_ref(), rhs))
-            }
-        }
-    };
-    ($($trait:ident::$call:ident),* $(,)?) => {
-        $(
-            impl_ops!(@impl $trait::$call);
-            impl_ops!(@inner $trait::$call);
-            impl_assign_ops!(alt: $trait::$call);
-        )*
-    };
-}
-
-impl_ops! {
-    Add::add,
-    BitAnd::bitand,
-    BitOr::bitor,
-    BitXor::bitxor,
-    Div::div,
-    Mul::mul,
-    Rem::rem,
-    Shl::shl,
-    Shr::shr,
-    Sub::sub,
+impl_bin_op! {
+    State(
+        Add::add,
+        Sub::sub,
+        Mul::mul,
+        Div::div,
+        Rem::rem,
+        BitAnd::bitand,
+        BitOr::bitor,
+        BitXor::bitxor,
+        Shl::shl,
+        Shr::shr,
+    )
 }

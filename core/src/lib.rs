@@ -26,9 +26,10 @@ extern crate alloc;
 #[doc(inline)]
 pub use self::{
     actors::{Actor, Executor, Handle},
-    error::Error,
+    error::{Error, Result},
+    ops::prelude::*,
     rules::{Rule, RuleSet},
-    state::State,
+    state::{Halt, State},
     traits::prelude::*,
     types::prelude::*,
 };
@@ -37,12 +38,13 @@ pub use self::{
 #[macro_use]
 pub(crate) mod macros {
     #[macro_use]
-    pub mod fmt;
+    pub mod get;
     #[macro_use]
     pub mod rules;
     #[macro_use]
-    pub mod states;
+    pub mod wrap;
 }
+#[doc(hidden)]
 #[macro_use]
 pub(crate) mod seal;
 
@@ -51,13 +53,56 @@ pub mod error;
 pub mod mem;
 pub mod rules;
 pub mod state;
-pub mod traits;
-pub mod types;
+
+pub mod ops {
+    #[doc(inline)]
+    pub use self::prelude::*;
+
+    pub mod apply;
+    pub mod increment;
+
+    pub(crate) mod prelude {
+        pub use super::apply::*;
+        pub use super::increment::*;
+    }
+}
+
+pub mod traits {
+    #[doc(inline)]
+    pub use self::prelude::*;
+
+    pub mod convert;
+    pub mod symbols;
+
+    pub(crate) mod prelude {
+        pub use super::convert::*;
+        pub use super::symbols::*;
+    }
+}
+
+pub mod types {
+    #[doc(inline)]
+    pub use self::prelude::*;
+
+    pub mod direction;
+    pub mod head;
+    pub mod tail;
+
+    #[doc(hidden)]
+    pub mod transition;
+
+    pub(crate) mod prelude {
+        pub use super::direction::*;
+        pub use super::head::*;
+        pub use super::tail::*;
+    }
+}
 
 pub mod prelude {
     pub use super::actors::prelude::*;
     pub use super::error::Error;
     pub use super::mem::prelude::*;
+    pub use super::ops::prelude::*;
     pub use super::rules::prelude::*;
     pub use super::state::prelude::*;
     pub use super::traits::prelude::*;

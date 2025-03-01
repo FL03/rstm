@@ -18,9 +18,6 @@ extern crate alloc;
 #[doc(inline)]
 pub use rstm_core::*;
 
-#[doc(hidden)]
-pub mod exp;
-
 pub mod prelude {
     pub use rstm_core::prelude::*;
 }

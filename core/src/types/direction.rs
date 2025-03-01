@@ -14,6 +14,7 @@
     Ord,
     PartialEq,
     PartialOrd,
+    scsys_derive::VariantConstructors,
     strum::AsRefStr,
     strum::Display,
     strum::EnumCount,
@@ -22,7 +23,10 @@
     strum::VariantArray,
     strum::VariantNames,
 )]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde_derive::Deserialize, serde_derive::Serialize)
+)]
 #[strum(serialize_all = "lowercase")]
 pub enum Direction {
     /// Represents a single left shift
@@ -67,18 +71,6 @@ pub enum Direction {
  ************* Implementations *************
 */
 impl Direction {
-    /// A functional constructor for [Direction::Left].
-    pub fn left() -> Self {
-        Self::Left
-    }
-    /// A functional constructor for [Direction::Right].
-    pub fn right() -> Self {
-        Self::Right
-    }
-    /// A functional constructor for [Direction::Stay].
-    pub fn stay() -> Self {
-        Self::Stay
-    }
     /// Converts an [i8] value into a [`Direction`] by taking the modulus of the value.
     /// The function uses a modulator of 2 to determine the direction since there are
     /// only two actionable directions ([left](Direction::Left) and [right](Direction::Right)).

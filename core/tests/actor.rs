@@ -4,8 +4,7 @@
 */
 extern crate rstm_core as rstm;
 
-use rstm::{ruleset, Actor, RuleSet, State};
-
+use rstm::{Actor, RuleSet, State, ruleset};
 
 #[test]
 fn busy_beaver() {

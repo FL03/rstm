@@ -103,6 +103,11 @@ impl<Q, S> Head<Q, S> {
     pub fn replace_symbol(&mut self, symbol: S) -> S {
         core::mem::replace(&mut self.symbol, symbol)
     }
+
+    pub fn swap(&mut self, other: &mut Self) {
+        core::mem::swap(&mut self.state, &mut other.state);
+        core::mem::swap(&mut self.symbol, &mut other.symbol);
+    }
     /// Updates the current [State] and symbol
     pub fn update(&mut self, state: Option<State<Q>>, symbol: Option<S>) {
         if let Some(state) = state {
