@@ -12,22 +12,6 @@ pub trait Apply<T, U> {
         F: FnOnce(T) -> U;
 }
 
-pub trait ApplyMut<T, U> {
-    type Output;
-
-    fn apply<F>(&mut self, f: F) -> Self::Output
-    where
-        F: FnMut(&T) -> U;
-}
-
-pub trait ApplyRef<T, U> {
-    type Output;
-
-    fn apply<F>(&self, f: F) -> Self::Output
-    where
-        F: Fn(&T) -> U;
-}
-
 /*
  ************* Implementations *************
 */

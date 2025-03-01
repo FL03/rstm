@@ -64,8 +64,12 @@ impl<Q> State<MaybeUninit<Q>> {
         Self(MaybeUninit::uninit())
     }
     /// Converts the state into a new instance of [State] with an initialized state.
-    pub fn assume_init(self) -> State<Q> {
-        State(unsafe { self.get().assume_init() })
+    pub unsafe fn assume_init(self) -> State<Q> {
+        State(unsafe { self.into_inner().assume_init() })
+    }
+    /// determines if the inner state is null; returns false if the inner state is not null.
+    pub fn is_null(&self) -> bool {
+        self.get().as_ptr().is_null()
     }
     /// Writes a value to the inner state.
     pub fn write(&mut self, value: Q) -> &mut Q {
@@ -90,11 +94,11 @@ impl State<bool> {
     }
 
     pub fn is_true(&self) -> bool {
-        self.get()
+        self.into_inner()
     }
 
     pub fn is_false(&self) -> bool {
-        !self.get()
+        !self.into_inner()
     }
 }
 
@@ -105,10 +109,10 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.get()
+        self.into_inner()
             .downcast()
             .map(State)
-            .map_err(|_| Error::type_error("Failed to downcast state"))
+            .map_err(|_| Error::TypeError("Failed to downcast state".to_string()))
     }
     /// Returns an immutable reference to the state if it is of type `Q`; returns `None`
     /// otherwise.
@@ -116,7 +120,7 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.get_ref().downcast_ref().map(State)
+        self.get().downcast_ref().map(State)
     }
 
     /// Returns a mutable reference to the state if it is of type `Q`; returns `None`
@@ -147,6 +151,6 @@ impl<Q> State<Halt<Q>> {
     }
     /// Converts the halted state into an unhalted state.
     pub fn unhalt(self) -> State<Q> {
-        State(self.get().get())
+        State(self.into_inner().get())
     }
 }

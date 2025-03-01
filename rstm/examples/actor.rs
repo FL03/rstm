@@ -4,7 +4,7 @@
 */
 extern crate rstm;
 
-use rstm::{ruleset, Actor, RuleSet, State};
+use rstm::{Actor, RuleSet, State, ruleset};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     _tracing("debug");
