@@ -39,11 +39,13 @@ macro_rules! ruleset {
             .next_state($crate::State($next))
             .build()
     };
-    [$( ($state:expr, $symbol:literal $(,)?) -> $direction:ident($next:expr, $write:literal $(,)?)  ),* $(,)?] => {
-        [
+    {$(initial_state($q:expr);)? $(  ($state:expr, $symbol:literal $(,)?) -> $direction:ident($next:expr, $write:literal $(,)?)  ),* $(,)?} => {
+        $crate::rules::RuleSet::from_iter([
             $(
                 $crate::ruleset![@base ($state, $symbol) -> $direction($next, $write)],
             )*
-        ]
+        ])$(
+            .with_initial_state($crate::State($q))
+        )?
     };
 }

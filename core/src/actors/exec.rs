@@ -2,25 +2,25 @@
     Appellation: exec <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Actor;
-use crate::{Error, Head, Ruleset, State, Symbolic};
+use super::{Actor, Handle};
+use crate::{Error, Head, RuleSet, State, Symbolic};
 
 /// # [Executor]
-/// 
+///
 /// The [Executor] struct is directly responsible for the execution of a program. From a rustic
-/// perspective, the [Executor] is an iterator that reads the current symbol at the head of 
+/// perspective, the [Executor] is an iterator that reads the current symbol at the head of
 /// the tape,
 pub struct Executor<Q, S> {
     /// the actor that will be executing the program
     pub(crate) actor: Actor<Q, S>,
     /// the program being executed
-    pub(crate) program: Ruleset<Q, S>,
+    pub(crate) program: RuleSet<Q, S>,
     /// the number of steps taken by the actor
     pub(crate) steps: usize,
 }
 
 impl<Q, S> Executor<Q, S> {
-    pub(crate) fn new(actor: Actor<Q, S>, program: Ruleset<Q, S>) -> Self {
+    pub(crate) fn new(actor: Actor<Q, S>, program: RuleSet<Q, S>) -> Self {
         Self {
             actor,
             program,
@@ -34,7 +34,7 @@ impl<Q, S> Executor<Q, S> {
     {
         Self {
             actor,
-            program: Ruleset {
+            program: RuleSet {
                 initial_state: Default::default(),
                 rules: Vec::new(),
             },
@@ -42,12 +42,16 @@ impl<Q, S> Executor<Q, S> {
         }
     }
     /// Load a program into the executor
-    pub fn load(self, program: Ruleset<Q, S>) -> Self {
+    pub fn load(self, program: RuleSet<Q, S>) -> Self {
         Executor { program, ..self }
     }
 
     pub const fn actor(&self) -> &Actor<Q, S> {
         &self.actor
+    }
+
+    pub fn steps(&self) -> usize {
+        self.steps
     }
 
     pub fn current_state(&self) -> State<&'_ Q> {
@@ -56,6 +60,21 @@ impl<Q, S> Executor<Q, S> {
     /// Reads the current symbol at the head of the tape
     pub fn read(&self) -> Result<Head<&Q, &S>, Error> {
         self.actor.read()
+    }
+
+    /// Reads the current symbol at the head of the tape
+    pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&S>> {
+        if let Ok(Head { state, symbol }) = self.read() {
+            Head {
+                state,
+                symbol: core::mem::MaybeUninit::new(symbol),
+            }
+        } else {
+            Head {
+                state: self.current_state(),
+                symbol: core::mem::MaybeUninit::uninit(),
+            }
+        }
     }
 
     #[cfg_attr(
@@ -110,14 +129,13 @@ where
             }
         };
         // execute the program
-        if let Some(tail) = self.program.get(head.state, head.symbol) {
+        if let Some(tail) = self.program.get(head.state, head.symbol).cloned() {
+            // process the instruction
             let next = tail.as_head().cloned();
             // process the instruction
-            let _prev = self
-                .actor
-                .step(tail.direction, tail.state.clone(), tail.symbol);
+            let _prev = self.handle(tail);
             // return the head
-            Some(next)
+            return Some(next);
         } else {
             #[cfg(feature = "tracing")]
             tracing::error!("No symbol found at {}", self.actor.position());

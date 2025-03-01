@@ -1,215 +1,85 @@
 /*
-    Appellation: store <module>
+    Appellation: container <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+use super::{RawMemory, SeqMemory};
+use crate::Direction;
 
-/// [RawMemory] is a trait that provides a common interface for memory storage.
-pub trait RawMemory {
-    type Elem;
+pub type Store<A> = StoreBase<Vec<A>>;
 
-    private!();
-
-    fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
-    fn len(&self) -> usize;
-}
-
-pub trait Memory: RawMemory {
-    fn to_vec(&self) -> Vec<Self::Elem>
-    where
-        Self::Elem: Clone;
-}
-
-pub trait MemoryMut: Memory {
-    fn clear(&mut self);
-
-    fn insert(&mut self, index: usize, elem: Self::Elem);
-
-    fn remove(&mut self, index: usize) -> Option<Self::Elem>;
-}
-
-/// [Sequential] extends the base trait [RawMemory] to provide sequential access to memory.
-pub trait SeqMemory: Memory {
-    fn as_ptr(&self) -> *const Self::Elem;
-
-    fn as_mut_ptr(&mut self) -> *mut Self::Elem;
-
-    fn as_slice(&self) -> &[Self::Elem];
-
-    fn as_mut_slice(&mut self) -> &mut [Self::Elem];
-
-    fn get<I>(&self, index: I) -> Option<&I::Output>
-    where
-        I: core::slice::SliceIndex<[Self::Elem]>;
-
-    fn get_mut<I>(&mut self, index: I) -> Option<&mut I::Output>
-    where
-        I: core::slice::SliceIndex<[Self::Elem]>;
-}
-
-#[doc(hidden)]
-pub trait Fetch<K> {
-    type Output;
-
-    fn fetch(&self, index: K) -> Option<&Self::Output>;
-
-    fn fetch_mut(&mut self, index: K) -> Option<&mut Self::Output>;
-}
-
-/*
- ************* Implementations *************
-*/
-impl<I, T> Fetch<I> for [T]
+pub struct StoreBase<S>
 where
-    I: core::slice::SliceIndex<[T]>,
-    I::Output: Sized,
+    S: RawMemory,
 {
-    type Output = I::Output;
-
-    fn fetch(&self, index: I) -> Option<&Self::Output> {
-        <[T]>::get(self, index)
-    }
-
-    fn fetch_mut(&mut self, index: I) -> Option<&mut Self::Output> {
-        <[T]>::get_mut(self, index)
-    }
+    pub(crate) ptr: *const S::Elem,
+    pub(crate) tape: S,
+    pub(crate) time: usize,
 }
 
-impl<T> RawMemory for [T] {
-    type Elem = T;
-
-    seal!();
-
-    fn is_empty(&self) -> bool {
-        <[T]>::is_empty(self)
+impl<A, S> StoreBase<S>
+where
+    S: SeqMemory<Elem = A>,
+{
+    pub(crate) fn new(tape: S) -> Self {
+        let ptr = tape.as_ptr();
+        let time = 0;
+        Self { ptr, tape, time }
     }
 
-    fn len(&self) -> usize {
-        <[T]>::len(self)
-    }
-}
-
-impl<T> Memory for [T] {
-    fn to_vec(&self) -> Vec<T>
-    where
-        T: Clone,
-    {
-        <[T]>::to_vec(self)
-    }
-}
-
-impl<T> SeqMemory for [T] {
-    fn as_ptr(&self) -> *const T {
-        <[T]>::as_ptr(self)
+    pub fn tape(&self) -> &S {
+        &self.tape
     }
 
-    fn as_mut_ptr(&mut self) -> *mut T {
-        <[T]>::as_mut_ptr(self)
+    pub fn tape_mut(&mut self) -> &mut S {
+        &mut self.tape
     }
 
-    fn as_slice(&self) -> &[T] {
-        self
+    pub fn time(&self) -> usize {
+        self.time
     }
 
-    fn as_mut_slice(&mut self) -> &mut [T] {
-        self
+    pub fn time_mut(&mut self) -> &mut usize {
+        &mut self.time
     }
 
-    fn get<I>(&self, index: I) -> Option<&I::Output>
-    where
-        I: core::slice::SliceIndex<[T]>,
-    {
-        <[T]>::get(self, index)
+    pub fn ptr(&self) -> *const A {
+        self.ptr
     }
 
-    fn get_mut<I>(&mut self, index: I) -> Option<&mut I::Output>
-    where
-        I: core::slice::SliceIndex<[T]>,
-    {
-        <[T]>::get_mut(self, index)
+    pub fn read(&self) -> Option<&A> {
+        unsafe { self.ptr.as_ref() }
     }
-}
 
-#[cfg(feature = "alloc")]
-mod impl_alloc {
-    use alloc::vec::Vec;
-
-    impl<T> super::RawMemory for Vec<T> {
-        type Elem = T;
-
-        seal!();
-
-        fn is_empty(&self) -> bool {
-            Vec::is_empty(self)
-        }
-
-        fn len(&self) -> usize {
-            Vec::len(self)
+    pub fn shift(self, direction: Direction) -> Self {
+        unsafe {
+            Self {
+                ptr: self.ptr.offset(direction as isize),
+                ..self
+            }
         }
     }
 
-    impl<T> super::Memory for Vec<T> {
-        fn to_vec(&self) -> Vec<T>
-        where
-            T: Clone,
-        {
-            self.clone()
-        }
-    }
-
-    impl<T> super::SeqMemory for Vec<T>
-    where
-        Vec<T>: AsRef<[T]>,
-    {
-        fn as_ptr(&self) -> *const T {
-            Vec::as_ptr(self)
-        }
-
-        fn as_mut_ptr(&mut self) -> *mut T {
-            Vec::as_mut_ptr(self)
-        }
-
-        fn as_slice(&self) -> &[T] {
-            Vec::as_slice(self)
-        }
-
-        fn as_mut_slice(&mut self) -> &mut [T] {
-            Vec::as_mut_slice(self)
-        }
-
-        fn get<I>(&self, index: I) -> Option<&I::Output>
-        where
-            I: core::slice::SliceIndex<[T]>,
-        {
-            <[T]>::get(self, index)
-        }
-
-        fn get_mut<I>(&mut self, index: I) -> Option<&mut I::Output>
-        where
-            I: core::slice::SliceIndex<[T]>,
-        {
-            <[T]>::get_mut(self, index)
+    pub fn write(&mut self, symbol: A) {
+        unsafe {
+            self.tape_mut().as_mut_ptr().write(symbol);
         }
     }
 }
 
-#[cfg(feature = "std")]
-mod impl_std {
-    use std::collections::HashMap;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::direction::Direction;
 
-    impl<K, V> super::RawMemory for HashMap<K, V> {
-        type Elem = V;
-
-        seal!();
-
-        fn is_empty(&self) -> bool {
-            HashMap::is_empty(self)
-        }
-
-        fn len(&self) -> usize {
-            HashMap::len(self)
-        }
+    #[test]
+    fn test_shift_store() {
+        let mut store = StoreBase::new(vec![1, 2, 3, 4, 5]);
+        assert_eq!(store.read(), Some(&1));
+        store = store.shift(Direction::Right);
+        assert_eq!(store.read(), Some(&2));
+        store = store.shift(Direction::Right);
+        assert_eq!(store.read(), Some(&3));
+        store = store.shift(Direction::Left);
+        assert_eq!(store.read(), Some(&2));
     }
 }

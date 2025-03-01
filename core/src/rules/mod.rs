@@ -3,22 +3,26 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{builders::RuleBuilder, program::Ruleset, rule::Rule, ruleset::RuleMap};
+pub use self::{
+    rule::{Rule, RuleBuilder},
+    rule_map::RuleMap,
+    rule_set::RuleSet,
+};
 
-pub(crate) mod program;
 pub(crate) mod rule;
-pub mod ruleset;
+
+pub mod rule_map;
+pub mod rule_set;
 
 #[doc(hidden)]
-mod builders {
-    pub use self::rule::RuleBuilder;
-
-    mod rule;
+mod impls {
+    pub mod impl_rule;
+    pub mod impl_rule_repr;
 }
 
 pub(crate) mod prelude {
-    pub use super::program::Ruleset;
     pub use super::rule::Rule;
+    pub use super::rule_set::RuleSet;
     pub use super::{Directive, Scope, Transition};
 }
 
