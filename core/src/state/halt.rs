@@ -1,21 +1,12 @@
 /*
-    Appellation: halt <module>
+    Appellation: halting <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-//! # Halting State
-//!
-//! For all intents and purposes, the halt state is an imaginary state not actually considered
-//! by the machine's state space.
-//!
-#[doc(inline)]
-pub use self::{state::Halt, wrap::HaltState};
+use crate::state::{RawState, State};
 
-pub(crate) mod state;
-pub(crate) mod wrap;
+mod impl_enum;
+mod impl_halt;
 
-use super::RawState;
-
-#[doc(hidden)]
 pub trait Haltable<Q> {
     type State: RawState<Q = Q>;
 
@@ -39,11 +30,38 @@ pub trait HaltableExt<Q>: Haltable<Q> {
     }
 }
 
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+pub struct Halt<Q>(pub Q);
+
+/// [HaltState] extends the [State] by allowing for an 'imaginary' state that is not actually
+/// part of the machine's state space.
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    strum::EnumDiscriminants,
+    strum::EnumIs,
+)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    strum_discriminants(derive(serde::Deserialize, serde::Serialize))
+)]
+#[strum_discriminants(name(HaltTag), derive(Hash, Ord, PartialOrd))]
+pub enum HaltState<Q> {
+    Halt(Halt<Q>),
+    State(State<Q>),
+}
+
 /*
  ************* Implementations *************
 */
-use crate::state::State;
-
 impl<Q> Haltable<Q> for Halt<Q> {
     type State = State<Q>;
 
@@ -69,7 +87,7 @@ impl<Q> Haltable<Q> for State<Option<Q>> {
     seal!();
 
     fn is_halted(&self) -> bool {
-        self.get_ref().is_none()
+        self.get().is_none()
     }
 }
 
@@ -95,7 +113,7 @@ impl<Q> HaltableExt<Q> for Halt<Q> {
 
 impl<Q> HaltableExt<Q> for Option<State<Q>> {
     fn get(self) -> Option<Q> {
-        self.map(|state| state.get())
+        self.map(|state| state.into_inner())
     }
 
     fn get_mut(&mut self) -> Option<&mut Q> {
@@ -105,7 +123,7 @@ impl<Q> HaltableExt<Q> for Option<State<Q>> {
 
 impl<Q> HaltableExt<Q> for State<Option<Q>> {
     fn get(self) -> Option<Q> {
-        self.get()
+        self.into_inner()
     }
 
     fn get_mut(&mut self) -> Option<&mut Q> {

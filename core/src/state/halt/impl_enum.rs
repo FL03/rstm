@@ -2,32 +2,8 @@
     Appellation: wrap <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::{Halt, State};
-
-/// [HaltState] extends the [State] by allowing for an 'imaginary' state that is not actually
-/// part of the machine's state space.
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-    strum::EnumDiscriminants,
-    strum::EnumIs,
-)]
-#[cfg_attr(
-    feature = "serde",
-    derive(serde::Deserialize, serde::Serialize),
-    strum_discriminants(derive(serde::Deserialize, serde::Serialize))
-)]
-#[strum_discriminants(name(HaltTag), derive(Hash, Ord, PartialOrd))]
-pub enum HaltState<Q> {
-    Halt(Halt<Q>),
-    State(State<Q>),
-}
+use super::{Halt, HaltState};
+use crate::state::State;
 
 impl<Q> HaltState<Q> {
     /// Creates a new instance of a [HaltState] with a halted state.
@@ -56,7 +32,7 @@ impl<Q> HaltState<Q> {
 
     pub fn get(&self) -> &Q {
         match self {
-            Self::State(inner) => inner.get_ref(),
+            Self::State(inner) => inner.get(),
             Self::Halt(inner) => inner.get_ref(),
         }
     }

@@ -27,10 +27,3 @@ macro_rules! getter {
         )*
     };
 }
-
-#[macro_export]
-macro_rules! state {
-    ($state:expr) => {
-        $crate::State($state)
-    };
-}
