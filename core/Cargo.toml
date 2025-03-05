@@ -88,7 +88,7 @@ serde_derive = { optional = true, workspace = true }
 serde_json = { optional = true, workspace = true }
 smart-default = { workspace = true }
 strum = { default-features = false, workspace = true }
-thiserror = { workspace = true }
+thiserror = { default-features = false, workspace = true }
 tracing = { default-features = false, optional = true, workspace = true }
 
 [dev-dependencies]
