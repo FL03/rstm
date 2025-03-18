@@ -2,7 +2,7 @@
     Appellation: actors <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-//! This modules implements an [Actor] struct, which is a Turing machine with a moving head 
+//! This modules implements an [Actor] struct, which is a Turing machine with a moving head
 //! (TMH).
 #[doc(inline)]
 pub use self::{actor::Actor, exec::Executor};

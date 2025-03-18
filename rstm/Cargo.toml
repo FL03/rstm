@@ -63,7 +63,7 @@ doctest = false
 test = true
 
 [dependencies]
-rstm-core = { path = "../core", version = "0.0.6" }
+rstm-core = { path = "../core", version = "0.0.7" }
 
 [dev-dependencies]
 lazy_static = { workspace = true }

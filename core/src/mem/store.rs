@@ -20,7 +20,7 @@ impl<A, S> StoreBase<S>
 where
     S: SeqMemory<Elem = A>,
 {
-    pub(crate) fn new(tape: S) -> Self {
+    pub fn new(tape: S) -> Self {
         let ptr = tape.as_ptr();
         let time = 0;
         Self { ptr, tape, time }
