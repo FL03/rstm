@@ -38,7 +38,7 @@ keywords = [ "turing", "turing-machine", "utm" ]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/FL03/rstm.git"
-version = "0.0.6"
+version = "0.0.7"
 
 [profile.dev]
 codegen-units = 256
