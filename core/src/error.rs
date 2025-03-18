@@ -2,9 +2,11 @@
     Appellation: error <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-#[derive(
-    Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, strum::VariantNames, thiserror::Error,
-)]
+
+/// A type alias for a [Result] with our custom error type: [`Error`](crate::Error)
+pub type Result<T = ()> = core::result::Result<T, crate::Error>;
+
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, strum::EnumIs, thiserror::Error)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 pub enum StateError {
     #[error("Invalid State: {0}")]
@@ -21,8 +23,9 @@ pub enum StateError {
     Ord,
     PartialEq,
     PartialOrd,
+    scsys_derive::VariantConstructors,
     strum::EnumDiscriminants,
-    strum::VariantNames,
+    strum::EnumIs,
     thiserror::Error,
 )]
 #[strum_discriminants(derive(Hash, Ord, PartialOrd))]
@@ -44,58 +47,9 @@ pub enum Error {
     Unknown(String),
 }
 
-impl Error {
-    pub fn execution_error(message: impl ToString) -> Self {
-        Error::ExecutionError(message.to_string())
-    }
-
-    pub fn index_out_of_bounds(index: usize, len: usize) -> Self {
-        Error::IndexOutOfBounds { index, len }
-    }
-
-    pub fn runtime_error(message: impl ToString) -> Self {
-        Error::RuntimeError(message.to_string())
-    }
-
-    pub fn state_error(err: StateError) -> Self {
-        Error::StateError(err)
-    }
-
-    pub fn transformation_error(message: impl ToString) -> Self {
-        Error::TransformationError(message.to_string())
-    }
-
-    pub fn type_error(message: impl ToString) -> Self {
-        Error::TypeError(message.to_string())
-    }
-
-    pub fn unknown(message: impl ToString) -> Self {
-        Error::Unknown(message.to_string())
-    }
-
-    pub fn invalid_state(err: impl ToString) -> Self {
-        Error::StateError(StateError::InvalidState(err.to_string()))
-    }
-
-    pub fn state_not_found() -> Self {
-        Error::StateError(StateError::StateNotFound)
-    }
-
-    pub fn message(&self) -> String {
-        match self {
-            Error::ExecutionError(message) => message.clone(),
-            Error::IndexOutOfBounds { index, len } => {
-                format!(
-                    "Out of Bounds: {} is out of bounds for a length of {}",
-                    index, len
-                )
-            }
-            Error::RuntimeError(message) => message.clone(),
-            Error::StateError(err) => err.to_string(),
-            Error::TransformationError(message) => message.clone(),
-            Error::TypeError(message) => message.clone(),
-            Error::Unknown(message) => message.clone(),
-        }
+impl From<Box<dyn std::error::Error>> for Error {
+    fn from(err: Box<dyn std::error::Error>) -> Self {
+        Error::Unknown(err.to_string())
     }
 }
 

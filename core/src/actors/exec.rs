@@ -5,11 +5,11 @@
 use super::{Actor, Handle};
 use crate::{Error, Head, RuleSet, State, Symbolic};
 
-/// # [Executor]
-///
-/// The [Executor] struct is directly responsible for the execution of a program. From a rustic
-/// perspective, the [Executor] is an iterator that reads the current symbol at the head of
-/// the tape,
+/// The [Executor] handles the execution of a given program. The structure works as an
+/// iterator, where each iteration represents a step in the program. The executor is
+/// responsible for reading the current symbol at the head of the tape, executing the program,
+/// and updating the tape accordingly. The executor will continue to iterate until the actor
+/// is halted or the program is completed.
 pub struct Executor<Q, S> {
     /// the actor that will be executing the program
     pub(crate) actor: Actor<Q, S>,
@@ -122,7 +122,10 @@ where
             cur
         } else {
             #[cfg(feature = "tracing")]
-            tracing::warn!("[Index Error] the current position ({pos}) of the head is out of bounds, assuming the symbol to be its default value...", pos = self.actor.head.symbol);
+            tracing::warn!(
+                "[Index Error] the current position ({pos}) of the head is out of bounds, assuming the symbol to be its default value...",
+                pos = self.actor.head.symbol
+            );
             Head {
                 state: self.actor.state(),
                 symbol: &S::default(),

@@ -5,7 +5,7 @@
 extern crate rstm_core as rstm;
 
 use rstm::rules::RuleSet;
-use rstm::{ruleset, Direction, Head, State, Tail};
+use rstm::{Direction, Head, State, Tail, ruleset};
 
 #[test]
 fn ruleset() {

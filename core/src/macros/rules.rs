@@ -32,11 +32,11 @@
 macro_rules! ruleset {
     [@base ($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal)] => {
         $crate::rules::Rule::new()
-            .state($crate::State($state))
+            .state($crate::state!($state))
             .symbol($symbol)
             .write_symbol($write)
             .direction($crate::Direction::$direction)
-            .next_state($crate::State($next))
+            .next_state($crate::state!($next))
             .build()
     };
     {$(initial_state($q:expr);)? $(  ($state:expr, $symbol:literal $(,)?) -> $direction:ident($next:expr, $write:literal $(,)?)  ),* $(,)?} => {
@@ -45,7 +45,14 @@ macro_rules! ruleset {
                 $crate::ruleset![@base ($state, $symbol) -> $direction($next, $write)],
             )*
         ])$(
-            .with_initial_state($crate::State($q))
+            .with_initial_state($crate::state!($q))
         )?
+    };
+}
+
+#[macro_export]
+macro_rules! state {
+    ($state:expr) => {
+        $crate::State($state)
     };
 }

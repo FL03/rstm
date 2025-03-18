@@ -1,12 +1,9 @@
 /*
-    Appellation: halting <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: impl_halting <module>
+    Contrib: @FL03
 */
+use super::Halt;
 use crate::state::{RawState, State};
-
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Halt<Q>(pub Q);
 
 impl<Q> Halt<Q> {
     pub fn new(halt: Q) -> Self {

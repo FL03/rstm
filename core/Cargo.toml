@@ -1,16 +1,23 @@
 [package]
-authors.workspace = true
 build = "build.rs"
+name = "rstm-core"
+
+authors.workspace = true
 categories.workspace = true
 description.workspace = true
 edition.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 license.workspace = true
-name = "rstm-core"
 readme.workspace = true
 repository.workspace = true
 version.workspace = true
+
+[lib]
+bench = true
+crate-type = [ "cdylib", "rlib" ]
+doctest = false
+test = true
 
 [features]
 default = [
@@ -19,6 +26,7 @@ default = [
 
 full = [
     "default",
+    "json",
     "rand",
     "serde",
     "tracing",
@@ -30,72 +38,76 @@ alloc = [
     "serde?/alloc",
 ]
 
+json = [ "alloc", "dep:serde_json" ]
+
 rand = [
+    "dep:rand",
+    "dep:rand_distr",
     "num/rand",
+    "rng",
 ]
+
+rng = [ "dep:getrandom", "rand?/small_rng", "rand?/thread_rng" ]
 
 serde = [
     "dep:serde",
+    "dep:serde_derive",
     "num/serde",
+    "serde?/derive",
 ]
 
 tracing = [
     "dep:tracing",
+    "tracing?/attributes",
 ]
 
 # ********* [FF] Environments *********
 std = [
     "alloc",
+    "rand?/std_rng",
     "serde?/std",
+    "serde_json?/std",
     "strum/std",
+    "thiserror/std",
+    "tracing?/std",
 ]
 
-[lib]
-bench = true
-crate-type = ["cdylib", "rlib"]
-doctest = false
-test = true
-
-[[test]]
-name = "actor"
-required-features = ["alloc"]
-
-[[test]]
-name = "rules"
-required-features = ["alloc"]
-
-[[test]]
-name = "tape"
-required-features = ["alloc"]
+wasm = [ "getrandom?/wasm_js" ]
 
 [dependencies]
-thiserror.workspace = true
-paste.workspace = true
+scsys-derive = "0.2"
 
-[dependencies.num]
-# default-features = false
-version = "0.4"
-
-[dependencies.serde]
-# default-features = false
-features = ["derive"]
-optional = true
-version = "1"
-
-[dependencies.strum]
-# default-features = false
-features = ["derive"]
-version = "0.26"
-
-[dependencies.tracing]
-features = []
-optional = true
-version = "0.1"
+getrandom = { default-features = false, optional = true, version = "0.3" }
+num = { default-features = false, version = "0.4" }
+num-traits = { default-features = false, version = "0.2" }
+paste = { workspace = true }
+rand = { default-features = false, optional = true, version = "0.9" }
+rand_distr = { default-features = false, optional = true, version = "0.5" }
+serde = { optional = true, workspace = true }
+serde_derive = { optional = true, workspace = true }
+serde_json = { optional = true, workspace = true }
+smart-default = { workspace = true }
+strum = { default-features = false, workspace = true }
+thiserror = { default-features = false, workspace = true }
+tracing = { default-features = false, optional = true, workspace = true }
 
 [dev-dependencies]
-lazy_static.workspace = true
-tracing-subscriber = { features = [], version = "0.3" }
+lazy_static = { workspace = true }
+tracing-subscriber = { workspace = true }
 
 [package.metadata.docs.rs]
 all-features = true
-rustc-args = ["--cfg", "docsrs"]
+rustc-args = [ "--cfg", "docsrs" ]
+
+# ********* tests *********
+[[test]]
+name = "actor"
+required-features = [ "alloc" ]
+
+[[test]]
+name = "rules"
+required-features = [ "alloc" ]
+
+[[test]]
+name = "tape"
+required-features = [ "alloc" ]

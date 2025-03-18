@@ -10,16 +10,16 @@ pub(crate) mod state;
 pub mod halt;
 
 mod impls {
-    pub mod impl_ext;
-    pub mod impl_ops;
-    pub mod impl_repr;
+    mod impl_ops;
+    mod impl_repr;
+    mod impl_state;
 }
 pub(crate) mod prelude {
-    pub use super::halt::Haltable;
-    pub use super::state::State;
     #[cfg(feature = "std")]
     pub use super::AnyState;
     pub use super::MaybeState;
+    pub use super::halt::*;
+    pub use super::state::*;
 }
 #[cfg(feature = "std")]
 /// A type alias for a [State] whose inner value is the dynamically sized type of a boxed [`Any`](core::any::Any).
@@ -42,15 +42,6 @@ pub trait RawState {
     fn get_mut(&mut self) -> &mut Self::Q;
 
     fn set(&mut self, inner: Self::Q);
-}
-
-#[doc(hidden)]
-pub trait Apply<Q, R> {
-    type Output;
-
-    fn apply<F>(self, f: F) -> Self::Output
-    where
-        F: FnOnce(Q) -> R;
 }
 
 /*
