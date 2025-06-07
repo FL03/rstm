@@ -14,7 +14,7 @@
     Ord,
     PartialEq,
     PartialOrd,
-    scsys_derive::VariantConstructors,
+    scsys::VariantConstructors,
     strum::AsRefStr,
     strum::Display,
     strum::EnumCount,

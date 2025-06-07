@@ -3,7 +3,7 @@
     Contrib: @FL03
 */
 use super::Halt;
-use crate::state::{RawState, State};
+use crate::state::{State, Stated};
 
 impl<Q> Halt<Q> {
     pub fn new(halt: Q) -> Self {
@@ -41,7 +41,7 @@ impl<Q> Halt<Q> {
     /// Swaps the inner value of the halted state with that of the given state.
     pub fn swap<S>(&mut self, other: &mut S)
     where
-        S: RawState<Q = Q>,
+        S: Stated<Item = Q>,
     {
         core::mem::swap(&mut self.0, other.get_mut());
     }
@@ -77,7 +77,7 @@ impl<Q> Halt<Q> {
     }
 }
 
-impl<'a, Q> Halt<&'a Q> {
+impl<Q> Halt<&Q> {
     pub fn cloned(&self) -> Halt<Q>
     where
         Q: Clone,
@@ -93,7 +93,7 @@ impl<'a, Q> Halt<&'a Q> {
     }
 }
 
-impl<'a, Q> Halt<&'a mut Q> {
+impl<Q> Halt<&mut Q> {
     pub fn cloned(&self) -> Halt<Q>
     where
         Q: Clone,

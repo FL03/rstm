@@ -19,7 +19,8 @@
 //! - [x] [HashTape](tape::hash_tape::HashTape)
 
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(clippy::new_ret_no_self)]
+#![allow(clippy::module_inception, clippy::new_ret_no_self)]
+
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
@@ -29,24 +30,18 @@ pub use self::{
     error::{Error, Result},
     ops::prelude::*,
     rules::{Rule, RuleSet},
-    state::{Halt, State},
+    state::{Halt, RawState, State, Stated},
     traits::prelude::*,
     types::prelude::*,
 };
 
-#[allow(unused_macros)]
 #[macro_use]
 pub(crate) mod macros {
     #[macro_use]
-    pub mod get;
-    #[macro_use]
     pub mod rules;
     #[macro_use]
-    pub mod wrap;
+    pub mod seal;
 }
-#[doc(hidden)]
-#[macro_use]
-pub(crate) mod seal;
 
 pub mod actors;
 pub mod error;
@@ -55,6 +50,7 @@ pub mod rules;
 pub mod state;
 
 pub mod ops {
+    //! this modules defines additional operations used throughout the crate
     #[doc(inline)]
     pub use self::prelude::*;
 
@@ -62,25 +58,31 @@ pub mod ops {
     pub mod increment;
 
     pub(crate) mod prelude {
+        #[doc(inline)]
         pub use super::apply::*;
+        #[doc(inline)]
         pub use super::increment::*;
     }
 }
 
 pub mod traits {
-    #[doc(inline)]
+    /// this modules provides various traits used throughout the library
     pub use self::prelude::*;
 
     pub mod convert;
     pub mod symbols;
 
     pub(crate) mod prelude {
+        #[doc(inline)]
         pub use super::convert::*;
+        #[doc(inline)]
         pub use super::symbols::*;
     }
 }
 
 pub mod types {
+    //! the `types` module provides various types used throughout the library, including
+    //! [`Direction`], [`Head`], and [`Tail`].
     #[doc(inline)]
     pub use self::prelude::*;
 
@@ -88,23 +90,32 @@ pub mod types {
     pub mod head;
     pub mod tail;
 
-    #[doc(hidden)]
-    pub mod transition;
-
     pub(crate) mod prelude {
+        #[doc(inline)]
         pub use super::direction::*;
+        #[doc(inline)]
         pub use super::head::*;
+        #[doc(inline)]
         pub use super::tail::*;
     }
 }
 
 pub mod prelude {
+    #[doc(no_inline)]
+    pub use super::error::*;
+
+    #[doc(no_inline)]
     pub use super::actors::prelude::*;
-    pub use super::error::Error;
+    #[doc(no_inline)]
     pub use super::mem::prelude::*;
+    #[doc(no_inline)]
     pub use super::ops::prelude::*;
+    #[doc(no_inline)]
     pub use super::rules::prelude::*;
+    #[doc(no_inline)]
     pub use super::state::prelude::*;
+    #[doc(no_inline)]
     pub use super::traits::prelude::*;
+    #[doc(no_inline)]
     pub use super::types::prelude::*;
 }

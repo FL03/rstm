@@ -3,10 +3,15 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use crate::error::Error;
-use crate::state::{Halt, State};
+use crate::state::{Halt, RawState, State};
+#[cfg(feature = "alloc")]
+use alloc::boxed::Box;
 use core::mem::MaybeUninit;
 
-impl<'a, Q> State<&'a Q> {
+impl<Q> State<&Q>
+where
+    Q: RawState,
+{
     /// Clones the internal state and returning a new instance of [State]
     pub fn cloned(&self) -> State<Q>
     where
@@ -23,7 +28,10 @@ impl<'a, Q> State<&'a Q> {
     }
 }
 
-impl<'a, Q> State<&'a mut Q> {
+impl<Q> State<&mut Q>
+where
+    Q: RawState,
+{
     /// Clones the internal state and returning a new instance of [State]
     pub fn cloned(&self) -> State<Q>
     where
@@ -40,21 +48,30 @@ impl<'a, Q> State<&'a mut Q> {
     }
 }
 
-impl<Q> State<*const Q> {
+impl<Q> State<*const Q>
+where
+    Q: RawState,
+{
     /// Creates a new instance of state with a raw pointer to the inner value.
     pub fn from_ptr(ptr: *const Q) -> Self {
         Self(ptr)
     }
 }
 
-impl<Q> State<*mut Q> {
+impl<Q> State<*mut Q>
+where
+    Q: RawState,
+{
     /// Creates a new instance of state with a mutable raw pointer to the inner value.
     pub fn from_mut_ptr(ptr: *mut Q) -> Self {
         Self(ptr)
     }
 }
 
-impl<Q> State<MaybeUninit<Q>> {
+impl<Q> State<MaybeUninit<Q>>
+where
+    Q: RawState,
+{
     /// Creates a new instance of state with an initialized inner value.
     pub fn init(value: Q) -> Self {
         Self(MaybeUninit::new(value))
@@ -65,7 +82,7 @@ impl<Q> State<MaybeUninit<Q>> {
     }
     /// Converts the state into a new instance of [State] with an initialized state.
     pub unsafe fn assume_init(self) -> State<Q> {
-        State(unsafe { self.into_inner().assume_init() })
+        State(unsafe { self.value().assume_init() })
     }
     /// determines if the inner state is null; returns false if the inner state is not null.
     pub fn is_null(&self) -> bool {
@@ -94,14 +111,14 @@ impl State<bool> {
     }
 
     pub fn is_true(&self) -> bool {
-        self.into_inner()
+        self.value()
     }
 
     pub fn is_false(&self) -> bool {
-        !self.into_inner()
+        !self.value()
     }
 }
-
+#[cfg(feature = "alloc")]
 impl State<Box<dyn core::any::Any>> {
     /// Attempts to downcast the state to a concrete type `Q`; returns an error if the state
     /// is not of type `Q`.
@@ -109,7 +126,7 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.into_inner()
+        self.value()
             .downcast()
             .map(State)
             .map_err(|_| Error::TypeError("Failed to downcast state".to_string()))
@@ -133,7 +150,10 @@ impl State<Box<dyn core::any::Any>> {
     }
 }
 
-impl<Q> State<Option<Q>> {
+impl<Q> State<Option<Q>>
+where
+    Q: RawState,
+{
     /// Creates a new instance of state whose inner state is [Option::None].
     pub fn none() -> Self {
         Self(None)
@@ -144,13 +164,19 @@ impl<Q> State<Option<Q>> {
     }
 }
 
-impl<Q> State<Halt<Q>> {
+impl<Q> State<Halt<Q>>
+where
+    Q: RawState,
+{
     /// Creates a new instance of [State] from a [Halt] state.
     pub fn halted(Halt(inner): Halt<Q>) -> Self {
         Self(Halt(inner))
     }
     /// Converts the halted state into an unhalted state.
-    pub fn unhalt(self) -> State<Q> {
-        State(self.into_inner().get())
+    pub fn unhalt(self) -> State<Q>
+    where
+        Q: RawState,
+    {
+        State(self.value().get())
     }
 }

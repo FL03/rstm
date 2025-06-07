@@ -1,23 +1,61 @@
 [package]
 build = "build.rs"
+description = "this crate implements the core modules of the rstm sdk"
 name = "rstm-core"
 
 authors.workspace = true
 categories.workspace = true
-description.workspace = true
 edition.workspace = true
 homepage.workspace = true
 keywords.workspace = true
 license.workspace = true
 readme.workspace = true
 repository.workspace = true
+rust-version.workspace = true
 version.workspace = true
 
 [lib]
-bench = true
-crate-type = [ "cdylib", "rlib" ]
+crate-type = [ 
+    "cdylib", 
+    "rlib",
+]
+bench = false
+doc = true
 doctest = false
 test = true
+
+[package.metadata.docs.rs]
+all-features = false
+features = ["full"]
+rustc-args = [ "--cfg", "docsrs" ]
+
+[dependencies]
+# custom
+scsys = { workspace = true }
+# error-handling
+anyhow = { optional = true, workspace = true }
+thiserror = { workspace = true }
+# numbers
+num = { workspace = true }
+num-traits = { workspace = true }
+# random
+getrandom = { optional = true, workspace = true }
+paste = { workspace = true }
+rand = { optional = true, workspace = true }
+rand_distr = { optional = true, workspace = true }
+# serialization
+serde = { optional = true, workspace = true }
+serde_derive = { optional = true, workspace = true }
+serde_json = { optional = true, workspace = true }
+# macros & utilities
+smart-default = { workspace = true }
+strum = { workspace = true }
+# logging
+tracing = { optional = true, workspace = true }
+
+[dev-dependencies]
+lazy_static = { workspace = true }
+tracing-subscriber = { features = ["std"], workspace = true }
 
 [features]
 default = [
@@ -26,45 +64,20 @@ default = [
 
 full = [
     "default",
+    "anyhow",
     "json",
     "rand",
     "serde",
     "tracing",
 ]
+# ************* [FF:Environments] *************
 
-# ********* [FF] Dependencies *********
-alloc = [
-    "num/alloc",
-    "serde?/alloc",
-]
-
-json = [ "alloc", "dep:serde_json" ]
-
-rand = [
-    "dep:rand",
-    "dep:rand_distr",
-    "num/rand",
-    "rng",
-]
-
-rng = [ "dep:getrandom", "rand?/small_rng", "rand?/thread_rng" ]
-
-serde = [
-    "dep:serde",
-    "dep:serde_derive",
-    "num/serde",
-    "serde?/derive",
-]
-
-tracing = [
-    "dep:tracing",
-    "tracing?/attributes",
-]
-
-# ********* [FF] Environments *********
 std = [
     "alloc",
+    "anyhow?/std",
+    "rand?/std",
     "rand?/std_rng",
+    "scsys/std",
     "serde?/std",
     "serde_json?/std",
     "strum/std",
@@ -72,34 +85,61 @@ std = [
     "tracing?/std",
 ]
 
-wasm = [ "getrandom?/wasm_js" ]
+wasi = [
+    "scsys/wasi",
+]
 
-[dependencies]
-scsys-derive = "0.2"
+wasm = [
+    "getrandom?/wasm_js",
+    "scsys/wasm",
+]
 
-getrandom = { default-features = false, optional = true, version = "0.3" }
-num = { default-features = false, version = "0.4" }
-num-traits = { default-features = false, version = "0.2" }
-paste = { workspace = true }
-rand = { default-features = false, optional = true, version = "0.9" }
-rand_distr = { default-features = false, optional = true, version = "0.5" }
-serde = { optional = true, workspace = true }
-serde_derive = { optional = true, workspace = true }
-serde_json = { optional = true, workspace = true }
-smart-default = { workspace = true }
-strum = { default-features = false, workspace = true }
-thiserror = { default-features = false, workspace = true }
-tracing = { default-features = false, optional = true, workspace = true }
+# ************* [FF:Dependencies] *************
+alloc = [
+    "num/alloc",
+    "scsys/alloc",
+    "serde?/alloc",
+]
 
-[dev-dependencies]
-lazy_static = { workspace = true }
-tracing-subscriber = { workspace = true }
+json = [ 
+    "alloc", 
+    "scsys/json",
+    "serde",
+    "serde_json",
+]
 
-[package.metadata.docs.rs]
-all-features = true
-rustc-args = [ "--cfg", "docsrs" ]
+rand = [
+    "dep:rand",
+    "dep:rand_distr",
+    "num/rand",
+    "rng",
+    "scsys/rand",
+]
 
-# ********* tests *********
+rng = [ 
+    "dep:getrandom", 
+    "rand?/small_rng", 
+    "rand?/thread_rng",
+    "scsys/rng",
+]
+
+serde = [
+    "dep:serde",
+    "dep:serde_derive",
+    "num/serde",
+    "scsys/serde",
+]
+
+serde_json = ["dep:serde_json"]
+
+tracing = [
+    "dep:tracing",
+    "scsys/tracing",
+    "tracing?/attributes",
+]
+
+
+# ************* [Unit Tests] *************
 [[test]]
 name = "actor"
 required-features = [ "alloc" ]

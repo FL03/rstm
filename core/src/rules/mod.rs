@@ -3,32 +3,46 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 #[doc(inline)]
-pub use self::{
-    rule::{Rule, RuleBuilder},
-    rule_map::RuleMap,
-    rule_set::RuleSet,
-};
+pub use self::rule::{Rule, RuleBuilder};
+
+#[cfg(feature = "std")]
+#[doc(inline)]
+pub use self::rule_map::RuleMap;
+#[cfg(feature = "alloc")]
+#[doc(inline)]
+pub use self::rule_set::RuleSet;
 
 pub(crate) mod rule;
 
+#[cfg(feature = "std")]
 pub mod rule_map;
+#[cfg(feature = "alloc")]
 pub mod rule_set;
 
 #[doc(hidden)]
 mod impls {
     pub mod impl_rule;
-    pub mod impl_rule_repr;
 }
 
 pub(crate) mod prelude {
-    pub use super::rule::Rule;
+    pub use super::rule::{Rule, RuleBuilder};
+
+    #[cfg(feature = "std")]
+    #[doc(inline)]
+    pub use super::rule_map::RuleMap;
+    #[cfg(feature = "alloc")]
+    #[doc(inline)]
     pub use super::rule_set::RuleSet;
     pub use super::{Directive, Scope, Transition};
 }
 
-use crate::{Direction, Head, State, Symbolic, Tail};
+use crate::state::{RawState, State};
+use crate::{Direction, Head, Symbolic, Tail};
 
-pub trait Program<Q, A> {
+pub trait Program<Q, A>
+where
+    Q: RawState,
+{
     type Key: Scope<Q, A>;
     type Val: Directive<Q, A>;
 
@@ -41,12 +55,15 @@ pub trait Program<Q, A> {
     fn remove(&mut self, key: &Self::Key) -> Option<Self::Val>;
 }
 
-pub trait Transition<Q, S> {
+pub trait Transition<Q, S>
+where
+    Q: RawState,
+{
     fn direction(&self) -> Direction;
 
-    fn current_state(&self) -> State<&'_ Q>;
+    fn current_state(&self) -> &State<Q>;
 
-    fn next_state(&self) -> State<&'_ Q>;
+    fn next_state(&self) -> &State<Q>;
 
     fn symbol(&self) -> &S;
 
@@ -54,7 +71,7 @@ pub trait Transition<Q, S> {
 
     fn head(&self) -> Head<&Q, &S> {
         Head {
-            state: self.current_state(),
+            state: self.current_state().view(),
             symbol: self.symbol(),
         }
     }
@@ -62,7 +79,7 @@ pub trait Transition<Q, S> {
     fn tail(&self) -> Tail<&Q, &S> {
         Tail {
             direction: self.direction(),
-            state: self.next_state(),
+            state: self.next_state().view(),
             symbol: self.write_symbol(),
         }
     }
@@ -78,7 +95,7 @@ pub trait Transition<Q, S> {
 /// The [`Scope`] trait is used to describe objects containing information or references to the
 /// current state and symbol of a Turing machine.
 pub trait Scope<Q, S> {
-    fn current_state(&self) -> State<&'_ Q>;
+    fn current_state(&self) -> &State<Q>;
 
     fn current_symbol(&self) -> &S;
 }
@@ -87,7 +104,7 @@ pub trait Scope<Q, S> {
 pub trait Directive<Q, S> {
     fn direction(&self) -> Direction;
 
-    fn next_state(&self) -> State<&'_ Q>;
+    fn next_state(&self) -> &State<Q>;
 
     fn next_symbol(&self) -> &S;
 }
@@ -104,7 +121,7 @@ use std::collections::HashMap;
 #[cfg(feature = "alloc")]
 impl<Q, A> Program<Q, A> for Vec<Rule<Q, A>>
 where
-    Q: PartialEq,
+    Q: RawState + PartialEq,
     A: PartialEq,
 {
     type Key = Head<Q, A>;
@@ -139,7 +156,7 @@ where
 #[cfg(feature = "std")]
 impl<Q, A> Program<Q, A> for HashMap<Head<Q, A>, Tail<Q, A>>
 where
-    Q: Eq + core::hash::Hash,
+    Q: RawState + Eq + core::hash::Hash,
     A: Eq + core::hash::Hash,
 {
     type Key = Head<Q, A>;
@@ -165,17 +182,18 @@ where
 impl<A, Q, S> Transition<Q, S> for A
 where
     A: Scope<Q, S> + Directive<Q, S>,
+    Q: RawState,
     S: Symbolic,
 {
     fn direction(&self) -> Direction {
         self.direction()
     }
 
-    fn current_state(&self) -> State<&'_ Q> {
+    fn current_state(&self) -> &State<Q> {
         self.current_state()
     }
 
-    fn next_state(&self) -> State<&'_ Q> {
+    fn next_state(&self) -> &State<Q> {
         self.next_state()
     }
 
@@ -189,8 +207,8 @@ where
 }
 
 impl<Q, S> Scope<Q, S> for (State<Q>, S) {
-    fn current_state(&self) -> State<&'_ Q> {
-        self.0.to_ref()
+    fn current_state(&self) -> &State<Q> {
+        &self.0
     }
 
     fn current_symbol(&self) -> &S {
@@ -198,8 +216,11 @@ impl<Q, S> Scope<Q, S> for (State<Q>, S) {
     }
 }
 
-impl<Q, S> Scope<Q, S> for crate::Head<Q, S> {
-    fn current_state(&self) -> State<&'_ Q> {
+impl<Q, S> Scope<Q, S> for crate::Head<Q, S>
+where
+    Q: RawState,
+{
+    fn current_state(&self) -> &State<Q> {
         self.state()
     }
 
@@ -208,9 +229,12 @@ impl<Q, S> Scope<Q, S> for crate::Head<Q, S> {
     }
 }
 
-impl<Q, S> Scope<Q, S> for Rule<Q, S> {
-    fn current_state(&self) -> State<&'_ Q> {
-        self.head.state.to_ref()
+impl<Q, S> Scope<Q, S> for Rule<Q, S>
+where
+    Q: RawState,
+{
+    fn current_state(&self) -> &State<Q> {
+        self.state()
     }
 
     fn current_symbol(&self) -> &S {
@@ -218,13 +242,16 @@ impl<Q, S> Scope<Q, S> for Rule<Q, S> {
     }
 }
 
-impl<Q, S> Directive<Q, S> for (Direction, State<Q>, S) {
+impl<Q, S> Directive<Q, S> for (Direction, State<Q>, S)
+where
+    Q: RawState,
+{
     fn direction(&self) -> Direction {
         self.0
     }
 
-    fn next_state(&self) -> State<&'_ Q> {
-        self.1.to_ref()
+    fn next_state(&self) -> &State<Q> {
+        &self.1
     }
 
     fn next_symbol(&self) -> &S {
@@ -232,12 +259,15 @@ impl<Q, S> Directive<Q, S> for (Direction, State<Q>, S) {
     }
 }
 
-impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
+impl<Q, S> Directive<Q, S> for crate::Tail<Q, S>
+where
+    Q: RawState,
+{
     fn direction(&self) -> Direction {
         self.direction
     }
 
-    fn next_state(&self) -> State<&'_ Q> {
+    fn next_state(&self) -> &State<Q> {
         self.state()
     }
 
@@ -246,12 +276,15 @@ impl<Q, S> Directive<Q, S> for crate::Tail<Q, S> {
     }
 }
 
-impl<Q, S> Directive<Q, S> for Rule<Q, S> {
+impl<Q, S> Directive<Q, S> for Rule<Q, S>
+where
+    Q: RawState,
+{
     fn direction(&self) -> Direction {
         self.direction()
     }
 
-    fn next_state(&self) -> State<&'_ Q> {
+    fn next_state(&self) -> &State<Q> {
         self.tail().state()
     }
 

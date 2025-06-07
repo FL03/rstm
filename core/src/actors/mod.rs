@@ -2,7 +2,7 @@
     Appellation: actors <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-//! This modules implements an [Actor] struct, which is a Turing machine with a moving head 
+//! This modules implements an [Actor] struct, which is a Turing machine with a moving head
 //! (TMH).
 #[doc(inline)]
 pub use self::{actor::Actor, exec::Executor};
@@ -11,11 +11,14 @@ pub(crate) mod actor;
 pub(crate) mod exec;
 
 pub(crate) mod prelude {
+    #[doc(inline)]
     pub use super::actor::Actor;
+    #[doc(inline)]
     pub use super::exec::Executor;
 }
 
-use crate::{Direction, Error, Head, Rule, State, Tail};
+use crate::state::RawState;
+use crate::{Error, Rule, Tail};
 
 /// [Handle] describes the step-by-step execution of a program; the trait is generalized
 /// with the introduction of a single generic parameter, `T`, capable of sufficiently
@@ -31,87 +34,13 @@ pub trait Handle<T> {
 }
 
 #[doc(hidden)]
-pub trait Engine<Q, S>: Handle<(Direction, State<Q>, S)> {
+pub trait Engine<Q, S>: Handle<Tail<Q, S>>
+where
+    Q: RawState,
+{
     fn load<I>(&mut self, program: I)
     where
         I: IntoIterator<Item = Rule<Q, S>>;
 
     fn run(&mut self) -> Result<(), Error>;
-}
-
-impl<Q, S> Handle<(Direction, State<Q>, S)> for Actor<Q, S>
-where
-    Q: Clone + PartialEq + 'static,
-    S: crate::Symbolic,
-{
-    type Output = Head<Q, usize>;
-
-    fn handle(&mut self, (direction, state, symbol): (Direction, State<Q>, S)) -> Self::Output {
-        self.step(direction, state, symbol)
-    }
-}
-
-impl<Q, S> Handle<(Direction, Head<Q, S>)> for Actor<Q, S>
-where
-    Q: Clone + PartialEq + 'static,
-    S: crate::Symbolic,
-{
-    type Output = Head<Q, usize>;
-
-    fn handle(
-        &mut self,
-        (direction, Head { state, symbol }): (Direction, Head<Q, S>),
-    ) -> Self::Output {
-        self.step(direction, state, symbol)
-    }
-}
-
-impl<Q, S> Handle<Tail<Q, S>> for Actor<Q, S>
-where
-    Q: Clone + PartialEq + 'static,
-    S: crate::Symbolic,
-{
-    type Output = Head<Q, usize>;
-
-    fn handle(
-        &mut self,
-        Tail {
-            direction,
-            state,
-            symbol,
-        }: Tail<Q, S>,
-    ) -> Self::Output {
-        self.step(direction, state, symbol)
-    }
-}
-
-impl<D, Q, S> Handle<D> for Executor<Q, S>
-where
-    Q: Clone + PartialEq + 'static,
-    S: crate::Symbolic,
-    Actor<Q, S>: Handle<D>,
-{
-    type Output = <Actor<Q, S> as Handle<D>>::Output;
-
-    fn handle(&mut self, args: D) -> Self::Output {
-        self.actor.handle(args)
-    }
-}
-
-impl<Q, S> Engine<Q, S> for Executor<Q, S>
-where
-    Q: Clone + PartialEq + 'static,
-    S: crate::Symbolic,
-{
-    fn load<I>(&mut self, program: I)
-    where
-        I: IntoIterator<Item = crate::Rule<Q, S>>,
-    {
-        self.program.rules.clear();
-        self.program.extend(program);
-    }
-
-    fn run(&mut self) -> Result<(), crate::Error> {
-        Executor::run(self)
-    }
 }

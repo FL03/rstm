@@ -13,7 +13,7 @@ pub struct Cell<Q, A> {
 
 impl<Q, A> Cell<Q, A> {
     pub fn state(&self) -> State<&Q> {
-        self.state.to_ref()
+        self.state.view()
     }
 
     pub fn symbol(&self) -> &A {

@@ -11,7 +11,33 @@ keywords.workspace = true
 license.workspace = true
 readme.workspace = true
 repository.workspace = true
+rust-version.workspace = true
 version.workspace = true
+
+[lib]
+crate-type = [ 
+    "cdylib", 
+    "rlib",
+]
+bench = true
+doc = true
+doctest = false
+test = true
+
+[package.metadata.docs.rs]
+all-features = false
+features = [ "full" ]
+rustc-args = [ "--cfg", "docsrs" ]
+
+[dependencies]
+rstm-core = { workspace = true }
+
+[dev-dependencies]
+anyhow = { features = ["std"], workspace = true }
+criterion = { features = ["plotters"], workspace = true }
+lazy_static = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { features = ["json", "serde"], workspace = true }
 
 [features]
 default = [
@@ -30,12 +56,12 @@ alloc = [
     "rstm-core/alloc",
 ]
 
-json = [
-    "rstm-core/json",
+anyhow = [
+    "rstm-core/anyhow",
 ]
 
-serde = [
-    "rstm-core/serde",
+json = [
+    "rstm-core/json",
 ]
 
 rand = [
@@ -46,33 +72,38 @@ rng = [
     "rstm-core/rng",
 ]
 
+serde = [
+    "rstm-core/serde",
+]
+
+serde_json = [
+    "rstm-core/serde_json",
+]
+
 tracing = [
     "rstm-core/tracing",
 ]
 
-# ********* [FF] Environments *********
+# ************* [FF:Environments] *************
 std = [
     "alloc",
     "rstm-core/std",
 ]
 
-[lib]
-bench = true
-crate-type = [ "cdylib", "rlib" ]
-doctest = false
-test = true
+wasi = [
+    "rstm-core/wasi",
+]
 
-[dependencies]
-rstm-core = { path = "../core", version = "0.0.6" }
+wasm = [
+    "rstm-core/wasm",
+]
 
-[dev-dependencies]
-lazy_static = { workspace = true }
-tracing = { workspace = true }
-tracing-subscriber = { features = ["env-filter", "fmt", "json", "serde"], workspace = true }
 
-[package.metadata.docs.rs]
-all-features = true
-rustc-args = [ "--cfg", "docsrs" ]
+# ************* [Benchmarks] *************
+[[bench]]
+name = "default"
+required-features = [ "std" ]
+harness = false
 
 # ********* Examples *********
 [[example]]

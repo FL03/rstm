@@ -2,9 +2,10 @@
     Appellation: actor <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Executor;
+use super::{Executor, Handle};
 use crate::rules::RuleSet;
-use crate::{Direction, Error, Head, State};
+use crate::state::{RawState, State};
+use crate::{Direction, Error, Head, Symbolic, Tail};
 
 /// An [Actor] is an implementation of a Turing machine with a moving head (TMH).
 ///
@@ -20,7 +21,10 @@ pub struct Actor<Q, A> {
     pub(crate) tape: Vec<A>,
 }
 
-impl<Q, A> Actor<Q, A> {
+impl<Q, A> Actor<Q, A>
+where
+    Q: RawState,
+{
     pub fn new(alpha: impl IntoIterator<Item = A>, state: State<Q>, symbol: usize) -> Self {
         Self {
             head: Head { state, symbol },
@@ -35,15 +39,41 @@ impl<Q, A> Actor<Q, A> {
             tape: Vec::new(),
         }
     }
-    /// Consumes the current instance and returns a new instance with the given alphabet
-    pub fn with_alpha<I>(self, alpha: I) -> Self
-    where
-        I: IntoIterator<Item = A>,
-    {
-        Self {
-            tape: Vec::from_iter(alpha),
-            ..self
-        }
+    /// returns an immutable reference to the head of the tape
+    pub const fn head(&self) -> &Head<Q, usize> {
+        &self.head
+    }
+    /// returns a mutable reference to the head of the tape
+    pub const fn head_mut(&mut self) -> &mut Head<Q, usize> {
+        &mut self.head
+    }
+    /// returns an immutable reference to the tape
+    pub const fn tape(&self) -> &Vec<A> {
+        &self.tape
+    }
+    /// returns a mutable reference of the tape
+    pub const fn tape_mut(&mut self) -> &mut Vec<A> {
+        &mut self.tape
+    }
+    /// update the current head and return a mutable reference to the actor
+    pub fn set_head(&mut self, head: Head<Q, usize>) -> &mut Self {
+        self.head = head;
+        self
+    }
+    /// updates the current position of the head and returns a mutable reference to the actor
+    pub fn set_position(&mut self, symbol: usize) -> &mut Self {
+        self.head_mut().set_symbol(symbol);
+        self
+    }
+    /// updates the current state of the head and returns a mutable reference to the actor
+    pub fn set_state(&mut self, state: State<Q>) -> &mut Self {
+        self.head_mut().set_state(state);
+        self
+    }
+    /// update the current tape and return a mutable reference to the actor
+    pub fn set_tape(&mut self, tape: Vec<A>) -> &mut Self {
+        self.tape = tape;
+        self
     }
     /// Consumes the current instance and returns a new instance with the given head
     pub fn with_head(self, head: Head<Q, usize>) -> Self {
@@ -66,40 +96,34 @@ impl<Q, A> Actor<Q, A> {
             ..self
         }
     }
-    /// Returns an immutable reference to the tape, as a slice
-    pub fn tape(&self) -> &[A] {
-        &self.tape
+    /// Consumes the current instance and returns a new instance with the given alphabet
+    pub fn with_tape<I>(self, alpha: I) -> Self
+    where
+        I: IntoIterator<Item = A>,
+    {
+        Self {
+            tape: Vec::from_iter(alpha),
+            ..self
+        }
     }
-    /// Returns a mutable reference of the tape as a slice
-    pub fn tape_mut(&mut self) -> &mut [A] {
-        &mut self.tape
-    }
-    /// Returns an immutable reference to the head of the tape
-    pub const fn head(&self) -> &Head<Q, usize> {
-        &self.head
-    }
-    /// Returns a mutable reference to the head of the tape
-    pub fn head_mut(&mut self) -> &mut Head<Q, usize> {
-        &mut self.head
-    }
-    /// Returns an instance of the [Head] with an immutable reference to the state's inner
+    /// returns an instance of the [Head] with an immutable reference to the state's inner
     /// value
     pub fn head_ref(&self) -> Head<&Q, usize> {
         Head {
-            state: self.head.state.to_ref(),
+            state: self.head.state.view(),
             symbol: self.head.symbol,
         }
     }
-    /// Returns the current position of the head on the tape
+    /// returns the current position of the head on the tape
     pub fn position(&self) -> usize {
-        self.head().symbol
+        *self.head().symbol()
     }
-    /// Returns an instance of the state with an immutable reference to the inner value
-    pub fn state(&self) -> State<&Q> {
+    /// returns an instance of the state with an immutable reference to the inner value
+    pub const fn state(&self) -> &State<Q> {
         self.head().state()
     }
-    /// Returns an instance of the state with a mutable reference to the inner value
-    pub fn state_mut(&mut self) -> State<&mut Q> {
+    /// returns an instance of the state with a mutable reference to the inner value
+    pub const fn state_mut(&mut self) -> &mut State<Q> {
         self.head_mut().state_mut()
     }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
@@ -118,7 +142,7 @@ impl<Q, A> Actor<Q, A> {
     {
         self.head().state.is_halt()
     }
-    /// Returns the length of the tape
+    /// returns the length of the tape
     #[inline]
     pub fn len(&self) -> usize {
         self.tape.len()
@@ -128,16 +152,19 @@ impl<Q, A> Actor<Q, A> {
         feature = "tracing",
         tracing::instrument(skip_all, name = "read", target = "actor")
     )]
-    pub fn read(&self) -> Result<Head<&'_ Q, &'_ A>, Error> {
+    pub fn read(&self) -> crate::Result<Head<&'_ Q, &'_ A>> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Reading the tape...");
         self.tape
             .get(self.position())
             .map(|symbol| Head {
-                state: self.state(),
+                state: self.state().view(),
                 symbol,
             })
-            .ok_or(Error::index_out_of_bounds(self.position(), self.len()))
+            .ok_or(Error::IndexOutOfBounds {
+                index: self.position(),
+                len: self.len(),
+            })
     }
 
     /// Writes the given symbol to the tape
@@ -186,8 +213,55 @@ impl<Q, A> Actor<Q, A> {
     }
 }
 
+impl<Q, S> Handle<(Direction, State<Q>, S)> for Actor<Q, S>
+where
+    Q: RawState + Clone + PartialEq,
+    S: Symbolic,
+{
+    type Output = Head<Q, usize>;
+
+    fn handle(&mut self, (direction, state, symbol): (Direction, State<Q>, S)) -> Self::Output {
+        self.step(direction, state, symbol)
+    }
+}
+
+impl<Q, S> Handle<(Direction, Head<Q, S>)> for Actor<Q, S>
+where
+    Q: RawState + Clone + PartialEq,
+    S: Symbolic,
+{
+    type Output = Head<Q, usize>;
+
+    fn handle(
+        &mut self,
+        (direction, Head { state, symbol }): (Direction, Head<Q, S>),
+    ) -> Self::Output {
+        self.step(direction, state, symbol)
+    }
+}
+
+impl<Q, S> Handle<Tail<Q, S>> for Actor<Q, S>
+where
+    Q: RawState + Clone + PartialEq,
+    S: Symbolic,
+{
+    type Output = Head<Q, usize>;
+
+    fn handle(
+        &mut self,
+        Tail {
+            direction,
+            state,
+            symbol,
+        }: Tail<Q, S>,
+    ) -> Self::Output {
+        self.step(direction, state, symbol)
+    }
+}
+
 impl<Q, S> core::fmt::Debug for Actor<Q, S>
 where
+    Q: RawState,
     S: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
@@ -204,6 +278,7 @@ where
 
 impl<Q, S> core::fmt::Display for Actor<Q, S>
 where
+    Q: RawState,
     S: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
