@@ -2,11 +2,11 @@
     Appellation: impl_ops <state>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::State;
+use crate::state::{RawState, State};
 
 impl<Q> core::ops::Neg for State<Q>
 where
-    Q: core::ops::Neg,
+    Q: RawState + core::ops::Neg,
 {
     type Output = State<Q::Output>;
 
@@ -17,7 +17,7 @@ where
 
 impl<'a, Q> core::ops::Neg for &'a State<Q>
 where
-    &'a Q: core::ops::Neg,
+    &'a Q: RawState + core::ops::Neg,
 {
     type Output = State<<&'a Q as core::ops::Neg>::Output>;
 
@@ -28,7 +28,7 @@ where
 
 impl<Q> core::ops::Not for State<Q>
 where
-    Q: core::ops::Not,
+    Q: RawState + core::ops::Not,
 {
     type Output = State<Q::Output>;
 
@@ -39,7 +39,7 @@ where
 
 impl<'a, Q> core::ops::Not for &'a State<Q>
 where
-    &'a Q: core::ops::Not,
+    &'a Q: RawState + core::ops::Not,
 {
     type Output = State<<&'a Q as core::ops::Not>::Output>;
 
@@ -50,7 +50,7 @@ where
 
 impl<Q> num_traits::Num for State<Q>
 where
-    Q: num_traits::Num,
+    Q: RawState + num_traits::Num,
 {
     type FromStrRadixErr = Q::FromStrRadixErr;
 
@@ -61,7 +61,7 @@ where
 
 impl<Q> num_traits::One for State<Q>
 where
-    Q: PartialEq + num_traits::One,
+    Q: RawState + PartialEq + num_traits::One,
 {
     fn one() -> Self {
         State(Q::one())
@@ -74,7 +74,7 @@ where
 
 impl<Q> num_traits::Zero for State<Q>
 where
-    Q: num_traits::Zero,
+    Q: RawState + num_traits::Zero,
 {
     fn zero() -> Self {
         State(Q::zero())
@@ -83,6 +83,84 @@ where
     fn is_zero(&self) -> bool {
         self.0.is_zero()
     }
+}
+
+macro_rules! impl_bin_op {
+    (@impl $wrap:ident($trait:ident::$method:ident)) => {
+        impl<A, B, C> ::core::ops::$trait<$wrap<B>> for $wrap<A>
+        where
+            A: $crate::state::RawState + ::core::ops::$trait<B, Output = C>,
+            B: $crate::state::RawState,
+            C: $crate::state::RawState,
+        {
+            type Output = $wrap<C>;
+
+            fn $method(self, rhs: $wrap<B>) -> Self::Output {
+                $wrap(::core::ops::$trait::$method(self.0, rhs.0))
+            }
+        }
+
+        impl<'a, A, B, C> ::core::ops::$trait<&'a $wrap<B>> for $wrap<A>
+        where
+            A: $crate::state::RawState + ::core::ops::$trait<&'a B, Output = C>,
+            B: $crate::state::RawState,
+            C: $crate::state::RawState,
+        {
+            type Output = $wrap<C>;
+
+            fn $method(self, rhs: &'a $wrap<B>) -> Self::Output {
+                $wrap(::core::ops::$trait::$method(self.value(), rhs.get()))
+            }
+        }
+
+        impl<'a, A, B, C> ::core::ops::$trait<&'a $wrap<B>> for &'a $wrap<A>
+        where
+            &'a A: $crate::state::RawState + ::core::ops::$trait<&'a B, Output = C>,
+            B: $crate::state::RawState,
+            C: $crate::state::RawState,
+        {
+            type Output = $wrap<C>;
+
+            fn $method(self, rhs: &'a $wrap<B>) -> Self::Output {
+                $wrap(::core::ops::$trait::$method(self.get(), rhs.get()))
+            }
+        }
+
+        impl<'a, A, B, C> ::core::ops::$trait<$wrap<B>> for &'a $wrap<A>
+        where
+            &'a A: $crate::state::RawState + ::core::ops::$trait<B, Output = C>,
+            B: $crate::state::RawState,
+            C: $crate::state::RawState,
+        {
+            type Output = $wrap<C>;
+
+            fn $method(self, rhs: $wrap<B>) -> Self::Output {
+                $wrap(::core::ops::$trait::$method(self.get(), rhs.value()))
+            }
+        }
+    };
+
+    ($wrap:ident($($trait:ident::$method:ident),* $(,)?)) => {
+        $(impl_bin_op!(@impl $wrap($trait::$method));)*
+    };
+}
+
+macro_rules! impl_assign_op {
+    (@impl $wrap:ident($trait:ident::$method:ident)) => {
+        impl<A, B> ::core::ops::$trait<B> for $wrap<A>
+        where
+            A: $crate::state::RawState + ::core::ops::$trait<B>,
+            B: $crate::state::RawState,
+        {
+            fn $method(&mut self, rhs: B) {
+                ::core::ops::$trait::$method(self.get_mut(), rhs)
+            }
+        }
+    };
+
+    ($wrap:ident($($trait:ident::$method:ident),* $(,)?)) => {
+        $(impl_assign_op!(@impl $wrap($trait::$method));)*
+    };
 }
 
 impl_assign_op! {

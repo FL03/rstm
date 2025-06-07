@@ -2,21 +2,27 @@
     Appellation: program <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-#![cfg(feature = "alloc")]
 use super::Rule;
-use crate::{Head, State, Tail};
+use crate::state::{RawState, State};
+use crate::{Head, Tail};
 use alloc::vec::{self, Vec};
 
 type Rules<Q, S> = Vec<Rule<Q, S>>;
 
 #[derive(Clone, Debug, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct RuleSet<Q = String, S = char> {
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
+pub struct RuleSet<Q = String, S = char>
+where
+    Q: RawState,
+{
     pub(crate) initial_state: Option<State<Q>>,
     pub(crate) rules: Rules<Q, S>,
 }
 
-impl<Q, S> RuleSet<Q, S> {
+impl<Q, S> RuleSet<Q, S>
+where
+    Q: RawState,
+{
     pub fn new() -> Self {
         Self {
             initial_state: None,
@@ -59,7 +65,7 @@ impl<Q, S> RuleSet<Q, S> {
     }
     /// Returns an owned reference to the initial state of the program.
     pub fn initial_state(&self) -> Option<State<&'_ Q>> {
-        self.initial_state.as_ref().map(|state| state.to_ref())
+        self.initial_state.as_ref().map(|state| state.view())
     }
     /// Returns a reference to the instructions.
     pub const fn instructions(&self) -> &Rules<Q, S> {
@@ -126,8 +132,8 @@ impl<Q, S> RuleSet<Q, S> {
         S: PartialEq,
     {
         self.iter().find_map(|i| {
-            if i.head_ref() == head {
-                Some(i.tail_ref())
+            if i.head_view() == head {
+                Some(i.tail_view())
             } else {
                 None
             }
@@ -143,19 +149,28 @@ impl<Q, S> RuleSet<Q, S> {
     }
 }
 
-impl<Q, S> AsRef<[Rule<Q, S>]> for RuleSet<Q, S> {
+impl<Q, S> AsRef<[Rule<Q, S>]> for RuleSet<Q, S>
+where
+    Q: RawState,
+{
     fn as_ref(&self) -> &[Rule<Q, S>] {
         &self.rules
     }
 }
 
-impl<Q, S> AsMut<[Rule<Q, S>]> for RuleSet<Q, S> {
+impl<Q, S> AsMut<[Rule<Q, S>]> for RuleSet<Q, S>
+where
+    Q: RawState,
+{
     fn as_mut(&mut self) -> &mut [Rule<Q, S>] {
         &mut self.rules
     }
 }
 
-impl<Q, S> core::ops::Deref for RuleSet<Q, S> {
+impl<Q, S> core::ops::Deref for RuleSet<Q, S>
+where
+    Q: RawState,
+{
     type Target = [Rule<Q, S>];
 
     fn deref(&self) -> &Self::Target {
@@ -163,7 +178,10 @@ impl<Q, S> core::ops::Deref for RuleSet<Q, S> {
     }
 }
 
-impl<Q, S> core::ops::DerefMut for RuleSet<Q, S> {
+impl<Q, S> core::ops::DerefMut for RuleSet<Q, S>
+where
+    Q: RawState,
+{
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.rules
     }
@@ -171,7 +189,7 @@ impl<Q, S> core::ops::DerefMut for RuleSet<Q, S> {
 
 impl<Q, S> core::ops::Index<Head<Q, S>> for RuleSet<Q, S>
 where
-    Q: PartialEq,
+    Q: RawState + PartialEq,
     S: PartialEq,
 {
     type Output = Tail<Q, S>;
@@ -181,7 +199,10 @@ where
     }
 }
 
-impl<Q: Default, S> From<Vec<Rule<Q, S>>> for RuleSet<Q, S> {
+impl<Q, S> From<Vec<Rule<Q, S>>> for RuleSet<Q, S>
+where
+    Q: RawState + Default,
+{
     fn from(instructions: Vec<Rule<Q, S>>) -> Self {
         Self {
             initial_state: Some(State::default()),
@@ -190,7 +211,10 @@ impl<Q: Default, S> From<Vec<Rule<Q, S>>> for RuleSet<Q, S> {
     }
 }
 
-impl<Q, S> Extend<Rule<Q, S>> for RuleSet<Q, S> {
+impl<Q, S> Extend<Rule<Q, S>> for RuleSet<Q, S>
+where
+    Q: RawState,
+{
     fn extend<I: IntoIterator<Item = Rule<Q, S>>>(&mut self, iter: I) {
         self.rules.extend(iter)
     }
@@ -198,7 +222,7 @@ impl<Q, S> Extend<Rule<Q, S>> for RuleSet<Q, S> {
 
 impl<Q, S> FromIterator<Rule<Q, S>> for RuleSet<Q, S>
 where
-    Q: Default,
+    Q: RawState + Default,
 {
     fn from_iter<I: IntoIterator<Item = Rule<Q, S>>>(iter: I) -> Self {
         Self {
@@ -208,7 +232,10 @@ where
     }
 }
 
-impl<Q, S> IntoIterator for RuleSet<Q, S> {
+impl<Q, S> IntoIterator for RuleSet<Q, S>
+where
+    Q: RawState,
+{
     type Item = Rule<Q, S>;
     type IntoIter = vec::IntoIter<Self::Item>;
 

@@ -2,13 +2,13 @@
     Appellation: halting <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::{RawState, State};
+use crate::state::{State, Stated};
 
 mod impl_enum;
 mod impl_halt;
 
 pub trait Haltable<Q> {
-    type State: RawState<Q = Q>;
+    type State: Stated<Item = Q>;
 
     private!();
 
@@ -54,7 +54,7 @@ pub struct Halt<Q>(pub Q);
     strum_discriminants(derive(serde::Deserialize, serde::Serialize))
 )]
 #[strum_discriminants(name(HaltTag), derive(Hash, Ord, PartialOrd))]
-pub enum HaltState<Q> {
+pub enum HaltState<Q = usize> {
     Halt(Halt<Q>),
     State(State<Q>),
 }
@@ -113,7 +113,7 @@ impl<Q> HaltableExt<Q> for Halt<Q> {
 
 impl<Q> HaltableExt<Q> for Option<State<Q>> {
     fn get(self) -> Option<Q> {
-        self.map(|state| state.into_inner())
+        self.map(|state| state.value())
     }
 
     fn get_mut(&mut self) -> Option<&mut Q> {
@@ -123,7 +123,7 @@ impl<Q> HaltableExt<Q> for Option<State<Q>> {
 
 impl<Q> HaltableExt<Q> for State<Option<Q>> {
     fn get(self) -> Option<Q> {
-        self.into_inner()
+        self.value()
     }
 
     fn get_mut(&mut self) -> Option<&mut Q> {

@@ -1,11 +1,10 @@
 ---
-name: Bug report
-about: Create a report to help us improve
+about: Suggest an idea for this project
 assignees: [ FL03 ]
 labels: [ bug ]
-projects: [ '@FL03/rstm:dev' ]
-title: 'Bug: '
-
+name: Bug report
+projects: ['@FL03/rstmt:dev']
+title: 'Bug report: '
 ---
 
 **Describe the bug**

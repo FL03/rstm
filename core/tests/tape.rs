@@ -12,5 +12,5 @@ fn stdtape() {
     tape.write(0);
     tape.write(1);
 
-    assert_eq!(tape.read(), Ok(&1));
+    assert_eq!(tape.read().ok(), Some(&1));
 }

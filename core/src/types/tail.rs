@@ -2,9 +2,8 @@
     Appellation: tail <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-pub use self::builder::TailBuilder;
-
-use crate::{Direction, Head, State};
+use crate::state::{RawState, State};
+use crate::{Direction, Head};
 
 /// The [Tail] is a 3-tuple containing the direction, state, and symbol that an actor is
 /// instructed to execute whenever it assumes the head configuration assigned to the tail.
@@ -14,6 +13,7 @@ use crate::{Direction, Head, State};
     derive(serde::Deserialize, serde::Serialize),
     serde(rename_all = "lowercase")
 )]
+#[repr(C)]
 pub struct Tail<Q, S> {
     pub direction: Direction,
     #[cfg_attr(feature = "serde", serde(alias = "next_state"))]
@@ -25,18 +25,59 @@ pub struct Tail<Q, S> {
     pub symbol: S,
 }
 
-impl<Q, S> Tail<Q, S> {
-    pub fn new(direction: Direction, State(state): State<Q>, symbol: S) -> Self {
+impl<Q, S> Tail<Q, S>
+where
+    Q: RawState,
+{
+    pub const fn new(direction: Direction, state: State<Q>, symbol: S) -> Self {
         Self {
             direction,
-            state: State(state),
+            state,
             symbol,
         }
     }
-    /// Returns an instance of [TailBuilder] allowing developers to construct a [Tail] with
-    /// a fluent API
-    pub fn init() -> TailBuilder<Q, S> {
-        TailBuilder::new()
+    /// returns the direction, state, and symbol as a 3-tuple
+    pub const fn as_tuple(&self) -> (Direction, &State<Q>, &S) {
+        (self.direction, &self.state, &self.symbol)
+    }
+    /// consumes the tail and returns the direction, state, and symbol as a 3-tuple
+    pub fn into_tuple(self) -> (Direction, State<Q>, S) {
+        (self.direction, self.state, self.symbol)
+    }
+    /// returns the direction the [head](StdHead) is instructed to move
+    pub const fn direction(&self) -> Direction {
+        self.direction
+    }
+    /// returns the next state with an immutable reference to the inner value
+    pub const fn state(&self) -> &State<Q> {
+        &self.state
+    }
+    /// returns the next state with a mutable reference to the inner value
+    pub const fn state_mut(&mut self) -> &mut State<Q> {
+        &mut self.state
+    }
+    /// returns the symbol the [head](Head) is instructed to write
+    pub const fn symbol(&self) -> &S {
+        &self.symbol
+    }
+    /// returns a mutable reference to the symbol of the tail
+    pub const fn symbol_mut(&mut self) -> &mut S {
+        &mut self.symbol
+    }
+    /// updates the current [direction](Direction) and returns a mutable reference to the tail
+    pub fn set_direction(&mut self, direction: Direction) -> &mut Self {
+        self.direction = direction;
+        self
+    }
+    /// updates the current [state](State) and returns a mutable reference to the tail
+    pub fn set_state(&mut self, State(state): State<Q>) -> &mut Self {
+        self.state = State(state);
+        self
+    }
+    /// updates the current symbol and returns a mutable reference to the tail
+    pub fn set_symbol(&mut self, symbol: S) -> &mut Self {
+        self.symbol = symbol;
+        self
     }
     /// Configures the tail with a new direction
     pub fn with_direction(self, direction: Direction) -> Self {
@@ -53,88 +94,58 @@ impl<Q, S> Tail<Q, S> {
     pub fn with_symbol(self, symbol: S) -> Self {
         Self { symbol, ..self }
     }
-    /// Returns the direction, state, and symbol as a 3-tuple
-    pub fn as_tuple(&self) -> (Direction, &State<Q>, &S) {
-        (self.direction, &self.state, &self.symbol)
+    /// converts a [`Tail`] reference into an owned head.
+    pub fn as_head(&self) -> Head<&Q, &S> {
+        Head {
+            state: self.state.view(),
+            symbol: &self.symbol,
+        }
     }
-    /// Consumes the tail and returns the direction, state, and symbol as a 3-tuple
-    pub fn into_tuple(self) -> (Direction, State<Q>, S) {
-        (self.direction, self.state, self.symbol)
-    }
-    /// Returns the direction the [head](StdHead) is instructed to move
-    pub fn direction(&self) -> Direction {
-        self.direction
-    }
-    /// Returns the next state with an immutable reference to the inner value
-    pub fn state(&self) -> State<&'_ Q> {
-        self.state.to_ref()
-    }
-    /// Returns the next state with a mutable reference to the inner value
-    pub fn state_mut(&mut self) -> State<&'_ mut Q> {
-        self.state.to_mut()
-    }
-    /// Returns the symbol the [head](Head) is instructed to write
-    pub const fn symbol(&self) -> &S {
-        &self.symbol
-    }
-    /// Consumes the tail and returns a new instance of the [Head]
+    /// consumes the current tail to convert it into a [head](Head)
     pub fn into_head(self) -> Head<Q, S> {
         Head {
             state: self.state,
             symbol: self.symbol,
         }
     }
-    /// Returns an instance of the [head](Head) where each element within
-    /// the created instance is an immutable reference
-    pub fn as_head(&self) -> Head<&Q, &S> {
-        Head {
-            state: self.state.to_ref(),
-            symbol: &self.symbol,
+    /// returns an instance of the [head](Head) where each element within
+    /// the created instance is a mutable reference
+    pub const fn view(&self) -> Tail<&Q, &S> {
+        Tail {
+            direction: self.direction(),
+            state: self.state().view(),
+            symbol: self.symbol(),
         }
     }
-
-    pub fn to_ref(&self) -> Tail<&'_ Q, &'_ S> {
+    /// returns a new [`Tail`] containing mutabl references to the state and symbol
+    pub fn view_mut(&mut self) -> Tail<&mut Q, &mut S> {
         Tail {
             direction: self.direction,
-            state: self.state.to_ref(),
-            symbol: &self.symbol,
-        }
-    }
-
-    pub fn to_mut(&mut self) -> Tail<&'_ mut Q, &'_ mut S> {
-        Tail {
-            direction: self.direction,
-            state: self.state.to_mut(),
+            state: self.state.view_mut(),
             symbol: &mut self.symbol,
         }
     }
-
-    pub fn into_owned(self) -> Tail<Q, S>
-    where
-        Q: Clone,
-        S: Clone,
-    {
-        Tail {
-            direction: self.direction,
-            state: self.state,
-            symbol: self.symbol,
-        }
+    #[deprecated(
+        since = "v0.0.7",
+        note = "use `view` instead, as it is more idiomatic and clearer."
+    )]
+    pub fn to_ref(&self) -> Tail<&Q, &S> {
+        self.view()
     }
-
-    pub fn to_owned(&self) -> Tail<Q, S>
-    where
-        Q: Clone,
-        S: Clone,
-    {
-        Tail {
-            direction: self.direction,
-            state: self.state.to_owned(),
-            symbol: self.symbol.clone(),
-        }
+    #[deprecated(
+        since = "v0.0.7",
+        note = "use `view_mut` instead, as it is more idiomatic and clearer."
+    )]
+    pub fn to_mut(&mut self) -> Tail<&mut Q, &mut S> {
+        self.view_mut()
     }
 }
 
-impl<'a, Q, S> Tail<&'a Q, &'a S> {
+impl<'a, Q, S> Tail<&'a Q, &'a S>
+where
+    Q: RawState,
+{
+    /// returns a new [`Tail`] with cloned elements
     pub fn cloned(&self) -> Tail<Q, S>
     where
         Q: Clone,
@@ -146,7 +157,7 @@ impl<'a, Q, S> Tail<&'a Q, &'a S> {
             symbol: self.symbol.clone(),
         }
     }
-
+    /// returns a new [`Tail`] with copied elements
     pub fn copied(&self) -> Tail<Q, S>
     where
         Q: Copy,
@@ -160,7 +171,11 @@ impl<'a, Q, S> Tail<&'a Q, &'a S> {
     }
 }
 
-impl<'a, Q, S> Tail<&'a mut Q, &'a mut S> {
+impl<'a, Q, S> Tail<&'a mut Q, &'a mut S>
+where
+    Q: RawState,
+{
+    /// returns a new [`Tail`] with cloned elements
     pub fn cloned(&self) -> Tail<Q, S>
     where
         Q: Clone,
@@ -172,7 +187,7 @@ impl<'a, Q, S> Tail<&'a mut Q, &'a mut S> {
             symbol: self.symbol.clone(),
         }
     }
-
+    /// returns a new [`Tail`] with copied elements
     pub fn copied(&self) -> Tail<Q, S>
     where
         Q: Copy,
@@ -188,7 +203,7 @@ impl<'a, Q, S> Tail<&'a mut Q, &'a mut S> {
 
 impl<Q, S> core::fmt::Debug for Tail<Q, S>
 where
-    Q: core::fmt::Debug,
+    Q: RawState,
     S: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -202,77 +217,14 @@ where
 
 impl<Q, S> core::fmt::Display for Tail<Q, S>
 where
-    Q: core::fmt::Display,
+    Q: RawState,
     S: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "{}({}, {})", self.direction, self.state, self.symbol)
-    }
-}
-
-mod builder {
-    use super::*;
-
-    pub struct TailBuilder<Q, S> {
-        direction: Direction,
-        state: Option<State<Q>>,
-        symbol: Option<S>,
-    }
-
-    impl<Q, S> Default for TailBuilder<Q, S> {
-        fn default() -> Self {
-            Self::new()
-        }
-    }
-
-    impl<Q, S> TailBuilder<Q, S> {
-        pub fn new() -> Self {
-            Self {
-                direction: Direction::Right,
-                state: None,
-                symbol: None,
-            }
-        }
-
-        pub fn from_direction(direction: Direction) -> Self {
-            Self {
-                direction,
-                state: None,
-                symbol: None,
-            }
-        }
-        /// Sets the direction
-        pub fn direction(self, direction: Direction) -> Self {
-            Self { direction, ..self }
-        }
-        /// Sets the next [state](State)
-        pub fn state(self, State(state): State<Q>) -> Self {
-            Self {
-                state: Some(State(state)),
-                ..self
-            }
-        }
-        /// Sets the symbol
-        pub fn symbol(self, symbol: S) -> Self {
-            Self {
-                symbol: Some(symbol),
-                ..self
-            }
-        }
-        /// Consumes the builder and returns a new instance of the [tail](Tail)
-        pub fn build(self) -> Result<Tail<Q, S>, crate::Error> {
-            if self.state.is_none() {
-                return Err("Missing state".into());
-            }
-
-            if self.symbol.is_none() {
-                return Err("Missing symbol".into());
-            }
-            Ok(Tail::new(
-                self.direction,
-                self.state.expect("State is required"),
-                self.symbol.expect("Symbol is required"),
-            ))
-        }
+        write!(
+            f,
+            "{{ direction: {}, state: {}, symbol: {} }}",
+            self.direction, self.state, self.symbol
+        )
     }
 }

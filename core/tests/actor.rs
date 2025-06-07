@@ -21,7 +21,7 @@ fn busy_beaver() {
         (-1, 1) -> Left(0, 1),
     };
 
-    let actor = Actor::from_state(initial_state).with_alpha(input);
+    let actor = Actor::from_state(initial_state).with_tape(input);
     let mut rt = actor.execute(program);
     for _ in 0..10 {
         assert!(rt.next().is_some());

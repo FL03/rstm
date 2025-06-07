@@ -9,12 +9,12 @@ use rstm::state::{Halt, State};
 #[test]
 fn state() {
     // create a new instance of state
-    let state = State::from_value(0);
+    let state = State::new(0);
     // validate the functional accessors; get and into_inner
     assert_eq!(state.get(), &0);
-    assert_eq!(state.into_inner(), 0);
+    assert_eq!(state.value(), 0);
     // create a new mutable instance of state
-    let mut state = State::from_value(0);
+    let mut state = State::new(0);
     // replace the inner value with 1
     assert_eq!(state.replace(1), 0);
     // verify the replacement
@@ -28,7 +28,7 @@ fn state() {
     // verify the reset
     assert_eq!(*state.get(), 0);
     // swap
-    state.swap(&mut State::from_value(10));
+    state.swap(&mut State::new(10));
     // verify the swap
     assert_eq!(*state.get(), 10);
 }
@@ -82,7 +82,6 @@ fn convert_state() {
 
 #[test]
 fn numstate() {
-    use num::{One, Zero};
     // create a new instance of state with a value of 1
     let one = State::<isize>::one();
     // create a new instance of state with a value of 0_f64

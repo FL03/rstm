@@ -46,13 +46,20 @@ impl<Q> HaltState<Q> {
 
     pub fn set(&mut self, state: Q) {
         match self {
-            Self::State(inner) => inner.set(state),
-            Self::Halt(inner) => inner.set(state),
+            Self::State(inner) => {
+                let _ = inner.set(state);
+            }
+            Self::Halt(inner) => {
+                let _ = inner.set(state);
+            }
         }
     }
 }
 
-impl<Q: Default> Default for HaltState<Q> {
+impl<Q> Default for HaltState<Q>
+where
+    Q: Default,
+{
     fn default() -> Self {
         Self::State(State::default())
     }
