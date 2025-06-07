@@ -105,7 +105,7 @@ where
     {
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
-        while let Some(_h) = self.next() {
+        for _h in self.by_ref() {
             #[cfg(feature = "tracing")]
             tracing::info!("Executing step: {head:?}", head = _h);
         }
@@ -200,7 +200,7 @@ where
             // process the instruction
             let _prev = self.handle(tail);
             // return the head
-            return Some(next);
+            Some(next)
         } else {
             #[cfg(feature = "tracing")]
             tracing::error!("No symbol found at {}", self.actor.position());

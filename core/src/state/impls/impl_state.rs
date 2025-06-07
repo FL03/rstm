@@ -164,21 +164,21 @@ impl<Q> State<Q> {
 
 impl<Q> State<Q> {
     #[deprecated(
-        since = "v0.0.7",
+        since = "0.0.7",
         note = "use `value` instead, as it is more idiomatic and clearer."
     )]
     pub fn into_inner(self) -> Q {
         self.0
     }
     #[deprecated(
-        since = "v0.0.7",
+        since = "0.0.7",
         note = "use `view` instead, as it is more idiomatic and clearer."
     )]
     pub fn to_ref(&self) -> State<&Q> {
         self.view()
     }
     #[deprecated(
-        since = "v0.0.7",
+        since = "0.0.7",
         note = "use `view_mut` instead, as it is more idiomatic and clearer."
     )]
     pub fn to_mut(&mut self) -> State<&mut Q> {

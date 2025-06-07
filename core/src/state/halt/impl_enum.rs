@@ -50,7 +50,7 @@ impl<Q> HaltState<Q> {
                 let _ = inner.set(state);
             }
             Self::Halt(inner) => {
-                let _ = inner.set(state);
+                inner.set(state);
             }
         }
     }

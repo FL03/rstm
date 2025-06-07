@@ -77,7 +77,7 @@ impl<Q> Halt<Q> {
     }
 }
 
-impl<'a, Q> Halt<&'a Q> {
+impl<Q> Halt<&Q> {
     pub fn cloned(&self) -> Halt<Q>
     where
         Q: Clone,
@@ -93,7 +93,7 @@ impl<'a, Q> Halt<&'a Q> {
     }
 }
 
-impl<'a, Q> Halt<&'a mut Q> {
+impl<Q> Halt<&mut Q> {
     pub fn cloned(&self) -> Halt<Q>
     where
         Q: Clone,

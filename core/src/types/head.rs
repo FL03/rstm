@@ -147,7 +147,7 @@ where
         tape.get(self.symbol)
     }
     #[deprecated(
-        since = "v0.0.7",
+        since = "0.0.7",
         note = "use `view` instead, as it is more idiomatic and clearer."
     )]
     pub fn to_ref(&self) -> Head<&Q, &S> {
@@ -157,7 +157,7 @@ where
         }
     }
     #[deprecated(
-        since = "v0.0.7",
+        since = "0.0.7",
         note = "use `view_mut` instead, as it is more idiomatic and clearer."
     )]
     pub fn to_mut(&mut self) -> Head<&mut Q, &mut S> {
@@ -278,7 +278,7 @@ where
     }
 }
 
-impl<'a, Q, S> PartialEq<Head<Q, S>> for State<&'a Q>
+impl<Q, S> PartialEq<Head<Q, S>> for State<&Q>
 where
     Q: RawState + PartialEq,
 {
