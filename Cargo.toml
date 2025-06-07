@@ -26,11 +26,11 @@ license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/FL03/rstm.git"
 rust-version = "1.85.0"
-version = "0.0.7"
+version = "0.0.8"
 
 [workspace.dependencies]
-rstm = { default-features = false, path = "rstm", version = "0.0.7" }
-rstm-core = { default-features = false, path = "core", version = "0.0.7" }
+rstm = { default-features = false, path = "rstm", version = "0.0.8" }
+rstm-core = { default-features = false, path = "core", version = "0.0.8" }
 
 # custom
 scsys = { default-features = false, features = ["derive"], version = "0.2" }
