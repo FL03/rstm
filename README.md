@@ -1,11 +1,8 @@
 # rstm
 
-[![license](https://img.shields.io/crates/l/rstm.svg)](https://crates.io/crates/rstm)
-[![crates.io](https://img.shields.io/crates/v/rstm.svg)](https://crates.io/crates/rstm)
-[![docs.rs](https://docs.rs/rstm/badge.svg)](https://docs.rs/rstm)
-
-[![clippy](https://github.com/FL03/rstm/actions/workflows/clippy.yml/badge.svg)](https://github.com/FL03/rstm/actions/workflows/clippy.yml)
-[![rust](https://github.com/FL03/rstm/actions/workflows/rust.yml/badge.svg)](https://github.com/FL03/rstm/actions/workflows/rust.yml)
+[![crates.io](https://img.shields.io/crates/v/rstm?style=for-the-badge&logo=rust)](https://crates.io/crates/rstm)
+[![docs.rs](https://img.shields.io/docsrs/rstm?style=for-the-badge&logo=docs.rs)](https://docs.rs/rstm)
+[![GitHub License](https://img.shields.io/github/license/FL03/rstm?style=for-the-badge&logo=github)](https://github.com/FL03/rstm/blob/main/LICENSE)
 
 ***
 
@@ -15,12 +12,47 @@ Welcome to `rstm`! This crate provides a simple and easy-to-use interface for cr
 
 ## Getting Started
 
-### From the source
+### Pre-requisites
+
+To use this crate, you will need to have the following installed:
+
+- [Rust](https://www.rust-lang.org/tools/install) (version 1.85 or later)
+
+#### Installing Rust
+
+If you don't have Rust installed, you can install it using [rustup](https://rustup.rs/). This will install the latest stable version of Rust along with `cargo`, the Rust package manager.
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+After installation, make sure to add the Rust binary directory to your `PATH` environment variable. You can do this by running:
+
+```bash
+source $HOME/.cargo/env
+```
+
+### Adding to your project
+
+To add `rstm` to your Rust project, include it in your `Cargo.toml` file:
+
+```toml
+[dependencies.rstm]
+features = ["full"]
+version = "0.0.x"
+```
+
+### Building from the source
 
 Start by cloning the repository
 
 ```bash
 git clone https://github.com/FL03/rstm.git
+```
+
+Then, change into the directory:
+
+```bash
 cd rstm
 ```
 
