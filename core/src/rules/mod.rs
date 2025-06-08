@@ -10,7 +10,7 @@ pub use self::rule::{Rule, RuleBuilder};
 pub use self::rule_map::RuleMap;
 #[cfg(feature = "alloc")]
 #[doc(inline)]
-pub use self::rule_set::RuleSet;
+pub use self::rule_set::*;
 
 pub(crate) mod rule;
 
@@ -22,6 +22,10 @@ pub mod rule_set;
 #[doc(hidden)]
 mod impls {
     pub mod impl_rule;
+    #[cfg(feature = "std")]
+    pub mod impl_rule_map;
+    #[cfg(feature = "alloc")]
+    pub mod impl_rule_set;
 }
 
 pub(crate) mod prelude {
@@ -33,12 +37,15 @@ pub(crate) mod prelude {
     #[cfg(feature = "alloc")]
     #[doc(inline)]
     pub use super::rule_set::RuleSet;
+    #[doc(inline)]
     pub use super::{Directive, Scope, Transition};
 }
 
 use crate::state::{RawState, State};
 use crate::{Direction, Head, Symbolic, Tail};
 
+/// The [`Program`] trait establishes a common interface for objects that represent a
+/// collection of rules.
 pub trait Program<Q, A>
 where
     Q: RawState,
@@ -54,28 +61,30 @@ where
 
     fn remove(&mut self, key: &Self::Key) -> Option<Self::Val>;
 }
-
+/// The [`Transition`] trait defines the expected behaviors of a particular rule within a
+/// Turing machine program.
 pub trait Transition<Q, S>
 where
     Q: RawState,
 {
+    /// returns a copy of the direction of the head
     fn direction(&self) -> Direction;
-
+    /// returns a reference to the current state of the Turing machine
     fn current_state(&self) -> &State<Q>;
-
+    /// returns a reference to the next state of the Turing machine
     fn next_state(&self) -> &State<Q>;
-
+    /// returns a reference to the current symbol under the head
     fn symbol(&self) -> &S;
-
+    /// returns a reference to the symbol to be written by the head
     fn write_symbol(&self) -> &S;
-
+    /// returns an instance of [`Head`] containing references to the current state and symbol
     fn head(&self) -> Head<&Q, &S> {
         Head {
             state: self.current_state().view(),
             symbol: self.symbol(),
         }
     }
-
+    /// returns an instance of [`Tail`] containing references to the next state and symbol
     fn tail(&self) -> Tail<&Q, &S> {
         Tail {
             direction: self.direction(),
@@ -83,7 +92,7 @@ where
             symbol: self.write_symbol(),
         }
     }
-
+    /// returns an instance of [`Rule`] containing references to the states and symbols within
     fn as_rule(&self) -> Rule<&Q, &S> {
         Rule {
             head: self.head(),

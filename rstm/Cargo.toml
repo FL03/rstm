@@ -46,12 +46,33 @@ default = [
 
 full = [
     "default",
+    "macros",
     "rand",
     "serde",
     "tracing",
 ]
 
-# ********* [FF] Dependencies *********
+# ************* [FF:Features] *************
+
+macros = []
+
+# ************* [FF:Environments] *************
+
+std = [
+    "alloc",
+    "rstm-core/std",
+]
+
+wasi = [
+    "rstm-core/wasi",
+]
+
+wasm = [
+    "rstm-core/wasm",
+]
+
+# ************* [FF:Dependencies] *************
+
 alloc = [
     "rstm-core/alloc",
 ]
@@ -84,28 +105,25 @@ tracing = [
     "rstm-core/tracing",
 ]
 
-# ************* [FF:Environments] *************
-std = [
-    "alloc",
-    "rstm-core/std",
-]
-
-wasi = [
-    "rstm-core/wasi",
-]
-
-wasm = [
-    "rstm-core/wasm",
-]
-
-
 # ************* [Benchmarks] *************
 [[bench]]
 name = "default"
 required-features = [ "std" ]
 harness = false
 
-# ********* Examples *********
+# ************* [Examples] *************
 [[example]]
 name = "actor"
 required-features = [ "alloc", "tracing" ]
+
+# ************* [Unit Tests] *************
+[[test]]
+name = "default"
+
+[[test]]
+name = "actors"
+required-features = ["alloc"]
+
+[[test]]
+name = "macros"
+required-features = ["alloc", "macros"]

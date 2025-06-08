@@ -74,7 +74,7 @@ where
         Q: Eq + core::hash::Hash,
         S: Eq + core::hash::Hash,
     {
-        self.program.get(state, symbol)
+        self.program.get_tail_with(state, symbol)
     }
     /// Reads the current symbol at the head of the tape
     pub fn read(&self) -> crate::Result<Head<&Q, &S>> {
@@ -194,7 +194,7 @@ where
             }
         };
         // execute the program
-        if let Some(tail) = self.program.get(head.state, head.symbol).cloned() {
+        if let Some(tail) = self.program.get_tail_with(head.state, head.symbol).cloned() {
             // process the instruction
             let next = tail.clone().into_head();
             // process the instruction

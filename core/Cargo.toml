@@ -141,13 +141,9 @@ tracing = [
 
 # ************* [Unit Tests] *************
 [[test]]
-name = "actor"
-required-features = [ "alloc" ]
-
-[[test]]
-name = "rules"
-required-features = [ "alloc" ]
+name = "state"
+required-features = []
 
 [[test]]
 name = "tape"
-required-features = [ "alloc" ]
+required-features = ["alloc"]
