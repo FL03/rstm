@@ -122,7 +122,7 @@ name = "default"
 
 [[test]]
 name = "actors"
-required-features = ["alloc"]
+required-features = ["alloc", "macros"]
 
 [[test]]
 name = "macros"

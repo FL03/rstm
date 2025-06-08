@@ -2,7 +2,6 @@
     Appellation: actor <test>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-
 use rstm::{Actor, RuleSet, State, ruleset};
 
 #[test]
