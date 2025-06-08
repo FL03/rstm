@@ -6,22 +6,31 @@
 //!
 //!
 #[doc(inline)]
-pub use self::{memory::*, tape::StdTape};
+pub use self::{tape::StdTape, traits::prelude::*};
 
-mod memory;
-
-#[doc(hidden)]
 pub mod cell;
-#[doc(hidden)]
 pub mod snapshot;
-#[doc(hidden)]
 pub mod store;
 pub mod tape;
 
-pub(crate) mod prelude {
-    pub use super::memory::{Memory, MemoryMut, RawMemory};
-    pub use super::tape::prelude::*;
+pub mod traits {
+    #[doc(inline)]
+    pub use self::prelude::*;
+
+    pub mod fetch;
+    pub mod memory;
+
+    pub(crate) mod prelude {
+        #[doc(inline)]
+        pub use super::fetch::*;
+        #[doc(inline)]
+        pub use super::memory::*;
+    }
 }
 
-#[allow(dead_code)]
-pub(crate) type Cell<Q, S> = crate::Head<Q, S>;
+pub(crate) mod prelude {
+    #[doc(inline)]
+    pub use super::tape::prelude::*;
+    #[doc(inline)]
+    pub use super::traits::prelude::*;
+}

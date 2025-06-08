@@ -17,7 +17,7 @@ use crate::{Direction, Error, Head, Symbolic, Tail};
 pub struct Actor<Q, A> {
     /// the head of the tape
     pub(crate) head: Head<Q, usize>,
-    /// the input alphabet
+    /// the memory of the actor
     pub(crate) tape: Vec<A>,
 }
 
@@ -25,10 +25,10 @@ impl<Q, A> Actor<Q, A>
 where
     Q: RawState,
 {
-    pub fn new(alpha: impl IntoIterator<Item = A>, state: State<Q>, symbol: usize) -> Self {
+    pub fn new(tape: Vec<A>, state: State<Q>, symbol: usize) -> Self {
         Self {
             head: Head { state, symbol },
-            tape: Vec::from_iter(alpha),
+            tape,
         }
     }
     /// Constructs a new [Actor] with the given state; assumes the tape is empty and the head
@@ -115,7 +115,7 @@ where
         }
     }
     /// returns the current position of the head on the tape
-    pub fn position(&self) -> usize {
+    pub const fn position(&self) -> usize {
         *self.head().symbol()
     }
     /// returns an instance of the state with an immutable reference to the inner value
@@ -282,7 +282,7 @@ where
     S: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        for (i, c) in self.tape.iter().enumerate() {
+        for (i, c) in self.tape().iter().enumerate() {
             if i == self.position() {
                 write!(f, "[{c}]")?;
             } else {

@@ -24,7 +24,11 @@ use alloc::vec::Vec;
 /// any movement, shift, or translation within space. That being said, staying still
 /// is an operation that does result in some change in-time.
 #[derive(Clone, Eq, Ord, PartialEq, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Serialize, serde::Deserialize),
+    serde(default, rename_all = "snake_case")
+)]
 pub struct StdTape<S = char> {
     index: usize,
     store: Vec<S>,

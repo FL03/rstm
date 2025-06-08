@@ -15,8 +15,8 @@
 //!
 //! ### Tapes
 //!
-//! - [x] [StdTape]
-//! - [x] [HashTape](tape::hash_tape::HashTape)
+//! - [x] [`StdTape`](mem::std_tape::StdTape)
+//! - [x] [HashTape](mem::hash_tape::HashTape)
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::module_inception, clippy::new_ret_no_self)]
@@ -26,7 +26,7 @@ extern crate alloc;
 
 #[doc(inline)]
 pub use self::{
-    actors::{Actor, Executor, Handle},
+    actors::prelude::*,
     error::{Error, Result},
     ops::prelude::*,
     rules::{Rule, RuleSet},

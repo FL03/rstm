@@ -14,7 +14,9 @@ pub use self::hash_tape::HashTape;
 #[doc(inline)]
 pub use self::std_tape::StdTape;
 
+#[cfg(feature = "std")]
 pub mod hash_tape;
+#[cfg(feature = "alloc")]
 pub mod std_tape;
 
 pub(crate) mod prelude {
@@ -26,14 +28,13 @@ pub(crate) mod prelude {
 
 use core::option::Option;
 
-#[doc(hidden)]
+/// The [`RawTape`] trait establishes a common interface for all tape-like objects.
 pub trait RawTape {
     type Elem;
 
     private!();
 }
-
-#[doc(hidden)]
+/// The [`Tape`] trait extends the [`RawTape`] trait to provide additional functionality
 pub trait Tape<A = char>: RawTape<Elem = A> {
     type Index;
 
