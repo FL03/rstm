@@ -2,9 +2,9 @@
     Appellation: default <module>
     Contrib: @FL03
 */
+use core::hint::black_box;
 use criterion::{BatchSize, BenchmarkId, Criterion};
 use lazy_static::lazy_static;
-use core::hint::black_box;
 use std::time::Duration;
 
 const SAMPLES: usize = 50;
@@ -19,9 +19,7 @@ lazy_static! {
 }
 
 fn bench_fib_func(c: &mut Criterion) {
-    c.bench_function("fibonacci", |b| {
-        b.iter(|| fib::fibonacci(black_box(N)))
-    });
+    c.bench_function("fibonacci", |b| b.iter(|| fib::fibonacci(black_box(N))));
 }
 
 fn bench_fib_recursive(c: &mut Criterion) {

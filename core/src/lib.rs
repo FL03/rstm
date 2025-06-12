@@ -18,8 +18,15 @@
 //! - [x] [`StdTape`](mem::std_tape::StdTape)
 //! - [x] [HashTape](mem::hash_tape::HashTape)
 
+#![allow(
+    clippy::module_inception,
+    clippy::new_ret_no_self,
+    clippy::needless_doctest_main,
+    clippy::should_implement_trait
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(clippy::module_inception, clippy::new_ret_no_self)]
+#![crate_name = "rstm_core"]
+#![crate_type = "lib"]
 
 #[cfg(feature = "alloc")]
 extern crate alloc;

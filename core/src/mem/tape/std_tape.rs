@@ -48,6 +48,7 @@ impl<S> StdTape<S> {
             ticks: Cell::default(),
         }
     }
+    #[allow(clippy::should_implement_trait)]
     /// Constructs a new tape from an iterator.
     pub fn from_iter(iter: impl IntoIterator<Item = S>) -> Self {
         StdTape {
@@ -160,6 +161,7 @@ impl<S> StdTape<S> {
 }
 
 impl StdTape {
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(input: &str) -> StdTape {
         StdTape {
             index: 0,

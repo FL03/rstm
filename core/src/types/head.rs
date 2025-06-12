@@ -313,7 +313,7 @@ where
     S: PartialEq,
 {
     fn eq(&self, (state, symbol): &(Q, S)) -> bool {
-        &self.state == state && &self.symbol == symbol
+        self.state() == state && self.symbol() == symbol
     }
 }
 
@@ -323,7 +323,7 @@ where
     S: PartialEq,
 {
     fn eq(&self, head: &Head<Q, S>) -> bool {
-        head.state == self.0 && head.symbol == self.1
+        head.state() == &self.0 && head.symbol() == &self.1
     }
 }
 

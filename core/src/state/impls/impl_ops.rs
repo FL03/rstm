@@ -37,7 +37,6 @@ where
     }
 }
 
-
 impl<Q> core::ops::Not for State<Q>
 where
     Q: RawState + core::ops::Not,

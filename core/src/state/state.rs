@@ -15,7 +15,6 @@ use super::Halt;
 #[repr(transparent)]
 pub struct State<Q: ?Sized = bool>(pub Q);
 
-
 impl<Q> State<Q> {
     /// a constructor method for the [`State`] type.
     pub const fn new(state: Q) -> Self {
