@@ -26,6 +26,18 @@ where
     }
 }
 
+impl<'a, Q> core::ops::Neg for &'a mut State<Q>
+where
+    &'a Q: RawState + core::ops::Neg,
+{
+    type Output = State<<&'a Q as core::ops::Neg>::Output>;
+
+    fn neg(self) -> Self::Output {
+        State(core::ops::Neg::neg(self.get()))
+    }
+}
+
+
 impl<Q> core::ops::Not for State<Q>
 where
     Q: RawState + core::ops::Not,
@@ -38,6 +50,17 @@ where
 }
 
 impl<'a, Q> core::ops::Not for &'a State<Q>
+where
+    &'a Q: RawState + core::ops::Not,
+{
+    type Output = State<<&'a Q as core::ops::Not>::Output>;
+
+    fn not(self) -> Self::Output {
+        State(core::ops::Not::not(self.get()))
+    }
+}
+
+impl<'a, Q> core::ops::Not for &'a mut State<Q>
 where
     &'a Q: RawState + core::ops::Not,
 {

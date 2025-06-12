@@ -80,7 +80,13 @@ where
     pub const fn uninit() -> Self {
         Self(MaybeUninit::uninit())
     }
+    #[allow(clippy::missing_safety_doc)]
     /// Converts the state into a new instance of [State] with an initialized state.
+    ///
+    /// # Safety
+    ///
+    /// This method is unsafe because it is up to the caller to ensure that the inner value
+    /// is indeed initialized.
     pub unsafe fn assume_init(self) -> State<Q> {
         State(unsafe { self.value().assume_init() })
     }
@@ -96,24 +102,25 @@ where
 
 impl State<()> {
     /// Creates a new instance of [State] with an empty state.
-    pub fn empty() -> Self {
+    pub const fn empty() -> Self {
         Self(())
     }
 }
 
 impl State<bool> {
-    pub fn from_true() -> Self {
+    /// Creates a new instance of [State] with an inner state of `true`.
+    pub const fn from_true() -> Self {
         Self(true)
     }
-
-    pub fn from_false() -> Self {
+    /// returns a new instance of [`State`] with an inner state of `false`.
+    pub const fn from_false() -> Self {
         Self(false)
     }
-
+    /// returns true if the inner state is true, false otherwise.
     pub fn is_true(&self) -> bool {
         self.value()
     }
-
+    /// returns true if the inner state is false, false otherwise.
     pub fn is_false(&self) -> bool {
         !self.value()
     }
@@ -155,11 +162,11 @@ where
     Q: RawState,
 {
     /// Creates a new instance of state whose inner state is [Option::None].
-    pub fn none() -> Self {
+    pub const fn none() -> Self {
         Self(None)
     }
     /// Creates a new instance of state whose inner state is [Option::Some].
-    pub fn some(value: Q) -> Self {
+    pub const fn some(value: Q) -> Self {
         Self(Some(value))
     }
 }

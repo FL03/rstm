@@ -2,7 +2,6 @@
     Appellation: tape <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-#![cfg(feature = "alloc")]
 use crate::{Direction, Error};
 use core::cell::Cell;
 

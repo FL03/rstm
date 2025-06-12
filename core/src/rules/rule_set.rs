@@ -29,6 +29,7 @@ where
             rules: Rules::new(),
         }
     }
+    #[allow(clippy::should_implement_trait)]
     /// Create a new instance of the [Program] from the given rules.
     pub fn from_iter<I>(iter: I) -> Self
     where

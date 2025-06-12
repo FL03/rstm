@@ -37,6 +37,7 @@ where
             rules: HashMap::new(),
         }
     }
+    #[allow(clippy::should_implement_trait)]
     /// returns a new instance of the [`RuleMap`] composed from an iterator of head/tail pairs
     pub fn from_iter<I>(iter: I) -> Self
     where
@@ -54,14 +55,14 @@ where
     {
         Self::from_iter(iter.into_iter().map(|Rule { head, tail }| (head, tail)))
     }
-    /// configures the ruleset with the given initial state
+    /// consumes the current instance to create another with the given initial state.
     pub fn with_initial_state(self, state: State<Q>) -> Self {
         Self {
             initial_state: Some(state),
             ..self
         }
     }
-
+    /// consumes the current instance to create another with the given instructions
     pub fn with_instructions(
         self,
         instructions: impl IntoIterator<Item = (Head<Q, S>, Tail<Q, S>)>,

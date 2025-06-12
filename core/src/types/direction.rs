@@ -90,6 +90,7 @@ impl Direction {
             _ => Self::Stay,
         }
     }
+    #[allow(clippy::should_implement_trait)]
     /// Converts a [str] value into a [Direction] by matching the value to the corresponding
     /// variant; defaults to [`Stay`](Direction::Stay) if the value does not match accepted
     /// representations of neither [left](Direction::Left) nor [right](Direction::Right).
