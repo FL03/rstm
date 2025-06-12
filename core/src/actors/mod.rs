@@ -4,17 +4,24 @@
 */
 //! This modules implements an [Actor] struct, which is a Turing machine with a moving head
 //! (TMH).
+#[cfg(feature = "alloc")]
 #[doc(inline)]
 pub use self::{actor::Actor, exec::Executor};
 
+#[cfg(feature = "alloc")]
 pub(crate) mod actor;
+#[cfg(feature = "alloc")]
 pub(crate) mod exec;
 
 pub(crate) mod prelude {
+    #[cfg(feature = "alloc")]
     #[doc(inline)]
     pub use super::actor::Actor;
+    #[cfg(feature = "alloc")]
     #[doc(inline)]
     pub use super::exec::Executor;
+    #[doc(inline)]
+    pub use super::{Engine, Handle};
 }
 
 use crate::state::RawState;
