@@ -2,6 +2,7 @@
     Appellation: head <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+use crate::Direction;
 use crate::state::{RawState, State};
 
 /// The [Head] is formally defined to be a 2-tuple consisting of a state / symbol pair.
@@ -225,14 +226,14 @@ impl<Q> Head<Q, usize>
 where
     Q: RawState,
 {
-    pub fn shift(self, direction: crate::Direction) -> Self {
+    pub fn shift(self, direction: Direction) -> Self {
         Self {
             symbol: direction.apply_unsigned(self.symbol),
             ..self
         }
     }
 
-    pub fn shift_inplace(&mut self, direction: crate::Direction) {
+    pub fn shift_inplace(&mut self, direction: Direction) {
         self.symbol = direction.apply_unsigned(self.symbol);
     }
 }
@@ -256,7 +257,7 @@ where
     S: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "{{ state: {}, symbol: {} }}", self.state, self.symbol)
+        write!(f, "{{ state: {:?}, symbol: {} }}", self.state, self.symbol)
     }
 }
 

@@ -2,7 +2,7 @@
     Appellation: state <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Halt;
+use super::{Halt, RawState};
 
 /// [State] is a generalized state implementation, representing the state of a system or
 /// object.
@@ -15,24 +15,34 @@ use super::Halt;
 #[repr(transparent)]
 pub struct State<Q: ?Sized = bool>(pub Q);
 
-impl<Q> State<Q> {
+impl<Q> State<Q>
+where
+    Q: RawState,
+{
     /// a constructor method for the [`State`] type.
     pub const fn new(state: Q) -> Self {
         Self(state)
+    }
+    /// initializes a new instance of state using the given initializer function.
+    pub fn create<F>(f: F) -> Self
+    where
+        F: FnOnce() -> Q,
+    {
+        State(f())
     }
     /// returns a new state with a value of one.
     pub fn one() -> Self
     where
         Q: num_traits::One,
     {
-        State(Q::one())
+        State::create(Q::one)
     }
     /// returns a new state with a value of zero.
     pub fn zero() -> Self
     where
         Q: num_traits::Zero,
     {
-        State(Q::zero())
+        State::create(Q::zero)
     }
     /// returns a new instance of state with a raw pointer to the inner value.
     pub const fn as_ptr(&self) -> *const Q {
@@ -102,24 +112,19 @@ impl<Q> State<Q> {
     {
         core::mem::take(self.get_mut())
     }
-    /// returns a halted state with an immutable reference to the state.
+    /// converts the current reference into a haltable state initialized with the current state
     pub fn as_halt(&self) -> State<Halt<&Q>> {
-        State::new(Halt(self))
+        State::new(Halt::halt(self.view()))
     }
-    /// Consumes the state and returns a halted state.
+    /// consumes the wrapper to create another, haltable state that is initialized with the
+    /// current state
     pub fn into_halt(self) -> State<Halt<Q>> {
-        State::new(Halt(self.value()))
+        State::new(Halt::state(self))
     }
-    /// Wraps the inner value with a [Halt] state, returning a new instance of [State].
+    /// consumes the current state, returning a new one with a [`Halt`](HaltState::Halt)
+    /// variant initialized with the current value.
     pub fn halt(self) -> State<Halt<Q>> {
-        State::new(Halt(self.value()))
-    }
-    /// returns `true` if the state is a [Halt] state.
-    pub fn is_halt(&self) -> bool
-    where
-        Q: 'static,
-    {
-        core::any::TypeId::of::<Self>() == core::any::TypeId::of::<State<Halt<Q>>>()
+        State::new(Halt::halt(self))
     }
     /// returns a new state with a boxed inner value.
     pub fn boxed(self) -> State<Box<Q>> {
@@ -171,29 +176,5 @@ impl<Q> State<Q> {
         Q: 'static,
     {
         core::any::TypeId::of::<Q>()
-    }
-}
-
-impl<Q> State<Q> {
-    #[deprecated(
-        since = "0.0.7",
-        note = "use `value` instead, as it is more idiomatic and clearer."
-    )]
-    pub fn into_inner(self) -> Q {
-        self.0
-    }
-    #[deprecated(
-        since = "0.0.7",
-        note = "use `view` instead, as it is more idiomatic and clearer."
-    )]
-    pub fn to_ref(&self) -> State<&Q> {
-        self.view()
-    }
-    #[deprecated(
-        since = "0.0.7",
-        note = "use `view_mut` instead, as it is more idiomatic and clearer."
-    )]
-    pub fn to_mut(&mut self) -> State<&mut Q> {
-        self.view_mut()
     }
 }

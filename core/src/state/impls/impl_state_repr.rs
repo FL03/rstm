@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use crate::error::Error;
-use crate::state::{Halt, RawState, State};
+use crate::state::{RawState, State};
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 use core::mem::MaybeUninit;
@@ -133,10 +133,10 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.value()
+        self.0
             .downcast()
             .map(State)
-            .map_err(|_| Error::TypeError("Failed to downcast state".to_string()))
+            .map_err(|_| Error::Unknown("Failed to downcast state".to_string()))
     }
     /// Returns an immutable reference to the state if it is of type `Q`; returns `None`
     /// otherwise.
@@ -144,7 +144,7 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.get().downcast_ref().map(State)
+        self.0.downcast_ref().map(State)
     }
 
     /// Returns a mutable reference to the state if it is of type `Q`; returns `None`
@@ -153,7 +153,7 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.get_mut().downcast_mut().map(State)
+        self.0.downcast_mut().map(State)
     }
 }
 
@@ -168,22 +168,5 @@ where
     /// Creates a new instance of state whose inner state is [Option::Some].
     pub const fn some(value: Q) -> Self {
         Self(Some(value))
-    }
-}
-
-impl<Q> State<Halt<Q>>
-where
-    Q: RawState,
-{
-    /// Creates a new instance of [State] from a [Halt] state.
-    pub fn halted(Halt(inner): Halt<Q>) -> Self {
-        Self(Halt(inner))
-    }
-    /// Converts the halted state into an unhalted state.
-    pub fn unhalt(self) -> State<Q>
-    where
-        Q: RawState,
-    {
-        State(self.value().get())
     }
 }

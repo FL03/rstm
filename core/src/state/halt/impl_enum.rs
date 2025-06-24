@@ -2,23 +2,26 @@
     Appellation: wrap <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::{Halt, HaltState};
-use crate::state::State;
+use super::Halt;
+use crate::state::{RawState, State};
 
-impl<Q> HaltState<Q> {
+impl<Q> Halt<Q>
+where
+    Q: RawState,
+{
     /// Creates a new instance of a [HaltState] with a halted state.
-    pub fn halt(Halt(state): Halt<Q>) -> Self {
-        Self::Halt(Halt(state))
+    pub fn halt(State(state): State<Q>) -> Self {
+        Self::Halt(state)
     }
     /// Creates a new instance of a [HaltState] with a continuing state.
-    pub fn state(state: State<Q>) -> Self {
+    pub fn state(State(state): State<Q>) -> Self {
         Self::State(state)
     }
 
     pub fn into_state(self) -> State<Q> {
         match self {
-            Self::State(state) => state,
-            Self::Halt(halt) => State(halt.0),
+            Self::State(state) => State(state),
+            Self::Halt(halt) => State(halt),
         }
     }
 
@@ -32,47 +35,42 @@ impl<Q> HaltState<Q> {
 
     pub fn get(&self) -> &Q {
         match self {
-            Self::State(inner) => inner.get(),
-            Self::Halt(inner) => inner.get_ref(),
+            Self::State(inner) => inner,
+            Self::Halt(inner) => inner,
         }
     }
 
     pub fn get_mut(&mut self) -> &mut Q {
         match self {
-            Self::State(inner) => inner.get_mut(),
-            Self::Halt(inner) => inner.get_mut(),
+            Self::State(inner) => inner,
+            Self::Halt(inner) => inner,
         }
     }
 
-    pub fn set(&mut self, state: Q) {
+    pub fn set(&mut self, state: Q) -> &mut Self {
         match self {
             Self::State(inner) => {
-                let _ = inner.set(state);
+                *inner = state;
             }
             Self::Halt(inner) => {
-                inner.set(state);
+                *inner = state;
             }
         }
+        self
     }
 }
 
-impl<Q> Default for HaltState<Q>
+impl<Q> Default for Halt<Q>
 where
     Q: Default,
 {
     fn default() -> Self {
-        Self::State(State::default())
+        Self::State(Default::default())
     }
 }
 
-impl<Q> From<State<Q>> for HaltState<Q> {
-    fn from(state: State<Q>) -> Self {
+impl<Q> From<State<Q>> for Halt<Q> {
+    fn from(State(state): State<Q>) -> Self {
         Self::State(state)
-    }
-}
-
-impl<Q> From<Halt<Q>> for HaltState<Q> {
-    fn from(halt: Halt<Q>) -> Self {
-        Self::Halt(halt)
     }
 }

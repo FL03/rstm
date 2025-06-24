@@ -17,7 +17,8 @@ where
 
 impl<'a, Q> core::ops::Neg for &'a State<Q>
 where
-    &'a Q: RawState + core::ops::Neg,
+    Q: RawState,
+    &'a Q: core::ops::Neg,
 {
     type Output = State<<&'a Q as core::ops::Neg>::Output>;
 
@@ -28,7 +29,8 @@ where
 
 impl<'a, Q> core::ops::Neg for &'a mut State<Q>
 where
-    &'a Q: RawState + core::ops::Neg,
+    Q: RawState,
+    &'a Q: core::ops::Neg,
 {
     type Output = State<<&'a Q as core::ops::Neg>::Output>;
 
@@ -50,7 +52,8 @@ where
 
 impl<'a, Q> core::ops::Not for &'a State<Q>
 where
-    &'a Q: RawState + core::ops::Not,
+    Q: RawState,
+    &'a Q: core::ops::Not,
 {
     type Output = State<<&'a Q as core::ops::Not>::Output>;
 
@@ -61,7 +64,8 @@ where
 
 impl<'a, Q> core::ops::Not for &'a mut State<Q>
 where
-    &'a Q: RawState + core::ops::Not,
+    Q: RawState,
+    &'a Q: core::ops::Not,
 {
     type Output = State<<&'a Q as core::ops::Not>::Output>;
 
@@ -111,9 +115,7 @@ macro_rules! impl_bin_op {
     (@impl $wrap:ident($trait:ident::$method:ident)) => {
         impl<A, B, C> ::core::ops::$trait<$wrap<B>> for $wrap<A>
         where
-            A: $crate::state::RawState + ::core::ops::$trait<B, Output = C>,
-            B: $crate::state::RawState,
-            C: $crate::state::RawState,
+            A: ::core::ops::$trait<B, Output = C>,
         {
             type Output = $wrap<C>;
 
@@ -124,40 +126,34 @@ macro_rules! impl_bin_op {
 
         impl<'a, A, B, C> ::core::ops::$trait<&'a $wrap<B>> for $wrap<A>
         where
-            A: $crate::state::RawState + ::core::ops::$trait<&'a B, Output = C>,
-            B: $crate::state::RawState,
-            C: $crate::state::RawState,
+            A: ::core::ops::$trait<&'a B, Output = C>,
         {
             type Output = $wrap<C>;
 
             fn $method(self, rhs: &'a $wrap<B>) -> Self::Output {
-                $wrap(::core::ops::$trait::$method(self.value(), rhs.get()))
+                $wrap(::core::ops::$trait::$method(self.0, &rhs.0))
             }
         }
 
         impl<'a, A, B, C> ::core::ops::$trait<&'a $wrap<B>> for &'a $wrap<A>
         where
-            &'a A: $crate::state::RawState + ::core::ops::$trait<&'a B, Output = C>,
-            B: $crate::state::RawState,
-            C: $crate::state::RawState,
+            &'a A: ::core::ops::$trait<&'a B, Output = C>,
         {
             type Output = $wrap<C>;
 
             fn $method(self, rhs: &'a $wrap<B>) -> Self::Output {
-                $wrap(::core::ops::$trait::$method(self.get(), rhs.get()))
+                $wrap(::core::ops::$trait::$method(&self.0, &rhs.0))
             }
         }
 
         impl<'a, A, B, C> ::core::ops::$trait<$wrap<B>> for &'a $wrap<A>
         where
-            &'a A: $crate::state::RawState + ::core::ops::$trait<B, Output = C>,
-            B: $crate::state::RawState,
-            C: $crate::state::RawState,
+            &'a A: ::core::ops::$trait<B, Output = C>,
         {
             type Output = $wrap<C>;
 
             fn $method(self, rhs: $wrap<B>) -> Self::Output {
-                $wrap(::core::ops::$trait::$method(self.get(), rhs.value()))
+                $wrap(::core::ops::$trait::$method(&self.0, rhs.0))
             }
         }
     };
@@ -171,11 +167,10 @@ macro_rules! impl_assign_op {
     (@impl $wrap:ident($trait:ident::$method:ident)) => {
         impl<A, B> ::core::ops::$trait<B> for $wrap<A>
         where
-            A: $crate::state::RawState + ::core::ops::$trait<B>,
-            B: $crate::state::RawState,
+            A: ::core::ops::$trait<B>,
         {
             fn $method(&mut self, rhs: B) {
-                ::core::ops::$trait::$method(self.get_mut(), rhs)
+                ::core::ops::$trait::$method(&mut self.0, rhs)
             }
         }
     };

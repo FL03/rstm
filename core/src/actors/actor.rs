@@ -140,7 +140,8 @@ where
     where
         Q: 'static,
     {
-        self.head().state.is_halt()
+        // self.head().state.is_halt()
+        todo!("reconfigure the actor halting")
     }
     /// returns the length of the tape
     #[inline]

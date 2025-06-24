@@ -36,7 +36,7 @@ pub use self::{
     actors::prelude::*,
     error::{Error, Result},
     ops::prelude::*,
-    rules::{Rule, RuleSet},
+    rules::{Head, Rule, RuleSet, Tail},
     state::{Halt, RawState, State, Stated},
     traits::prelude::*,
     types::prelude::*,
@@ -92,16 +92,10 @@ pub mod types {
     pub use self::prelude::*;
 
     pub mod direction;
-    pub mod head;
-    pub mod tail;
 
     pub(crate) mod prelude {
         #[doc(inline)]
         pub use super::direction::*;
-        #[doc(inline)]
-        pub use super::head::*;
-        #[doc(inline)]
-        pub use super::tail::*;
     }
 }
 
