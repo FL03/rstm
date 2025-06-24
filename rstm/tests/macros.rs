@@ -6,8 +6,7 @@ use rstm::{Direction, Head, State, Tail};
 
 #[test]
 fn test_ruleset() {
-    use rstm::rules::RuleSet;
-    let rules: RuleSet<isize, usize> = rstm::ruleset![
+    let rules = rstm::ruleset![
         (0, 0) -> Right(1, 1),
         (0, 1) -> Left(-1, 0),
         (1, 0) -> Right(1, 1),
@@ -29,9 +28,8 @@ fn test_ruleset() {
 #[cfg(feature = "std")]
 #[test]
 fn test_rulemap() {
-    use rstm::rules::RuleMap;
     // create a new ruleset using the macro
-    let rules: RuleMap<isize, usize> = rstm::rulemap! {
+    let rules = rstm::rulemap! {
         (0, 0) -> Right(1, 1),
         (0, 1) -> Left(-1, 0),
         (1, 0) -> Right(1, 1),

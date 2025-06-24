@@ -19,11 +19,7 @@ extern crate alloc;
 #[macro_use]
 pub(crate) mod macros {
     #[macro_use]
-    pub mod rulemap;
-    #[macro_use]
-    pub mod ruleset;
-    #[macro_use]
-    pub mod state;
+    pub mod rules;
 }
 
 #[doc(inline)]
