@@ -4,14 +4,20 @@
 */
 use crate::state::{RawState, State};
 
-pub trait Haltable<Q> where Q: RawState {
+pub trait Haltable<Q>
+where
+    Q: RawState,
+{
     private!();
 
     fn is_halted(&self) -> bool;
 }
 
 #[doc(hidden)]
-pub trait HaltableExt<Q>: Haltable<Q>  where Q: RawState {
+pub trait HaltableExt<Q>: Haltable<Q>
+where
+    Q: RawState,
+{
     fn get(self) -> Option<Q>;
 
     fn get_mut(&mut self) -> Option<&mut Q>;

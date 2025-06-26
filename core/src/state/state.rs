@@ -2,7 +2,14 @@
     Appellation: state <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::{Halt, RawState};
+
+mod impl_state;
+#[allow(deprecated)]
+mod impl_state_deprecated;
+mod impl_state_ops;
+mod impl_state_repr;
+
+use super::{Halt, Halter, RawState};
 
 /// [State] is a generalized state implementation, representing the state of a system or
 /// object.
@@ -112,19 +119,19 @@ where
     {
         core::mem::take(self.get_mut())
     }
-    /// converts the current reference into a haltable state initialized with the current state
-    pub fn as_halt(&self) -> State<Halt<&Q>> {
-        State::new(Halt::halt(self.view()))
-    }
     /// consumes the wrapper to create another, haltable state that is initialized with the
     /// current state
-    pub fn into_halt(self) -> State<Halt<Q>> {
-        State::new(Halt::state(self))
+    pub fn into_halter(self) -> State<Halter<Q>> {
+        State::new(Halter::state(self))
     }
-    /// consumes the current state, returning a new one with a [`Halt`](HaltState::Halt)
-    /// variant initialized with the current value.
+    /// converts the current reference into a haltable state initialized with the current state
+    pub fn as_halt(&self) -> State<Halt<&Q>> {
+        self.view().map(Halt)
+    }
+    /// consumes the current state, returning a new one with a [`Halt`] wrapper around the
+    /// inner value.
     pub fn halt(self) -> State<Halt<Q>> {
-        State::new(Halt::halt(self))
+        self.map(Halt)
     }
     /// returns a new state with a boxed inner value.
     pub fn boxed(self) -> State<Box<Q>> {

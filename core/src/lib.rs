@@ -37,7 +37,7 @@ pub use self::{
     error::{Error, Result},
     ops::prelude::*,
     rules::{Head, Rule, RuleSet, Tail},
-    state::{Halt, RawState, State, Stated},
+    state::{Halter, RawState, State, Stated},
     traits::prelude::*,
     types::prelude::*,
 };
@@ -46,6 +46,8 @@ pub use self::{
 pub(crate) mod macros {
     #[macro_use]
     pub mod seal;
+    #[macro_use]
+    pub mod wrapper_ops;
 }
 
 pub mod actors;

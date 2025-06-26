@@ -11,14 +11,6 @@ mod state;
 pub mod error;
 pub mod halt;
 
-mod impls {
-    mod impl_state;
-    #[allow(deprecated)]
-    mod impl_state_deprecated;
-    mod impl_state_ops;
-    mod impl_state_repr;
-}
-
 mod traits {
     #[doc(inline)]
     pub use self::prelude::*;

@@ -4,7 +4,7 @@
 */
 extern crate rstm_core as rstm;
 
-use rstm::state::{Halt, State};
+use rstm::state::{Halt, Halter, State};
 
 #[test]
 fn state() {
@@ -38,11 +38,11 @@ fn halting() {
     // create a new instance of state
     let state = State::new(0).halt();
     // validate the functional accessors; get and into_inner
-    assert_eq!(state.get(), &Halt::Halt(0));
+    assert_eq!(state.get(), &Halt(0));
     // create a new mutable instance of state
-    let state = State::new(0).into_halt();
+    let state = State::new(0).into_halter();
     // replace the inner value with 1
-    assert_eq!(state.get(), &Halt::State(0));
+    assert_eq!(state.get(), &Halter::State(0));
 }
 
 #[test]

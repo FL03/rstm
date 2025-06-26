@@ -2,15 +2,15 @@
     Appellation: wrap <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Halt;
+use super::{Halt, Halter};
 use crate::state::{RawState, State};
 
-impl<Q> Halt<Q>
+impl<Q> Halter<Q>
 where
     Q: RawState,
 {
     /// Creates a new instance of a [HaltState] with a halted state.
-    pub fn halt(State(state): State<Q>) -> Self {
+    pub fn halt(State(Halt(state)): State<Halt<Q>>) -> Self {
         Self::Halt(state)
     }
     /// Creates a new instance of a [HaltState] with a continuing state.
@@ -60,7 +60,7 @@ where
     }
 }
 
-impl<Q> Default for Halt<Q>
+impl<Q> Default for Halter<Q>
 where
     Q: Default,
 {
@@ -69,7 +69,7 @@ where
     }
 }
 
-impl<Q> From<State<Q>> for Halt<Q> {
+impl<Q> From<State<Q>> for Halter<Q> {
     fn from(State(state): State<Q>) -> Self {
         Self::State(state)
     }
