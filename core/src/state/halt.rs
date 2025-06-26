@@ -2,40 +2,31 @@
     Appellation: halting <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::{State, Stated};
+use crate::state::{Haltable, RawState, State};
 
 mod impl_enum;
+
 mod impl_halt;
+#[allow(deprecated)]
+mod impl_halt_deprecated;
+mod impl_halt_ops;
+mod impl_halt_repr;
 
-pub trait Haltable<Q> {
-    type State: Stated<Item = Q>;
+/// [`Halt`] is a generic wrapper implementing the [`RawState`] trait enabling the haltable
+/// state functionality.
+#[derive(Clone, Copy, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(transparent)
+)]
+#[repr(transparent)]
+pub struct Halt<Q: ?Sized = bool>(pub Q);
 
-    private!();
-
-    fn is_halted(&self) -> bool;
-}
-
-#[doc(hidden)]
-pub trait HaltableExt<Q>: Haltable<Q> {
-    fn get(self) -> Option<Q>;
-
-    fn get_mut(&mut self) -> Option<&mut Q>;
-
-    fn map<U, F>(self, f: F) -> Option<U>
-    where
-        F: FnOnce(Q) -> U,
-        Self: Sized,
-    {
-        self.get().map(f)
-    }
-}
-
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct Halt<Q>(pub Q);
-
-/// [HaltState] extends the [State] by allowing for an 'imaginary' state that is not actually
-/// part of the machine's state space.
+/// [`Halter`] type wraps the inner state with two variants:
+///
+/// - `Halt(Q)` for a halted state
+/// - `State(Q)` for a continuing state
 #[derive(
     Clone,
     Copy,
@@ -54,79 +45,59 @@ pub struct Halt<Q>(pub Q);
     strum_discriminants(derive(serde::Deserialize, serde::Serialize))
 )]
 #[strum_discriminants(name(HaltTag), derive(Hash, Ord, PartialOrd))]
-pub enum HaltState<Q = usize> {
-    Halt(Halt<Q>),
-    State(State<Q>),
+pub enum Halter<Q = usize> {
+    Halt(Q),
+    State(Q),
 }
 
 /*
  ************* Implementations *************
 */
-impl<Q> Haltable<Q> for Halt<Q> {
-    type State = State<Q>;
 
+scsys::fmt_wrapper! {
+    Halt<Q>(
+        Binary,
+        Debug,
+        Display,
+        LowerExp,
+        LowerHex,
+        Octal,
+        Pointer,
+        UpperExp,
+        UpperHex,
+    )
+}
+impl<Q> RawState for Halt<Q>
+where
+    Q: RawState,
+{
+    seal!();
+}
+
+impl<Q> RawState for Halter<Q>
+where
+    Q: RawState,
+{
+    seal!();
+}
+
+impl<Q> State<Halt<Q>>
+where
+    Q: RawState,
+{
+    /// Creates a new instance of a [State] with a halted state.
+    pub fn halted(state: Q) -> Self {
+        State(Halt(state))
+    }
+}
+
+impl<Q> Haltable<Q> for State<Halter<Q>>
+where
+    Q: RawState,
+{
     seal!();
 
     fn is_halted(&self) -> bool {
         true
-    }
-}
-
-impl<Q> Haltable<Q> for State<Halt<Q>> {
-    type State = State<Q>;
-
-    seal!();
-
-    fn is_halted(&self) -> bool {
-        true
-    }
-}
-impl<Q> Haltable<Q> for State<Option<Q>> {
-    type State = State<Q>;
-
-    seal!();
-
-    fn is_halted(&self) -> bool {
-        self.get().is_none()
-    }
-}
-
-impl<Q> Haltable<Q> for Option<State<Q>> {
-    type State = State<Q>;
-
-    seal!();
-
-    fn is_halted(&self) -> bool {
-        self.is_none()
-    }
-}
-
-impl<Q> HaltableExt<Q> for Halt<Q> {
-    fn get(self) -> Option<Q> {
-        Some(self.0)
-    }
-
-    fn get_mut(&mut self) -> Option<&mut Q> {
-        Some(&mut self.0)
-    }
-}
-
-impl<Q> HaltableExt<Q> for Option<State<Q>> {
-    fn get(self) -> Option<Q> {
-        self.map(|state| state.value())
-    }
-
-    fn get_mut(&mut self) -> Option<&mut Q> {
-        self.as_mut().map(|state| state.get_mut())
-    }
-}
-
-impl<Q> HaltableExt<Q> for State<Option<Q>> {
-    fn get(self) -> Option<Q> {
-        self.value()
-    }
-
-    fn get_mut(&mut self) -> Option<&mut Q> {
-        self.get_mut().as_mut()
     }
 }

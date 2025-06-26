@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use crate::error::Error;
-use crate::state::{Halt, RawState, State};
+use crate::state::{RawState, State};
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 use core::mem::MaybeUninit;
@@ -80,7 +80,13 @@ where
     pub const fn uninit() -> Self {
         Self(MaybeUninit::uninit())
     }
+    #[allow(clippy::missing_safety_doc)]
     /// Converts the state into a new instance of [State] with an initialized state.
+    ///
+    /// # Safety
+    ///
+    /// This method is unsafe because it is up to the caller to ensure that the inner value
+    /// is indeed initialized.
     pub unsafe fn assume_init(self) -> State<Q> {
         State(unsafe { self.value().assume_init() })
     }
@@ -96,24 +102,25 @@ where
 
 impl State<()> {
     /// Creates a new instance of [State] with an empty state.
-    pub fn empty() -> Self {
+    pub const fn empty() -> Self {
         Self(())
     }
 }
 
 impl State<bool> {
-    pub fn from_true() -> Self {
+    /// Creates a new instance of [State] with an inner state of `true`.
+    pub const fn from_true() -> Self {
         Self(true)
     }
-
-    pub fn from_false() -> Self {
+    /// returns a new instance of [`State`] with an inner state of `false`.
+    pub const fn from_false() -> Self {
         Self(false)
     }
-
+    /// returns true if the inner state is true, false otherwise.
     pub fn is_true(&self) -> bool {
         self.value()
     }
-
+    /// returns true if the inner state is false, false otherwise.
     pub fn is_false(&self) -> bool {
         !self.value()
     }
@@ -126,10 +133,10 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.value()
+        self.0
             .downcast()
             .map(State)
-            .map_err(|_| Error::TypeError("Failed to downcast state".to_string()))
+            .map_err(|_| Error::Unknown("Failed to downcast state".to_string()))
     }
     /// Returns an immutable reference to the state if it is of type `Q`; returns `None`
     /// otherwise.
@@ -137,7 +144,7 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.get().downcast_ref().map(State)
+        self.0.downcast_ref().map(State)
     }
 
     /// Returns a mutable reference to the state if it is of type `Q`; returns `None`
@@ -146,7 +153,7 @@ impl State<Box<dyn core::any::Any>> {
     where
         Q: core::any::Any,
     {
-        self.get_mut().downcast_mut().map(State)
+        self.0.downcast_mut().map(State)
     }
 }
 
@@ -155,28 +162,11 @@ where
     Q: RawState,
 {
     /// Creates a new instance of state whose inner state is [Option::None].
-    pub fn none() -> Self {
+    pub const fn none() -> Self {
         Self(None)
     }
     /// Creates a new instance of state whose inner state is [Option::Some].
-    pub fn some(value: Q) -> Self {
+    pub const fn some(value: Q) -> Self {
         Self(Some(value))
-    }
-}
-
-impl<Q> State<Halt<Q>>
-where
-    Q: RawState,
-{
-    /// Creates a new instance of [State] from a [Halt] state.
-    pub fn halted(Halt(inner): Halt<Q>) -> Self {
-        Self(Halt(inner))
-    }
-    /// Converts the halted state into an unhalted state.
-    pub fn unhalt(self) -> State<Q>
-    where
-        Q: RawState,
-    {
-        State(self.value().get())
     }
 }

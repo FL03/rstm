@@ -1,122 +1,157 @@
-/*
-    Appellation: impl_halting <module>
-    Contrib: @FL03
-*/
-use super::Halt;
-use crate::state::{State, Stated};
+use crate::state::{Halt, RawState, State};
 
-impl<Q> Halt<Q> {
-    pub fn new(halt: Q) -> Self {
-        Self(halt)
+#[cfg(feature = "std")]
+use std::sync::Arc;
+
+impl<Q> Halt<Q>
+where
+    Q: RawState,
+{
+    /// a constructor method for the [`Halt`] type.
+    pub const fn new(q: Q) -> Self {
+        Self(q)
     }
-    #[inline]
-    /// Consumes the halted state and returns the inner value.
-    pub fn get(self) -> Q {
-        self.0
+    /// initializes a new instance of Halt using the given initializer function.
+    pub fn create<F>(f: F) -> Self
+    where
+        F: FnOnce() -> Q,
+    {
+        Halt(f())
     }
-    /// Returns an immutable reference to the inner value of the halted state.
-    pub const fn get_ref(&self) -> &Q {
+    /// returns a new Halt with a value of one.
+    pub fn one() -> Self
+    where
+        Q: num_traits::One,
+    {
+        Halt::create(Q::one)
+    }
+    /// returns a new Halt with a value of zero.
+    pub fn zero() -> Self
+    where
+        Q: num_traits::Zero,
+    {
+        Halt::create(Q::zero)
+    }
+    /// returns a new instance of Halt with a raw pointer to the inner value.
+    pub const fn as_ptr(&self) -> *const Q {
+        core::ptr::addr_of!(self.0)
+    }
+    /// returns a new instance of Halt with a mutable raw pointer to the inner value.
+    pub const fn as_mut_ptr(&mut self) -> *mut Q {
+        core::ptr::addr_of_mut!(self.0)
+    }
+    #[allow(clippy::missing_safety_doc)]
+    /// Casts the Halt to a new type, returning a new instance of [Halt].
+    ///
+    /// # Saftey
+    ///
+    /// This method is unsafe because it is up to the caller to ensure that the cast is valid.
+    pub unsafe fn cast<R>(self) -> Halt<R> {
+        unsafe { Halt(core::ptr::read(&self.0 as *const Q as *const R)) }
+    }
+    /// returns an immutable reference to the inner value of the Halt.
+    pub const fn get(&self) -> &Q {
         &self.0
     }
-    /// Returns a mutable reference to the inner value of the halted state.
-    pub fn get_mut(&mut self) -> &mut Q {
+    /// returns a mutable reference to the inner value of the Halt.
+    pub const fn get_mut(&mut self) -> &mut Q {
         &mut self.0
     }
-    /// Replaces the inner value of the halted state with the given value, returning the
-    /// previous value.
-    pub fn replace(&mut self, halt: Q) -> Q {
-        core::mem::replace(&mut self.0, halt)
+    /// consumes and returns the inner value of the Halt.
+    #[inline]
+    pub fn value(self) -> Q {
+        self.0
     }
-    /// Resets the inner value of the halted state to the default value of the type.
-    pub fn reset(&mut self)
+    /// [Halt::map] applies the given function onto the inner value of the Halt, returning a
+    /// new Halt with the result.
+    pub fn map<R, F>(self, f: F) -> Halt<R>
+    where
+        F: FnOnce(Q) -> R,
+    {
+        Halt(f(self.value()))
+    }
+    /// [`replace`](core::mem::replace) the inner value of the Halt with the given Halt,
+    pub const fn replace(&mut self, value: Q) -> Q {
+        core::mem::replace(self.get_mut(), value)
+    }
+    /// Clears the Halt, setting it to its default value.
+    #[inline]
+    pub fn reset(&mut self) -> &mut Self
     where
         Q: Default,
     {
         self.set(Default::default());
+        self
     }
-    /// Sets the inner value of the halted state to that of the given value.
-    pub fn set(&mut self, halt: Q) {
-        self.0 = halt;
+    /// Sets the Halt to a new value.
+    pub fn set(&mut self, value: Q) -> &mut Self {
+        self.0 = value;
+        self
     }
-    /// Swaps the inner value of the halted state with that of the given state.
-    pub fn swap<S>(&mut self, other: &mut S)
-    where
-        S: Stated<Item = Q>,
-    {
-        core::mem::swap(&mut self.0, other.get_mut());
+    /// [`swap`](core::mem::swap) the inner value of the Halt with that of the given Halt.
+    pub const fn swap(&mut self, other: &mut Halt<Q>) {
+        core::mem::swap(self.get_mut(), other.get_mut());
     }
-    /// Takes the inner value of the halted state and replaces it with the default value of
-    /// the type.
+    /// [`take`](core::mem::take) the inner value of the Halt, leaving the logical default in
+    /// its place
     pub fn take(&mut self) -> Q
     where
         Q: Default,
     {
-        core::mem::take(&mut self.0)
+        core::mem::take(self.get_mut())
     }
-    /// Converts the halted state into a new [State] with an immutable reference to the inner
-    /// value.
-    pub fn as_state(&self) -> State<Halt<&Q>> {
-        State(Halt(&self.0))
+    pub fn stated(self) -> State<Halt<Q>> {
+        State::new(self)
     }
-    /// Converts the halted state into a new [State] with a mutable reference to the inner
-    /// value.
-    pub fn as_state_mut(&mut self) -> State<Halt<&mut Q>> {
-        State(Halt(&mut self.0))
+    /// returns a new Halt with a boxed inner value.
+    pub fn boxed(self) -> Halt<Box<Q>> {
+        self.map(Box::new)
     }
-    /// Wraps the halted state and returns a new [State]
-    pub fn into_state(self) -> State<Halt<Q>> {
-        State(self)
+    /// Converts the inner type into a boxed "any" Halt, returning a new instance of Halt
+    pub fn as_any(&self) -> Halt<Box<dyn std::any::Any>>
+    where
+        Q: Clone + 'static,
+    {
+        Halt(Box::new(self.get().clone()))
     }
-    /// Returns an instance of [`Halt`] with an immutable reference to the inner value.
-    pub fn view(&self) -> Halt<&Q> {
-        Halt(&self.0)
+    /// Converts the inner type into a boxed "any" Halt, returning a new instance of Halt
+    pub fn into_any(self) -> Halt<Box<dyn std::any::Any>>
+    where
+        Q: 'static,
+    {
+        Halt(Box::new(self.value()))
     }
-    /// Returns an instance of [`Halt`] with a mutable reference to the inner value.
-    pub fn view_mut(&mut self) -> Halt<&mut Q> {
-        Halt(&mut self.0)
-    }
-}
 
-impl<Q> Halt<&Q> {
-    pub fn cloned(&self) -> Halt<Q>
+    #[cfg(feature = "std")]
+    /// Wraps the inner value of the Halt with an [`Arc`] and returns a new instance of [Halt]
+    pub fn shared(self) -> Halt<Arc<Q>> {
+        self.map(Arc::new)
+    }
+    #[cfg(feature = "std")]
+    /// returns a shared reference to the Halt.
+    pub fn to_shared(&self) -> Halt<Arc<Q>>
     where
         Q: Clone,
     {
-        Halt(self.0.clone())
+        self.clone().shared()
     }
-
-    pub fn copied(&self) -> Halt<Q>
+    /// returns a Halt with an owned inner value.
+    pub const fn view(&self) -> Halt<&Q> {
+        Halt(self.get())
+    }
+    /// returns a Halt with a mutable reference to the inner value.
+    pub const fn view_mut(&mut self) -> Halt<&mut Q> {
+        Halt(self.get_mut())
+    }
+    /// returns the `name` of the generic inner type, `Q`.
+    pub fn get_inner_type_name(&self) -> &'static str {
+        core::any::type_name::<Q>()
+    }
+    /// returns the `type id` of the generic inner type, `Q`.
+    pub fn get_inner_type_id(&self) -> core::any::TypeId
     where
-        Q: Copy,
+        Q: 'static,
     {
-        Halt(*self.0)
-    }
-}
-
-impl<Q> Halt<&mut Q> {
-    pub fn cloned(&self) -> Halt<Q>
-    where
-        Q: Clone,
-    {
-        Halt(self.0.clone())
-    }
-
-    pub fn copied(&self) -> Halt<Q>
-    where
-        Q: Copy,
-    {
-        Halt(*self.0)
-    }
-}
-
-impl<Q> From<State<Q>> for Halt<Q> {
-    fn from(State(state): State<Q>) -> Self {
-        Self(state)
-    }
-}
-
-impl<Q> From<Halt<Q>> for State<Q> {
-    fn from(Halt(state): Halt<Q>) -> Self {
-        Self(state)
+        core::any::TypeId::of::<Q>()
     }
 }

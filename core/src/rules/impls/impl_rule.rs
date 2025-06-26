@@ -2,11 +2,10 @@
     Appellation: impl_rule <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::rules::Rule;
+use crate::rules::{Head, Rule, Tail};
 use crate::state::RawState;
-use crate::types::{Head, Tail};
 
-impl<Q, S> core::convert::AsRef<Head<Q, S>> for Rule<Q, S>
+impl<Q, S> AsRef<Head<Q, S>> for Rule<Q, S>
 where
     Q: RawState,
 {
@@ -15,7 +14,7 @@ where
     }
 }
 
-impl<Q, S> core::convert::AsRef<Tail<Q, S>> for Rule<Q, S>
+impl<Q, S> AsRef<Tail<Q, S>> for Rule<Q, S>
 where
     Q: RawState,
 {
@@ -24,7 +23,7 @@ where
     }
 }
 
-impl<Q, S> core::convert::AsMut<Head<Q, S>> for Rule<Q, S>
+impl<Q, S> AsMut<Head<Q, S>> for Rule<Q, S>
 where
     Q: RawState,
 {
@@ -33,7 +32,7 @@ where
     }
 }
 
-impl<Q, S> core::convert::AsMut<Tail<Q, S>> for Rule<Q, S>
+impl<Q, S> AsMut<Tail<Q, S>> for Rule<Q, S>
 where
     Q: RawState,
 {

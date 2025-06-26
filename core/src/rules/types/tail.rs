@@ -2,8 +2,9 @@
     Appellation: tail <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+use super::Head;
+use crate::Direction;
 use crate::state::{RawState, State};
-use crate::{Direction, Head};
 
 /// The [Tail] is a 3-tuple containing the direction, state, and symbol that an actor is
 /// instructed to execute whenever it assumes the head configuration assigned to the tail.
@@ -223,7 +224,7 @@ where
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
-            "{{ direction: {}, state: {}, symbol: {} }}",
+            "{{ direction: {}, state: {:?}, symbol: {} }}",
             self.direction, self.state, self.symbol
         )
     }
