@@ -3,8 +3,9 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::{Actor, Engine, Handle};
-use crate::state::{RawState, State};
-use crate::{Head, InstructionSet, Symbolic, Tail};
+use rstm_core::rules::{InstructionSet, Rule};
+use rstm_core::state::{RawState, State};
+use rstm_core::{Head, Symbolic, Tail};
 
 /// The [Executor] handles the execution of a given program. The structure works as an
 /// iterator, where each iteration represents a step in the program. The executor is
@@ -38,13 +39,11 @@ where
     pub fn from_actor(actor: Actor<Q, S>) -> Self
     where
         Q: Default,
+        S: Default,
     {
         Self {
             actor,
-            program: InstructionSet {
-                initial_state: Default::default(),
-                rules: Vec::new(),
-            },
+            program: InstructionSet::default(),
             steps: 0,
         }
     }
@@ -101,7 +100,7 @@ where
     pub fn run(&mut self) -> crate::Result<()>
     where
         Q: 'static + RawState + Clone + PartialEq,
-        S: crate::Symbolic,
+        S: Symbolic,
     {
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
@@ -115,7 +114,7 @@ where
     fn _handle_tail(&mut self, tail: Tail<Q, S>) -> crate::Result<Head<Q, S>>
     where
         Q: RawState + Clone + PartialEq,
-        S: crate::Symbolic,
+        S: Symbolic,
     {
         // process the instruction
         let next = tail.as_head().cloned();
@@ -129,7 +128,7 @@ where
 impl<D, Q, S> Handle<D> for Executor<Q, S>
 where
     Q: RawState + Clone + PartialEq,
-    S: crate::Symbolic,
+    S: Symbolic,
     Actor<Q, S>: Handle<D>,
 {
     type Output = <Actor<Q, S> as Handle<D>>::Output;
@@ -142,13 +141,13 @@ where
 impl<Q, S> Engine<Q, S> for Executor<Q, S>
 where
     Q: 'static + RawState + Clone + PartialEq,
-    S: crate::Symbolic,
+    S: Symbolic,
 {
     fn load<I>(&mut self, program: I)
     where
-        I: IntoIterator<Item = crate::Rule<Q, S>>,
+        I: IntoIterator<Item = Rule<Q, S>>,
     {
-        self.program.rules.clear();
+        self.program.rules_mut().clear();
         self.program.extend(program);
     }
 

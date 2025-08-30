@@ -4,7 +4,8 @@
 */
 extern crate rstm;
 
-use rstm::{Actor, State, program};
+use rstm::actors::Actor;
+use rstm::{State, program};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     _tracing("debug");

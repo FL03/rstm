@@ -1,0 +1,143 @@
+[package]
+build = "build.rs"
+description = "Computational actors for the rstm framework"
+name = "rstm-actors"
+
+authors.workspace = true
+categories.workspace = true
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+bench = false
+doc = true
+doctest = false
+test = true
+
+# ********* [Package Metadata] *********
+[package.metadata.docs.rs]
+all-features = false
+features = ["full"]
+rustc-args = ["--cfg", "docsrs" ]
+version = "v{{version}}"
+
+[package.metadata.release]
+no-dev-version = true
+tag-name = "{{version}}"
+
+# ********* [Dependencies] *********
+[dependencies]
+# local
+rstm-core = { workspace = true }
+# custom
+contained = { workspace = true }
+variants = { workspace = true }
+# error-handling
+thiserror = { workspace = true }
+# numbers
+num-traits = { workspace = true }
+# serialization
+serde = { optional = true, workspace = true }
+serde_derive = { optional = true, workspace = true }
+serde_json = { optional = true, workspace = true }
+# macros & utilities
+paste = { workspace = true }
+smart-default = { workspace = true }
+strum = { workspace = true }
+# logging
+tracing = { optional = true, workspace = true }
+# WebAssembly
+wasm-bindgen = { optional = true, workspace = true }
+
+[dev-dependencies]
+lazy_static = { workspace = true }
+tracing-subscriber = { features = ["std"], workspace = true }
+
+[features]
+default = [
+  "std",
+]
+
+full = [
+  "default",
+  "json",
+  "serde",
+  "tracing",
+]
+
+# ********* [FF] Features *********
+json = [ 
+  "alloc", 
+  "rstm-core/json",
+  "serde",
+  "serde_json",
+]
+
+nightly = [
+  "rstm-core/nightly",
+]
+
+# ************* [FF:Environments] *************
+
+std = [
+  "alloc",
+  "contained/std",
+  "variants/std",
+  "rstm-core/std",
+  "serde?/std",
+  "serde_json?/std",
+  "strum/std",
+  "thiserror/std",
+  "tracing?/std",
+]
+
+wasi = [
+  "alloc",
+  "rstm-core/wasi",
+]
+
+wasm = [
+  "alloc",
+  "wasm_bindgen",
+  "rstm-core/wasm",
+]
+
+# ********* [FF] Dependencies *********
+alloc = [
+  "contained/alloc",
+  "variants/alloc",
+  "rstm-core/alloc",
+  "serde?/alloc",
+]
+
+serde = [
+  "dep:serde",
+  "dep:serde_derive",
+  "serde?/derive",
+  "rstm-core/serde",
+]
+
+serde_json = ["dep:serde_json"]
+
+tracing = [
+  "dep:tracing",
+  "tracing?/attributes",
+]
+
+wasm_bindgen = ["dep:wasm-bindgen"]
+
+
+# ************* [Unit Tests] *************
+[[test]]
+name = "default"
+
+[[test]]
+name = "actor"
+required-featured = ["std"]

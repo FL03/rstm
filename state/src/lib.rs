@@ -22,6 +22,8 @@ extern crate alloc;
 mod macros {
     #[macro_use]
     pub(crate) mod seal;
+    #[macro_use]
+    pub(crate) mod state;
 }
 
 #[doc(inline)]
@@ -96,11 +98,13 @@ pub mod types {
     }
 }
 
+#[doc(hidden)]
 pub mod prelude {
-    #[doc(inline)]
+    pub use crate::state;
+    #[doc(no_inline)]
     pub use crate::state::*;
-    #[doc(inline)]
+    #[doc(no_inline)]
     pub use crate::traits::*;
-    #[doc(inline)]
+    #[doc(no_inline)]
     pub use crate::types::*;
 }

@@ -132,19 +132,6 @@ macro_rules! program {
     };
 }
 
-/// the [`state!`] macro is a simple helper macro to create a [`State`](crate::state::State)
-/// instance.
-#[macro_export]
-macro_rules! state {
-    (@impl $state:expr) => {
-        $crate::state::State($state)
-    };
-    ($($state:expr),* $(,)?) => {
-        $(
-            $crate::state!(@impl $state),
-        )*
-    };
-}
 #[cfg(feature = "std")]
 /// a macro to create a [`HashMap`](std::collections::HashMap) of rules for a Turing machine.
 /// The macro takes a list of rules in the form of

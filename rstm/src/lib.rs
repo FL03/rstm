@@ -22,6 +22,9 @@ pub(crate) mod macros {
     pub mod rules;
 }
 
+#[cfg(feature = "actors")]
+#[doc(inline)]
+pub use rstm_actors as actors;
 #[doc(inline)]
 pub use rstm_core::*;
 
@@ -31,6 +34,8 @@ pub mod prelude {
     #[cfg(all(feature = "std", feature = "macros"))]
     pub use crate::rulemap;
     pub use crate::state;
+    #[cfg(feature = "actors")]
+    pub use rstm_actors::prelude::*;
     #[doc(no_inline)]
     pub use rstm_core::prelude::*;
 }

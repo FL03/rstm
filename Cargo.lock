@@ -597,9 +597,31 @@ dependencies = [
  "anyhow",
  "criterion",
  "lazy_static",
+ "rstm-actors",
  "rstm-core",
  "tracing",
  "tracing-subscriber",
+]
+
+[[package]]
+name = "rstm-actors"
+version = "0.0.8"
+dependencies = [
+ "contained",
+ "lazy_static",
+ "num-traits",
+ "paste",
+ "rstm-core",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "smart-default",
+ "strum",
+ "thiserror",
+ "tracing",
+ "tracing-subscriber",
+ "variants",
+ "wasm-bindgen",
 ]
 
 [[package]]

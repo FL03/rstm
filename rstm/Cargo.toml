@@ -34,6 +34,7 @@ tag-name = "{{version}}"
 
 # ********* [Dependencies] *********
 [dependencies]
+rstm-actors = { optional = true, workspace = true }
 rstm-core = { workspace = true }
 
 [dev-dependencies]
@@ -44,7 +45,10 @@ tracing = { workspace = true }
 tracing-subscriber = { features = ["json", "serde"], workspace = true }
 
 [features]
-default = ["std"]
+default = [
+  "actors",
+  "std",
+]
 
 full = [
   "default", 
@@ -55,34 +59,47 @@ full = [
 ]
 
 # ********* [FF] Features *********
+actors = [
+  "alloc",
+  "dep:rstm-actors",
+]
+
 macros = []
 
 nightly = [
+  "rstm-actors?/nightly",
   "rstm-core/nightly",
 ]
 
 json = [
   "alloc",
+  "rstm-actors?/json",
   "rstm-core/json",
 ]
 
 # ********* [FF] Environments *********
 std = [
   "alloc", 
+  "rstm-actors?/std",
   "rstm-core/std"
 ]
 
 wasi = [
+  "alloc",
+  "rstm-actors?/wasi",
   "rstm-core/wasi",
 ]
 
 wasm = [
+  "alloc",
+  "rstm-actors?/wasm",
   "rstm-core/wasm",
 ]
 
 # ************* [FF:Dependencies] *************
 
 alloc = [
+  "rstm-actors?/alloc",
   "rstm-core/alloc",
 ]
 
@@ -95,18 +112,22 @@ rng = [
 ]
 
 serde = [
+  "rstm-actors?/serde",
   "rstm-core/serde",
 ]
 
 serde_json = [
+  "rstm-actors?/serde_json",
   "rstm-core/serde_json",
 ]
 
 tracing = [
+  "rstm-actors?/tracing",
   "rstm-core/tracing"
 ]
 
 wasm_bindgen = [
+  "rstm-actors?/wasm_bindgen",
   "rstm-core/wasm_bindgen",
 ]
 
@@ -126,8 +147,8 @@ required-features = ["alloc", "tracing"]
 name = "default"
 
 [[test]]
-name = "actors"
-required-features = ["alloc", "macros"]
+name = "busy_beaver"
+required-features = ["alloc", "actors", "macros"]
 
 [[test]]
 name = "macros"

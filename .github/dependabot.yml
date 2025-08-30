@@ -15,5 +15,6 @@ updates:
     directories:
       - /
       - rstm
+      - actors
       - core
       - state

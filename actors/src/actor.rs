@@ -3,9 +3,10 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::{Executor, Handle};
-use crate::rules::InstructionSet;
-use crate::state::{RawState, State};
-use crate::{Direction, Error, Head, Symbolic, Tail};
+use crate::error::Error;
+use rstm_core::rules::InstructionSet;
+use rstm_core::state::{RawState, State};
+use rstm_core::{Direction, Head, Symbolic, Tail};
 
 /// An [Actor] is an implementation of a Turing machine with a moving head (TMH).
 ///

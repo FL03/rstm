@@ -32,12 +32,11 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-// extern crate rstm_state as state;
+#[doc(inline)]
 pub use rstm_state as state;
 
 #[doc(inline)]
 pub use self::{
-    actors::prelude::*,
     error::{Error, Result},
     ops::prelude::*,
     rules::{Head, InstructionSet, Rule, Tail},
@@ -52,7 +51,6 @@ pub(crate) mod macros {
     pub mod seal;
 }
 
-pub mod actors;
 pub mod error;
 pub mod mem;
 pub mod rules;
@@ -102,11 +100,11 @@ pub mod types {
     }
 }
 
+#[doc(hidden)]
 pub mod prelude {
+    #[doc(no_inline)]
     pub use rstm_state::prelude::*;
 
-    #[doc(no_inline)]
-    pub use crate::actors::prelude::*;
     #[doc(no_inline)]
     pub use crate::mem::prelude::*;
     #[doc(no_inline)]

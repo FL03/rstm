@@ -2,7 +2,7 @@
 default-members = [
   "rstm",
 ]
-members = [
+members = [ "actors",
   "core",
   "rstm", 
   "state",
@@ -31,6 +31,7 @@ version = "0.0.8"
 
 [workspace.dependencies]
 rstm = { default-features = false, path = "rstm", version = "0.0.8" }
+rstm-actors = { default-features = false, path = "actors", version = "0.0.8" }
 rstm-core = { default-features = false, path = "core", version = "0.0.8" }
 rstm-state = { default-features = false, path = "state", version = "0.0.8" }
 
