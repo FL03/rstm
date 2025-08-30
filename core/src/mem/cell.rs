@@ -2,7 +2,7 @@
     Appellation: cell <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::State;
+use crate::{RawState, State};
 
 /// [Cell] is a struct
 pub struct Cell<Q, A> {
@@ -11,7 +11,10 @@ pub struct Cell<Q, A> {
     pub symbol: A,
 }
 
-impl<Q, A> Cell<Q, A> {
+impl<Q, A> Cell<Q, A>
+where
+    Q: RawState,
+{
     pub fn state(&self) -> State<&Q> {
         self.state.view()
     }

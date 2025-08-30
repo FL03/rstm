@@ -15,25 +15,31 @@ rust-version.workspace = true
 version.workspace = true
 
 [lib]
-crate-type = [ 
-    "cdylib", 
-    "rlib",
-]
+crate-type = ["cdylib", "rlib"]
 bench = false
 doc = true
 doctest = false
 test = true
 
+# ********* [Package Metadata] *********
 [package.metadata.docs.rs]
 all-features = false
 features = ["full"]
-rustc-args = [ "--cfg", "docsrs" ]
+rustc-args = ["--cfg", "docsrs" ]
+version = "v{{version}}"
 
+[package.metadata.release]
+no-dev-version = true
+tag-name = "{{version}}"
+
+# ********* [Dependencies] *********
 [dependencies]
+# local
+rstm-state = { workspace = true }
 # custom
-scsys = { workspace = true }
+contained = { workspace = true }
+variants = { workspace = true }
 # error-handling
-anyhow = { optional = true, workspace = true }
 thiserror = { workspace = true }
 # numbers
 num = { workspace = true }
@@ -52,6 +58,8 @@ smart-default = { workspace = true }
 strum = { workspace = true }
 # logging
 tracing = { optional = true, workspace = true }
+# WebAssembly
+wasm-bindgen = { optional = true, workspace = true }
 
 [dev-dependencies]
 lazy_static = { workspace = true }
@@ -59,95 +67,100 @@ tracing-subscriber = { features = ["std"], workspace = true }
 
 [features]
 default = [
-    "std",
+  "std",
 ]
 
 full = [
-    "default",
-    "anyhow",
-    "json",
-    "rand",
-    "serde",
-    "tracing",
+  "default",
+  "json",
+  "rand",
+  "serde",
+  "tracing",
 ]
+
+# ********* [FF] Features *********
+json = [ 
+  "alloc", 
+  "rstm-state/json",
+  "serde",
+  "serde_json",
+]
+
+nightly = [
+  "rstm-state/nightly",
+]
+
 # ************* [FF:Environments] *************
 
 std = [
-    "alloc",
-    "anyhow?/std",
-    "rand?/std",
-    "rand?/std_rng",
-    "scsys/std",
-    "serde?/std",
-    "serde_json?/std",
-    "strum/std",
-    "thiserror/std",
-    "tracing?/std",
+  "alloc",
+  "contained/std",
+  "variants/std",
+  "rstm-state/std",
+  "rand?/std",
+  "rand?/std_rng",
+  "serde?/std",
+  "serde_json?/std",
+  "strum/std",
+  "thiserror/std",
+  "tracing?/std",
 ]
 
 wasi = [
-    "scsys/wasi",
+  "alloc",
+  "rstm-state/wasi",
 ]
 
 wasm = [
-    "getrandom?/wasm_js",
-    "scsys/wasm",
+  "alloc",
+  "getrandom?/wasm_js",
+  "wasm_bindgen",
+  "rstm-state/wasm",
 ]
 
-# ************* [FF:Dependencies] *************
+# ********* [FF] Dependencies *********
 alloc = [
-    "num/alloc",
-    "scsys/alloc",
-    "serde?/alloc",
-]
-
-json = [ 
-    "alloc", 
-    "scsys/json",
-    "serde",
-    "serde_json",
+  "contained/alloc",
+  "variants/alloc",
+  "num/alloc",
+  "rstm-state/alloc",
+  "serde?/alloc",
 ]
 
 rand = [
-    "dep:rand",
-    "dep:rand_distr",
-    "num/rand",
-    "rng",
-    "scsys/rand",
+  "dep:rand",
+  "dep:rand_distr",
+  "num/rand",
+  "rng",
 ]
 
 rng = [ 
-    "dep:getrandom", 
-    "rand?/small_rng", 
-    "rand?/thread_rng",
-    "scsys/rng",
+  "dep:getrandom", 
+  "rand?/small_rng", 
+  "rand?/thread_rng",
 ]
 
 serde = [
-    "dep:serde",
-    "dep:serde_derive",
-    "num/serde",
-    "scsys/serde",
+  "dep:serde",
+  "dep:serde_derive",
+  "num/serde",
+  "rstm-state/serde",
 ]
 
 serde_json = ["dep:serde_json"]
 
 tracing = [
-    "dep:tracing",
-    "scsys/tracing",
-    "tracing?/attributes",
+  "dep:tracing",
+  "tracing?/attributes",
 ]
+
+wasm_bindgen = ["dep:wasm-bindgen"]
 
 
 # ************* [Unit Tests] *************
 [[test]]
-name = "actor"
-required-features = [ "alloc" ]
-
-[[test]]
-name = "rules"
-required-features = [ "alloc" ]
+name = "default"
 
 [[test]]
 name = "tape"
-required-features = [ "alloc" ]
+required-features = ["alloc"]

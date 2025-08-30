@@ -1,0 +1,118 @@
+[package]
+build = "build.rs"
+description = "This crate provides various states for the rstm framework."
+name = "rstm-state"
+
+authors.workspace = true
+categories.workspace = true
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[lib]
+crate-type = [ "cdylib", "rlib" ]
+bench = false
+doc = true
+doctest = false
+test = true
+
+# ********* [Packaghe Metadata] *********
+[package.metadata.docs.rs]
+all-features = false
+features = ["full"]
+rustc-args = ["--cfg", "docsrs" ]
+version = "v{{version}}"
+
+[package.metadata.release]
+no-dev-version = true
+tag-name = "{{version}}"
+
+# ********* [Tests] *********
+[[test]]
+name = "default"
+
+[[test]]
+name = "state"
+
+# ********* [Dependencies] *********
+[dependencies]
+# custom
+contained = { workspace = true }
+# error-handling
+thiserror = { workspace = true }
+# numbers
+num-traits = { workspace = true }
+# serialization
+serde = { optional = true, workspace = true }
+serde_derive = { optional = true, workspace = true }
+serde_json = { optional = true, workspace = true }
+# macros & utilities
+paste = { workspace = true }
+smart-default = { workspace = true }
+strum = { workspace = true }
+# logging
+wasm-bindgen = { optional = true, workspace = true }
+
+[dev-dependencies]
+
+[features]
+default = [
+  "std",
+]
+
+full = [
+  "default",
+  "json",
+  "serde",
+]
+
+# ********* [FF] Features *********
+
+json = [ 
+  "alloc", 
+  "serde",
+  "serde_json",
+]
+
+nightly = []
+
+# ********* [FF] Environments *********
+std = [
+  "alloc",
+  "contained/std",
+  "serde?/std",
+  "serde_json?/std",
+  "strum/std",
+  "num-traits/std",
+  "thiserror/std",
+]
+
+wasi = [
+  "alloc",
+]
+
+wasm = [
+  "alloc",
+  "wasm_bindgen",
+]
+
+# ********* [FF] Dependencies *********
+alloc = [
+  "contained/alloc",
+  "serde?/alloc",
+]
+
+serde = [
+  "dep:serde",
+  "dep:serde_derive",
+  "serde?/derive",
+]
+
+serde_json = ["dep:serde_json"]
+
+wasm_bindgen = ["dep:wasm-bindgen"]

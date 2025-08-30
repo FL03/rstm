@@ -2,7 +2,7 @@
 
 [![crates.io](https://img.shields.io/crates/v/rstm?style=for-the-badge&logo=rust)](https://crates.io/crates/rstm)
 [![docs.rs](https://img.shields.io/docsrs/rstm?style=for-the-badge&logo=docs.rs)](https://docs.rs/rstm)
-[![GitHub License](https://img.shields.io/github/license/FL03/rstm?style=for-the-badge&logo=github)](https://github.com/FL03/rstm/blob/main/LICENSE)
+[![GitHub License](https://img.shields.io/github/license/FL03/rstm?style=for-the-badge&logo=github)](LICENSE)
 
 ***
 
@@ -12,34 +12,18 @@ Welcome to `rstm`! This crate provides a simple and easy-to-use interface for cr
 
 ## Getting Started
 
-### Pre-requisites
+For a more detailed guide on getting started, please refer to the [QUICKSTART.md](QUICKSTART.md) file.
 
-To use this crate, you will need to have the following installed:
-
-- [Rust](https://www.rust-lang.org/tools/install) (version 1.85 or later)
-
-#### Installing Rust
-
-If you don't have Rust installed, you can install it using [rustup](https://rustup.rs/). This will install the latest stable version of Rust along with `cargo`, the Rust package manager.
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-```
-
-After installation, make sure to add the Rust binary directory to your `PATH` environment variable. You can do this by running:
-
-```bash
-source $HOME/.cargo/env
-```
-
-### Adding to your project
+### Adding `rstm` to your project
 
 To add `rstm` to your Rust project, include it in your `Cargo.toml` file:
 
 ```toml
 [dependencies.rstm]
-features = ["full"]
 version = "0.0.x"
+features = [
+    "default",
+]
 ```
 
 ### Building from the source
@@ -166,4 +150,4 @@ The following example demonstrates the use of the `ruleset!` macro to define a s
 
 ## Contributing
 
-Pull requests are welcome. Any improvements or modifactions should first be disccussed using a pull-request and/or by opening an issue. Additionally, please make sure to update tests as appropriate and to adhear to the feature gates.
+Contributions are welcome! For more information visit the [CONTRIBUTING.md](CONTRIBUTING.md) file.

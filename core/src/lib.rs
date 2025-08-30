@@ -15,22 +15,31 @@
 //!
 //! ### Tapes
 //!
-//! - [x] [StdTape]
-//! - [x] [HashTape](tape::hash_tape::HashTape)
+//! - [x] [`StdTape`](mem::std_tape::StdTape)
+//! - [x] [HashTape](mem::hash_tape::HashTape)
 
+#![allow(
+    clippy::module_inception,
+    clippy::new_ret_no_self,
+    clippy::needless_doctest_main,
+    clippy::should_implement_trait
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![allow(clippy::module_inception, clippy::new_ret_no_self)]
+#![cfg_attr(feature = "nightly", feature(allocator_api))]
+#![crate_name = "rstm_core"]
+#![crate_type = "lib"]
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
 #[doc(inline)]
+pub use rstm_state as state;
+
+#[doc(inline)]
 pub use self::{
-    actors::{Actor, Executor, Handle},
     error::{Error, Result},
     ops::prelude::*,
-    rules::{Rule, RuleSet},
-    state::{Halt, RawState, State, Stated},
+    state::{RawState, State},
     traits::prelude::*,
     types::prelude::*,
 };
@@ -38,16 +47,11 @@ pub use self::{
 #[macro_use]
 pub(crate) mod macros {
     #[macro_use]
-    pub mod rules;
-    #[macro_use]
     pub mod seal;
 }
 
-pub mod actors;
 pub mod error;
 pub mod mem;
-pub mod rules;
-pub mod state;
 
 pub mod ops {
     //! this modules defines additional operations used throughout the crate
@@ -87,35 +91,24 @@ pub mod types {
     pub use self::prelude::*;
 
     pub mod direction;
-    pub mod head;
-    pub mod tail;
 
     pub(crate) mod prelude {
         #[doc(inline)]
         pub use super::direction::*;
-        #[doc(inline)]
-        pub use super::head::*;
-        #[doc(inline)]
-        pub use super::tail::*;
     }
 }
 
+#[doc(hidden)]
 pub mod prelude {
     #[doc(no_inline)]
-    pub use super::error::*;
+    pub use rstm_state::prelude::*;
 
     #[doc(no_inline)]
-    pub use super::actors::prelude::*;
+    pub use crate::mem::prelude::*;
     #[doc(no_inline)]
-    pub use super::mem::prelude::*;
+    pub use crate::ops::prelude::*;
     #[doc(no_inline)]
-    pub use super::ops::prelude::*;
+    pub use crate::traits::prelude::*;
     #[doc(no_inline)]
-    pub use super::rules::prelude::*;
-    #[doc(no_inline)]
-    pub use super::state::prelude::*;
-    #[doc(no_inline)]
-    pub use super::traits::prelude::*;
-    #[doc(no_inline)]
-    pub use super::types::prelude::*;
+    pub use crate::types::prelude::*;
 }

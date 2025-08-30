@@ -15,97 +15,153 @@ rust-version.workspace = true
 version.workspace = true
 
 [lib]
-crate-type = [ 
-    "cdylib", 
-    "rlib",
-]
 bench = true
+crate-type = ["cdylib", "rlib"]
 doc = true
 doctest = false
 test = true
 
+# ********* [Package Metadata] *********
 [package.metadata.docs.rs]
 all-features = false
-features = [ "full" ]
-rustc-args = [ "--cfg", "docsrs" ]
+features = ["full"]
+rustc-args = ["--cfg", "docsrs" ]
+version = "v{{version}}"
 
+[package.metadata.release]
+no-dev-version = true
+tag-name = "{{version}}"
+
+# ********* [Dependencies] *********
 [dependencies]
+rstm-actors = { optional = true, workspace = true }
 rstm-core = { workspace = true }
+rstm-rules = { optional = true, workspace = true }
 
 [dev-dependencies]
 anyhow = { features = ["std"], workspace = true }
-criterion = { features = ["plotters"], workspace = true }
+criterion = { features = ["plotters"], version = "0.7" }
 lazy_static = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { features = ["json", "serde"], workspace = true }
 
 [features]
 default = [
-    "std",
+  "actors",
+  "rules",
+  "std",
 ]
 
 full = [
-    "default",
-    "rand",
-    "serde",
-    "tracing",
+  "default", 
+  "macros", 
+  "rand", 
+  "serde", 
+  "tracing"
 ]
 
-# ********* [FF] Dependencies *********
-alloc = [
-    "rstm-core/alloc",
+# ********* [FF] Features *********
+actors = [
+  "alloc",
+  "rules",
+  "dep:rstm-actors",
 ]
 
-anyhow = [
-    "rstm-core/anyhow",
+macros = []
+
+rules = [
+  "dep:rstm-rules",
+]
+
+nightly = [
+  "rstm-actors?/nightly",
+  "rstm-core/nightly",
 ]
 
 json = [
-    "rstm-core/json",
+  "alloc",
+  "rstm-core/json",
 ]
 
-rand = [
-    "rstm-core/rand",
-]
-
-rng = [
-    "rstm-core/rng",
-]
-
-serde = [
-    "rstm-core/serde",
-]
-
-serde_json = [
-    "rstm-core/serde_json",
-]
-
-tracing = [
-    "rstm-core/tracing",
-]
-
-# ************* [FF:Environments] *************
+# ********* [FF] Environments *********
 std = [
-    "alloc",
-    "rstm-core/std",
+  "alloc", 
+  "rstm-actors?/std",
+  "rstm-core/std",
+  "rstm-rules?/std",
 ]
 
 wasi = [
-    "rstm-core/wasi",
+  "alloc",
+  "rstm-actors?/wasi",
+  "rstm-core/wasi",
+  "rstm-rules?/wasi",
 ]
 
 wasm = [
-    "rstm-core/wasm",
+  "alloc",
+  "rstm-actors?/wasm",
+  "rstm-core/wasm",
+  "rstm-rules?/wasm",
 ]
 
+# ************* [FF:Dependencies] *************
+
+alloc = [
+  "rstm-actors?/alloc",
+  "rstm-core/alloc",
+  "rstm-rules?/alloc",
+]
+
+rand = [
+  "rstm-core/rand",
+]
+
+rng = [
+  "rstm-core/rng",
+]
+
+serde = [
+  "rstm-actors?/serde",
+  "rstm-core/serde",
+  "rstm-rules?/serde",
+]
+
+serde_json = [
+  "rstm-core/serde_json",
+  "rstm-rules?/serde_json",
+]
+
+tracing = [
+  "rstm-actors?/tracing",
+  "rstm-core/tracing",
+]
+
+wasm_bindgen = [
+  "rstm-actors?/wasm_bindgen",
+  "rstm-core/wasm_bindgen",
+  "rstm-rules?/wasm_bindgen",
+]
 
 # ************* [Benchmarks] *************
 [[bench]]
-name = "default"
-required-features = [ "std" ]
 harness = false
+name = "default"
+required-features = ["std"]
 
-# ********* Examples *********
+# ************* [Examples] *************
 [[example]]
 name = "actor"
-required-features = [ "alloc", "tracing" ]
+required-features = ["alloc", "tracing"]
+
+# ************* [Unit Tests] *************
+[[test]]
+name = "default"
+
+[[test]]
+name = "busy_beaver"
+required-features = ["alloc", "actors", "macros"]
+
+[[test]]
+name = "macros"
+required-features = ["macros", "rules"]

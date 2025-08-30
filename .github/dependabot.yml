@@ -1,18 +1,21 @@
 version: 2
 
 updates:
-  - package-ecosystem: cargo
-    directories:
-      - /
-      - core
-      - rstm
-    schedule:
-      interval: monthly
   - package-ecosystem: devcontainers
     directory: /
-    schedule:
+    schedule: 
       interval: monthly
   - package-ecosystem: github-actions
     directory: /
+    schedule: 
+      interval: monthly
+  - package-ecosystem: cargo
     schedule:
       interval: monthly
+    directories:
+      - /
+      - rstm
+      - actors
+      - core
+      - state
+      - rules

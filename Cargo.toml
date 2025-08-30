@@ -1,21 +1,24 @@
 [workspace]
 default-members = [
-    "rstm",
+  "rstm",
 ]
-members = [
-    "core",
-    "rstm",
+members = [ 
+  "actors",
+  "core",
+  "rstm", 
+  "rules",
+  "state",
 ]
 resolver = "3"
 
 [workspace.package]
-authors = [ 
-    "Joe McCain III <jo3mccain@icloud.com>",
+authors = [
+    "FL03 <joe@pzzld.org>",
     "Scattered-Systems <support@scsys.io>",
 ]
-categories = [ 
-    "mathematics", 
-    "science", 
+categories = [
+    "mathematics",
+    "science",
     "simulation",
 ]
 description = "This crate focuses on building concrete implementations for Turing Machines."
@@ -26,18 +29,22 @@ license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/FL03/rstm.git"
 rust-version = "1.85.0"
-version = "0.0.7"
+version = "0.0.8"
 
 [workspace.dependencies]
-rstm = { default-features = false, path = "rstm", version = "0.0.7" }
-rstm-core = { default-features = false, path = "core", version = "0.0.7" }
+rstm = { default-features = false, path = "rstm", version = "0.0.8" }
+rstm-actors = { default-features = false, path = "actors", version = "0.0.8" }
+rstm-core = { default-features = false, path = "core", version = "0.0.8" }
+rstm-state = { default-features = false, path = "state", version = "0.0.8" }
+rstm-rules = { default-features = false, path = "rules", version = "0.0.8" }
 
 # custom
-scsys = { default-features = false, features = ["derive"], version = "0.2" }
+contained = { default-features = false, features = ["derive", "macros"], version = "0.2" }
+scsys = { default-features = false, features = ["derive"], version = "0.3.0" }
+variants = { default-features = false, features = ["derive"], version = "0.0.1" }
 # benchmarking
-criterion = { version = "0.6" }
 # error-handling
-anyhow = { version = "1" }
+anyhow = { default-features = false, version = "1" }
 thiserror = { default-features = false, version = "2" }
 # numbers
 num = { default-features = false, version = "0.4" }
@@ -47,7 +54,7 @@ getrandom = { default-features = false, version = "0.3" }
 rand = { default-features = false, version = "0.9" }
 rand_distr = { default-features = false, version = "0.5" }
 # serialization
-serde = { default-features = false, version = "1" }
+serde = { default-features = false, features = ["derive"], version = "1" }
 serde_derive = { default-features = false, version = "1" }
 serde_json = { default-features = false, version = "1" }
 # macros & utilities
@@ -58,6 +65,8 @@ paste = { version = "1" }
 # logging
 tracing = { default-features = false, features = ["attributes"], version = "0.1" }
 tracing-subscriber = { default-features = false, features = ["ansi", "env-filter", "fmt"], version = "0.3" }
+# WebAssembly
+wasm-bindgen = { default-features = false, version = "0.2" }
 
 # ************* [Profiles] *************
 [profile.dev]
@@ -70,7 +79,7 @@ opt-level = 2
 overflow-checks = true
 panic = "abort"
 rpath = true
-strip = "none"
+strip = "symbols"
 
 [profile.release]
 codegen-units = 16

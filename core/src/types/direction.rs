@@ -14,7 +14,7 @@
     Ord,
     PartialEq,
     PartialOrd,
-    scsys::VariantConstructors,
+    variants::VariantConstructors,
     strum::AsRefStr,
     strum::Display,
     strum::EnumCount,
@@ -23,10 +23,7 @@
     strum::VariantArray,
     strum::VariantNames,
 )]
-#[cfg_attr(
-    feature = "serde",
-    derive(serde_derive::Deserialize, serde_derive::Serialize)
-)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[strum(serialize_all = "lowercase")]
 pub enum Direction {
     /// Represents a single left shift
@@ -90,6 +87,7 @@ impl Direction {
             _ => Self::Stay,
         }
     }
+    #[allow(clippy::should_implement_trait)]
     /// Converts a [str] value into a [Direction] by matching the value to the corresponding
     /// variant; defaults to [`Stay`](Direction::Stay) if the value does not match accepted
     /// representations of neither [left](Direction::Left) nor [right](Direction::Right).
