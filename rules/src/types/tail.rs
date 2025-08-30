@@ -19,10 +19,7 @@ pub struct Tail<Q, S> {
     pub direction: Direction,
     #[cfg_attr(feature = "serde", serde(alias = "state"))]
     pub next_state: State<Q>,
-    #[cfg_attr(
-        feature = "serde",
-        serde(alias = "symbol", alias = "next_symbol")
-    )]
+    #[cfg_attr(feature = "serde", serde(alias = "symbol", alias = "next_symbol"))]
     pub write_symbol: S,
 }
 

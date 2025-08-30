@@ -10,7 +10,8 @@ mod impl_instruction_set;
 use crate::types::RuleVec;
 use rstm_state::{RawState, State};
 
-/// A [`Program`] contains a collection of [`Rule`]s and an optional initial [`State`].
+/// A [`Program`] defines an optional initial state along with a set of rules that dictate the
+/// behavior of the system.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(
     feature = "serde",
