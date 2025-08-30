@@ -48,13 +48,13 @@ tracing-subscriber = { features = ["json", "serde"], workspace = true }
 [features]
 default = [
   "actors",
+  "macros",
   "rules",
   "std",
 ]
 
 full = [
   "default", 
-  "macros", 
   "rand", 
   "serde", 
   "tracing"
