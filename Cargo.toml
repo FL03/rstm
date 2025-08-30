@@ -13,13 +13,13 @@ resolver = "3"
 
 [workspace.package]
 authors = [
-    "FL03 <joe@pzzld.org>",
-    "Scattered-Systems <support@scsys.io>",
+  "FL03 <joe@pzzld.org>",
+  "Scattered-Systems <support@scsys.io>",
 ]
 categories = [
-    "mathematics",
-    "science",
-    "simulation",
+  "mathematics",
+  "science",
+  "simulation",
 ]
 description = "This crate focuses on building concrete implementations for Turing Machines."
 edition = "2024"

@@ -29,6 +29,7 @@ pub use rstm_actors as actors;
 #[doc(inline)]
 pub use rstm_core::*;
 #[cfg(feature = "rules")]
+#[doc(inline)]
 pub use rstm_rules as rules;
 
 pub mod prelude {

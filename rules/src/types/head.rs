@@ -70,7 +70,7 @@ where
         &mut self.symbol
     }
     /// Returns a reference to the current state and symbol returing a 2-tuple
-    pub fn as_tuple(&self) -> (&State<Q>, &S) {
+    pub const fn as_tuple(&self) -> (&State<Q>, &S) {
         (&self.state, &self.symbol)
     }
     /// Consumes the head and returns the current state and symbol as a 2-tuple
@@ -78,7 +78,7 @@ where
         (self.state, self.symbol)
     }
     /// Returns a mutable reference to the current state and symbol as a 2-tuple
-    pub fn as_mut_tuple(&mut self) -> (&mut State<Q>, &mut S) {
+    pub const fn as_mut_tuple(&mut self) -> (&mut State<Q>, &mut S) {
         (&mut self.state, &mut self.symbol)
     }
     /// Updates the current state
@@ -93,7 +93,7 @@ where
     }
     /// Replaces the current state and symbol with the given state and symbol; returns the
     /// previous instance of the head.
-    pub fn replace(&mut self, state: State<Q>, symbol: S) -> Self {
+    pub const fn replace(&mut self, state: State<Q>, symbol: S) -> Self {
         Head {
             state: self.replace_state(state),
             symbol: self.replace_symbol(symbol),
