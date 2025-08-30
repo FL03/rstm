@@ -37,6 +37,7 @@ rstm-state = { default-features = false, path = "state", version = "0.0.8" }
 # custom
 contained = { default-features = false, features = ["derive", "macros"], version = "0.2" }
 scsys = { default-features = false, features = ["derive"], version = "0.3.0" }
+variants = { default-features = false, features = ["derive"], version = "0.0.1" }
 # benchmarking
 # error-handling
 anyhow = { default-features = false, version = "1" }

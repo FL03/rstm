@@ -76,10 +76,23 @@ pub mod types {
     mod aliases {
         use crate::state::State;
         #[cfg(feature = "alloc")]
-        /// A type alias for a [State] whose inner value is the dynamically sized type of a boxed [`Any`](core::any::Any).
+        /// A type alias for a [State] whose inner value is the dynamically sized type of a
+        /// boxed [`Any`](core::any::Any).
         pub type AnyState = State<alloc::boxed::Box<dyn core::any::Any>>;
-        /// A type alias for a [State] whose inner value is a [core::mem::MaybeUninit] of generic type `Q`.
+        /// A type alias for a [State] whose inner value is a [core::mem::MaybeUninit] of
+        /// generic type `Q`.
         pub type MaybeState<Q = bool> = State<core::mem::MaybeUninit<Q>>;
+        #[cfg(feature = "alloc")]
+        pub type SharedState<Q> = State<alloc::sync::Arc<Q>>;
+        #[cfg(feature = "std")]
+        pub type ShardState<Q> = State<std::sync::Arc<std::sync::Mutex<Q>>>;
+        /// A type alias for a [State] whose inner value is a reference to a generic type `Q`.
+        pub type RefState<'a, Q> = State<&'a Q>;
+        /// A type alias for a [State] whose inner value is a mutable reference to a generic
+        ///  type `Q`.
+        pub type MutState<'a, Q> = State<&'a mut Q>;
+        /// A type alias for a [State] whose inner value is a raw pointer to a generic type `Q`
+        pub type PtrState<Q> = State<*mut Q>;
     }
 }
 

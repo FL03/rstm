@@ -606,6 +606,7 @@ dependencies = [
 name = "rstm-core"
 version = "0.0.8"
 dependencies = [
+ "contained",
  "getrandom",
  "lazy_static",
  "num",
@@ -614,7 +615,6 @@ dependencies = [
  "rand 0.9.2",
  "rand_distr",
  "rstm-state",
- "scsys",
  "serde",
  "serde_derive",
  "serde_json",
@@ -623,6 +623,7 @@ dependencies = [
  "thiserror",
  "tracing",
  "tracing-subscriber",
+ "variants",
  "wasm-bindgen",
 ]
 
@@ -661,40 +662,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
 dependencies = [
  "winapi-util",
-]
-
-[[package]]
-name = "scsys"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00fffd67a93106e087d1863df313f6f9d2d65b415bf6e684c8fb33c5b0c5cf36"
-dependencies = [
- "scsys-core",
- "scsys-derive",
-]
-
-[[package]]
-name = "scsys-core"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dccf5713c694fb005f4ba8bd8987cdf05da2494d1e6fe8ad8e6a48ff2564f2b9"
-dependencies = [
- "num-traits",
- "paste",
- "smart-default",
- "strum",
- "thiserror",
-]
-
-[[package]]
-name = "scsys-derive"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8fb965e4c5f680530848ae90393d30a51c678fb9aba6261ccc1a2fcd487e7a0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
@@ -892,6 +859,40 @@ name = "valuable"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba73ea9cf16a25df0c8caa16c51acb937d5712a8429db78a3ee29d5dcacd3a65"
+
+[[package]]
+name = "variants"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3d2f539cc5b8d5442f7558e2981adabd7462d6f318df8a5a12860a7242587e3"
+dependencies = [
+ "anyhow",
+ "thiserror",
+ "variants-derive",
+ "variants-macros",
+]
+
+[[package]]
+name = "variants-derive"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "def932f16e8fac8b72d08953f57f081006c7006fac129d2aff1e4bebbbcfe9ab"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "variants-macros"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2bd5a945ea1267baa1c77d70e626e8c0268818d0edc1f1671f11def7e6708b4"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "walkdir"

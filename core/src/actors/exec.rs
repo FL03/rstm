@@ -4,7 +4,7 @@
 */
 use super::{Actor, Engine, Handle};
 use crate::state::{RawState, State};
-use crate::{Head, RuleSet, Symbolic, Tail};
+use crate::{Head, InstructionSet, Symbolic, Tail};
 
 /// The [Executor] handles the execution of a given program. The structure works as an
 /// iterator, where each iteration represents a step in the program. The executor is
@@ -18,7 +18,7 @@ where
     /// the actor that will be executing the program
     pub(crate) actor: Actor<Q, S>,
     /// the program being executed
-    pub(crate) program: RuleSet<Q, S>,
+    pub(crate) program: InstructionSet<Q, S>,
     /// the number of steps taken by the actor
     pub(crate) steps: usize,
 }
@@ -27,7 +27,7 @@ impl<Q, S> Executor<Q, S>
 where
     Q: RawState,
 {
-    pub(crate) fn new(actor: Actor<Q, S>, program: RuleSet<Q, S>) -> Self {
+    pub(crate) fn new(actor: Actor<Q, S>, program: InstructionSet<Q, S>) -> Self {
         Self {
             actor,
             program,
@@ -41,7 +41,7 @@ where
     {
         Self {
             actor,
-            program: RuleSet {
+            program: InstructionSet {
                 initial_state: Default::default(),
                 rules: Vec::new(),
             },
@@ -49,7 +49,7 @@ where
         }
     }
     /// Load a program into the executor
-    pub fn load(self, program: RuleSet<Q, S>) -> Self {
+    pub fn load(self, program: InstructionSet<Q, S>) -> Self {
         Executor { program, ..self }
     }
     /// returns a reference to the actor

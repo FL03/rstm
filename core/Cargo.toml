@@ -37,7 +37,8 @@ tag-name = "{{version}}"
 # local
 rstm-state = { workspace = true }
 # custom
-scsys = { workspace = true }
+contained = { workspace = true }
+variants = { workspace = true }
 # error-handling
 thiserror = { workspace = true }
 # numbers
@@ -93,6 +94,8 @@ nightly = [
 
 std = [
   "alloc",
+  "contained/std",
+  "variants/std",
   "rstm-state/std",
   "rand?/std",
   "rand?/std_rng",
@@ -117,6 +120,8 @@ wasm = [
 
 # ********* [FF] Dependencies *********
 alloc = [
+  "contained/alloc",
+  "variants/alloc",
   "num/alloc",
   "rstm-state/alloc",
   "serde?/alloc",

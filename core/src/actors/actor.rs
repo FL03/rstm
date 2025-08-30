@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::{Executor, Handle};
-use crate::rules::RuleSet;
+use crate::rules::InstructionSet;
 use crate::state::{RawState, State};
 use crate::{Direction, Error, Head, Symbolic, Tail};
 
@@ -128,7 +128,7 @@ where
     }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
-    pub fn execute(self, program: RuleSet<Q, A>) -> Executor<Q, A> {
+    pub fn execute(self, program: InstructionSet<Q, A>) -> Executor<Q, A> {
         Executor::new(self, program)
     }
     /// Checks if the tape is empty

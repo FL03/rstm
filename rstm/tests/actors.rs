@@ -2,7 +2,7 @@
     Appellation: actor <test>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use rstm::{Actor, RuleSet, State, ruleset};
+use rstm::{Actor, InstructionSet, State};
 
 #[test]
 #[ignore = "the halting state needs to be fixed/enabled"]
@@ -10,8 +10,8 @@ fn busy_beaver() {
     let initial_state = State(0_isize);
     let input = [0_usize; 10];
 
-    let program: RuleSet<isize, usize> = ruleset! {
-        initial_state(*initial_state);
+    let program: InstructionSet<isize, usize> = rstm::ruleset! {
+        #[default_state(*initial_state)] // optional
         (0, 0) -> Right(1, 1),
         (0, 1) -> Left(-1, 0),
         (1, 0) -> Right(1, 1),

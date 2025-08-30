@@ -5,7 +5,7 @@
 use crate::state::State;
 
 use crate::RawState;
-use crate::error::Error;
+use crate::error::StateError;
 
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
@@ -132,14 +132,14 @@ impl State<bool> {
 impl State<Box<dyn core::any::Any>> {
     /// Attempts to downcast the state to a concrete type `Q`; returns an error if the state
     /// is not of type `Q`.
-    pub fn downcast<Q>(self) -> Result<State<Box<Q>>, Error>
+    pub fn downcast<Q>(self) -> Result<State<Box<Q>>, StateError>
     where
         Q: core::any::Any,
     {
         self.0
             .downcast()
             .map(State)
-            .map_err(|_| Error::DowncastError)
+            .map_err(|_| StateError::DowncastError)
     }
     /// Returns an immutable reference to the state if it is of type `Q`; returns `None`
     /// otherwise.

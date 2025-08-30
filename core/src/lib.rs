@@ -40,7 +40,7 @@ pub use self::{
     actors::prelude::*,
     error::{Error, Result},
     ops::prelude::*,
-    rules::{Head, Rule, RuleSet, Tail},
+    rules::{Head, InstructionSet, Rule, Tail},
     state::{RawState, State},
     traits::prelude::*,
     types::prelude::*,

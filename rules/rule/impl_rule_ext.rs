@@ -1,8 +1,9 @@
 /*
-    Appellation: impl_rule <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    appellation: impl_rule_ext <module>
+    authors: @FL03
 */
-use crate::rules::{Head, Rule, Tail};
+use super::Rule;
+use crate::rules::{Head, Tail};
 use crate::state::RawState;
 
 impl<Q, S> AsRef<Head<Q, S>> for Rule<Q, S>

@@ -101,6 +101,7 @@ macro_rules! rules {
 /// use rstm::ruleset;
 ///
 /// let rule = ruleset![
+///     #[default_state(0)] // optional
 ///     (0, 0) -> Right(1, 1),
 ///     (0, 1) -> Left(-1, 0),
 ///     (1, 0) -> Right(1, 1),
@@ -111,8 +112,8 @@ macro_rules! rules {
 /// ```
 #[macro_export]
 macro_rules! ruleset {
-    {$(initial_state($q:expr);)? $(  ($state:expr, $symbol:literal $(,)?) -> $direction:ident($next:expr, $write:literal $(,)?)  ),* $(,)?} => {
-        $crate::rules::RuleSet::from_iter(
+    {$(#[default_state($q:expr)])? $(  ($state:expr, $symbol:literal $(,)?) -> $direction:ident($next:expr, $write:literal $(,)?)  ),* $(,)?} => {
+        $crate::rules::InstructionSet::from_iter(
             $crate::rules! {
                 $(($state, $symbol) -> $direction($next, $write)),*
             }

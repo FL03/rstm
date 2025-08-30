@@ -21,6 +21,7 @@ use crate::traits::{Haltable, RawState};
 #[cfg_attr(
     feature = "serde",
     derive(serde::Deserialize, serde::Serialize),
+    serde(rename_all = "camelCase"),
     strum_discriminants(derive(serde::Deserialize, serde::Serialize))
 )]
 #[strum_discriminants(name(HaltTag), derive(Hash, Ord, PartialOrd))]

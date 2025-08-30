@@ -1,0 +1,52 @@
+/*
+    Appellation: program <module>
+    Contrib: FL03 <jo3mccain@icloud.com>
+*/
+
+#[allow(deprecated)]
+mod impl_deprecated;
+mod impl_instruction_set;
+
+use super::{Head, Rule, Rules, Tail};
+use crate::state::{RawState, State};
+
+/// The [`Ruleset`] trait defines the core behaviors of a collection of rules
+pub trait Ruleset<Q, S>
+where
+    Q: RawState,
+{
+    fn iter(&self) -> core::slice::Iter<'_, Rule<Q, S>>;
+    /// returns the [`Tail`] associated with the given [`Head`], if it exists
+    fn get_by_head(&self, head: Head<&Q, &S>) -> Option<Tail<&Q, &S>>
+    where
+        Q: PartialEq,
+        S: PartialEq,
+    {
+        self.iter().find_map(|i| {
+            if i.head_view() == head {
+                Some(i.tail_view())
+            } else {
+                None
+            }
+        })
+    }
+    /// filters the contents of the ruleset by a given state
+    fn filter_by_state(&self, state: State<&Q>) -> Vec<&Rule<Q, S>>
+    where
+        Q: PartialEq,
+        S: PartialEq,
+    {
+        self.iter().filter(|i| *i.head() == state).collect()
+    }
+}
+
+/// An [`InstructionSet`] contains a collection of [`Rule`]s and an optional initial [`State`].
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
+pub struct InstructionSet<Q = String, S = char>
+where
+    Q: RawState,
+{
+    pub(crate) initial_state: Option<State<Q>>,
+    pub(crate) rules: Rules<Q, S>,
+}

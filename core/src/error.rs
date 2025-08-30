@@ -20,7 +20,7 @@ pub enum Error {
     #[error("[Runtime Error] {0}")]
     RuntimeError(String),
     #[error("[State Error] {0}")]
-    StateError(#[from] rstm_state::Error),
+    StateError(#[from] rstm_state::StateError),
     #[cfg(feature = "alloc")]
     #[error("[Transformation Error]: {0}")]
     TransformationError(String),
