@@ -2,7 +2,7 @@
     Appellation: exec <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::{Actor, Engine, Handle};
+use super::{Engine, Handle, TMH};
 use rstm_core::{Head, Symbolic, Tail};
 use rstm_rules::prelude::{Program, Rule};
 use rstm_state::{RawState, State};
@@ -17,7 +17,7 @@ where
     Q: RawState,
 {
     /// the actor that will be executing the program
-    pub(crate) actor: Actor<Q, S>,
+    pub(crate) actor: TMH<Q, S>,
     /// the program being executed
     pub(crate) program: Program<Q, S>,
     /// the number of steps taken by the actor
@@ -28,7 +28,7 @@ impl<Q, S> Executor<Q, S>
 where
     Q: RawState,
 {
-    pub(crate) fn new(actor: Actor<Q, S>, program: Program<Q, S>) -> Self {
+    pub(crate) fn new(actor: TMH<Q, S>, program: Program<Q, S>) -> Self {
         Self {
             actor,
             program,
@@ -36,7 +36,7 @@ where
         }
     }
 
-    pub fn from_actor(actor: Actor<Q, S>) -> Self
+    pub fn from_actor(actor: TMH<Q, S>) -> Self
     where
         Q: Default,
         S: Default,
@@ -52,11 +52,11 @@ where
         Executor { program, ..self }
     }
     /// returns a reference to the actor
-    pub const fn actor(&self) -> &Actor<Q, S> {
+    pub const fn actor(&self) -> &TMH<Q, S> {
         &self.actor
     }
     /// returns a mutable reference to the actor
-    pub const fn actor_mut(&mut self) -> &mut Actor<Q, S> {
+    pub const fn actor_mut(&mut self) -> &mut TMH<Q, S> {
         &mut self.actor
     }
     /// returns a copy of the current steps
@@ -129,9 +129,9 @@ impl<D, Q, S> Handle<D> for Executor<Q, S>
 where
     Q: RawState + Clone + PartialEq,
     S: Symbolic,
-    Actor<Q, S>: Handle<D>,
+    TMH<Q, S>: Handle<D>,
 {
-    type Output = <Actor<Q, S> as Handle<D>>::Output;
+    type Output = <TMH<Q, S> as Handle<D>>::Output;
 
     fn handle(&mut self, args: D) -> Self::Output {
         self.actor_mut().handle(args)

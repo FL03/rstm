@@ -1,6 +1,7 @@
 /*
-    Appellation: rstm-core <library>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: rstm-rules <library>
+    Created At: 2025.08.30:18:45:29
+    Contrib: @FL03
 */
 //! Rules for the rstm framework
 
@@ -27,8 +28,7 @@ mod macros {
 #[doc(inline)]
 pub use self::{
     error::*,
-    learned_rule::LearnedRule,
-    rule::{Rule, RuleBuilder},
+    rule::{LearnedRule, Rule},
     traits::*,
     types::*,
 };
@@ -38,36 +38,29 @@ pub use self::{
 pub use self::rule_map::RuleMap;
 #[cfg(feature = "alloc")]
 #[doc(inline)]
-pub use self::ruleset::*;
+pub use self::program::*;
 
 pub mod error;
-pub(crate) mod learned_rule;
 pub(crate) mod rule;
 
 #[cfg(feature = "std")]
 pub mod rule_map;
 #[cfg(feature = "alloc")]
-pub mod ruleset;
+pub mod program;
 
-mod traits {
+pub mod traits {
     //! the traits defining compatible rules within the framework
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod program;
-    mod rules;
+    mod instruction;
     mod rulespace;
-    mod transition;
 
     mod prelude {
         #[doc(inline)]
-        pub use super::program::*;
-        #[doc(inline)]
-        pub use super::rules::*;
+        pub use super::instruction::*;
         #[doc(inline)]
         pub use super::rulespace::*;
-        #[doc(inline)]
-        pub use super::transition::*;
     }
 }
 
@@ -98,8 +91,6 @@ mod types {
 #[doc(hidden)]
 pub mod prelude {
     #[doc(no_inline)]
-    pub use crate::learned_rule::LearnedRule;
-    #[doc(no_inline)]
     pub use crate::rule::Rule;
     #[doc(no_inline)]
     pub use crate::traits::*;
@@ -111,5 +102,5 @@ pub mod prelude {
     pub use crate::rule_map::RuleMap;
     #[doc(no_inline)]
     #[cfg(feature = "alloc")]
-    pub use crate::ruleset::Program;
+    pub use crate::program::Program;
 }

@@ -27,10 +27,10 @@ impl<Q, S> Tail<Q, S>
 where
     Q: RawState,
 {
-    pub const fn new(direction: Direction, next_state: State<Q>, write_symbol: S) -> Self {
+    pub const fn new(direction: Direction, next_state: Q, write_symbol: S) -> Self {
         Self {
             direction,
-            next_state,
+            next_state: State(next_state),
             write_symbol,
         }
     }
@@ -119,7 +119,7 @@ where
         }
     }
     /// returns a new [`Tail`] containing mutabl references to the state and symbol
-    pub fn view_mut(&mut self) -> Tail<&mut Q, &mut S> {
+    pub const fn view_mut(&mut self) -> Tail<&mut Q, &mut S> {
         Tail {
             direction: self.direction,
             next_state: self.next_state.view_mut(),

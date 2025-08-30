@@ -1,21 +1,12 @@
 /*
-    Appellation: rules <module>
+    Appellation: impl_learned_rule <module>
+    Created At: 2025.08.30:18:33:09
     Contrib: @FL03
 */
-use crate::Rule;
+use super::LearnedRule;
+use crate::rule::Rule;
 use rstm_core::{Direction, Head, Tail};
-use rstm_state::{RawState, State};
-
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
-pub struct LearnedRule<C = f32, Q = usize, S = usize>
-where
-    Q: RawState,
-{
-    pub confidence: C,
-    pub head: Head<Q, S>,
-    pub tail: Tail<Q, S>,
-}
+use rstm_state::RawState;
 
 impl<T, Q, S> LearnedRule<T, Q, S>
 where
@@ -29,11 +20,16 @@ where
             tail,
         }
     }
+    /// returns a new instance using the given rule and confidence
+    pub fn from_rule(rule: Rule<Q, S>, confidence: T) -> Self {
+        Self::new(rule.head, rule.tail, confidence)
+    }
+    /// returns a new instance from its constituent parts
     pub const fn from_parts(
-        state: State<Q>,
+        state: Q,
         symbol: S,
         direction: Direction,
-        next_state: State<Q>,
+        next_state: Q,
         write_symbol: S,
         confidence: T,
     ) -> Self {
@@ -42,10 +38,6 @@ where
         let tail = Tail::new(direction, next_state, write_symbol);
         Self::new(head, tail, confidence)
     }
-
-    // pub fn from_rule(rule: rstm::Rule<Q, S>, confidence: C) -> Self {
-    //     Self::new(rule.head, rule.tail, confidence)
-    // }
     /// returns an immutable reference to the confidence of the rule
     pub const fn confidence(&self) -> &T {
         &self.confidence
@@ -59,11 +51,11 @@ where
         self.head.view_mut()
     }
     /// returns a reference to the tail of the rule
-    pub fn tail(&self) -> Tail<&Q, &S> {
+    pub const fn tail(&self) -> Tail<&Q, &S> {
         self.tail.view()
     }
     /// returns a mutable reference to the tail of the rule
-    pub fn tail_mut(&mut self) -> Tail<&mut Q, &mut S> {
+    pub const fn tail_mut(&mut self) -> Tail<&mut Q, &mut S> {
         self.tail.view_mut()
     }
 }

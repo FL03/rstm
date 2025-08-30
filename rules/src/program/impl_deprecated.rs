@@ -2,7 +2,7 @@
     appellation: impl_deprecated <module>
     authors: @FL03
 */
-use crate::ruleset::Program;
+use crate::program::Program;
 use crate::types::RuleVec;
 use rstm_core::{Head, Tail};
 use rstm_state::RawState;

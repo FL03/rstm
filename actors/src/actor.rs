@@ -7,21 +7,20 @@ use rstm_core::{Direction, Head, Symbolic, Tail};
 use rstm_rules::Program;
 use rstm_state::{RawState, State};
 
-/// An [Actor] is an implementation of a Turing machine with a moving head (TMH).
-///
-/// The model contains the following components:
-///
-/// - `alpha`: the input alphabet
-/// - `head`: the head of the tape
+/// The [`TMH`] is an implementation of a Turing Machine with a "moving head"; this behavior is
+/// manifested here by using the current position of the head as its symbol, serving as a
+/// mapping to a symbol on the tape. Every step taken by the machine will update the symbol of
+/// the head, thus _moving_ it along the tape.
 #[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
-pub struct Actor<Q, A> {
+#[repr(C)]
+pub struct TMH<Q, A> {
     /// the head of the tape
     pub(crate) head: Head<Q, usize>,
     /// the memory of the actor
     pub(crate) tape: Vec<A>,
 }
 
-impl<Q, A> Actor<Q, A>
+impl<Q, A> TMH<Q, A>
 where
     Q: RawState,
 {
@@ -217,7 +216,7 @@ where
     }
 }
 
-impl<Q, S> Handle<(Direction, State<Q>, S)> for Actor<Q, S>
+impl<Q, S> Handle<(Direction, State<Q>, S)> for TMH<Q, S>
 where
     Q: RawState + Clone + PartialEq,
     S: Symbolic,
@@ -229,7 +228,7 @@ where
     }
 }
 
-impl<Q, S> Handle<(Direction, Head<Q, S>)> for Actor<Q, S>
+impl<Q, S> Handle<(Direction, Head<Q, S>)> for TMH<Q, S>
 where
     Q: RawState + Clone + PartialEq,
     S: Symbolic,
@@ -244,7 +243,7 @@ where
     }
 }
 
-impl<Q, S> Handle<Tail<Q, S>> for Actor<Q, S>
+impl<Q, S> Handle<Tail<Q, S>> for TMH<Q, S>
 where
     Q: RawState + Clone + PartialEq,
     S: Symbolic,
@@ -263,7 +262,7 @@ where
     }
 }
 
-impl<Q, S> core::fmt::Debug for Actor<Q, S>
+impl<Q, S> core::fmt::Debug for TMH<Q, S>
 where
     Q: RawState,
     S: core::fmt::Debug,
@@ -280,7 +279,7 @@ where
     }
 }
 
-impl<Q, S> core::fmt::Display for Actor<Q, S>
+impl<Q, S> core::fmt::Display for TMH<Q, S>
 where
     Q: RawState,
     S: core::fmt::Display,

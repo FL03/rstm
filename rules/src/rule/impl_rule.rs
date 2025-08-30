@@ -11,7 +11,7 @@ impl<Q, A> Rule<Q, A>
 where
     Q: RawState,
 {
-    pub fn new() -> RuleBuilder<Q, A> {
+    pub const fn new() -> RuleBuilder<Q, A> {
         RuleBuilder::new()
     }
     /// returns an immutable reference to the [Head]

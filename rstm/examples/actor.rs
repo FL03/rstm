@@ -4,7 +4,7 @@
 */
 extern crate rstm;
 
-use rstm::actors::Actor;
+use rstm::actors::TMH;
 use rstm::{State, program};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         (-1, 1) -> Left(1, 1);
     };
     // create a new instance of the machine
-    let tm = dbg!(Actor::new(alpha, initial_state, 0));
+    let tm = dbg!(TMH::new(alpha, initial_state, 0));
     tm.execute(program).run()?;
     Ok(())
 }

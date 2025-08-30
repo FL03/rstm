@@ -66,6 +66,7 @@ where
         }
     }
     /// consume the current instance to create a formal [`Rule`]
+    #[inline]
     pub fn build(self) -> Rule<Q, S> {
         Rule {
             head: Head {

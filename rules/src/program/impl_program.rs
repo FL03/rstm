@@ -2,7 +2,7 @@
     appellation: impl_rule_set <module>
     authors: @FL03
 */
-use crate::ruleset::Program;
+use crate::program::Program;
 use crate::{Rule, RuleVec};
 use rstm_core::{Head, Tail};
 use rstm_state::{RawState, State};

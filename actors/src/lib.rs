@@ -26,7 +26,7 @@ compile_error! {
 }
 
 #[doc(inline)]
-pub use self::{actor::Actor, error::*, exec::Executor, traits::*};
+pub use self::{actor::TMH, error::*, exec::Executor, traits::*};
 
 #[cfg(feature = "alloc")]
 pub(crate) mod actor;
@@ -55,7 +55,7 @@ pub mod traits {
 pub mod prelude {
     #[cfg(feature = "alloc")]
     #[doc(inline)]
-    pub use crate::actor::Actor;
+    pub use crate::actor::TMH;
     #[cfg(feature = "alloc")]
     #[doc(inline)]
     pub use crate::exec::Executor;

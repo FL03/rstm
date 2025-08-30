@@ -5,7 +5,7 @@
 
 #[allow(deprecated)]
 mod impl_deprecated;
-mod impl_instruction_set;
+mod impl_program;
 
 use crate::types::RuleVec;
 use rstm_state::{RawState, State};

@@ -51,7 +51,10 @@ macro_rules! rule {
 /// ### Syntax
 ///
 /// ```ignore
-/// ruleset![(state, symbol) -> direction(next_state, write_symbol), ...]
+/// ruleset! {
+///     (state, symbol) -> direction(next_state, write_symbol);
+///     ...
+/// }
 /// ```
 ///
 /// ### Example
@@ -92,15 +95,13 @@ macro_rules! rules {
 /// The macro takes a list of rules in the form of
 ///
 /// ```no_run
-///     (state, symbol) -> Direction(next_state, next_symbol)
+///     (state, symbol) -> Direction(next_state, next_symbol);
 /// ```
 ///
 /// ## Basic Usage
 ///
 /// ```rust
-/// use eryon_core::rulemap;
-///
-/// rulemap! {
+/// rstmt::rulemap! {
 ///     (0, 1) -> Right(0, 1);
 ///     (0, 0) -> Left(1, 1);
 ///     (1, 1) -> Right(0, 0);
@@ -118,8 +119,8 @@ macro_rules! rulemap {
             let mut map = ::std::collections::HashMap::new();
             $(
                 map.insert(
-                    $crate::Head::new($crate::state::State($state), $symbol),
-                    $crate::Tail::new($crate::Direction::$dir, $crate::state::State($next_state), $next_symbol)
+                    $crate::Head::new($state, $symbol),
+                    $crate::Tail::new($crate::Direction::$dir, $next_state, $next_symbol)
                 );
             )*
             map

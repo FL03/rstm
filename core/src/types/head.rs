@@ -24,24 +24,28 @@ impl<Q, S> Head<Q, S>
 where
     Q: RawState,
 {
-    pub const fn new(state: State<Q>, symbol: S) -> Self {
-        Self { state, symbol }
+    /// a functional constructor for the [`Head`]
+    pub const fn new(state: Q, symbol: S) -> Self {
+        Self {
+            state: State(state),
+            symbol,
+        }
     }
-    /// Create a new instance of the [Head] using the given state and default symbol.
-    pub fn from_state(state: State<Q>) -> Self
+    /// returns a new instance of the head using the given state and a default symbol
+    pub fn from_state(state: Q) -> Self
     where
         S: Default,
     {
         Self::new(state, <S>::default())
     }
-    /// Create a new instance of the [Head] using the given symbol and default state.
+    /// returns a new instance of the head using the given symbol and a default state
     pub fn from_symbol(symbol: S) -> Self
     where
         Q: Default,
     {
-        Self::new(State::default(), symbol)
+        Self::new(<Q>::default(), symbol)
     }
-    /// Create a new instance from a 2-tuple: ([state](State), symbol)
+    /// Create a new instance from a 2-tuple: $(q,\alpha)$
     pub fn from_tuple((state, symbol): (State<Q>, S)) -> Self {
         Self { state, symbol }
     }
@@ -333,7 +337,7 @@ where
     Q: RawState,
 {
     fn from((state, symbol): (Q, S)) -> Self {
-        Self::new(State(state), symbol)
+        Self::new(state, symbol)
     }
 }
 
@@ -341,7 +345,7 @@ impl<Q, S> From<(State<Q>, S)> for Head<Q, S>
 where
     Q: RawState,
 {
-    fn from((state, symbol): (State<Q>, S)) -> Self {
+    fn from((State(state), symbol): (State<Q>, S)) -> Self {
         Self::new(state, symbol)
     }
 }
