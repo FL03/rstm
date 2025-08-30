@@ -42,6 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        features:  [ full ]
         target: [ x86_64-unknown-linux-gnu ]
         toolchain: [ stable ]
     steps:
@@ -58,7 +59,7 @@ jobs:
           override: true
       -
         name: Build the workspace
-        run: cargo build -r --locked --workspace --all-features --target ${{ matrix.target }}
+        run: cargo build -r --locked --workspace --features ${{ matrix.features }} --target ${{ matrix.target }}
   benchmark:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.benchmark || github.event_name != 'pull_request'
     needs: build
