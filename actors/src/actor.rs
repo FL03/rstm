@@ -4,7 +4,7 @@
 */
 use super::{Executor, Handle};
 use rstm_core::{Direction, Symbolic};
-use rstm_rules::{Head, InstructionSet, Tail};
+use rstm_rules::{Head, Program, Tail};
 use rstm_state::{RawState, State};
 
 /// An [Actor] is an implementation of a Turing machine with a moving head (TMH).
@@ -128,7 +128,7 @@ where
     }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
-    pub fn execute(self, program: InstructionSet<Q, A>) -> Executor<Q, A> {
+    pub fn execute(self, program: Program<Q, A>) -> Executor<Q, A> {
         Executor::new(self, program)
     }
     /// Checks if the tape is empty

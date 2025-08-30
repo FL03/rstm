@@ -8,7 +8,7 @@ use rstm_state::{RawState, State};
 
 /// The [`Program`] trait establishes a common interface for objects that represent a
 /// collection of rules.
-pub trait Program<Q, A>
+pub trait RawRuleset<Q, A>
 where
     Q: RawState,
 {
@@ -50,7 +50,7 @@ use alloc::vec::Vec;
 use std::collections::HashMap;
 
 #[cfg(feature = "alloc")]
-impl<Q, A> Program<Q, A> for Vec<Rule<Q, A>>
+impl<Q, A> RawRuleset<Q, A> for Vec<Rule<Q, A>>
 where
     Q: RawState + PartialEq,
     A: PartialEq,
@@ -85,7 +85,7 @@ where
 }
 
 #[cfg(feature = "std")]
-impl<Q, A> Program<Q, A> for HashMap<Head<Q, A>, Tail<Q, A>>
+impl<Q, A> RawRuleset<Q, A> for HashMap<Head<Q, A>, Tail<Q, A>>
 where
     Q: RawState + Eq + core::hash::Hash,
     A: Eq + core::hash::Hash,

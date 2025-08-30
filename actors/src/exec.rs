@@ -4,7 +4,7 @@
 */
 use super::{Actor, Engine, Handle};
 use rstm_core::Symbolic;
-use rstm_rules::prelude::{Head, InstructionSet, Rule, Tail};
+use rstm_rules::prelude::{Head, Program, Rule, Tail};
 use rstm_state::{RawState, State};
 
 /// The [Executor] handles the execution of a given program. The structure works as an
@@ -19,7 +19,7 @@ where
     /// the actor that will be executing the program
     pub(crate) actor: Actor<Q, S>,
     /// the program being executed
-    pub(crate) program: InstructionSet<Q, S>,
+    pub(crate) program: Program<Q, S>,
     /// the number of steps taken by the actor
     pub(crate) steps: usize,
 }
@@ -28,7 +28,7 @@ impl<Q, S> Executor<Q, S>
 where
     Q: RawState,
 {
-    pub(crate) fn new(actor: Actor<Q, S>, program: InstructionSet<Q, S>) -> Self {
+    pub(crate) fn new(actor: Actor<Q, S>, program: Program<Q, S>) -> Self {
         Self {
             actor,
             program,
@@ -43,12 +43,12 @@ where
     {
         Self {
             actor,
-            program: InstructionSet::default(),
+            program: Program::default(),
             steps: 0,
         }
     }
     /// Load a program into the executor
-    pub fn load(self, program: InstructionSet<Q, S>) -> Self {
+    pub fn load(self, program: Program<Q, S>) -> Self {
         Executor { program, ..self }
     }
     /// returns a reference to the actor

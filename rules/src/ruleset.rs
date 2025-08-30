@@ -10,14 +10,14 @@ mod impl_instruction_set;
 use crate::types::RuleVec;
 use rstm_state::{RawState, State};
 
-/// An [`InstructionSet`] contains a collection of [`Rule`]s and an optional initial [`State`].
+/// A [`Program`] contains a collection of [`Rule`]s and an optional initial [`State`].
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(
     feature = "serde",
     derive(serde::Serialize),
     serde(rename_all = "camelCase")
 )]
-pub struct InstructionSet<Q = String, S = char>
+pub struct Program<Q = String, S = char>
 where
     Q: RawState,
 {

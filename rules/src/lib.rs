@@ -106,5 +106,5 @@ pub mod prelude {
     pub use crate::rule_map::RuleMap;
     #[doc(no_inline)]
     #[cfg(feature = "alloc")]
-    pub use crate::ruleset::InstructionSet;
+    pub use crate::ruleset::Program;
 }

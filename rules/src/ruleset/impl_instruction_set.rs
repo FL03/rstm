@@ -2,13 +2,13 @@
     appellation: impl_rule_set <module>
     authors: @FL03
 */
-use crate::ruleset::InstructionSet;
+use crate::ruleset::Program;
 use crate::{Head, Rule, RuleVec, Tail};
 use rstm_state::{RawState, State};
 
 use alloc::vec::{self, Vec};
 
-impl<Q, S> InstructionSet<Q, S>
+impl<Q, S> Program<Q, S>
 where
     Q: RawState,
 {
@@ -144,7 +144,7 @@ where
     }
 }
 
-impl<Q, S> AsRef<[Rule<Q, S>]> for InstructionSet<Q, S>
+impl<Q, S> AsRef<[Rule<Q, S>]> for Program<Q, S>
 where
     Q: RawState,
 {
@@ -153,7 +153,7 @@ where
     }
 }
 
-impl<Q, S> AsMut<[Rule<Q, S>]> for InstructionSet<Q, S>
+impl<Q, S> AsMut<[Rule<Q, S>]> for Program<Q, S>
 where
     Q: RawState,
 {
@@ -162,7 +162,7 @@ where
     }
 }
 
-impl<Q, S> core::ops::Deref for InstructionSet<Q, S>
+impl<Q, S> core::ops::Deref for Program<Q, S>
 where
     Q: RawState,
 {
@@ -173,7 +173,7 @@ where
     }
 }
 
-impl<Q, S> core::ops::DerefMut for InstructionSet<Q, S>
+impl<Q, S> core::ops::DerefMut for Program<Q, S>
 where
     Q: RawState,
 {
@@ -182,7 +182,7 @@ where
     }
 }
 
-impl<Q, S> core::ops::Index<Head<Q, S>> for InstructionSet<Q, S>
+impl<Q, S> core::ops::Index<Head<Q, S>> for Program<Q, S>
 where
     Q: RawState + PartialEq,
     S: PartialEq,
@@ -194,7 +194,7 @@ where
     }
 }
 
-impl<Q, S> From<Vec<Rule<Q, S>>> for InstructionSet<Q, S>
+impl<Q, S> From<Vec<Rule<Q, S>>> for Program<Q, S>
 where
     Q: RawState + Default,
 {
@@ -206,7 +206,7 @@ where
     }
 }
 
-impl<Q, S> Extend<Rule<Q, S>> for InstructionSet<Q, S>
+impl<Q, S> Extend<Rule<Q, S>> for Program<Q, S>
 where
     Q: RawState,
 {
@@ -215,7 +215,7 @@ where
     }
 }
 
-impl<Q, S> FromIterator<Rule<Q, S>> for InstructionSet<Q, S>
+impl<Q, S> FromIterator<Rule<Q, S>> for Program<Q, S>
 where
     Q: RawState + Default,
 {
@@ -227,7 +227,7 @@ where
     }
 }
 
-impl<Q, S> IntoIterator for InstructionSet<Q, S>
+impl<Q, S> IntoIterator for Program<Q, S>
 where
     Q: RawState,
 {

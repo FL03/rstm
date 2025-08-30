@@ -4,7 +4,7 @@
 */
 use rstm::State;
 use rstm::actors::Actor;
-use rstm::rules::InstructionSet;
+use rstm::rules::Program;
 
 #[test]
 #[ignore = "the halting state needs to be fixed/enabled"]
@@ -12,7 +12,7 @@ fn busy_beaver() {
     let initial_state = State(0_isize);
     let input = [0_usize; 10];
 
-    let program: InstructionSet<isize, usize> = rstm::program! {
+    let program: Program<isize, usize> = rstm::program! {
         #[default_state(*initial_state)] // optional
         (0, 0) -> Right(1, 1),
         (0, 1) -> Left(-1, 0),

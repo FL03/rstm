@@ -2,12 +2,12 @@
     appellation: impl_deprecated <module>
     authors: @FL03
 */
-use crate::ruleset::InstructionSet;
+use crate::ruleset::Program;
 use crate::types::{Head, RuleVec, Tail};
 use rstm_state::RawState;
 
 #[doc(hidden)]
-impl<Q, S> InstructionSet<Q, S>
+impl<Q, S> Program<Q, S>
 where
     Q: RawState + Default,
 {
