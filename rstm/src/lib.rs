@@ -26,10 +26,10 @@ pub(crate) mod macros {
 pub use rstm_core::*;
 
 pub mod prelude {
+    #[cfg(all(feature = "alloc", feature = "macros"))]
+    pub use crate::program;
     #[cfg(all(feature = "std", feature = "macros"))]
     pub use crate::rulemap;
-    #[cfg(all(feature = "alloc", feature = "macros"))]
-    pub use crate::ruleset;
     pub use crate::state;
     #[doc(no_inline)]
     pub use rstm_core::prelude::*;

@@ -6,7 +6,7 @@ use rstm::{Direction, Head, State, Tail};
 
 #[test]
 fn test_ruleset() {
-    let rules = rstm::ruleset![
+    let rules = rstm::program![
         (0, 0) -> Right(1, 1),
         (0, 1) -> Left(-1, 0),
         (1, 0) -> Right(1, 1),

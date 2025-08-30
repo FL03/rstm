@@ -4,7 +4,7 @@
 */
 extern crate rstm;
 
-use rstm::{Actor, State, ruleset};
+use rstm::{Actor, State, program};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     _tracing("debug");
@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // initialize the state of the machine
     let initial_state = State(0isize);
     // define the ruleset for the machine
-    let program = ruleset! {
+    let program = program! {
         (0, 0) -> Right(1, 0),
         (0, 1) -> Right(-1, 1),
         (1, 0) -> Right(0, 1),

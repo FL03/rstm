@@ -10,7 +10,7 @@ fn busy_beaver() {
     let initial_state = State(0_isize);
     let input = [0_usize; 10];
 
-    let program: InstructionSet<isize, usize> = rstm::ruleset! {
+    let program: InstructionSet<isize, usize> = rstm::program! {
         #[default_state(*initial_state)] // optional
         (0, 0) -> Right(1, 1),
         (0, 1) -> Left(-1, 0),
