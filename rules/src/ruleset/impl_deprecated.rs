@@ -3,7 +3,7 @@
     authors: @FL03
 */
 use crate::ruleset::InstructionSet;
-use crate::types::{Head, Rules, Tail};
+use crate::types::{Head, RuleVec, Tail};
 use rstm_state::RawState;
 
 #[doc(hidden)]
@@ -12,11 +12,11 @@ where
     Q: RawState + Default,
 {
     #[deprecated(since = "0.0.8", note = "use `rules` instead")]
-    pub const fn instructions(&self) -> &Rules<Q, S> {
+    pub const fn instructions(&self) -> &RuleVec<Q, S> {
         self.rules()
     }
     #[deprecated(since = "0.0.8", note = "use `rules_mut` instead")]
-    pub fn instructions_mut(&mut self) -> &mut Rules<Q, S> {
+    pub fn instructions_mut(&mut self) -> &mut RuleVec<Q, S> {
         self.rules_mut()
     }
     #[deprecated(since = "0.0.8", note = "use `get` instead")]

@@ -23,7 +23,9 @@ pub struct Rule<Q = String, A = char>
 where
     Q: RawState,
 {
+    #[cfg_attr(feature = "serde", serde(flatten))]
     pub head: Head<Q, A>,
+    #[cfg_attr(feature = "serde", serde(flatten))]
     pub tail: Tail<Q, A>,
 }
 

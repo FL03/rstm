@@ -255,8 +255,8 @@ where
         &mut self,
         Tail {
             direction,
-            state,
-            symbol,
+            next_state: state,
+            write_symbol: symbol,
         }: Tail<Q, S>,
     ) -> Self::Output {
         self.step(direction, state, symbol)

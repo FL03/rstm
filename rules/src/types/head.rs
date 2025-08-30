@@ -10,7 +10,7 @@ use rstm_state::{RawState, State};
 #[cfg_attr(
     feature = "serde",
     derive(serde::Deserialize, serde::Serialize),
-    serde(rename_all = "lowercase")
+    serde(rename_all = "camelCase")
 )]
 #[repr(C)]
 pub struct Head<Q, S> {
@@ -32,7 +32,7 @@ where
     where
         S: Default,
     {
-        Self::new(state, S::default())
+        Self::new(state, <S>::default())
     }
     /// Create a new instance of the [Head] using the given symbol and default state.
     pub fn from_symbol(symbol: S) -> Self
@@ -134,7 +134,7 @@ where
         }
     }
     /// returns a new head with mutable references to the current state and symbol
-    pub fn view_mut(&mut self) -> Head<&mut Q, &mut S> {
+    pub const fn view_mut(&mut self) -> Head<&mut Q, &mut S> {
         Head {
             state: self.state.view_mut(),
             symbol: &mut self.symbol,

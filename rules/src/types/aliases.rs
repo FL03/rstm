@@ -8,7 +8,7 @@ use super::{Head, Tail};
 use std::collections::HashMap;
 
 #[cfg(feature = "alloc")]
-pub(crate) type Rules<Q, S> = alloc::vec::Vec<crate::Rule<Q, S>>;
+pub(crate) type RuleVec<Q, S> = alloc::vec::Vec<crate::Rule<Q, S>>;
 
 #[cfg(feature = "std")]
 /// A type alias for a [`HashMap`] with keys of type [`Head<Q, S>`] and values of type

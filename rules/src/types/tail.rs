@@ -17,33 +17,33 @@ use rstm_state::{RawState, State};
 #[repr(C)]
 pub struct Tail<Q, S> {
     pub direction: Direction,
-    #[cfg_attr(feature = "serde", serde(alias = "next_state"))]
-    pub state: State<Q>,
+    #[cfg_attr(feature = "serde", serde(alias = "state"))]
+    pub next_state: State<Q>,
     #[cfg_attr(
         feature = "serde",
-        serde(alias = "next_symbol", alias = "write_symbol")
+        serde(alias = "symbol", alias = "next_symbol")
     )]
-    pub symbol: S,
+    pub write_symbol: S,
 }
 
 impl<Q, S> Tail<Q, S>
 where
     Q: RawState,
 {
-    pub const fn new(direction: Direction, state: State<Q>, symbol: S) -> Self {
+    pub const fn new(direction: Direction, next_state: State<Q>, write_symbol: S) -> Self {
         Self {
             direction,
-            state,
-            symbol,
+            next_state,
+            write_symbol,
         }
     }
     /// returns the direction, state, and symbol as a 3-tuple
     pub const fn as_tuple(&self) -> (Direction, &State<Q>, &S) {
-        (self.direction, &self.state, &self.symbol)
+        (self.direction, &self.next_state, &self.write_symbol)
     }
     /// consumes the tail and returns the direction, state, and symbol as a 3-tuple
     pub fn into_tuple(self) -> (Direction, State<Q>, S) {
-        (self.direction, self.state, self.symbol)
+        (self.direction, self.next_state, self.write_symbol)
     }
     /// returns the direction the [head](StdHead) is instructed to move
     pub const fn direction(&self) -> Direction {
@@ -51,19 +51,19 @@ where
     }
     /// returns the next state with an immutable reference to the inner value
     pub const fn state(&self) -> &State<Q> {
-        &self.state
+        &self.next_state
     }
     /// returns the next state with a mutable reference to the inner value
     pub const fn state_mut(&mut self) -> &mut State<Q> {
-        &mut self.state
+        &mut self.next_state
     }
     /// returns the symbol the [head](Head) is instructed to write
     pub const fn symbol(&self) -> &S {
-        &self.symbol
+        &self.write_symbol
     }
     /// returns a mutable reference to the symbol of the tail
     pub const fn symbol_mut(&mut self) -> &mut S {
-        &mut self.symbol
+        &mut self.write_symbol
     }
     /// updates the current [direction](Direction) and returns a mutable reference to the tail
     pub fn set_direction(&mut self, direction: Direction) -> &mut Self {
@@ -72,12 +72,12 @@ where
     }
     /// updates the current [state](State) and returns a mutable reference to the tail
     pub fn set_state(&mut self, State(state): State<Q>) -> &mut Self {
-        self.state = State(state);
+        self.next_state = State(state);
         self
     }
     /// updates the current symbol and returns a mutable reference to the tail
     pub fn set_symbol(&mut self, symbol: S) -> &mut Self {
-        self.symbol = symbol;
+        self.write_symbol = symbol;
         self
     }
     /// Configures the tail with a new direction
@@ -87,26 +87,29 @@ where
     /// Configures the tail with a new state
     pub fn with_state(self, State(state): State<Q>) -> Self {
         Self {
-            state: State(state),
+            next_state: State(state),
             ..self
         }
     }
     /// Configures the tail with a new symbol
     pub fn with_symbol(self, symbol: S) -> Self {
-        Self { symbol, ..self }
+        Self {
+            write_symbol: symbol,
+            ..self
+        }
     }
     /// converts a [`Tail`] reference into an owned head.
-    pub fn as_head(&self) -> Head<&Q, &S> {
+    pub const fn as_head(&self) -> Head<&Q, &S> {
         Head {
-            state: self.state.view(),
-            symbol: &self.symbol,
+            state: self.next_state.view(),
+            symbol: &self.write_symbol,
         }
     }
     /// consumes the current tail to convert it into a [head](Head)
     pub fn into_head(self) -> Head<Q, S> {
         Head {
-            state: self.state,
-            symbol: self.symbol,
+            state: self.next_state,
+            symbol: self.write_symbol,
         }
     }
     /// returns an instance of the [head](Head) where each element within
@@ -114,16 +117,16 @@ where
     pub const fn view(&self) -> Tail<&Q, &S> {
         Tail {
             direction: self.direction(),
-            state: self.state().view(),
-            symbol: self.symbol(),
+            next_state: self.state().view(),
+            write_symbol: self.symbol(),
         }
     }
     /// returns a new [`Tail`] containing mutabl references to the state and symbol
     pub fn view_mut(&mut self) -> Tail<&mut Q, &mut S> {
         Tail {
             direction: self.direction,
-            state: self.state.view_mut(),
-            symbol: &mut self.symbol,
+            next_state: self.next_state.view_mut(),
+            write_symbol: &mut self.write_symbol,
         }
     }
     #[deprecated(
@@ -154,8 +157,8 @@ where
     {
         Tail {
             direction: self.direction,
-            state: self.state.cloned(),
-            symbol: self.symbol.clone(),
+            next_state: self.next_state.cloned(),
+            write_symbol: self.write_symbol.clone(),
         }
     }
     /// returns a new [`Tail`] with copied elements
@@ -166,8 +169,8 @@ where
     {
         Tail {
             direction: self.direction,
-            state: self.state.copied(),
-            symbol: *self.symbol,
+            next_state: self.next_state.copied(),
+            write_symbol: *self.write_symbol,
         }
     }
 }
@@ -184,8 +187,8 @@ where
     {
         Tail {
             direction: self.direction,
-            state: self.state.cloned(),
-            symbol: self.symbol.clone(),
+            next_state: self.next_state.cloned(),
+            write_symbol: self.write_symbol.clone(),
         }
     }
     /// returns a new [`Tail`] with copied elements
@@ -196,8 +199,8 @@ where
     {
         Tail {
             direction: self.direction,
-            state: self.state.copied(),
-            symbol: *self.symbol,
+            next_state: self.next_state.copied(),
+            write_symbol: *self.write_symbol,
         }
     }
 }
@@ -210,8 +213,8 @@ where
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_tuple("Tail")
             .field(&self.direction)
-            .field(&self.state)
-            .field(&self.symbol)
+            .field(&self.next_state)
+            .field(&self.write_symbol)
             .finish()
     }
 }
@@ -225,7 +228,7 @@ where
         write!(
             f,
             "{{ direction: {}, state: {:?}, symbol: {} }}",
-            self.direction, self.state, self.symbol
+            self.direction, self.next_state, self.write_symbol
         )
     }
 }

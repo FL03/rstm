@@ -3,7 +3,7 @@
     authors: @FL03
 */
 use crate::ruleset::InstructionSet;
-use crate::{Head, Rule, Rules, Tail};
+use crate::{Head, Rule, RuleVec, Tail};
 use rstm_state::{RawState, State};
 
 use alloc::vec::{self, Vec};
@@ -15,7 +15,7 @@ where
     pub fn new() -> Self {
         Self {
             initial_state: None,
-            rules: Rules::new(),
+            rules: RuleVec::new(),
         }
     }
     #[allow(clippy::should_implement_trait)]
@@ -26,14 +26,14 @@ where
     {
         Self {
             initial_state: None,
-            rules: Rules::from_iter(iter),
+            rules: RuleVec::from_iter(iter),
         }
     }
     /// Create a new instance of the [Program] using the given initial state.
     pub fn from_state(initial_state: State<Q>) -> Self {
         Self {
             initial_state: Some(initial_state),
-            rules: Rules::new(),
+            rules: RuleVec::new(),
         }
     }
     /// Returns an owned reference to the initial state of the program.
@@ -41,11 +41,11 @@ where
         self.initial_state.as_ref().map(|state| state.view())
     }
     /// Returns a reference to the instructions.
-    pub const fn rules(&self) -> &Rules<Q, S> {
+    pub const fn rules(&self) -> &RuleVec<Q, S> {
         &self.rules
     }
     /// Returns a mutable reference to the instructions.
-    pub const fn rules_mut(&mut self) -> &mut Rules<Q, S> {
+    pub const fn rules_mut(&mut self) -> &mut RuleVec<Q, S> {
         &mut self.rules
     }
 
@@ -222,7 +222,7 @@ where
     fn from_iter<I: IntoIterator<Item = Rule<Q, S>>>(iter: I) -> Self {
         Self {
             initial_state: Some(State::default()),
-            rules: Rules::from_iter(iter),
+            rules: RuleVec::from_iter(iter),
         }
     }
 }
