@@ -3,6 +3,9 @@
     Created At: 2025.08.29:22:43:22
     Contrib: @FL03
 */
+//! The [`state`](self) module provides abstractions and implementations for managing state
+//! within the `rstm` framework.
+//!
 #![allow(
     clippy::missing_safety_doc,
     clippy::module_inception,
@@ -11,9 +14,6 @@
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "nightly", feature(allocator_api))]
-//! The [`state`](self) module provides abstractions and implementations for managing state
-//! within the `rstm` framework.
-//!
 
 #[cfg(feature = "alloc")]
 extern crate alloc;

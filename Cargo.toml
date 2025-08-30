@@ -49,7 +49,7 @@ getrandom = { default-features = false, version = "0.3" }
 rand = { default-features = false, version = "0.9" }
 rand_distr = { default-features = false, version = "0.5" }
 # serialization
-serde = { default-features = false, version = "1" }
+serde = { default-features = false, features = ["derive"], version = "1" }
 serde_derive = { default-features = false, version = "1" }
 serde_json = { default-features = false, version = "1" }
 # macros & utilities

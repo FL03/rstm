@@ -110,6 +110,7 @@ alloc = [
 serde = [
   "dep:serde",
   "dep:serde_derive",
+  "serde?/derive",
 ]
 
 serde_json = ["dep:serde_json"]
