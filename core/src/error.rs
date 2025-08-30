@@ -2,7 +2,6 @@
     Appellation: error <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::StateError;
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, string::String};
 
@@ -10,7 +9,7 @@ use alloc::{boxed::Box, string::String};
 pub type Result<T = ()> = core::result::Result<T, crate::Error>;
 
 /// The [`Error`] implementation describes the various errors that can occur within the library
-#[derive(Debug, scsys::VariantConstructors, thiserror::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("[Index Error] Out of Bounds: {index} is out of bounds for a length of {len}")]
     IndexOutOfBounds { index: usize, len: usize },
@@ -21,16 +20,13 @@ pub enum Error {
     #[error("[Runtime Error] {0}")]
     RuntimeError(String),
     #[error("[State Error] {0}")]
-    StateError(#[from] StateError),
+    StateError(#[from] rstm_state::Error),
     #[cfg(feature = "alloc")]
     #[error("[Transformation Error]: {0}")]
     TransformationError(String),
     #[cfg(feature = "alloc")]
     #[error("[Type Error] {0}")]
     TypeError(String),
-    #[cfg(feature = "anyhow")]
-    #[error(transparent)]
-    AnyError(anyhow::Error),
     #[cfg(feature = "alloc")]
     #[error(transparent)]
     BoxError(Box<dyn core::error::Error + Send + Sync + 'static>),
@@ -42,6 +38,13 @@ pub enum Error {
     #[cfg(feature = "alloc")]
     #[error("[Unknown Error] {0}")]
     Unknown(String),
+}
+
+impl Error {
+    /// returns an [`IndedOutOfBounds`](Error::IndexOutOfBounds) variant
+    pub const fn index_out_of_bounds(index: usize, len: usize) -> Self {
+        Self::IndexOutOfBounds { index, len }
+    }
 }
 
 #[cfg(feature = "alloc")]

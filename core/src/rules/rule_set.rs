@@ -78,11 +78,11 @@ where
         }
     }
     /// Returns an iterator over the elements.
-    pub fn iter(&self) -> core::slice::Iter<Rule<Q, S>> {
+    pub fn iter(&self) -> core::slice::Iter<'_, Rule<Q, S>> {
         self.rules().iter()
     }
     /// Returns a mutable iterator over the elements.
-    pub fn iter_mut(&mut self) -> core::slice::IterMut<Rule<Q, S>> {
+    pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, Rule<Q, S>> {
         self.rules_mut().iter_mut()
     }
     /// Returns a collection of tails for a given head.

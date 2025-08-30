@@ -2,14 +2,7 @@
     Appellation: state <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-
-mod impl_state;
-#[allow(deprecated)]
-mod impl_state_deprecated;
-mod impl_state_ops;
-mod impl_state_repr;
-
-use super::{Halt, Halter, RawState};
+use super::{Halt, RawState};
 
 /// [State] is a generalized state implementation, representing the state of a system or
 /// object.
@@ -30,7 +23,7 @@ where
     pub const fn new(state: Q) -> Self {
         Self(state)
     }
-    /// initializes a new instance of state using the given initializer function.
+    /// generate a new state by invoking the given function and capturing its output.
     pub fn create<F>(f: F) -> Self
     where
         F: FnOnce() -> Q,
@@ -119,19 +112,19 @@ where
     {
         core::mem::take(self.get_mut())
     }
-    /// consumes the wrapper to create another, haltable state that is initialized with the
-    /// current state
-    pub fn into_halter(self) -> State<Halter<Q>> {
-        State::new(Halter::state(self))
-    }
     /// converts the current reference into a haltable state initialized with the current state
     pub fn as_halt(&self) -> State<Halt<&Q>> {
-        self.view().map(Halt)
+        State::new(Halt::halt(self.view()))
     }
-    /// consumes the current state, returning a new one with a [`Halt`] wrapper around the
-    /// inner value.
+    /// consumes the wrapper to create another, haltable state that is initialized with the
+    /// current state
+    pub fn into_halt(self) -> State<Halt<Q>> {
+        State::new(Halt::state(self))
+    }
+    /// consumes the current state, returning a new one with a [`Halt`](HaltState::Halt)
+    /// variant initialized with the current value.
     pub fn halt(self) -> State<Halt<Q>> {
-        self.map(Halt)
+        State::new(Halt::halt(self))
     }
     /// returns a new state with a boxed inner value.
     pub fn boxed(self) -> State<Box<Q>> {

@@ -1,16 +1,17 @@
 [workspace]
 default-members = [
-    "rstm",
+  "rstm",
 ]
 members = [
-    "core",
-    "rstm",
+  "core",
+  "rstm", 
+  "state",
 ]
 resolver = "3"
 
 [workspace.package]
 authors = [
-    "Joe McCain III <jo3mccain@icloud.com>",
+    "FL03 <joe@pzzld.org>",
     "Scattered-Systems <support@scsys.io>",
 ]
 categories = [
@@ -31,11 +32,12 @@ version = "0.0.8"
 [workspace.dependencies]
 rstm = { default-features = false, path = "rstm", version = "0.0.8" }
 rstm-core = { default-features = false, path = "core", version = "0.0.8" }
+rstm-state = { default-features = false, path = "state", version = "0.0.8" }
 
 # custom
+contained = { default-features = false, features = ["derive", "macros"], version = "0.2" }
 scsys = { default-features = false, features = ["derive"], version = "0.3.0" }
 # benchmarking
-criterion = { version = "0.6" }
 # error-handling
 anyhow = { default-features = false, version = "1" }
 thiserror = { default-features = false, version = "2" }
@@ -58,6 +60,8 @@ paste = { version = "1" }
 # logging
 tracing = { default-features = false, features = ["attributes"], version = "0.1" }
 tracing-subscriber = { default-features = false, features = ["ansi", "env-filter", "fmt"], version = "0.3" }
+# WebAssembly
+wasm-bindgen = { default-features = false, version = "0.2" }
 
 # ************* [Profiles] *************
 [profile.dev]
@@ -70,7 +74,7 @@ opt-level = 2
 overflow-checks = true
 panic = "abort"
 rpath = true
-strip = "none"
+strip = "symbols"
 
 [profile.release]
 codegen-units = 16

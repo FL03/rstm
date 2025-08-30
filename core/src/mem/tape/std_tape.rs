@@ -99,11 +99,11 @@ impl<S> StdTape<S> {
         self.store.is_empty()
     }
     /// Returns an immutable iterator over the symbols stored on the tape.
-    pub fn iter(&self) -> core::slice::Iter<S> {
+    pub fn iter(&self) -> core::slice::Iter<'_, S> {
         self.store.iter()
     }
     /// Returns a mutable iterator over the symbols stored on the tape.
-    pub fn iter_mut(&mut self) -> core::slice::IterMut<S> {
+    pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, S> {
         self.store.iter_mut()
     }
     /// Returns the number of elements in the tape.

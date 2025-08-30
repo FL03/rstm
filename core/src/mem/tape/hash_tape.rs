@@ -106,7 +106,7 @@ impl<V> HashTape<V> {
         self.ticks = 0;
     }
     /// Returns a mutable entry in the tape at the given index.
-    pub fn entry(&mut self, index: Hdx) -> hash_map::Entry<Hdx, V> {
+    pub fn entry(&mut self, index: Hdx) -> hash_map::Entry<'_, Hdx, V> {
         self.store_mut().entry(index)
     }
     /// Returns true if the tape contains the given index.
@@ -166,19 +166,19 @@ impl<V> HashTape<V> {
         self.store_mut().remove(&index)
     }
     /// Returns an immutable iterator over the tape.
-    pub fn iter(&self) -> hash_map::Iter<Hdx, V> {
+    pub fn iter(&self) -> hash_map::Iter<'_, Hdx, V> {
         self.store().iter()
     }
     /// Returns a mutable iterator over the tape.
-    pub fn iter_mut(&mut self) -> hash_map::IterMut<Hdx, V> {
+    pub fn iter_mut(&mut self) -> hash_map::IterMut<'_, Hdx, V> {
         self.store_mut().iter_mut()
     }
     /// Returns an iterator over the keys of the tape.
-    pub fn keys(&self) -> hash_map::Keys<Hdx, V> {
+    pub fn keys(&self) -> hash_map::Keys<'_, Hdx, V> {
         self.store().keys()
     }
     /// Returns an iterator over the values of the tape.
-    pub fn values(&self) -> hash_map::Values<Hdx, V> {
+    pub fn values(&self) -> hash_map::Values<'_, Hdx, V> {
         self.store().values()
     }
     /// Shifts the cursor in the given direction.
@@ -191,7 +191,7 @@ impl<V> HashTape<V> {
         self.replace_ticks(self.ticks() + 1)
     }
     /// returns the [`Entry`](hash_map::Entry) for the current index
-    pub fn read(&mut self) -> hash_map::Entry<Hdx, V> {
+    pub fn read(&mut self) -> hash_map::Entry<'_, Hdx, V> {
         self.entry(self.index)
     }
     /// write the

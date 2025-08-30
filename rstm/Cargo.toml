@@ -15,106 +15,111 @@ rust-version.workspace = true
 version.workspace = true
 
 [lib]
-crate-type = [ 
-    "cdylib", 
-    "rlib",
-]
 bench = true
+crate-type = ["cdylib", "rlib"]
 doc = true
 doctest = false
 test = true
 
+# ********* [Package Metadata] *********
 [package.metadata.docs.rs]
 all-features = false
-features = [ "full" ]
-rustc-args = [ "--cfg", "docsrs" ]
+features = ["full"]
+rustc-args = ["--cfg", "docsrs" ]
+version = "v{{version}}"
 
+[package.metadata.release]
+no-dev-version = true
+tag-name = "{{version}}"
+
+# ********* [Dependencies] *********
 [dependencies]
 rstm-core = { workspace = true }
 
 [dev-dependencies]
 anyhow = { features = ["std"], workspace = true }
-criterion = { features = ["plotters"], workspace = true }
+criterion = { features = ["plotters"], version = "0.7" }
 lazy_static = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { features = ["json", "serde"], workspace = true }
 
 [features]
-default = [
-    "std",
-]
+default = ["std"]
 
 full = [
-    "default",
-    "macros",
-    "rand",
-    "serde",
-    "tracing",
+  "default", 
+  "macros", 
+  "rand", 
+  "serde", 
+  "tracing"
 ]
 
-# ************* [FF:Features] *************
-
+# ********* [FF] Features *********
 macros = []
 
-# ************* [FF:Environments] *************
+nightly = [
+  "rstm-core/nightly",
+]
 
+json = [
+  "alloc",
+  "rstm-core/json",
+]
+
+# ********* [FF] Environments *********
 std = [
-    "alloc",
-    "rstm-core/std",
+  "alloc", 
+  "rstm-core/std"
 ]
 
 wasi = [
-    "rstm-core/wasi",
+  "rstm-core/wasi",
 ]
 
 wasm = [
-    "rstm-core/wasm",
+  "rstm-core/wasm",
 ]
 
 # ************* [FF:Dependencies] *************
 
 alloc = [
-    "rstm-core/alloc",
-]
-
-anyhow = [
-    "rstm-core/anyhow",
-]
-
-json = [
-    "rstm-core/json",
+  "rstm-core/alloc",
 ]
 
 rand = [
-    "rstm-core/rand",
+  "rstm-core/rand",
 ]
 
 rng = [
-    "rstm-core/rng",
+  "rstm-core/rng",
 ]
 
 serde = [
-    "rstm-core/serde",
+  "rstm-core/serde",
 ]
 
 serde_json = [
-    "rstm-core/serde_json",
+  "rstm-core/serde_json",
 ]
 
 tracing = [
-    "rstm-core/tracing",
+  "rstm-core/tracing"
+]
+
+wasm_bindgen = [
+  "rstm-core/wasm_bindgen",
 ]
 
 # ************* [Benchmarks] *************
 [[bench]]
-name = "default"
-required-features = [ "std" ]
 harness = false
+name = "default"
+required-features = ["std"]
 
 # ************* [Examples] *************
 [[example]]
 name = "actor"
-required-features = [ "alloc", "tracing" ]
+required-features = ["alloc", "tracing"]
 
 # ************* [Unit Tests] *************
 [[test]]

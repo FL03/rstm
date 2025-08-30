@@ -1,4 +1,4 @@
-name: Rust
+name: rust
 
 concurrency:
   cancel-in-progress: false
@@ -13,9 +13,11 @@ on:
     branches: [ main, master ]
     types: [ opened, synchronize, reopened ]
     paths:
-      - "**/rust.yml"
-      - "**/*.rs"
-      - "**/Cargo.*"
+      - ".github/workflows/rust.yml"
+      - ".github/workflows/cargo-*.yml"
+      - "**.rs"
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
   push:
     branches: [ main, master ]
     tags: [ latest, v*, "*-nightly" ]
@@ -45,7 +47,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       -
         name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -58,7 +60,7 @@ jobs:
         name: Build the workspace
         run: cargo build -r --locked --workspace --all-features --target ${{ matrix.target }}
   benchmark:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') || github.event.action == 'repository_dispatch' && github.event.action == 'rust' || github.event_name == 'workflow_dispatch' && github.event.inputs.benchmark
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.benchmark || github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -72,7 +74,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
@@ -97,7 +99,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       -
         name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -127,7 +129,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       -
         name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1

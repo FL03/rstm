@@ -89,7 +89,7 @@ where
         self.rules_mut().clear();
     }
     /// returns an the entry for the given head within the set of rules.
-    pub fn rule(&mut self, head: Head<Q, S>) -> hash_map::Entry<Head<Q, S>, Tail<Q, S>> {
+    pub fn rule(&mut self, head: Head<Q, S>) -> hash_map::Entry<'_, Head<Q, S>, Tail<Q, S>> {
         self.rules_mut().entry(head)
     }
     /// returns an immutable reference to the tail of the rule for the given head; returns none

@@ -115,8 +115,8 @@ unsafe impl<Q> core::marker::Send for State<Q> where Q: core::marker::Send {}
 
 unsafe impl<Q> core::marker::Sync for State<Q> where Q: core::marker::Sync {}
 
-scsys::fmt_wrapper! {
-    State<Q>(
+contained::fmt_wrapper! {
+    impl State<Q> {
         Binary,
         Debug,
         Display,
@@ -125,5 +125,5 @@ scsys::fmt_wrapper! {
         Octal,
         UpperExp,
         UpperHex
-    )
+    }
 }

@@ -25,11 +25,15 @@
     clippy::should_implement_trait
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(feature = "nightly", feature(allocator_api))]
 #![crate_name = "rstm_core"]
 #![crate_type = "lib"]
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
+
+// extern crate rstm_state as state;
+pub use rstm_state as state;
 
 #[doc(inline)]
 pub use self::{
@@ -37,7 +41,7 @@ pub use self::{
     error::{Error, Result},
     ops::prelude::*,
     rules::{Head, Rule, RuleSet, Tail},
-    state::{Halter, RawState, State, Stated},
+    state::{RawState, State},
     traits::prelude::*,
     types::prelude::*,
 };
@@ -46,15 +50,12 @@ pub use self::{
 pub(crate) mod macros {
     #[macro_use]
     pub mod seal;
-    #[macro_use]
-    pub mod wrapper_ops;
 }
 
 pub mod actors;
 pub mod error;
 pub mod mem;
 pub mod rules;
-pub mod state;
 
 pub mod ops {
     //! this modules defines additional operations used throughout the crate
@@ -102,21 +103,18 @@ pub mod types {
 }
 
 pub mod prelude {
-    #[doc(no_inline)]
-    pub use super::error::*;
+    pub use rstm_state::prelude::*;
 
     #[doc(no_inline)]
-    pub use super::actors::prelude::*;
+    pub use crate::actors::prelude::*;
     #[doc(no_inline)]
-    pub use super::mem::prelude::*;
+    pub use crate::mem::prelude::*;
     #[doc(no_inline)]
-    pub use super::ops::prelude::*;
+    pub use crate::ops::prelude::*;
     #[doc(no_inline)]
-    pub use super::rules::prelude::*;
+    pub use crate::rules::prelude::*;
     #[doc(no_inline)]
-    pub use super::state::prelude::*;
+    pub use crate::traits::prelude::*;
     #[doc(no_inline)]
-    pub use super::traits::prelude::*;
-    #[doc(no_inline)]
-    pub use super::types::prelude::*;
+    pub use crate::types::prelude::*;
 }
