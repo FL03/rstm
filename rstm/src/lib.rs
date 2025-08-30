@@ -7,8 +7,14 @@
 //! `rstm` is a Rust library dedicated to the construction and execution of Turing Machines.
 //! The crate is designed to be flexible and easy to use while preserving the abstract nature
 //! of the models.
-
+#![allow(
+    clippy::module_inception,
+    clippy::new_ret_no_self,
+    clippy::needless_doctest_main,
+    clippy::should_implement_trait
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(feature = "nightly", feature(allocator_api))]
 #![crate_name = "rstm"]
 #![crate_type = "lib"]
 

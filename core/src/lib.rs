@@ -17,7 +17,6 @@
 //!
 //! - [x] [`StdTape`](mem::std_tape::StdTape)
 //! - [x] [HashTape](mem::hash_tape::HashTape)
-
 #![allow(
     clippy::module_inception,
     clippy::new_ret_no_self,
