@@ -3,8 +3,8 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::{Executor, Handle};
-use rstm_core::{Direction, Symbolic};
-use rstm_rules::{Head, Program, Tail};
+use rstm_core::{Direction, Head, Symbolic, Tail};
+use rstm_rules::Program;
 use rstm_state::{RawState, State};
 
 /// An [Actor] is an implementation of a Turing machine with a moving head (TMH).

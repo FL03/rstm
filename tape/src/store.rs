@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::{RawMemory, SeqMemory};
-use crate::Direction;
+use rstm_core::Direction;
 
 pub type Store<A> = StoreBase<Vec<A>>;
 
@@ -69,7 +69,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::direction::Direction;
+    use rstm_core::Direction;
 
     #[test]
     fn test_shift_store() {

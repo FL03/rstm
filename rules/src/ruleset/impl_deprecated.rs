@@ -3,7 +3,8 @@
     authors: @FL03
 */
 use crate::ruleset::Program;
-use crate::types::{Head, RuleVec, Tail};
+use crate::types::RuleVec;
+use rstm_core::{Head, Tail};
 use rstm_state::RawState;
 
 #[doc(hidden)]

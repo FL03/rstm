@@ -2,8 +2,8 @@
     Appellation: snapshot <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::mem::RawMemory;
-use crate::{RawState, State};
+use crate::RawMemory;
+use rstm_state::{RawState, State};
 
 pub struct Snapshot<'a, Q, M>
 where

@@ -3,7 +3,8 @@
     authors: @FL03
 */
 use crate::ruleset::Program;
-use crate::{Head, Rule, RuleVec, Tail};
+use crate::{Rule, RuleVec};
+use rstm_core::{Head, Tail};
 use rstm_state::{RawState, State};
 
 use alloc::vec::{self, Vec};

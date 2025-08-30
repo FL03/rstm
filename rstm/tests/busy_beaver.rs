@@ -14,12 +14,12 @@ fn busy_beaver() {
 
     let program: Program<isize, usize> = rstm::program! {
         #[default_state(*initial_state)] // optional
-        (0, 0) -> Right(1, 1),
-        (0, 1) -> Left(-1, 0),
-        (1, 0) -> Right(1, 1),
-        (1, 1) -> Left(-1, 1),
-        (-1, 0) -> Right(0, 0),
-        (-1, 1) -> Left(0, 1),
+        (0, 0) -> Right(1, 1);
+        (0, 1) -> Left(-1, 0);
+        (1, 0) -> Right(1, 1);
+        (1, 1) -> Left(-1, 1);
+        (-1, 0) -> Right(0, 0);
+        (-1, 1) -> Left(0, 1);
     };
 
     let actor = Actor::from_state(initial_state).with_tape(input);

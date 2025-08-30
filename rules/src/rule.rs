@@ -8,8 +8,7 @@ mod impl_rule;
 mod impl_rule_builder;
 mod impl_rule_ext;
 
-use crate::types::{Head, Tail};
-use rstm_core::Direction;
+use rstm_core::{Direction, Head, Tail};
 use rstm_state::{RawState, State};
 
 /// The [`Rule`] defines the core structure of a single instruction within a viable rulespace.

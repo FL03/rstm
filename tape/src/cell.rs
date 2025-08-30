@@ -2,7 +2,7 @@
     Appellation: cell <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::{RawState, State};
+use rstm_state::{RawState, State};
 
 /// [Cell] is a struct
 pub struct Cell<Q, A> {

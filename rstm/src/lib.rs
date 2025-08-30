@@ -24,6 +24,9 @@ extern crate alloc;
 #[cfg(feature = "macros")]
 #[macro_use]
 mod macros {
+    #[cfg(all(feature = "rules", feature = "alloc"))]
+    #[macro_use]
+    pub(crate) mod program;
     #[cfg(feature = "rules")]
     #[macro_use]
     pub(crate) mod rules;
@@ -37,16 +40,17 @@ pub use rstm_core::*;
 #[cfg(feature = "rules")]
 #[doc(inline)]
 pub use rstm_rules as rules;
+#[cfg(feature = "tape")]
+#[doc(inline)]
+pub use rstm_tape as tape;
 
 pub mod prelude {
-    #[cfg(all(feature = "macros", feature = "std"))]
-    pub use crate::{program, rulemap};
-    #[cfg(feature = "macros")]
-    pub use crate::{rule, rules};
     #[cfg(feature = "actors")]
     pub use rstm_actors::prelude::*;
     #[doc(no_inline)]
     pub use rstm_core::prelude::*;
     #[cfg(feature = "rules")]
     pub use rstm_rules::prelude::*;
+    #[cfg(feature = "tape")]
+    pub use rstm_tape::prelude::*;
 }

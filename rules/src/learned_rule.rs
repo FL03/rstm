@@ -2,8 +2,8 @@
     Appellation: rules <module>
     Contrib: @FL03
 */
-use crate::{Head, Rule, Tail};
-use rstm::Direction;
+use crate::Rule;
+use rstm_core::{Direction, Head, Tail};
 use rstm_state::{RawState, State};
 
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]

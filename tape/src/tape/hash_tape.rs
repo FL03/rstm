@@ -2,7 +2,7 @@
     Appellation: hash_tape <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::Direction;
+use rstm_core::Direction;
 use std::collections::hash_map::{self, HashMap};
 
 pub(crate) type Hdx = isize;

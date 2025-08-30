@@ -1,7 +1,7 @@
 [package]
 build = "build.rs"
-description = "this crate implements the core modules of the rstm sdk"
-name = "rstm-core"
+description = "This crate provides various tape implementations for the rstm framework"
+name = "rstm-tape"
 
 authors.workspace = true
 categories.workspace = true
@@ -21,10 +21,6 @@ doc = true
 doctest = false
 test = true
 
-# ************* [Unit Tests] *************
-[[test]]
-name = "default"
-
 # ********* [Package Metadata] *********
 [package.metadata.docs.rs]
 all-features = false
@@ -36,25 +32,24 @@ version = "v{{version}}"
 no-dev-version = true
 tag-name = "{{version}}"
 
+
 # ********* [Dependencies] *********
 [dependencies]
 # local
+rstm-core = { workspace = true }
 rstm-state = { workspace = true }
 # custom
-contained = { workspace = true }
 variants = { workspace = true }
 # error-handling
 thiserror = { workspace = true }
-# numbers
-num-traits = { workspace = true }
 # serialization
 serde = { optional = true, workspace = true }
 serde_derive = { optional = true, workspace = true }
-serde_json = { optional = true, workspace = true }
 # macros & utilities
-paste = { workspace = true }
 smart-default = { workspace = true }
 strum = { workspace = true }
+# logging
+tracing = { optional = true, workspace = true }
 # WebAssembly
 wasm-bindgen = { optional = true, workspace = true }
 
@@ -69,19 +64,13 @@ default = [
 
 full = [
   "default",
-  "json",
   "serde",
+  "tracing",
 ]
 
 # ********* [FF] Features *********
-json = [ 
-  "alloc", 
-  "rstm-state/json",
-  "serde",
-  "serde_json",
-]
-
 nightly = [
+  "rstm-core/nightly",
   "rstm-state/nightly",
 ]
 
@@ -89,40 +78,56 @@ nightly = [
 
 std = [
   "alloc",
+  "rstm-core/std",
   "rstm-state/std",
-  "contained/std",
   "variants/std",
   "serde?/std",
-  "serde_json?/std",
   "strum/std",
   "thiserror/std",
+  "tracing?/std",
 ]
 
 wasi = [
   "alloc",
+  "rstm-core/wasi",
   "rstm-state/wasi",
 ]
 
 wasm = [
   "alloc",
   "wasm_bindgen",
+  "rstm-core/wasm",
   "rstm-state/wasm",
 ]
 
 # ********* [FF] Dependencies *********
 alloc = [
-  "contained/alloc",
-  "variants/alloc",
+  "rstm-core/alloc",
   "rstm-state/alloc",
+  "variants/alloc",
   "serde?/alloc",
 ]
 
 serde = [
   "dep:serde",
   "dep:serde_derive",
+  "serde?/derive",
+  "rstm-core/serde",
   "rstm-state/serde",
 ]
 
-serde_json = ["dep:serde_json"]
+tracing = [
+  "dep:tracing",
+  "tracing?/attributes",
+]
 
 wasm_bindgen = ["dep:wasm-bindgen"]
+
+
+# ************* [Unit Tests] *************
+[[test]]
+name = "default"
+
+[[test]]
+name = "tape"
+required-features = ["alloc"]

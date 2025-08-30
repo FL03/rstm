@@ -4,7 +4,7 @@
     Contrib: @FL03
 */
 use crate::rule::Rule;
-use crate::types::{Head, Tail};
+use rstm_core::{Head, Tail};
 use rstm_state::{RawState, State};
 /// The [`Ruleset`] trait defines the core behaviors of a collection of rules
 pub trait Ruleset<Q, S>

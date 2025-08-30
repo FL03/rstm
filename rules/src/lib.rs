@@ -49,7 +49,7 @@ pub mod rule_map;
 #[cfg(feature = "alloc")]
 pub mod ruleset;
 
-pub mod traits {
+mod traits {
     //! the traits defining compatible rules within the framework
     #[doc(inline)]
     pub use self::prelude::*;
@@ -71,22 +71,27 @@ pub mod traits {
     }
 }
 
-pub mod types {
+mod types {
     //! types essential to the construction of rules, programs, and other related objects
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod aliases;
-    mod head;
-    mod tail;
-
     mod prelude {
         #[doc(inline)]
         pub use super::aliases::*;
-        #[doc(inline)]
-        pub use super::head::*;
-        #[doc(inline)]
-        pub use super::tail::*;
+    }
+
+    mod aliases {
+        #[cfg(feature = "std")]
+        use rstm_core::{Head, Tail};
+
+        #[cfg(feature = "alloc")]
+        pub(crate) type RuleVec<Q, S> = alloc::vec::Vec<crate::Rule<Q, S>>;
+
+        /// A type alias for a [`HashMap`](std::collections::HashMap) with keys of type [`Head<Q, S>`] and values of type
+        /// [`Tail<Q, S>`].
+        #[cfg(feature = "std")]
+        pub type HeadMap<Q = usize, S = usize> = std::collections::HashMap<Head<Q, S>, Tail<Q, S>>;
     }
 }
 

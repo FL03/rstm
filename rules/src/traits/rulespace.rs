@@ -3,9 +3,10 @@
     Created At: 2025.08.30:08:03:10
     Contrib: @FL03
 */
-use crate::types::{Head, Tail};
+use rstm_core::{Head, Tail};
 use rstm_state::RawState;
 
+/// The [`RawSpace`] trait establishes the basis for all rule spaces within the library.
 pub trait RawSpace {
     private! {}
 }
@@ -27,8 +28,9 @@ where
 #[cfg(feature = "alloc")]
 mod impl_alloc {
     use super::{RawSpace, RuleSpace};
-    use crate::{Head, Rule, Tail};
+    use crate::rule::Rule;
     use alloc::vec::Vec;
+    use rstm_core::{Head, Tail};
     use rstm_state::RawState;
 
     impl<T> RawSpace for Vec<T> {
@@ -56,7 +58,7 @@ mod impl_alloc {
 mod impl_std {
     use super::{RawSpace, RuleSpace};
 
-    use crate::{Head, Tail};
+    use rstm_core::{Head, Tail};
     use rstm_state::RawState;
     use std::collections::HashMap;
 

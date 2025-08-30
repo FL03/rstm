@@ -3,7 +3,8 @@
     authors: @FL03
 */
 use super::{Rule, RuleBuilder};
-use rstm::Direction;
+
+use rstm_core::{Direction, Head, Tail};
 use rstm_state::{RawState, State};
 
 impl<Q, S> RuleBuilder<Q, S>
@@ -67,11 +68,11 @@ where
     /// consume the current instance to create a formal [`Rule`]
     pub fn build(self) -> Rule<Q, S> {
         Rule {
-            head: crate::Head {
+            head: Head {
                 state: self.state.expect("state is required"),
                 symbol: self.symbol.expect("symbol is required"),
             },
-            tail: crate::Tail {
+            tail: Tail {
                 direction: self.direction,
                 next_state: self.next_state.expect("next_state is required"),
                 write_symbol: self.write_symbol.expect("write_symbol is required"),

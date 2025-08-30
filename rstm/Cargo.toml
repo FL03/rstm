@@ -37,6 +37,7 @@ tag-name = "{{version}}"
 rstm-actors = { optional = true, workspace = true }
 rstm-core = { workspace = true }
 rstm-rules = { optional = true, workspace = true }
+rstm-tape = { optional = true, workspace = true }
 
 [dev-dependencies]
 anyhow = { features = ["std"], workspace = true }
@@ -55,7 +56,7 @@ default = [
 
 full = [
   "default", 
-  "rand", 
+  "json",
   "serde", 
   "tracing"
 ]
@@ -69,18 +70,24 @@ actors = [
 
 macros = []
 
-rules = [
-  "dep:rstm-rules",
+rules = ["dep:rstm-rules"]
+
+tape = [
+  "alloc",
+  "dep:rstm-tape",
 ]
 
 nightly = [
   "rstm-actors?/nightly",
   "rstm-core/nightly",
+  "rstm-rules?/nightly",
+  "rstm-tape?/nightly"
 ]
 
 json = [
   "alloc",
   "rstm-core/json",
+  "rstm-rules?/json",
 ]
 
 # ********* [FF] Environments *********
@@ -89,6 +96,7 @@ std = [
   "rstm-actors?/std",
   "rstm-core/std",
   "rstm-rules?/std",
+  "rstm-tape?/std",
 ]
 
 wasi = [
@@ -96,6 +104,7 @@ wasi = [
   "rstm-actors?/wasi",
   "rstm-core/wasi",
   "rstm-rules?/wasi",
+  "rstm-tape?/wasi",
 ]
 
 wasm = [
@@ -103,6 +112,7 @@ wasm = [
   "rstm-actors?/wasm",
   "rstm-core/wasm",
   "rstm-rules?/wasm",
+  "rstm-tape?/wasm",
 ]
 
 # ************* [FF:Dependencies] *************
@@ -111,20 +121,14 @@ alloc = [
   "rstm-actors?/alloc",
   "rstm-core/alloc",
   "rstm-rules?/alloc",
-]
-
-rand = [
-  "rstm-core/rand",
-]
-
-rng = [
-  "rstm-core/rng",
+  "rstm-tape?/alloc",
 ]
 
 serde = [
   "rstm-actors?/serde",
   "rstm-core/serde",
   "rstm-rules?/serde",
+  "rstm-tape?/serde"
 ]
 
 serde_json = [
@@ -134,13 +138,14 @@ serde_json = [
 
 tracing = [
   "rstm-actors?/tracing",
-  "rstm-core/tracing",
+  "rstm-tape?/tracing"
 ]
 
 wasm_bindgen = [
   "rstm-actors?/wasm_bindgen",
   "rstm-core/wasm_bindgen",
   "rstm-rules?/wasm_bindgen",
+  "rstm-tape?/wasm_bindgen"
 ]
 
 # ************* [Benchmarks] *************

@@ -2,21 +2,8 @@
     Appellation: rstm-core <library>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-//! # rstm-core
-//!
-//! The `rstm-core` crate provides the core functionality for the `rstm` library.
-//!
-//! ## Features
-//!
-//! ### Components
-//!
-//! - [x] Rules
-//! - [x] States
-//!
-//! ### Tapes
-//!
-//! - [x] [`StdTape`](mem::std_tape::StdTape)
-//! - [x] [HashTape](mem::hash_tape::HashTape)
+//! The core modules for the `rstm` framework, providing a suite of fundamental abstractions
+//! and primitives for creating and managing state machines and related constructs.
 #![allow(
     clippy::module_inception,
     clippy::new_ret_no_self,
@@ -25,8 +12,6 @@
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(feature = "nightly", feature(allocator_api))]
-#![crate_name = "rstm_core"]
-#![crate_type = "lib"]
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
@@ -37,10 +22,10 @@ pub use rstm_state as state;
 #[doc(inline)]
 pub use self::{
     error::{Error, Result},
-    ops::prelude::*,
+    ops::*,
     state::{RawState, State},
-    traits::prelude::*,
-    types::prelude::*,
+    traits::*,
+    types::*,
 };
 
 #[macro_use]
@@ -50,17 +35,16 @@ pub(crate) mod macros {
 }
 
 pub mod error;
-pub mod mem;
 
 pub mod ops {
     //! this modules defines additional operations used throughout the crate
     #[doc(inline)]
     pub use self::prelude::*;
 
-    pub mod apply;
-    pub mod increment;
+    mod apply;
+    mod increment;
 
-    pub(crate) mod prelude {
+    mod prelude {
         #[doc(inline)]
         pub use super::apply::*;
         #[doc(inline)]
@@ -72,10 +56,10 @@ pub mod traits {
     /// this modules provides various traits used throughout the library
     pub use self::prelude::*;
 
-    pub mod convert;
-    pub mod symbols;
+    mod convert;
+    mod symbols;
 
-    pub(crate) mod prelude {
+    mod prelude {
         #[doc(inline)]
         pub use super::convert::*;
         #[doc(inline)]
@@ -89,11 +73,17 @@ pub mod types {
     #[doc(inline)]
     pub use self::prelude::*;
 
-    pub mod direction;
+    mod direction;
+    mod head;
+    mod tail;
 
-    pub(crate) mod prelude {
+    mod prelude {
         #[doc(inline)]
         pub use super::direction::*;
+        #[doc(inline)]
+        pub use super::head::*;
+        #[doc(inline)]
+        pub use super::tail::*;
     }
 }
 
@@ -102,12 +92,7 @@ pub mod prelude {
     #[doc(no_inline)]
     pub use rstm_state::prelude::*;
 
-    #[doc(no_inline)]
-    pub use crate::mem::prelude::*;
-    #[doc(no_inline)]
-    pub use crate::ops::prelude::*;
-    #[doc(no_inline)]
-    pub use crate::traits::prelude::*;
-    #[doc(no_inline)]
-    pub use crate::types::prelude::*;
+    pub use crate::ops::*;
+    pub use crate::traits::*;
+    pub use crate::types::*;
 }

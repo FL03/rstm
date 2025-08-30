@@ -33,10 +33,10 @@ pub trait Incremental: Decrement + Increment + DecrementAssign + IncrementAssign
 /*
  ************* Implementations *************
  */
-
+use num_traits::One;
 impl<T> Decrement for T
 where
-    T: num::One + core::ops::Sub<Output = T>,
+    T: One + core::ops::Sub<Output = T>,
 {
     fn decrement(self) -> Self {
         self - T::one()
@@ -45,7 +45,7 @@ where
 
 impl<T> DecrementAssign for T
 where
-    T: num::One + core::ops::SubAssign,
+    T: One + core::ops::SubAssign,
 {
     fn decrement_assign(&mut self) {
         *self -= T::one();
@@ -54,7 +54,7 @@ where
 
 impl<T> Increment for T
 where
-    T: num::One + core::ops::Add<Output = T>,
+    T: One + core::ops::Add<Output = T>,
 {
     fn increment(self) -> Self {
         self + T::one()
@@ -63,7 +63,7 @@ where
 
 impl<T> IncrementAssign for T
 where
-    T: num::One + core::ops::AddAssign,
+    T: One + core::ops::AddAssign,
 {
     fn increment_assign(&mut self) {
         *self += T::one();

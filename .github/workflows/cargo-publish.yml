@@ -35,6 +35,7 @@ jobs:
           - rstm-state
           - rstm-core
           - rstm-rules
+          - rstm-tape
           - rstm-actors
           - rstm
     runs-on: ubuntu-latest
@@ -51,4 +52,5 @@ jobs:
       -
         name: Set the output url
         id: set-output-url
-        run: echo "url=https://crates.io/crates/${{ matrix.package }}" >> $GITHUB_OUTPUT
+        run: |
+          echo "crate-url=https://crates.io/crates/${{ matrix.package }}" >> $GITHUB_OUTPUT

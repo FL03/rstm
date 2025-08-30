@@ -3,8 +3,8 @@
     authors: @FL03
 */
 use super::{Directive, Scope};
-use crate::{Head, Rule, Tail};
-use rstm_core::{Direction, Symbolic};
+use crate::rule::Rule;
+use rstm_core::{Direction, Head, Symbolic, Tail};
 use rstm_state::{RawState, State};
 
 /// The [`Transition`] trait defines the expected behaviors of a particular rule within a

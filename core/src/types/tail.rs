@@ -2,8 +2,8 @@
     Appellation: tail <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::Head;
-use rstm_core::Direction;
+use crate::Direction;
+use crate::Head;
 use rstm_state::{RawState, State};
 
 /// The [Tail] is a 3-tuple containing the direction, state, and symbol that an actor is

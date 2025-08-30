@@ -3,8 +3,8 @@
     authors: @FL03
 */
 use super::{Rule, RuleBuilder};
-use crate::types::{Head, Tail};
-use rstm::Direction;
+
+use rstm_core::{Direction, Head, Tail};
 use rstm_state::{RawState, State};
 
 impl<Q, A> Rule<Q, A>

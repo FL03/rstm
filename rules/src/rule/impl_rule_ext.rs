@@ -3,7 +3,7 @@
     authors: @FL03
 */
 use super::Rule;
-use crate::types::{Head, Tail};
+use rstm_core::{Head, Tail};
 use rstm_state::RawState;
 
 impl<Q, S> AsRef<Head<Q, S>> for Rule<Q, S>

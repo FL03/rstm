@@ -2,10 +2,9 @@
     appellation: program <module>
     authors: @FL03
 */
-use crate::{Head, Rule, Tail};
-use rstm_core::Direction;
+use crate::Rule;
+use rstm_core::{Direction, Head, Tail};
 use rstm_state::{RawState, State};
-
 
 /// The [`Scope`] trait is used to describe objects containing information or references to the
 /// current state and symbol of a Turing machine.
@@ -27,7 +26,6 @@ pub trait Directive<Q, S> {
 /*
  ************* Implementations *************
 */
-
 
 impl<Q, S> Scope<Q, S> for (State<Q>, S) {
     fn current_state(&self) -> &State<Q> {

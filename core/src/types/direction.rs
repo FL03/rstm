@@ -137,7 +137,7 @@ impl Default for Direction {
 
 impl<T> core::ops::Add<T> for Direction
 where
-    T: core::ops::Add<Output = T> + core::ops::Sub<Output = T> + num::One,
+    T: core::ops::Add<Output = T> + core::ops::Sub<Output = T> + num_traits::One,
 {
     type Output = T;
 

@@ -3,8 +3,8 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::{Actor, Engine, Handle};
-use rstm_core::Symbolic;
-use rstm_rules::prelude::{Head, Program, Rule, Tail};
+use rstm_core::{Head, Symbolic, Tail};
+use rstm_rules::prelude::{Program, Rule};
 use rstm_state::{RawState, State};
 
 /// The [Executor] handles the execution of a given program. The structure works as an

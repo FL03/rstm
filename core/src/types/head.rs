@@ -2,7 +2,7 @@
     Appellation: head <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use rstm_core::Direction;
+use crate::Direction;
 use rstm_state::{RawState, State};
 
 /// The [Head] is formally defined to be a 2-tuple consisting of a state / symbol pair.
