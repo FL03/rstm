@@ -32,8 +32,8 @@ jobs:
       fail-fast: false
       matrix:
         package:
-          - rstm-core
           - rstm-state
+          - rstm-core
           - rstm
     runs-on: ubuntu-latest
     steps:
