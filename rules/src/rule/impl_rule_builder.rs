@@ -73,8 +73,8 @@ where
             },
             tail: crate::Tail {
                 direction: self.direction,
-                state: self.next_state.expect("next_state is required"),
-                symbol: self.write_symbol.expect("write_symbol is required"),
+                next_state: self.next_state.expect("next_state is required"),
+                write_symbol: self.write_symbol.expect("write_symbol is required"),
             },
         }
     }

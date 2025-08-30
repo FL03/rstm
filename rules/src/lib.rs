@@ -55,11 +55,17 @@ pub mod traits {
     pub use self::prelude::*;
 
     mod program;
+    mod rules;
+    mod rulespace;
     mod transition;
 
     mod prelude {
         #[doc(inline)]
         pub use super::program::*;
+        #[doc(inline)]
+        pub use super::rules::*;
+        #[doc(inline)]
+        pub use super::rulespace::*;
         #[doc(inline)]
         pub use super::transition::*;
     }
@@ -100,5 +106,5 @@ pub mod prelude {
     pub use crate::rule_map::RuleMap;
     #[doc(no_inline)]
     #[cfg(feature = "alloc")]
-    pub use crate::ruleset::InstructionSet;
+    pub use crate::ruleset::Program;
 }

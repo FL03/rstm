@@ -34,12 +34,12 @@ where
         symbol: S,
         direction: Direction,
         next_state: State<Q>,
-        next_symbol: S,
+        write_symbol: S,
         confidence: T,
     ) -> Self {
         // create a new head
         let head = Head::new(state, symbol);
-        let tail = Tail::new(direction, next_state, next_symbol);
+        let tail = Tail::new(direction, next_state, write_symbol);
         Self::new(head, tail, confidence)
     }
 
@@ -51,11 +51,11 @@ where
         &self.confidence
     }
     /// returns a reference to the head of the rule
-    pub fn head(&self) -> Head<&Q, &S> {
+    pub const fn head(&self) -> Head<&Q, &S> {
         self.head.view()
     }
     /// returns a mutable reference to the head of the rule
-    pub fn head_mut(&mut self) -> Head<&mut Q, &mut S> {
+    pub const fn head_mut(&mut self) -> Head<&mut Q, &mut S> {
         self.head.view_mut()
     }
     /// returns a reference to the tail of the rule

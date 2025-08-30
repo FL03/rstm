@@ -2,20 +2,20 @@
     appellation: impl_rule_set <module>
     authors: @FL03
 */
-use crate::ruleset::InstructionSet;
-use crate::{Head, Rule, Rules, Tail};
+use crate::ruleset::Program;
+use crate::{Head, Rule, RuleVec, Tail};
 use rstm_state::{RawState, State};
 
 use alloc::vec::{self, Vec};
 
-impl<Q, S> InstructionSet<Q, S>
+impl<Q, S> Program<Q, S>
 where
     Q: RawState,
 {
     pub fn new() -> Self {
         Self {
             initial_state: None,
-            rules: Rules::new(),
+            rules: RuleVec::new(),
         }
     }
     #[allow(clippy::should_implement_trait)]
@@ -26,14 +26,14 @@ where
     {
         Self {
             initial_state: None,
-            rules: Rules::from_iter(iter),
+            rules: RuleVec::from_iter(iter),
         }
     }
     /// Create a new instance of the [Program] using the given initial state.
     pub fn from_state(initial_state: State<Q>) -> Self {
         Self {
             initial_state: Some(initial_state),
-            rules: Rules::new(),
+            rules: RuleVec::new(),
         }
     }
     /// Returns an owned reference to the initial state of the program.
@@ -41,11 +41,11 @@ where
         self.initial_state.as_ref().map(|state| state.view())
     }
     /// Returns a reference to the instructions.
-    pub const fn rules(&self) -> &Rules<Q, S> {
+    pub const fn rules(&self) -> &RuleVec<Q, S> {
         &self.rules
     }
     /// Returns a mutable reference to the instructions.
-    pub const fn rules_mut(&mut self) -> &mut Rules<Q, S> {
+    pub const fn rules_mut(&mut self) -> &mut RuleVec<Q, S> {
         &mut self.rules
     }
 
@@ -144,7 +144,7 @@ where
     }
 }
 
-impl<Q, S> AsRef<[Rule<Q, S>]> for InstructionSet<Q, S>
+impl<Q, S> AsRef<[Rule<Q, S>]> for Program<Q, S>
 where
     Q: RawState,
 {
@@ -153,7 +153,7 @@ where
     }
 }
 
-impl<Q, S> AsMut<[Rule<Q, S>]> for InstructionSet<Q, S>
+impl<Q, S> AsMut<[Rule<Q, S>]> for Program<Q, S>
 where
     Q: RawState,
 {
@@ -162,7 +162,7 @@ where
     }
 }
 
-impl<Q, S> core::ops::Deref for InstructionSet<Q, S>
+impl<Q, S> core::ops::Deref for Program<Q, S>
 where
     Q: RawState,
 {
@@ -173,7 +173,7 @@ where
     }
 }
 
-impl<Q, S> core::ops::DerefMut for InstructionSet<Q, S>
+impl<Q, S> core::ops::DerefMut for Program<Q, S>
 where
     Q: RawState,
 {
@@ -182,7 +182,7 @@ where
     }
 }
 
-impl<Q, S> core::ops::Index<Head<Q, S>> for InstructionSet<Q, S>
+impl<Q, S> core::ops::Index<Head<Q, S>> for Program<Q, S>
 where
     Q: RawState + PartialEq,
     S: PartialEq,
@@ -194,7 +194,7 @@ where
     }
 }
 
-impl<Q, S> From<Vec<Rule<Q, S>>> for InstructionSet<Q, S>
+impl<Q, S> From<Vec<Rule<Q, S>>> for Program<Q, S>
 where
     Q: RawState + Default,
 {
@@ -206,7 +206,7 @@ where
     }
 }
 
-impl<Q, S> Extend<Rule<Q, S>> for InstructionSet<Q, S>
+impl<Q, S> Extend<Rule<Q, S>> for Program<Q, S>
 where
     Q: RawState,
 {
@@ -215,19 +215,19 @@ where
     }
 }
 
-impl<Q, S> FromIterator<Rule<Q, S>> for InstructionSet<Q, S>
+impl<Q, S> FromIterator<Rule<Q, S>> for Program<Q, S>
 where
     Q: RawState + Default,
 {
     fn from_iter<I: IntoIterator<Item = Rule<Q, S>>>(iter: I) -> Self {
         Self {
             initial_state: Some(State::default()),
-            rules: Rules::from_iter(iter),
+            rules: RuleVec::from_iter(iter),
         }
     }
 }
 
-impl<Q, S> IntoIterator for InstructionSet<Q, S>
+impl<Q, S> IntoIterator for Program<Q, S>
 where
     Q: RawState,
 {

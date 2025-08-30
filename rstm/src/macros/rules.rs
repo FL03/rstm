@@ -120,7 +120,7 @@ macro_rules! rules {
 #[macro_export]
 macro_rules! program {
     {$(#[default_state($q:expr)])? $(  ($state:expr, $symbol:literal $(,)?) -> $direction:ident($next:expr, $write:literal $(,)?)  ),* $(,)?} => {
-        $crate::rules::InstructionSet::from_iter(
+        $crate::rules::Program::from_iter(
             $crate::rules! {
                 $(
                     ($state, $symbol) -> $direction($next, $write)

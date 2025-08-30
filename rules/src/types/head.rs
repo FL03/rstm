@@ -10,7 +10,7 @@ use rstm_state::{RawState, State};
 #[cfg_attr(
     feature = "serde",
     derive(serde::Deserialize, serde::Serialize),
-    serde(rename_all = "lowercase")
+    serde(rename_all = "camelCase")
 )]
 #[repr(C)]
 pub struct Head<Q, S> {
@@ -32,7 +32,7 @@ where
     where
         S: Default,
     {
-        Self::new(state, S::default())
+        Self::new(state, <S>::default())
     }
     /// Create a new instance of the [Head] using the given symbol and default state.
     pub fn from_symbol(symbol: S) -> Self
@@ -70,7 +70,7 @@ where
         &mut self.symbol
     }
     /// Returns a reference to the current state and symbol returing a 2-tuple
-    pub fn as_tuple(&self) -> (&State<Q>, &S) {
+    pub const fn as_tuple(&self) -> (&State<Q>, &S) {
         (&self.state, &self.symbol)
     }
     /// Consumes the head and returns the current state and symbol as a 2-tuple
@@ -78,7 +78,7 @@ where
         (self.state, self.symbol)
     }
     /// Returns a mutable reference to the current state and symbol as a 2-tuple
-    pub fn as_mut_tuple(&mut self) -> (&mut State<Q>, &mut S) {
+    pub const fn as_mut_tuple(&mut self) -> (&mut State<Q>, &mut S) {
         (&mut self.state, &mut self.symbol)
     }
     /// Updates the current state
@@ -93,7 +93,7 @@ where
     }
     /// Replaces the current state and symbol with the given state and symbol; returns the
     /// previous instance of the head.
-    pub fn replace(&mut self, state: State<Q>, symbol: S) -> Self {
+    pub const fn replace(&mut self, state: State<Q>, symbol: S) -> Self {
         Head {
             state: self.replace_state(state),
             symbol: self.replace_symbol(symbol),
@@ -134,7 +134,7 @@ where
         }
     }
     /// returns a new head with mutable references to the current state and symbol
-    pub fn view_mut(&mut self) -> Head<&mut Q, &mut S> {
+    pub const fn view_mut(&mut self) -> Head<&mut Q, &mut S> {
         Head {
             state: self.state.view_mut(),
             symbol: &mut self.symbol,

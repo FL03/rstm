@@ -34,8 +34,8 @@ where
     fn tail(&self) -> Tail<&Q, &S> {
         Tail {
             direction: self.direction(),
-            state: self.next_state().view(),
-            symbol: self.write_symbol(),
+            next_state: self.next_state().view(),
+            write_symbol: self.write_symbol(),
         }
     }
     /// returns an instance of [`Rule`] containing references to the states and symbols within
