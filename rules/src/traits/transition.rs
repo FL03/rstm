@@ -3,9 +3,9 @@
     authors: @FL03
 */
 use super::{Directive, Scope};
-use crate::rules::{Head, Rule, Tail};
-use crate::state::{RawState, State};
-use crate::{Direction, Symbolic};
+use crate::{Head, Rule, Tail};
+use rstm_core::{Direction, Symbolic};
+use rstm_state::{RawState, State};
 
 /// The [`Transition`] trait defines the expected behaviors of a particular rule within a
 /// Turing machine program.

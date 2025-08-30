@@ -18,3 +18,4 @@ updates:
       - actors
       - core
       - state
+      - rules

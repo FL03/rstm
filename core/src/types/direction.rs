@@ -25,7 +25,7 @@
 )]
 #[cfg_attr(
     feature = "serde",
-    derive(serde_derive::Deserialize, serde_derive::Serialize)
+    derive(serde::Deserialize, serde::Serialize)
 )]
 #[strum(serialize_all = "lowercase")]
 pub enum Direction {

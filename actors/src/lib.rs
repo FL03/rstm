@@ -17,6 +17,8 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
+extern crate rstm_core as rstm;
+
 #[cfg(not(any(feature = "alloc", feature = "std")))]
 compile_error! {
     "Either the `alloc` or `std` feature must be enabled for this crate to compile."

@@ -3,9 +3,9 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::{Actor, Engine, Handle};
-use rstm_core::rules::{InstructionSet, Rule};
-use rstm_core::state::{RawState, State};
-use rstm_core::{Head, Symbolic, Tail};
+use rstm_core::Symbolic;
+use rstm_rules::prelude::{Head, InstructionSet, Rule, Tail};
+use rstm_state::{RawState, State};
 
 /// The [Executor] handles the execution of a given program. The structure works as an
 /// iterator, where each iteration represents a step in the program. The executor is

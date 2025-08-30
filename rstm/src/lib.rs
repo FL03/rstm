@@ -15,27 +15,21 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
-#[cfg(feature = "macros")]
-#[macro_use]
-pub(crate) mod macros {
-    #[macro_use]
-    pub mod rules;
-}
+pub use rules::{program, rule, rules, rule_map};
 
 #[cfg(feature = "actors")]
 #[doc(inline)]
 pub use rstm_actors as actors;
 #[doc(inline)]
 pub use rstm_core::*;
+#[cfg(feature = "rules")]
+pub use rstm_rules as rules;
 
 pub mod prelude {
-    #[cfg(all(feature = "alloc", feature = "macros"))]
-    pub use crate::program;
-    #[cfg(all(feature = "std", feature = "macros"))]
-    pub use crate::rulemap;
-    pub use crate::state;
     #[cfg(feature = "actors")]
     pub use rstm_actors::prelude::*;
     #[doc(no_inline)]
     pub use rstm_core::prelude::*;
+    #[cfg(feature = "rules")]
+    pub use rstm_rules::prelude::*;
 }

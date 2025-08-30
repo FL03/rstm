@@ -34,6 +34,7 @@ jobs:
         package:
           - rstm-state
           - rstm-core
+          - rstm-rules
           - rstm-actors
           - rstm
     runs-on: ubuntu-latest

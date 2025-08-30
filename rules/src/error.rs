@@ -21,8 +21,6 @@ pub enum Error {
     #[error(transparent)]
     CoreError(#[from] rstm_core::Error),
     #[error(transparent)]
-    RulesError(#[from] rstm_rules::Error),
-    #[error(transparent)]
     StateError(#[from] rstm_state::StateError),
     #[error("An unknown error was thrown by an actor: {0}")]
     UnknwonError(String),

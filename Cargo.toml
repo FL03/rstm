@@ -2,9 +2,11 @@
 default-members = [
   "rstm",
 ]
-members = [ "actors",
+members = [ 
+  "actors",
   "core",
   "rstm", 
+  "rules",
   "state",
 ]
 resolver = "3"
@@ -34,6 +36,7 @@ rstm = { default-features = false, path = "rstm", version = "0.0.8" }
 rstm-actors = { default-features = false, path = "actors", version = "0.0.8" }
 rstm-core = { default-features = false, path = "core", version = "0.0.8" }
 rstm-state = { default-features = false, path = "state", version = "0.0.8" }
+rstm-rules = { default-features = false, path = "rules", version = "0.0.8" }
 
 # custom
 contained = { default-features = false, features = ["derive", "macros"], version = "0.2" }

@@ -2,8 +2,9 @@
     Appellation: actor <test>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use rstm_actors::Actor;
-use rstm_core::{InstructionSet, State};
+use rstm::State;
+use rstm::actors::Actor;
+use rstm::rules::InstructionSet;
 
 #[test]
 #[ignore = "the halting state needs to be fixed/enabled"]

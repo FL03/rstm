@@ -3,10 +3,9 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use super::{Executor, Handle};
-use crate::error::Error;
-use rstm_core::rules::InstructionSet;
-use rstm_core::state::{RawState, State};
-use rstm_core::{Direction, Head, Symbolic, Tail};
+use rstm_rules::{InstructionSet, Head, Tail};
+use rstm_state::{RawState, State};
+use rstm_core::{Direction, Symbolic};
 
 /// An [Actor] is an implementation of a Turing machine with a moving head (TMH).
 ///
@@ -163,10 +162,10 @@ where
                 state: self.state().view(),
                 symbol,
             })
-            .ok_or(Error::IndexOutOfBounds {
+            .ok_or(rstm_core::Error::IndexOutOfBounds {
                 index: self.position(),
                 len: self.len(),
-            })
+            }.into())
     }
 
     /// Writes the given symbol to the tape

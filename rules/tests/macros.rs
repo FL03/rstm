@@ -2,11 +2,15 @@
     Appellation: rules <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use rstm::{Direction, Head, State, Tail};
+use rstm_core::Direction;
+use rstm_rules::{Head, Tail};
+use rstm_state::State;
 
 #[test]
 fn test_ruleset() {
-    let rules = rstm::program![
+    use rstm_rules::program;
+
+    let rules = program![
         (0, 0) -> Right(1, 1),
         (0, 1) -> Left(-1, 0),
         (1, 0) -> Right(1, 1),
@@ -28,8 +32,9 @@ fn test_ruleset() {
 #[cfg(feature = "std")]
 #[test]
 fn test_rulemap() {
+    use rstm_rules::rulemap;
     // create a new ruleset using the macro
-    let rules = rstm::rulemap! {
+    let rules = rulemap! {
         (0, 0) -> Right(1, 1),
         (0, 1) -> Left(-1, 0),
         (1, 0) -> Right(1, 1),

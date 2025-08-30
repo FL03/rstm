@@ -6,7 +6,7 @@
 use super::Handle;
 
 use crate::error::Error;
-use rstm_core::rules::{Rule, Tail};
+use rstm_rules::{Rule, Tail};
 use rstm_core::state::RawState;
 
 #[doc(hidden)]

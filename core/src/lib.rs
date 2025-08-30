@@ -39,7 +39,6 @@ pub use rstm_state as state;
 pub use self::{
     error::{Error, Result},
     ops::prelude::*,
-    rules::{Head, InstructionSet, Rule, Tail},
     state::{RawState, State},
     traits::prelude::*,
     types::prelude::*,
@@ -53,7 +52,6 @@ pub(crate) mod macros {
 
 pub mod error;
 pub mod mem;
-pub mod rules;
 
 pub mod ops {
     //! this modules defines additional operations used throughout the crate
@@ -109,8 +107,6 @@ pub mod prelude {
     pub use crate::mem::prelude::*;
     #[doc(no_inline)]
     pub use crate::ops::prelude::*;
-    #[doc(no_inline)]
-    pub use crate::rules::prelude::*;
     #[doc(no_inline)]
     pub use crate::traits::prelude::*;
     #[doc(no_inline)]
