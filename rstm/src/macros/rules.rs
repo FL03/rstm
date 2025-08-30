@@ -36,12 +36,12 @@ macro_rules! rule {
     (
         ($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal) $(;)?
     ) => {
-        $crate::Rule::new()
-            .state(rstm_state::State($state))
+        $crate::rules::Rule::new()
+            .state($crate::state::State($state))
             .symbol($symbol)
             .write_symbol($write)
-            .direction(rstm_core::Direction::$direction)
-            .next_state(rstm_state::State($next))
+            .direction($crate::Direction::$direction)
+            .next_state($crate::state::State($next))
             .build()
     };
 }
@@ -120,14 +120,14 @@ macro_rules! rules {
 #[macro_export]
 macro_rules! program {
     {$(#[default_state($q:expr)])? $(  ($state:expr, $symbol:literal $(,)?) -> $direction:ident($next:expr, $write:literal $(,)?)  ),* $(,)?} => {
-        $crate::ruleset::InstructionSet::from_iter(
+        $crate::rules::InstructionSet::from_iter(
             $crate::rules! {
                 $(
                     ($state, $symbol) -> $direction($next, $write)
                 ),*
             }
         )$(
-            .with_initial_state(rstm_state::State($q))
+            .with_initial_state($crate::state::State($q))
         )?
     };
 }
@@ -158,8 +158,8 @@ macro_rules! rulemap {
             let mut map = ::std::collections::HashMap::new();
             $(
                 map.insert(
-                    $crate::Head::new(rstm_state::State($state), $symbol),
-                    $crate::Tail::new(rstm_core::Direction::$dir, rstm_state::State($next_state), $next_symbol)
+                    $crate::rules::Head::new($crate::state::State($state), $symbol),
+                    $crate::rules::Tail::new($crate::Direction::$dir, $crate::state::State($next_state), $next_symbol)
                 );
             )*
             map

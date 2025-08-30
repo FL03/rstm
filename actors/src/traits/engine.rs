@@ -6,8 +6,8 @@
 use super::Handle;
 
 use crate::error::Error;
-use rstm_rules::{Rule, Tail};
 use rstm_core::state::RawState;
+use rstm_rules::{Rule, Tail};
 
 #[doc(hidden)]
 pub trait Engine<Q, S>: Handle<Tail<Q, S>>

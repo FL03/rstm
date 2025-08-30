@@ -22,8 +22,6 @@ extern crate rstm_core as rstm;
 mod macros {
     #[macro_use]
     pub(crate) mod seal;
-    #[macro_use]
-    pub(crate) mod rules;
 }
 
 #[doc(inline)]
@@ -96,7 +94,6 @@ pub mod prelude {
     pub use crate::traits::*;
     #[doc(no_inline)]
     pub use crate::types::*;
-    pub use crate::{program, rule, rule_map, rules};
 
     #[doc(no_inline)]
     #[cfg(feature = "std")]

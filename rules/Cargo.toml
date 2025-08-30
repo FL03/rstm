@@ -137,7 +137,3 @@ wasm_bindgen = ["dep:wasm-bindgen"]
 # ************* [Unit Tests] *************
 [[test]]
 name = "default"
-
-
-[[test]]
-name = "macros"

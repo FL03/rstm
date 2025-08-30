@@ -54,6 +54,7 @@ default = [
 
 full = [
   "default", 
+  "macros", 
   "rand", 
   "serde", 
   "tracing"
@@ -62,8 +63,11 @@ full = [
 # ********* [FF] Features *********
 actors = [
   "alloc",
+  "rules",
   "dep:rstm-actors",
 ]
+
+macros = []
 
 rules = [
   "dep:rstm-rules",
@@ -156,5 +160,8 @@ name = "default"
 
 [[test]]
 name = "busy_beaver"
-required-features = ["alloc", "actors"]
+required-features = ["alloc", "actors", "macros"]
 
+[[test]]
+name = "macros"
+required-features = ["macros", "rules"]
