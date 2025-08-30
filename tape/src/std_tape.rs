@@ -2,16 +2,13 @@
     Appellation: tape <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-#[cfg(feature = "alloc")]
 use alloc::vec::Vec;
 use core::cell::Cell;
 use rstm_core::{Direction, Error};
 
-/// # [StdTape]
-///
-/// [StdTae] is a basic implementation of a tape, a one-dimensional surface evenly divided into
-/// cells capable of storing symbols. The tape is infinite in both directions allowing the
-/// head, or actor, to move without bounds, extending the tape as needed.
+/// The [`StdTape`] is a basic implementation of a tape, a one-dimensional surface evenly
+/// divided into cells capable of storing symbols. The tape is infinite in both directions
+/// allowing the head, or actor, to move without bounds, extending the tape as needed.
 ///
 /// Here, the tape employs the use of a [Vec] to store symbols while leveraging a
 /// [usize] to keep track of the current position of the tape head. Moreover, the tape
@@ -128,7 +125,7 @@ impl<S> StdTape<S> {
         self.index
     }
     /// Attempts to read the symbol at the current position of the tape head.
-    pub fn read(&self) -> Result<&S, Error> {
+    pub fn read(&self) -> crate::Result<&S> {
         self.get(self.index)
             .ok_or(Error::index_out_of_bounds(self.index, self.len()).into())
     }

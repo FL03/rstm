@@ -3,15 +3,14 @@
     Created At: 2025.08.30:16:50:58
     Contrib: @FL03
 */
-//! # rstm-core
-//!
-//! The `rstm-core` crate provides the core functionality for the `rstm` library.
-//!
-//! ## Features
+//! Idealized Turing machines consider a tape, or memory, that is infinite in both directions.
+//! This tape is a one-dimensional array of symbols manipulated by the tape head according to
+//! some set of pre-defined rules.
 #![allow(
+    clippy::missing_safety_doc,
     clippy::module_inception,
-    clippy::new_ret_no_self,
     clippy::needless_doctest_main,
+    clippy::self_named_constructors,
     clippy::should_implement_trait
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -19,6 +18,7 @@
 
 #[cfg(feature = "alloc")]
 extern crate alloc;
+
 extern crate rstm_core as rstm;
 
 #[macro_use]
@@ -28,37 +28,70 @@ mod macros {
 }
 
 #[doc(inline)]
+#[cfg(feature = "alloc")]
+pub use self::std_tape::StdTape;
+#[doc(inline)]
 pub use self::{
     error::{Error, Result},
-    tape::StdTape,
-    traits::prelude::*,
+    traits::*,
+    types::*,
 };
 
-pub mod cell;
+#[doc(inline)]
+#[cfg(feature = "std")]
+pub use self::hash_tape::HashTape;
+
 pub mod error;
-pub mod snapshot;
+
 pub mod store;
-pub mod tape;
+
+#[cfg(feature = "std")]
+pub mod hash_tape;
+#[cfg(feature = "alloc")]
+pub mod std_tape;
 
 pub mod traits {
+    //! Traits for defining and manipulating Turing machine tapes
     #[doc(inline)]
     pub use self::prelude::*;
 
-    pub mod fetch;
-    pub mod memory;
+    mod fetch;
+    mod memory;
+    mod tape;
 
-    pub(crate) mod prelude {
+    mod prelude {
         #[doc(inline)]
         pub use super::fetch::*;
         #[doc(inline)]
         pub use super::memory::*;
+        #[doc(inline)]
+        pub use super::tape::*;
+    }
+}
+
+pub mod types {
+    //! Supporting types for constructing so-called tapes for Turing machines
+    #[doc(inline)]
+    pub use self::prelude::*;
+
+    mod cell;
+    mod snapshot;
+
+    mod prelude {
+        #[doc(inline)]
+        pub use super::cell::Cell;
+        #[doc(inline)]
+        pub use super::snapshot::Snapshot;
     }
 }
 
 #[doc(hidden)]
 pub mod prelude {
-    pub use crate::snapshot::*;
+    #[cfg(feature = "std")]
+    pub use crate::hash_tape::HashTape;
+    #[cfg(feature = "alloc")]
+    pub use crate::std_tape::StdTape;
     pub use crate::store::*;
-    pub use crate::tape::prelude::*;
-    pub use crate::traits::prelude::*;
+    pub use crate::traits::*;
+    pub use crate::types::*;
 }

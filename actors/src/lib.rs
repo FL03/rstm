@@ -6,9 +6,10 @@
 //! (TMH).
 //!
 #![allow(
+    clippy::missing_safety_doc,
     clippy::module_inception,
-    clippy::new_ret_no_self,
     clippy::needless_doctest_main,
+    clippy::self_named_constructors,
     clippy::should_implement_trait
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
