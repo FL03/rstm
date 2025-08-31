@@ -6,6 +6,9 @@
 
 mod impl_turing_engine;
 
+#[allow(deprecated)]
+mod impl_deprecated;
+
 use crate::tmh::TMH;
 use rstm_rules::Program;
 use rstm_state::RawState;
@@ -21,7 +24,7 @@ where
     pub(crate) driver: &'a mut TMH<Q, A>,
     /// the program being executed
     pub(crate) program: Option<Program<Q, A>>,
-    /// the number of steps taken by the actor
-    pub(crate) steps: usize,
+    /// the current epoch, or step, of the machine
+    pub(crate) epoch: usize,
     pub(crate) _inputs: Vec<A>,
 }

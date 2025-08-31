@@ -19,7 +19,7 @@ where
             driver,
             _inputs: Vec::new(),
             program: None,
-            steps: 0,
+            epoch: 0,
         }
     }
     /// consumes the instance to return another loaded up with the given program
@@ -50,8 +50,8 @@ where
         self.program.as_mut()
     }
     /// returns a copy of the current steps
-    pub const fn steps(&self) -> usize {
-        self.steps
+    pub const fn current_epoch(&self) -> usize {
+        self.epoch
     }
     /// returns a mutable reference to the current steps
     pub const fn current_state(&self) -> &State<Q> {
@@ -96,7 +96,11 @@ where
         tracing::info!("Running the program...");
         while let Some(_h) = self.next() {
             #[cfg(feature = "tracing")]
-            tracing::info!("Executing step: {head:?}", head = _h);
+            tracing::info!(
+                "Executing step ({i}) with a context of {ctx:?}",
+                i = self.current_epoch(),
+                ctx = _h
+            );
         }
         Ok(())
     }
@@ -148,10 +152,10 @@ where
     S: Symbolic,
 {
     type Item = Head<Q, S>;
-    
+
     fn next(&mut self) -> Option<Self::Item> {
         // increment the number of steps taken
-        self.steps += 1;
+        self.epoch += 1;
         #[cfg(feature = "tracing")]
         tracing::info!("{tape:?}", tape = self.driver());
         // check if the actor is halted
