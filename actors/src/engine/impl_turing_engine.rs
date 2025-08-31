@@ -148,6 +148,7 @@ where
     S: Symbolic,
 {
     type Item = Head<Q, S>;
+    
     fn next(&mut self) -> Option<Self::Item> {
         // increment the number of steps taken
         self.steps += 1;
