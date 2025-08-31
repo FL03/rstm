@@ -4,7 +4,7 @@
 */
 //! This module defines the custom error type for handling various actor-related errors.
 #[cfg(feature = "alloc")]
-use alloc::{boxed::Box, string::String};
+use alloc::boxed::Box;
 
 /// A type alias for a [`Result`](core::result::Result) that uses the custom [`Error`] type
 pub type Result<T> = core::result::Result<T, Error>;
@@ -14,18 +14,12 @@ pub type Result<T> = core::result::Result<T, Error>;
 pub enum Error {
     #[error("The actor has halted.")]
     Halted,
-    #[error(
-        "The actor attempted to access an index ({index}) outside the bounds of the tape (size: {len})."
-    )]
-    IndexOutOfBounds { index: usize, len: usize },
     #[error(transparent)]
     CoreError(#[from] rstm_core::Error),
     #[error(transparent)]
     RulesError(#[from] rstm_rules::Error),
     #[error(transparent)]
     StateError(#[from] rstm_state::StateError),
-    #[error("An unknown error was thrown by an actor: {0}")]
-    UnknwonError(String),
 }
 
 #[cfg(feature = "alloc")]
