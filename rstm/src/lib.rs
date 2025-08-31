@@ -1,8 +1,6 @@
-/*
-    Appellation: rstm <library>
-    Contrib: FL03 <jo3mccain@icloud.com>
-*/
 //! # rstm
+//!
+//! Welcome to the `rstm` crate! This project focuses on providing useful abstra
 //!
 //! `rstm` is a Rust library dedicated to the construction and execution of Turing Machines.
 //! The crate is designed to be flexible and easy to use while preserving the abstract nature
@@ -24,10 +22,8 @@ extern crate alloc;
 #[cfg(feature = "macros")]
 #[macro_use]
 mod macros {
-    #[cfg(all(feature = "rules", feature = "alloc"))]
     #[macro_use]
     pub(crate) mod program;
-    #[cfg(feature = "rules")]
     #[macro_use]
     pub(crate) mod rules;
 }

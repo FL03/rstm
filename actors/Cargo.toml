@@ -21,6 +21,13 @@ doc = true
 doctest = false
 test = true
 
+[[test]]
+name = "default"
+
+[[test]]
+name = "actor"
+required-features = ["std"]
+
 # ********* [Package Metadata] *********
 [package.metadata.docs.rs]
 all-features = false
@@ -128,12 +135,3 @@ tracing = [
 ]
 
 wasm-bindgen = ["dep:wasm-bindgen"]
-
-
-# ************* [Unit Tests] *************
-[[test]]
-name = "default"
-
-[[test]]
-name = "actor"
-required-features = ["std"]

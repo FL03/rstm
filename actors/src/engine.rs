@@ -5,7 +5,7 @@
 use super::{Engine, Handle, TMH};
 use rstm_core::{Head, Symbolic, Tail};
 use rstm_rules::prelude::Program;
-use rstm_state::{RawState, State};
+use rstm_state::{HaltState, RawState, State};
 
 /// The [`TuringEngine`] implementation is designed to handle the execution of a given program.
 /// The exact nature of the engine is determined, in part, by the type of _driver_ it employs
@@ -35,7 +35,7 @@ where
             steps: 0,
         }
     }
-    /// Load a program into the executor
+    /// consumes the instance to return another loaded up with the given program
     pub fn load(self, program: Program<Q, A>) -> Self {
         TuringEngine {
             program: Some(program),
@@ -102,7 +102,7 @@ where
     )]
     pub fn run(&mut self) -> crate::Result<()>
     where
-        Q: 'static + RawState + Clone + PartialEq,
+        Q: 'static + HaltState + Clone + PartialEq,
         A: Symbolic,
     {
         #[cfg(feature = "tracing")]
@@ -116,7 +116,7 @@ where
 
     fn _handle_tail(&mut self, tail: Tail<Q, A>) -> crate::Result<Head<Q, A>>
     where
-        Q: RawState + Clone + PartialEq,
+        Q: HaltState + Clone + PartialEq,
         A: Symbolic,
     {
         // process the instruction
@@ -130,7 +130,7 @@ where
 
 impl<'a, D, Q, S> Handle<D> for TuringEngine<'a, Q, S>
 where
-    Q: RawState + Clone + PartialEq,
+    Q: HaltState + Clone + PartialEq,
     S: Symbolic,
     TMH<Q, S>: Handle<D>,
 {
@@ -143,7 +143,7 @@ where
 
 impl<'a, Q, S> Engine<Q, S> for TuringEngine<'a, Q, S>
 where
-    Q: 'static + RawState + Clone + PartialEq,
+    Q: 'static + HaltState + Clone + PartialEq,
     S: Symbolic,
 {
     fn load(&mut self, program: Program<Q, S>) {
@@ -157,7 +157,7 @@ where
 
 impl<'a, Q, S> Iterator for TuringEngine<'a, Q, S>
 where
-    Q: 'static + RawState + Clone + PartialEq,
+    Q: 'static + HaltState + Clone + PartialEq,
     S: Symbolic,
 {
     type Item = Head<Q, S>;

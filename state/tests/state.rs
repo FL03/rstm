@@ -4,7 +4,7 @@
 */
 extern crate rstm_state as rstm;
 
-use rstm::{Halt, State};
+use rstm::{Halter, State};
 
 #[test]
 fn state() {
@@ -34,8 +34,8 @@ fn state() {
 #[test]
 fn halting() {
     let state = State(0_usize);
-    assert_eq!(state.halt().get(), &Halt::Halt(0));
-    assert_eq!(state.into_halt().get(), &Halt::State(0));
+    assert_eq!(state.halt().get(), &Halter::Halt(0));
+    assert_eq!(state.into_halt().get(), &Halter::State(0));
 }
 
 #[test]

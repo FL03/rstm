@@ -21,6 +21,30 @@ doc = true
 doctest = false
 test = true
 
+# ************* [Benchmarks] *************
+[[bench]]
+harness = false
+name = "default"
+required-features = ["std"]
+
+# ************* [Examples] *************
+[[example]]
+name = "tmh"
+required-features = ["alloc", "tracing", "actors", "rules", "macros"]
+
+# ************* [Unit Tests] *************
+[[test]]
+name = "default"
+
+[[test]]
+name = "busy_beaver"
+required-features = ["alloc", "actors", "macros"]
+
+[[test]]
+name = "macros"
+required-features = ["macros", "rules"]
+
+
 # ********* [Package Metadata] *********
 [package.metadata.docs.rs]
 all-features = false
@@ -148,26 +172,3 @@ wasm-bindgen = [
   "rstm-rules?/wasm-bindgen",
   "rstm-tape?/wasm-bindgen"
 ]
-
-# ************* [Benchmarks] *************
-[[bench]]
-harness = false
-name = "default"
-required-features = ["std"]
-
-# ************* [Examples] *************
-[[example]]
-name = "actor"
-required-features = ["alloc", "tracing"]
-
-# ************* [Unit Tests] *************
-[[test]]
-name = "default"
-
-[[test]]
-name = "busy_beaver"
-required-features = ["alloc", "actors", "macros"]
-
-[[test]]
-name = "macros"
-required-features = ["macros", "rules"]

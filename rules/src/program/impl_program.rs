@@ -20,7 +20,7 @@ where
             rules: RuleVec::new(),
         }
     }
-    /// returns a new instance of the [`Program`] using the given rules 
+    /// returns a new instance of the [`Program`] using the given rules
     pub fn from_rules<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = Rule<Q, S>>,

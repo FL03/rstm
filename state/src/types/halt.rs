@@ -3,8 +3,9 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use crate::state::State;
-use crate::traits::{Haltable, RawState};
-/// [`Halt`] extends the [State] by allowing for an 'imaginary' state that is not actually
+use crate::traits::{Halting, RawState};
+
+/// [`Halter`] extends the [State] by allowing for an 'imaginary' state that is not actually
 /// part of the machine's state space.
 #[derive(
     Clone,
@@ -25,12 +26,12 @@ use crate::traits::{Haltable, RawState};
     strum_discriminants(derive(serde::Deserialize, serde::Serialize))
 )]
 #[strum_discriminants(name(HaltTag), derive(Hash, Ord, PartialOrd))]
-pub enum Halt<Q = usize> {
+pub enum Halter<Q = usize> {
     Halt(Q),
     State(Q),
 }
 
-impl<Q> Halt<Q>
+impl<Q> Halter<Q>
 where
     Q: RawState,
 {
@@ -85,7 +86,7 @@ where
     }
 }
 
-impl<Q> Default for Halt<Q>
+impl<Q> Default for Halter<Q>
 where
     Q: Default,
 {
@@ -94,29 +95,26 @@ where
     }
 }
 
-impl<Q> From<State<Q>> for Halt<Q> {
+impl<Q> From<State<Q>> for Halter<Q> {
     fn from(State(state): State<Q>) -> Self {
         Self::State(state)
     }
 }
 
-/*
- ************* Implementations *************
-*/
-impl<Q> RawState for Halt<Q>
+impl<Q> RawState for Halter<Q>
 where
     Q: RawState,
 {
     seal!();
 }
 
-impl<Q> Haltable<Q> for State<Halt<Q>>
+impl<Q> Halting for Halter<Q>
 where
     Q: RawState,
 {
     seal!();
 
     fn is_halted(&self) -> bool {
-        true
+        matches!(self, Self::Halt(_))
     }
 }

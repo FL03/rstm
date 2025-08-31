@@ -71,7 +71,6 @@ where
     S: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-
         let mut f = f.debug_list();
         for (i, c) in self.tape.iter().enumerate() {
             if i == self.position() {

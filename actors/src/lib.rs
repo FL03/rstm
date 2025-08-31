@@ -1,7 +1,3 @@
-/*
-    Appellation: actors <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
-*/
 //! The [`actors`](self) module establishes a framework for defining and managing Turing
 //! machines
 #![allow(

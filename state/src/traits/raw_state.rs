@@ -5,6 +5,13 @@
 #[cfg(feature = "alloc")]
 use alloc::string::String;
 
+pub trait Stated {
+    type Ctx;
+
+    fn get(&self) -> &Self::Ctx;
+    fn get_mut(&mut self) -> &mut Self::Ctx;
+}
+
 /// [`RawState`] is a trait describing objects capable of being used as states in our library.
 /// The trait contains a single associated trait, the context, or inner value of the state.
 pub trait RawState: Send + Sync + core::fmt::Debug {

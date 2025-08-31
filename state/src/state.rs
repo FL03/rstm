@@ -2,7 +2,8 @@
     Appellation: state <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use super::{Halt, RawState};
+use crate::traits::{Halting, RawState};
+use crate::types::Halter;
 
 /// [State] is a generalized state implementation, representing the state of a system or
 /// object.
@@ -111,19 +112,26 @@ where
     {
         core::mem::take(self.get_mut())
     }
+    /// returns true if the current state is said to be halted.
+    pub fn is_halted(&self) -> bool
+    where
+        Q: Halting,
+    {
+        self.get().is_halted()
+    }
     /// converts the current reference into a haltable state initialized with the current state
-    pub fn as_halt(&self) -> State<Halt<&Q>> {
-        State::new(Halt::halt(self.view()))
+    pub fn as_halt(&self) -> State<Halter<&Q>> {
+        State::new(Halter::halt(self.view()))
     }
     /// consumes the wrapper to create another, haltable state that is initialized with the
     /// current state
-    pub fn into_halt(self) -> State<Halt<Q>> {
-        State::new(Halt::state(self))
+    pub fn into_halt(self) -> State<Halter<Q>> {
+        State::new(Halter::state(self))
     }
     /// consumes the current state, returning a new one with a [`Halt`](HaltState::Halt)
     /// variant initialized with the current value.
-    pub fn halt(self) -> State<Halt<Q>> {
-        State::new(Halt::halt(self))
+    pub fn halt(self) -> State<Halter<Q>> {
+        State::new(Halter::halt(self))
     }
     /// returns a new state with a boxed inner value.
     pub fn boxed(self) -> State<Box<Q>> {

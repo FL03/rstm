@@ -2,6 +2,8 @@
     Appellation: rules <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+#![cfg(feature = "rules")]
+
 /// The [`rule!`] macro enables the definition of a single, Turing compatible rule using the
 /// following syntax:
 ///
@@ -15,7 +17,7 @@
 /// by Petr Kůrka. Specifically,
 ///
 /// ```math
-/// \delta : Q\times{A}\rightarrow Q\times{A}\times{\lbrace\pm{1},0\rbrace}
+/// \delta\colon{Q}\times{A}\rightarrow{Q}\times{A}\times\lbrace\pm{1},0\rbrace
 /// ```
 ///
 /// **note:** it is unnecessary for you to import the [`Direction`](crate::Direction) enum, as
@@ -23,11 +25,12 @@
 ///
 /// ## Examples
 ///
-/// ### _Example #1: Basic Usage_
+/// ### _Example #1:_ Basic Usage
+///
+/// define some rule, a, where when in state 0 and reading symbol 1, it writes symbol 0,
+/// moves the tape head to the right, and transitions to state 1
 ///
 /// ```rust
-/// // define some rule, a, where when in state 0 and reading symbol 1, it writes symbol 0,
-/// // moves the tape head to the right, and transitions to state 1
 /// let a = rstm::rule! {
 ///     (0, 1) -> Right(1, 0)
 /// };

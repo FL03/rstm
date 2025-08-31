@@ -9,15 +9,15 @@ mod impl_tmh;
 use crate::engine::TuringEngine;
 use rstm_core::{Direction, Error as CoreError, Head};
 use rstm_rules::Program;
-use rstm_state::{RawState, State};
+use rstm_state::{Halting, RawState, State};
 
 /// The [`TMH`] is an implementation of a Turing Machine with a "moving head"; this behavior is
 /// manifested here by using the current position of the head as its symbol, serving as a
 /// mapping to a symbol on the tape. Every step taken by the machine will update the symbol of
 /// the head, thus _moving_ it along the tape.
 ///
-/// The implementation is one of the primary _drivers_ used by actors within the library. 
-/// By itself, the driver is not particularly useful, however, when given some input and a 
+/// The implementation is one of the primary _drivers_ used by actors within the library.
+/// By itself, the driver is not particularly useful, however, when given some input and a
 /// program, it can be used to perform computations.
 #[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
 #[repr(C)]
@@ -130,10 +130,17 @@ where
     pub const fn state_mut(&mut self) -> &mut State<Q> {
         self.head_mut().state_mut()
     }
-    /// returns an engine loaded with the given program and using the current instance as the 
+    /// extends the tape with elements from the given iterator
+    pub fn extend_tape<I>(&mut self, iter: I)
+    where
+        I: IntoIterator<Item = A>,
+    {
+        self.tape_mut().extend(iter)
+    }
+    /// returns an engine loaded with the given program and using the current instance as the
     /// driver.
-    /// 
-    /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run 
+    ///
+    /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
     /// until the corresponding `.run()` method is invoked on the engine.
     pub fn execute(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Q, A> {
         TuringEngine::new(self).load(program)
@@ -145,10 +152,9 @@ where
     /// Checks if the tape is halted
     pub fn is_halted(&self) -> bool
     where
-        Q: 'static,
+        Q: 'static + Halting,
     {
-        // self.head().state.is_halt()
-        todo!("reconfigure the actor halting")
+        self.head().state().is_halted()
     }
     /// returns the length of the tape
     #[inline]

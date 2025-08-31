@@ -3,6 +3,7 @@
     Created At: 2025.08.30:17:01:39
     Contrib: @FL03
 */
+#![cfg(all(feature = "rules", feature = "alloc"))]
 
 /// The [`program!`] macro facilitates the generation of new [`InstructionSet`](crate::rules::InstructionSet)
 /// instances using familiar syntax.
@@ -47,7 +48,7 @@ macro_rules! program {
                     ($state, $symbol) -> $direction($next, $write)
                 );*
             }
-        )     
+        )
         $(
             .with_default_state($q)
         )?
