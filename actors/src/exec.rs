@@ -59,6 +59,14 @@ where
     pub const fn actor_mut(&mut self) -> &mut TMH<Q, S> {
         &mut self.actor
     }
+    /// returns a reference to the program
+    pub const fn program(&self) -> &Program<Q, S> {
+        &self.program
+    }
+    /// returns a mutable reference to the program
+    pub const fn program_mut(&mut self) -> &mut Program<Q, S> {
+        &mut self.program
+    }
     /// returns a copy of the current steps
     pub const fn steps(&self) -> usize {
         self.steps
@@ -73,7 +81,7 @@ where
         Q: Eq + core::hash::Hash,
         S: Eq + core::hash::Hash,
     {
-        self.program.get_tail_with(state, symbol)
+        self.program().get((state, symbol).into())
     }
     /// Reads the current symbol at the head of the tape
     pub fn read(&self) -> crate::Result<Head<&Q, &S>> {
@@ -193,7 +201,7 @@ where
             }
         };
         // execute the program
-        if let Some(tail) = self.program.get_tail_with(head.state, head.symbol).cloned() {
+        if let Some(tail) = self.program.get(head).cloned() {
             // process the instruction
             let next = tail.clone().into_head();
             // process the instruction

@@ -33,20 +33,20 @@ pub use self::{
     types::*,
 };
 
-#[cfg(feature = "std")]
-#[doc(inline)]
-pub use self::rule_map::RuleMap;
 #[cfg(feature = "alloc")]
 #[doc(inline)]
 pub use self::program::*;
+#[cfg(feature = "std")]
+#[doc(inline)]
+pub use self::rule_map::RuleMap;
 
 pub mod error;
 pub(crate) mod rule;
 
-#[cfg(feature = "std")]
-pub mod rule_map;
 #[cfg(feature = "alloc")]
 pub mod program;
+#[cfg(feature = "std")]
+pub mod rule_map;
 
 pub mod traits {
     //! the traits defining compatible rules within the framework
@@ -98,9 +98,9 @@ pub mod prelude {
     pub use crate::types::*;
 
     #[doc(no_inline)]
-    #[cfg(feature = "std")]
-    pub use crate::rule_map::RuleMap;
-    #[doc(no_inline)]
     #[cfg(feature = "alloc")]
     pub use crate::program::Program;
+    #[doc(no_inline)]
+    #[cfg(feature = "std")]
+    pub use crate::rule_map::RuleMap;
 }

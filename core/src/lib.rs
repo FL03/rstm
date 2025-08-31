@@ -23,8 +23,10 @@ pub use rstm_state as state;
 #[doc(inline)]
 pub use self::{
     error::{Error, Result},
+    head::Head,
     ops::*,
     state::{RawState, State},
+    tail::Tail,
     traits::*,
     types::*,
 };
@@ -36,6 +38,8 @@ pub(crate) mod macros {
 }
 
 pub mod error;
+pub mod head;
+pub mod tail;
 
 pub mod ops {
     //! this modules defines additional operations used throughout the crate
@@ -69,22 +73,14 @@ pub mod traits {
 }
 
 pub mod types {
-    //! the `types` module provides various types used throughout the library, including
-    //! [`Direction`], [`Head`], and [`Tail`].
+    //! The core types used throughout the library such as the [`Direction`] enum
     #[doc(inline)]
     pub use self::prelude::*;
 
     mod direction;
-    mod head;
-    mod tail;
-
     mod prelude {
         #[doc(inline)]
         pub use super::direction::*;
-        #[doc(inline)]
-        pub use super::head::*;
-        #[doc(inline)]
-        pub use super::tail::*;
     }
 }
 
@@ -92,6 +88,9 @@ pub mod types {
 pub mod prelude {
     #[doc(no_inline)]
     pub use rstm_state::prelude::*;
+
+    pub use crate::head::*;
+    pub use crate::tail::*;
 
     pub use crate::ops::*;
     pub use crate::traits::*;

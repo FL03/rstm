@@ -2,6 +2,12 @@
     Appellation: tail <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+
+mod impl_tail;
+
+#[allow(deprecated)]
+mod impl_deprecated;
+
 use crate::Direction;
 use crate::Head;
 use rstm_state::{RawState, State};
@@ -15,31 +21,39 @@ use rstm_state::{RawState, State};
     serde(rename_all = "lowercase")
 )]
 #[repr(C)]
-pub struct Tail<Q, S> {
+pub struct Tail<Q, A> {
     pub direction: Direction,
     #[cfg_attr(feature = "serde", serde(alias = "state"))]
     pub next_state: State<Q>,
     #[cfg_attr(feature = "serde", serde(alias = "symbol", alias = "next_symbol"))]
-    pub write_symbol: S,
+    pub write_symbol: A,
 }
 
-impl<Q, S> Tail<Q, S>
+impl<Q, A> Tail<Q, A>
 where
     Q: RawState,
 {
-    pub const fn new(direction: Direction, next_state: Q, write_symbol: S) -> Self {
+    pub const fn new(direction: Direction, next_state: Q, write_symbol: A) -> Self {
         Self {
             direction,
             next_state: State(next_state),
             write_symbol,
         }
     }
+    /// returns a new instance of the [`Tail`] using the given direction and head
+    pub fn from_head(direction: Direction, head: Head<Q, A>) -> Self {
+        Self {
+            direction,
+            next_state: head.state,
+            write_symbol: head.symbol,
+        }
+    }
     /// returns the direction, state, and symbol as a 3-tuple
-    pub const fn as_tuple(&self) -> (Direction, &State<Q>, &S) {
+    pub const fn as_tuple(&self) -> (Direction, &State<Q>, &A) {
         (self.direction, &self.next_state, &self.write_symbol)
     }
     /// consumes the tail and returns the direction, state, and symbol as a 3-tuple
-    pub fn into_tuple(self) -> (Direction, State<Q>, S) {
+    pub fn into_tuple(self) -> (Direction, State<Q>, A) {
         (self.direction, self.next_state, self.write_symbol)
     }
     /// returns the direction the [head](StdHead) is instructed to move
@@ -55,11 +69,11 @@ where
         &mut self.next_state
     }
     /// returns the symbol the [head](Head) is instructed to write
-    pub const fn symbol(&self) -> &S {
+    pub const fn symbol(&self) -> &A {
         &self.write_symbol
     }
     /// returns a mutable reference to the symbol of the tail
-    pub const fn symbol_mut(&mut self) -> &mut S {
+    pub const fn symbol_mut(&mut self) -> &mut A {
         &mut self.write_symbol
     }
     /// updates the current [direction](Direction) and returns a mutable reference to the tail
@@ -73,7 +87,7 @@ where
         self
     }
     /// updates the current symbol and returns a mutable reference to the tail
-    pub fn set_symbol(&mut self, symbol: S) -> &mut Self {
+    pub fn set_symbol(&mut self, symbol: A) -> &mut Self {
         self.write_symbol = symbol;
         self
     }
@@ -89,21 +103,21 @@ where
         }
     }
     /// Configures the tail with a new symbol
-    pub fn with_symbol(self, symbol: S) -> Self {
+    pub fn with_symbol(self, symbol: A) -> Self {
         Self {
             write_symbol: symbol,
             ..self
         }
     }
     /// converts a [`Tail`] reference into an owned head.
-    pub const fn as_head(&self) -> Head<&Q, &S> {
+    pub const fn as_head(&self) -> Head<&Q, &A> {
         Head {
             state: self.next_state.view(),
             symbol: &self.write_symbol,
         }
     }
     /// consumes the current tail to convert it into a [head](Head)
-    pub fn into_head(self) -> Head<Q, S> {
+    pub fn into_head(self) -> Head<Q, A> {
         Head {
             state: self.next_state,
             symbol: self.write_symbol,
@@ -111,7 +125,7 @@ where
     }
     /// returns an instance of the [head](Head) where each element within
     /// the created instance is a mutable reference
-    pub const fn view(&self) -> Tail<&Q, &S> {
+    pub const fn view(&self) -> Tail<&Q, &A> {
         Tail {
             direction: self.direction(),
             next_state: self.state().view(),
@@ -119,113 +133,11 @@ where
         }
     }
     /// returns a new [`Tail`] containing mutabl references to the state and symbol
-    pub const fn view_mut(&mut self) -> Tail<&mut Q, &mut S> {
+    pub const fn view_mut(&mut self) -> Tail<&mut Q, &mut A> {
         Tail {
             direction: self.direction,
             next_state: self.next_state.view_mut(),
             write_symbol: &mut self.write_symbol,
         }
-    }
-    #[deprecated(
-        since = "0.0.7",
-        note = "use `view` instead, as it is more idiomatic and clearer."
-    )]
-    pub fn to_ref(&self) -> Tail<&Q, &S> {
-        self.view()
-    }
-    #[deprecated(
-        since = "0.0.7",
-        note = "use `view_mut` instead, as it is more idiomatic and clearer."
-    )]
-    pub fn to_mut(&mut self) -> Tail<&mut Q, &mut S> {
-        self.view_mut()
-    }
-}
-
-impl<'a, Q, S> Tail<&'a Q, &'a S>
-where
-    Q: RawState,
-{
-    /// returns a new [`Tail`] with cloned elements
-    pub fn cloned(&self) -> Tail<Q, S>
-    where
-        Q: Clone,
-        S: Clone,
-    {
-        Tail {
-            direction: self.direction,
-            next_state: self.next_state.cloned(),
-            write_symbol: self.write_symbol.clone(),
-        }
-    }
-    /// returns a new [`Tail`] with copied elements
-    pub fn copied(&self) -> Tail<Q, S>
-    where
-        Q: Copy,
-        S: Copy,
-    {
-        Tail {
-            direction: self.direction,
-            next_state: self.next_state.copied(),
-            write_symbol: *self.write_symbol,
-        }
-    }
-}
-
-impl<'a, Q, S> Tail<&'a mut Q, &'a mut S>
-where
-    Q: RawState,
-{
-    /// returns a new [`Tail`] with cloned elements
-    pub fn cloned(&self) -> Tail<Q, S>
-    where
-        Q: Clone,
-        S: Clone,
-    {
-        Tail {
-            direction: self.direction,
-            next_state: self.next_state.cloned(),
-            write_symbol: self.write_symbol.clone(),
-        }
-    }
-    /// returns a new [`Tail`] with copied elements
-    pub fn copied(&self) -> Tail<Q, S>
-    where
-        Q: Copy,
-        S: Copy,
-    {
-        Tail {
-            direction: self.direction,
-            next_state: self.next_state.copied(),
-            write_symbol: *self.write_symbol,
-        }
-    }
-}
-
-impl<Q, S> core::fmt::Debug for Tail<Q, S>
-where
-    Q: RawState,
-    S: core::fmt::Debug,
-{
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.debug_tuple("Tail")
-            .field(&self.direction)
-            .field(&self.next_state)
-            .field(&self.write_symbol)
-            .finish()
-    }
-}
-
-impl<Q, S> core::fmt::Display for Tail<Q, S>
-where
-    Q: RawState,
-    S: core::fmt::Display,
-{
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(
-            f,
-            "{{ direction: {}, state: {:?}, symbol: {} }}",
-            self.direction, self.next_state, self.write_symbol
-        )
     }
 }

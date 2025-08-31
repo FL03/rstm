@@ -20,7 +20,10 @@ fn test_ruleset() {
     // create a new head for a rule within the program
     let head = Head::new(0, 0);
     // retrieve and validate the tail for the given head
-    assert_eq!(rules.get(&head), Some(&Tail::new(Direction::Right, 1, 1)))
+    assert_eq!(
+        rules.get(head.view()),
+        Some(&Tail::new(Direction::Right, 1, 1))
+    )
 }
 
 #[cfg(feature = "std")]

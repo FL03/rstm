@@ -99,7 +99,6 @@ where
     }
 }
 
-
 impl<Q, S> Scope<Q, S> for (State<Q>, S)
 where
     Q: RawState,

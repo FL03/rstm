@@ -13,7 +13,8 @@ impl<Q, S> Program<Q, S>
 where
     Q: RawState,
 {
-    pub fn new() -> Self {
+    /// Create a new, empty instance of the [Program].
+    pub const fn new() -> Self {
         Self {
             initial_state: None,
             rules: RuleVec::new(),
@@ -75,61 +76,31 @@ where
     pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, Rule<Q, S>> {
         self.rules_mut().iter_mut()
     }
-    /// Returns a collection of tails for a given head.
-    pub fn get_tail_with(&self, State(state): State<&Q>, symbol: &S) -> Option<&Tail<Q, S>>
+    /// returns an immutable reference to the tail for a given head; returns [`None`](Option::None)
+    /// if no match is found.
+    pub fn get(&self, head: Head<&Q, &S>) -> Option<&Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
     {
         self.iter().find_map(|i| {
-            if i.head().state() == state && i.head().symbol() == symbol {
+            if i.head().view() == head {
                 Some(i.tail())
             } else {
                 None
             }
         })
     }
-    /// Returns a mutable reference to a the tail matching the given head.
-    pub fn get_mut_tail_with(
-        &mut self,
-        State(state): State<&Q>,
-        symbol: &S,
-    ) -> Option<&mut Tail<Q, S>>
+    /// returns a mutable reference to the tail for a given head; returns [`None`](Option::None)
+    /// if no match is found.
+    pub fn get_mut(&mut self, head: Head<&Q, &S>) -> Option<&mut Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
     {
         self.iter_mut().find_map(|i| {
-            if i.head().state() == state && i.head().symbol() == symbol {
+            if i.head().view() == head {
                 Some(i.tail_mut())
-            } else {
-                None
-            }
-        })
-    }
-    /// Returns a collection of tails for a given head.
-    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
-    where
-        Q: PartialEq,
-        S: PartialEq,
-    {
-        self.iter().find_map(|i| {
-            if i.head() == head {
-                Some(i.tail())
-            } else {
-                None
-            }
-        })
-    }
-    /// Returns a collection of tails for a given head.
-    pub fn get_ref(&self, head: Head<&Q, &S>) -> Option<Tail<&Q, &S>>
-    where
-        Q: PartialEq,
-        S: PartialEq,
-    {
-        self.iter().find_map(|i| {
-            if i.head_view() == head {
-                Some(i.tail_view())
             } else {
                 None
             }
@@ -191,7 +162,7 @@ where
     type Output = Tail<Q, S>;
 
     fn index(&self, index: Head<Q, S>) -> &Self::Output {
-        self.get(&index).unwrap()
+        self.get(index.view()).unwrap()
     }
 }
 
