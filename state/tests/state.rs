@@ -9,12 +9,10 @@ use rstm::{Halt, State};
 #[test]
 fn state() {
     // create a new instance of state
-    let state = State::new(0);
+    let mut state = State(0);
     // validate the functional accessors; get and into_inner
     assert_eq!(state.get(), &0);
     assert_eq!(state.value(), 0);
-    // create a new mutable instance of state
-    let mut state = State::new(0);
     // replace the inner value with 1
     assert_eq!(state.replace(1), 0);
     // verify the replacement
@@ -28,21 +26,16 @@ fn state() {
     // verify the reset
     assert_eq!(*state.get(), 0);
     // swap
-    state.swap(&mut State::new(10));
+    state.swap(&mut State(10));
     // verify the swap
     assert_eq!(*state.get(), 10);
 }
 
 #[test]
 fn halting() {
-    // create a new instance of state
-    let state = State::new(0).halt();
-    // validate the functional accessors; get and into_inner
-    assert_eq!(state.get(), &Halt::Halt(0));
-    // create a new mutable instance of state
-    let state = State::new(0).into_halt();
-    // replace the inner value with 1
-    assert_eq!(state.get(), &Halt::State(0));
+    let state = State(0_usize);
+    assert_eq!(state.halt().get(), &Halt::Halt(0));
+    assert_eq!(state.into_halt().get(), &Halt::State(0));
 }
 
 #[test]
