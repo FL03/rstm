@@ -31,7 +31,7 @@ where
         &mut self.tail
     }
     /// returns an instance of the [Head] whose elements are immutable references
-    pub fn head_view(&self) -> Head<&'_ Q, &'_ A> {
+    pub const fn head_view(&self) -> Head<&'_ Q, &'_ A> {
         self.head().view()
     }
     /// returns an instance of the [Tail] whose elements are immutable references
@@ -55,7 +55,7 @@ where
         self.head().symbol()
     }
     /// returns a mutable reference to the symbol of the [`Head`]
-    pub fn symbol_mut(&mut self) -> &mut A {
+    pub const fn symbol_mut(&mut self) -> &mut A {
         self.head_mut().symbol_mut()
     }
     /// returns the next [State] of the system
@@ -71,7 +71,7 @@ where
         self.tail().symbol()
     }
     /// returns a mutable reference to the next symbol
-    pub fn next_symbol_mut(&mut self) -> &mut A {
+    pub const fn next_symbol_mut(&mut self) -> &mut A {
         self.tail_mut().symbol_mut()
     }
     /// updates the current [Direction] and returns a mutable reference to the [Rule]
@@ -112,7 +112,7 @@ where
         self
     }
     /// returns the next [Head] of the system
-    pub fn next_head(&self) -> Head<&'_ Q, &'_ A> {
+    pub const fn next_head(&self) -> Head<&'_ Q, &'_ A> {
         self.tail().as_head()
     }
     /// consumes the current object and returns the next [Head] of the system
