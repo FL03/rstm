@@ -2,7 +2,7 @@
     Appellation: state <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::traits::{Halting, RawState};
+use crate::traits::{Halt, RawState};
 use crate::types::Halter;
 
 /// [State] is a generalized state implementation, representing the state of a system or
@@ -115,7 +115,7 @@ where
     /// returns true if the current state is said to be halted.
     pub fn is_halted(&self) -> bool
     where
-        Q: Halting,
+        Q: Halt,
     {
         self.get().is_halted()
     }

@@ -4,14 +4,14 @@
 */
 use crate::traits::RawState;
 
-/// The [`Halting`] trait defines an interface for any _haltable_ types.
-pub trait Halting {
+/// The [`Halt`] trait establishes a common interface for any _haltable_ type;
+pub trait Halt {
     private! {}
 
     fn is_halted(&self) -> bool;
 }
 
-pub trait HaltState: Halting + RawState {
+pub trait HaltState: Halt + RawState {
     private! {}
 }
 
@@ -22,14 +22,14 @@ use crate::state::State;
 
 impl<Q> HaltState for Q
 where
-    Q: Halting + RawState,
+    Q: Halt + RawState,
 {
     seal! {}
 }
 
-impl<Q> Halting for State<Q>
+impl<Q> Halt for State<Q>
 where
-    Q: RawState + Halting,
+    Q: RawState + Halt,
 {
     seal!();
 
@@ -38,29 +38,29 @@ where
     }
 }
 
-impl<Q> Halting for &Q
+impl<Q> Halt for &Q
 where
-    Q: Halting,
+    Q: Halt,
 {
     seal!();
 
     fn is_halted(&self) -> bool {
-        <Q as Halting>::is_halted(*self)
+        <Q as Halt>::is_halted(*self)
     }
 }
 
-impl<Q> Halting for &mut Q
+impl<Q> Halt for &mut Q
 where
-    Q: Halting,
+    Q: Halt,
 {
     seal!();
 
     fn is_halted(&self) -> bool {
-        <Q as Halting>::is_halted(*self)
+        <Q as Halt>::is_halted(*self)
     }
 }
 
-impl<Q> Halting for Option<Q>
+impl<Q> Halt for Option<Q>
 where
     Q: RawState,
 {
@@ -71,7 +71,7 @@ where
     }
 }
 
-impl<Q> Halting for Option<State<Q>>
+impl<Q> Halt for Option<State<Q>>
 where
     Q: RawState,
 {
@@ -97,12 +97,12 @@ macro_rules! impl_num_haltable {
 }
 
 impl_num_haltable!(
-    #[impl(Halting)]
+    #[impl(Halt)]
     u8, u16, u32, u64, u128, usize,
     i8, i16, i32, i64, i128, isize,
 );
 
-impl Halting for f32 {
+impl Halt for f32 {
     seal!();
 
     fn is_halted(&self) -> bool {
@@ -110,7 +110,7 @@ impl Halting for f32 {
     }
 }
 
-impl Halting for f64 {
+impl Halt for f64 {
     seal!();
 
     fn is_halted(&self) -> bool {

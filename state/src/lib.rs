@@ -67,13 +67,13 @@ pub mod types {
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod halt;
+    mod halter;
 
     mod prelude {
         #[doc(inline)]
         pub use super::aliases::*;
         #[doc(inline)]
-        pub use super::halt::*;
+        pub use super::halter::*;
     }
 
     mod aliases {

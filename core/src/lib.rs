@@ -28,6 +28,7 @@ pub use self::{
     tail::Tail,
     traits::*,
     types::*,
+    utils::*,
 };
 
 #[macro_use]
@@ -70,6 +71,19 @@ pub mod types {
     }
 }
 
+pub mod utils {
+    //! useful utilities for managing and creating Turing machines and related constructs
+    #[doc(inline)]
+    pub use self::prelude::*;
+
+    mod bounds;
+
+    pub mod prelude {
+        #[doc(inline)]
+        pub use super::bounds::*;
+    }
+}
+
 #[doc(hidden)]
 pub mod prelude {
     #[doc(no_inline)]
@@ -80,4 +94,5 @@ pub mod prelude {
 
     pub use crate::traits::*;
     pub use crate::types::*;
+    pub use crate::utils::*;
 }

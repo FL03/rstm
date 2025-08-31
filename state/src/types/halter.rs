@@ -3,7 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use crate::state::State;
-use crate::traits::{Halting, RawState};
+use crate::traits::{Halt, RawState};
 
 /// [`Halter`] extends the [State] by allowing for an 'imaginary' state that is not actually
 /// part of the machine's state space.
@@ -108,7 +108,7 @@ where
     seal!();
 }
 
-impl<Q> Halting for Halter<Q>
+impl<Q> Halt for Halter<Q>
 where
     Q: RawState,
 {
