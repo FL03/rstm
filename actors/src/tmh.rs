@@ -16,7 +16,9 @@ use rstm_state::{RawState, State};
 /// mapping to a symbol on the tape. Every step taken by the machine will update the symbol of
 /// the head, thus _moving_ it along the tape.
 ///
-/// The implementation is one of the primary _engines_ used by actors within the library.
+/// The implementation is one of the primary _drivers_ used by actors within the library. 
+/// By itself, the driver is not particularly useful, however, when given some input and a 
+/// program, it can be used to perform computations.
 #[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
 #[repr(C)]
 pub struct TMH<Q, A> {
@@ -30,19 +32,16 @@ impl<Q, A> TMH<Q, A>
 where
     Q: RawState,
 {
-    pub fn new(tape: Vec<A>, state: Q, symbol: usize) -> Self {
+    pub const fn new(state: Q, symbol: usize) -> Self {
         Self {
             head: Head::new(state, symbol),
-            tape,
+            tape: Vec::new(),
         }
     }
     /// returns a new instance of the [`TMH`] using the given state and an empty tape
     /// with the head positioned at `0`
-    pub fn from_state(state: State<Q>) -> Self {
-        Self {
-            head: Head { state, symbol: 0 },
-            tape: Vec::new(),
-        }
+    pub fn from_state(state: Q) -> Self {
+        Self::new(state, 0)
     }
     /// returns an immutable reference to the head of the tape
     pub const fn head(&self) -> &Head<Q, usize> {
@@ -131,10 +130,13 @@ where
     pub const fn state_mut(&mut self) -> &mut State<Q> {
         self.head_mut().state_mut()
     }
-    /// Executes the given program; the method is lazy, meaning it will not compute immediately
-    /// but will return an [Executor] that is better suited for managing the runtime.
+    /// returns an engine loaded with the given program and using the current instance as the 
+    /// driver.
+    /// 
+    /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run 
+    /// until the corresponding `.run()` method is invoked on the engine.
     pub fn execute(self, program: Program<Q, A>) -> TuringEngine<Q, A> {
-        TuringEngine::new(self, program)
+        TuringEngine::new(self).load(program)
     }
     /// Checks if the tape is empty
     pub fn is_empty(&self) -> bool {

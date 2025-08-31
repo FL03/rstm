@@ -48,17 +48,17 @@ pub mod traits {
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod halted;
+    mod halting;
     mod raw_state;
-    mod stated;
+    mod stateful;
 
     mod prelude {
         #[doc(inline)]
-        pub use super::halted::*;
+        pub use super::halting::*;
         #[doc(inline)]
         pub use super::raw_state::*;
         #[doc(inline)]
-        pub use super::stated::*;
+        pub use super::stateful::*;
     }
 }
 

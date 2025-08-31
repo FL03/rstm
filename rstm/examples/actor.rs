@@ -15,15 +15,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // define the ruleset for the machine
     let program = rstm::program! {
         #[default_state(initial_state)]
-        (0, 0) -> Right(1, 0);
-        (0, 1) -> Right(-1, 1);
-        (1, 0) -> Right(0, 1);
-        (1, 1) -> Right(-1, 0);
-        (-1, 0) -> Left(0, 0);
-        (-1, 1) -> Left(1, 1);
+        rules: {
+            (0, 0) -> Right(1, 0);
+            (0, 1) -> Right(-1, 1);
+            (1, 0) -> Right(0, 1);
+            (1, 1) -> Right(-1, 0);
+            (-1, 0) -> Left(0, 0);
+            (-1, 1) -> Left(1, 1);
+        };
     };
     // create a new instance of the machine
-    let tm = dbg!(TMH::new(alpha, initial_state, 0));
+    let mut tm = dbg!(TMH::new(initial_state, 0));
+    tm.set_tape(alpha);
     tm.execute(program).run()?;
     Ok(())
 }

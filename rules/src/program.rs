@@ -18,10 +18,10 @@ use rstm_state::{RawState, State};
     derive(serde::Serialize),
     serde(rename_all = "camelCase")
 )]
-pub struct Program<Q = String, S = char>
+pub struct Program<Q = String, A = char>
 where
     Q: RawState,
 {
     pub(crate) initial_state: Option<State<Q>>,
-    pub(crate) rules: RuleVec<Q, S>,
+    pub(crate) rules: RuleVec<Q, A>,
 }

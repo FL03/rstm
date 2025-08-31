@@ -121,6 +121,13 @@ where
     seal!();
 }
 
+impl<Q> RawState for Option<Q>
+where
+    Q: RawState,
+{
+    seal!();
+}
+
 impl<Q> RawState for core::ops::ControlFlow<Q, Q>
 where
     Q: RawState,
@@ -156,7 +163,7 @@ macro_rules! impl_raw_state {
 impl_raw_state! {
     usize, u8, u16, u32, u64, u128,
     isize, i8, i16, i32, i64, i128,
-    f32, f64, bool, char,
+    f32, f64, bool, char, str,
 }
 
 #[cfg(feature = "alloc")]

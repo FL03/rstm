@@ -8,12 +8,14 @@ use rstm::prelude::{Direction, Head, Tail};
 fn test_ruleset() {
     let rules = rstm::program![
         #[default_state(0)]
-        (0, 0) -> Right(1, 1);
-        (0, 1) -> Left(-1, 0);
-        (1, 0) -> Right(1, 1);
-        (1, 1) -> Left(-1, 1);
-        (-1, 0) -> Right(0, 0);
-        (-1, 1) -> Left(0, 1);
+        rules: {
+            (0, 0) -> Right(1, 1);
+            (0, 1) -> Left(-1, 0);
+            (1, 0) -> Right(1, 1);
+            (1, 1) -> Left(-1, 1);
+            (-1, 0) -> Right(0, 0);
+            (-1, 1) -> Left(0, 1);
+        };
     ];
     // validate the number of rules within the ruleset
     assert_eq!(rules.len(), 6);

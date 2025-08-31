@@ -10,62 +10,56 @@ use rstm_state::{RawState, State};
 /// The [`TuringEngine`] implementation is designed to handle the execution of a given program.
 /// The exact nature of the engine is determined, in part, by the type of _driver_ it employs
 ///
-pub struct TuringEngine<Q, S>
+pub struct TuringEngine<Q, A>
 where
     Q: RawState,
 {
     /// the actor that will be executing the program
-    pub(crate) driver: TMH<Q, S>,
+    pub(crate) driver: TMH<Q, A>,
+    pub(crate) inputs: Vec<A>,
     /// the program being executed
-    pub(crate) program: Option<Program<Q, S>>,
+    pub(crate) program: Option<Program<Q, A>>,
     /// the number of steps taken by the actor
     pub(crate) steps: usize,
 }
 
-impl<Q, S> TuringEngine<Q, S>
+impl<Q, A> TuringEngine<Q, A>
 where
     Q: RawState,
 {
-    pub(crate) fn new(driver: TMH<Q, S>, program: Program<Q, S>) -> Self {
+    pub const fn new(driver: TMH<Q, A>) -> Self {
         Self {
             driver,
-            program: Some(program),
-            steps: 0,
-        }
-    }
-
-    pub fn from_actor(driver: TMH<Q, S>) -> Self
-    where
-        Q: Default,
-        S: Default,
-    {
-        Self {
-            driver,
+            inputs: Vec::new(),
             program: None,
             steps: 0,
         }
     }
     /// Load a program into the executor
-    pub fn load(self, program: Program<Q, S>) -> Self {
+    pub fn load(self, program: Program<Q, A>) -> Self {
         TuringEngine {
             program: Some(program),
             ..self
         }
     }
     /// returns a reference to the actor
-    pub const fn driver(&self) -> &TMH<Q, S> {
+    pub const fn driver(&self) -> &TMH<Q, A> {
         &self.driver
     }
     /// returns a mutable reference to the actor
-    pub const fn driver_mut(&mut self) -> &mut TMH<Q, S> {
+    pub const fn driver_mut(&mut self) -> &mut TMH<Q, A> {
         &mut self.driver
     }
+    /// returns a reference to the inputs
+    pub const fn inputs(&self) -> &Vec<A> {
+        &self.inputs
+    }
     /// returns a reference to the program
-    pub fn program(&self) -> Option<&Program<Q, S>> {
+    pub fn program(&self) -> Option<&Program<Q, A>> {
         self.program.as_ref()
     }
     /// returns a mutable reference to the program
-    pub fn program_mut(&mut self) -> Option<&mut Program<Q, S>> {
+    pub fn program_mut(&mut self) -> Option<&mut Program<Q, A>> {
         self.program.as_mut()
     }
     /// returns a copy of the current steps
@@ -77,19 +71,19 @@ where
         self.driver().state()
     }
     /// returns the tail associated with the head that is equal to the given state and symbol
-    pub fn find_tail<K>(&self, state: State<&Q>, symbol: &S) -> Option<&Tail<Q, S>>
+    pub fn find_tail<K>(&self, state: State<&Q>, symbol: &A) -> Option<&Tail<Q, A>>
     where
         Q: Eq + core::hash::Hash,
-        S: Eq + core::hash::Hash,
+        A: Eq + core::hash::Hash,
     {
         self.program()?.find_tail(state, symbol)
     }
     /// Reads the current symbol at the head of the tape
-    pub fn read(&self) -> crate::Result<Head<&Q, &S>> {
+    pub fn read(&self) -> crate::Result<Head<&Q, &A>> {
         self.driver().read()
     }
     /// Reads the current symbol at the head of the tape
-    pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&S>> {
+    pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&A>> {
         if let Ok(Head { state, symbol }) = self.read() {
             Head {
                 state,
@@ -109,7 +103,7 @@ where
     pub fn run(&mut self) -> crate::Result<()>
     where
         Q: 'static + RawState + Clone + PartialEq,
-        S: Symbolic,
+        A: Symbolic,
     {
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
@@ -120,10 +114,10 @@ where
         Ok(())
     }
 
-    fn _handle_tail(&mut self, tail: Tail<Q, S>) -> crate::Result<Head<Q, S>>
+    fn _handle_tail(&mut self, tail: Tail<Q, A>) -> crate::Result<Head<Q, A>>
     where
         Q: RawState + Clone + PartialEq,
-        S: Symbolic,
+        A: Symbolic,
     {
         // process the instruction
         let next = tail.as_head().cloned();

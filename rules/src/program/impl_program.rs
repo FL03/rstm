@@ -13,16 +13,15 @@ impl<Q, S> Program<Q, S>
 where
     Q: RawState,
 {
-    /// Create a new, empty instance of the [Program].
+    /// returns a new, empty instance of the [`Program`]
     pub const fn new() -> Self {
         Self {
             initial_state: None,
             rules: RuleVec::new(),
         }
     }
-    #[allow(clippy::should_implement_trait)]
-    /// Create a new instance of the [Program] from the given rules.
-    pub fn from_iter<I>(iter: I) -> Self
+    /// returns a new instance of the [`Program`] using the given rules 
+    pub fn from_rules<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = Rule<Q, S>>,
     {
@@ -32,9 +31,9 @@ where
         }
     }
     /// Create a new instance of the [Program] using the given initial state.
-    pub fn from_state(initial_state: State<Q>) -> Self {
+    pub fn from_state(initial_state: Q) -> Self {
         Self {
-            initial_state: Some(initial_state),
+            initial_state: Some(State(initial_state)),
             rules: RuleVec::new(),
         }
     }
@@ -50,21 +49,20 @@ where
     pub const fn rules_mut(&mut self) -> &mut RuleVec<Q, S> {
         &mut self.rules
     }
-
-    /// Configures the program to use the given initial state.
-    pub fn with_initial_state(self, state: State<Q>) -> Self {
+    /// consumes the current instance to create another with the given default state
+    pub fn with_default_state(self, state: Q) -> Self {
         Self {
-            initial_state: Some(state),
+            initial_state: Some(State(state)),
             ..self
         }
     }
-    /// Configures the program with the given rules;
-    pub fn with_rules<I>(self, instructions: I) -> Self
+    /// consumes the current instance to create another with the given rules
+    pub fn with_rules<I>(self, rules: I) -> Self
     where
         I: IntoIterator<Item = Rule<Q, S>>,
     {
         Self {
-            rules: Vec::from_iter(instructions),
+            rules: Vec::from_iter(rules),
             ..self
         }
     }
@@ -200,10 +198,10 @@ impl<Q, S> From<Vec<Rule<Q, S>>> for Program<Q, S>
 where
     Q: RawState + Default,
 {
-    fn from(instructions: Vec<Rule<Q, S>>) -> Self {
+    fn from(rules: Vec<Rule<Q, S>>) -> Self {
         Self {
             initial_state: Some(State::default()),
-            rules: instructions,
+            rules,
         }
     }
 }
@@ -222,10 +220,8 @@ where
     Q: RawState + Default,
 {
     fn from_iter<I: IntoIterator<Item = Rule<Q, S>>>(iter: I) -> Self {
-        Self {
-            initial_state: Some(State::default()),
-            rules: RuleVec::from_iter(iter),
-        }
+        let rules = RuleVec::from_iter(iter);
+        Self::from_rules(rules)
     }
 }
 
