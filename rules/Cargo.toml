@@ -108,7 +108,7 @@ wasi = [
 
 wasm = [
   "alloc",
-  "wasm_bindgen",
+  "wasm-bindgen",
   "rstm-core/wasm",
   "rstm-state/wasm",
 ]
@@ -131,7 +131,7 @@ serde = [
 
 serde_json = ["dep:serde_json"]
 
-wasm_bindgen = ["dep:wasm-bindgen"]
+wasm-bindgen = ["dep:wasm-bindgen"]
 
 
 # ************* [Unit Tests] *************

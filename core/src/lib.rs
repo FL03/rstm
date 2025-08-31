@@ -24,7 +24,6 @@ pub use rstm_state as state;
 pub use self::{
     error::{Error, Result},
     head::Head,
-    ops::*,
     state::{RawState, State},
     tail::Tail,
     traits::*,
@@ -41,32 +40,19 @@ pub mod error;
 pub mod head;
 pub mod tail;
 
-pub mod ops {
-    //! this modules defines additional operations used throughout the crate
-    #[doc(inline)]
-    pub use self::prelude::*;
-
-    mod apply;
-    mod increment;
-
-    mod prelude {
-        #[doc(inline)]
-        pub use super::apply::*;
-        #[doc(inline)]
-        pub use super::increment::*;
-    }
-}
-
 pub mod traits {
     /// this modules provides various traits used throughout the library
     pub use self::prelude::*;
 
     mod convert;
+    mod increment;
     mod symbols;
 
     mod prelude {
         #[doc(inline)]
         pub use super::convert::*;
+        #[doc(inline)]
+        pub use super::increment::*;
         #[doc(inline)]
         pub use super::symbols::*;
     }
@@ -92,7 +78,6 @@ pub mod prelude {
     pub use crate::head::*;
     pub use crate::tail::*;
 
-    pub use crate::ops::*;
     pub use crate::traits::*;
     pub use crate::types::*;
 }

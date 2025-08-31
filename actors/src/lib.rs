@@ -2,9 +2,8 @@
     Appellation: actors <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-//! This modules implements an [Actor] struct, which is a Turing machine with a moving head
-//! (TMH).
-//!
+//! The [`actors`](self) module establishes a framework for defining and managing Turing
+//! machines
 #![allow(
     clippy::missing_safety_doc,
     clippy::module_inception,
@@ -32,10 +31,10 @@ mod macros {
 }
 
 #[doc(inline)]
-pub use self::{error::*, exec::Executor, tmh::TMH, traits::*};
+pub use self::{engine::TuringEngine, error::*, tmh::TMH, traits::*};
 
 #[cfg(feature = "alloc")]
-pub(crate) mod exec;
+pub(crate) mod engine;
 #[cfg(feature = "alloc")]
 pub(crate) mod tmh;
 
@@ -47,12 +46,15 @@ pub mod traits {
     pub use self::prelude::*;
 
     mod actor;
+    mod driver;
     mod engine;
     mod handle;
 
     mod prelude {
         #[doc(inline)]
         pub use super::actor::*;
+        #[doc(inline)]
+        pub use super::driver::*;
         #[doc(inline)]
         pub use super::engine::*;
         #[doc(inline)]
@@ -64,7 +66,7 @@ pub mod traits {
 pub mod prelude {
     #[cfg(feature = "alloc")]
     #[doc(inline)]
-    pub use crate::exec::Executor;
+    pub use crate::engine::TuringEngine;
     #[cfg(feature = "alloc")]
     #[doc(inline)]
     pub use crate::tmh::TMH;

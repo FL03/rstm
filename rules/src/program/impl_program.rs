@@ -78,13 +78,13 @@ where
     }
     /// returns an immutable reference to the tail for a given head; returns [`None`](Option::None)
     /// if no match is found.
-    pub fn get(&self, head: Head<&Q, &S>) -> Option<&Tail<Q, S>>
+    pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
     {
         self.iter().find_map(|i| {
-            if i.head().view() == head {
+            if i.head() == head {
                 Some(i.tail())
             } else {
                 None
@@ -93,7 +93,37 @@ where
     }
     /// returns a mutable reference to the tail for a given head; returns [`None`](Option::None)
     /// if no match is found.
-    pub fn get_mut(&mut self, head: Head<&Q, &S>) -> Option<&mut Tail<Q, S>>
+    pub fn get_mut(&mut self, head: &Head<Q, S>) -> Option<&mut Tail<Q, S>>
+    where
+        Q: PartialEq,
+        S: PartialEq,
+    {
+        self.iter_mut().find_map(|i| {
+            if i.head() == head {
+                Some(i.tail_mut())
+            } else {
+                None
+            }
+        })
+    }
+    /// returns an immutable reference to the tail of a rule whose state and symbol match the
+    /// givens
+    pub fn find_tail(&self, state: State<&Q>, symbol: &S) -> Option<&Tail<Q, S>>
+    where
+        Q: PartialEq,
+        S: PartialEq,
+    {
+        self.iter().find_map(|i| {
+            if i.head().view() == (Head { state, symbol }) {
+                Some(i.tail())
+            } else {
+                None
+            }
+        })
+    }
+    /// returns a mutable reference to the tail for a given head; returns [`None`](Option::None)
+    /// if no match is found.
+    pub fn find_mut_tail(&mut self, head: Head<&Q, &S>) -> Option<&mut Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq,
@@ -162,7 +192,7 @@ where
     type Output = Tail<Q, S>;
 
     fn index(&self, index: Head<Q, S>) -> &Self::Output {
-        self.get(index.view()).unwrap()
+        self.get(&index).unwrap()
     }
 }
 

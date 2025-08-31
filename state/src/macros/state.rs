@@ -8,12 +8,9 @@
 /// instance.
 #[macro_export]
 macro_rules! state {
-    (@impl $state:expr) => {
-        $crate::state::State($state)
-    };
     ($($state:expr),* $(,)?) => {
         $(
-            $crate::state!(@impl $state),
+            $crate::state::State($state),
         )*
     };
 }

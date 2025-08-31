@@ -104,7 +104,7 @@ where
 }
 
 impl State<()> {
-    /// Creates a new instance of [State] with an empty state.
+    /// returns a new instance of the state using an _empty_ value.
     pub const fn empty() -> Self {
         Self(())
     }

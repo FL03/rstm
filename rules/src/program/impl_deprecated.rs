@@ -26,6 +26,6 @@ where
         Q: PartialEq,
         S: PartialEq,
     {
-        self.get(head.view())
+        self.get(head)
     }
 }

@@ -98,7 +98,7 @@ wasi = [
 
 wasm = [
   "alloc",
-  "wasm_bindgen",
+  "wasm-bindgen",
 ]
 
 # ********* [FF] Dependencies *********
@@ -115,4 +115,4 @@ serde = [
 
 serde_json = ["dep:serde_json"]
 
-wasm_bindgen = ["dep:wasm-bindgen"]
+wasm-bindgen = ["dep:wasm-bindgen"]

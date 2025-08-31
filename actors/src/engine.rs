@@ -4,68 +4,69 @@
 */
 use super::{Engine, Handle, TMH};
 use rstm_core::{Head, Symbolic, Tail};
-use rstm_rules::prelude::{Program, Rule};
+use rstm_rules::prelude::Program;
 use rstm_state::{RawState, State};
 
-/// The [Executor] handles the execution of a given program. The structure works as an
-/// iterator, where each iteration represents a step in the program. The executor is
-/// responsible for reading the current symbol at the head of the tape, executing the program,
-/// and updating the tape accordingly. The executor will continue to iterate until the actor
-/// is halted or the program is completed.
-pub struct Executor<Q, S>
+/// The [`TuringEngine`] implementation is designed to handle the execution of a given program.
+/// The exact nature of the engine is determined, in part, by the type of _driver_ it employs
+///
+pub struct TuringEngine<Q, S>
 where
     Q: RawState,
 {
     /// the actor that will be executing the program
-    pub(crate) actor: TMH<Q, S>,
+    pub(crate) driver: TMH<Q, S>,
     /// the program being executed
-    pub(crate) program: Program<Q, S>,
+    pub(crate) program: Option<Program<Q, S>>,
     /// the number of steps taken by the actor
     pub(crate) steps: usize,
 }
 
-impl<Q, S> Executor<Q, S>
+impl<Q, S> TuringEngine<Q, S>
 where
     Q: RawState,
 {
-    pub(crate) fn new(actor: TMH<Q, S>, program: Program<Q, S>) -> Self {
+    pub(crate) fn new(driver: TMH<Q, S>, program: Program<Q, S>) -> Self {
         Self {
-            actor,
-            program,
+            driver,
+            program: Some(program),
             steps: 0,
         }
     }
 
-    pub fn from_actor(actor: TMH<Q, S>) -> Self
+    pub fn from_actor(driver: TMH<Q, S>) -> Self
     where
         Q: Default,
         S: Default,
     {
         Self {
-            actor,
-            program: Program::default(),
+            driver,
+            program: None,
             steps: 0,
         }
     }
     /// Load a program into the executor
     pub fn load(self, program: Program<Q, S>) -> Self {
-        Executor { program, ..self }
+        TuringEngine {
+            program: Some(program),
+            ..self
+        }
     }
     /// returns a reference to the actor
-    pub const fn actor(&self) -> &TMH<Q, S> {
-        &self.actor
+    pub const fn driver(&self) -> &TMH<Q, S> {
+        &self.driver
     }
     /// returns a mutable reference to the actor
-    pub const fn actor_mut(&mut self) -> &mut TMH<Q, S> {
-        &mut self.actor
+    pub const fn driver_mut(&mut self) -> &mut TMH<Q, S> {
+        &mut self.driver
     }
     /// returns a reference to the program
-    pub const fn program(&self) -> &Program<Q, S> {
-        &self.program
+    pub fn program(&self) -> Option<&Program<Q, S>> {
+        self.program.as_ref()
     }
     /// returns a mutable reference to the program
-    pub const fn program_mut(&mut self) -> &mut Program<Q, S> {
-        &mut self.program
+    pub fn program_mut(&mut self) -> Option<&mut Program<Q, S>> {
+        self.program.as_mut()
     }
     /// returns a copy of the current steps
     pub const fn steps(&self) -> usize {
@@ -73,19 +74,19 @@ where
     }
     /// returns a mutable reference to the current steps
     pub const fn current_state(&self) -> &State<Q> {
-        self.actor().state()
+        self.driver().state()
     }
-
-    pub fn get_rule<K>(&self, state: State<&Q>, symbol: &S) -> Option<&Tail<Q, S>>
+    /// returns the tail associated with the head that is equal to the given state and symbol
+    pub fn find_tail<K>(&self, state: State<&Q>, symbol: &S) -> Option<&Tail<Q, S>>
     where
         Q: Eq + core::hash::Hash,
         S: Eq + core::hash::Hash,
     {
-        self.program().get((state, symbol).into())
+        self.program()?.find_tail(state, symbol)
     }
     /// Reads the current symbol at the head of the tape
     pub fn read(&self) -> crate::Result<Head<&Q, &S>> {
-        self.actor().read()
+        self.driver().read()
     }
     /// Reads the current symbol at the head of the tape
     pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&S>> {
@@ -112,7 +113,7 @@ where
     {
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
-        for _h in self.by_ref() {
+        while let Some(_h) = self.next() {
             #[cfg(feature = "tracing")]
             tracing::info!("Executing step: {head:?}", head = _h);
         }
@@ -133,7 +134,7 @@ where
     }
 }
 
-impl<D, Q, S> Handle<D> for Executor<Q, S>
+impl<D, Q, S> Handle<D> for TuringEngine<Q, S>
 where
     Q: RawState + Clone + PartialEq,
     S: Symbolic,
@@ -142,29 +143,25 @@ where
     type Output = <TMH<Q, S> as Handle<D>>::Output;
 
     fn handle(&mut self, args: D) -> Self::Output {
-        self.actor_mut().handle(args)
+        self.driver_mut().handle(args)
     }
 }
 
-impl<Q, S> Engine<Q, S> for Executor<Q, S>
+impl<Q, S> Engine<Q, S> for TuringEngine<Q, S>
 where
     Q: 'static + RawState + Clone + PartialEq,
     S: Symbolic,
 {
-    fn load<I>(&mut self, program: I)
-    where
-        I: IntoIterator<Item = Rule<Q, S>>,
-    {
-        self.program.rules_mut().clear();
-        self.program.extend(program);
+    fn load(&mut self, program: Program<Q, S>) {
+        self.program = Some(program);
     }
 
     fn run(&mut self) -> Result<(), crate::Error> {
-        Executor::run(self)
+        TuringEngine::run(self)
     }
 }
 
-impl<Q, S> Iterator for Executor<Q, S>
+impl<Q, S> Iterator for TuringEngine<Q, S>
 where
     Q: 'static + RawState + Clone + PartialEq,
     S: Symbolic,
@@ -179,11 +176,13 @@ where
         // increment the number of steps taken
         self.steps += 1;
         #[cfg(feature = "tracing")]
-        tracing::info!("{tape:?}", tape = self.actor());
+        tracing::info!("{tape:?}", tape = self.driver());
         // check if the actor is halted
-        if self.actor.is_halted() {
+        if self.driver.is_halted() {
             #[cfg(feature = "tracing")]
-            tracing::warn!("Detected a halted state; terminating the program...");
+            tracing::warn!(
+                "A halted stated was detected; terminating the execution of the program..."
+            );
             return None;
         }
         // read the tape
@@ -193,15 +192,15 @@ where
             #[cfg(feature = "tracing")]
             tracing::warn!(
                 "[Index Error] the current position ({pos}) of the head is out of bounds, assuming the symbol to be its default value...",
-                pos = self.actor().head().symbol()
+                pos = self.driver().head().symbol()
             );
             Head {
-                state: self.actor().state().view(),
+                state: self.driver().state().view(),
                 symbol: &S::default(),
             }
         };
         // execute the program
-        if let Some(tail) = self.program.get(head).cloned() {
+        if let Some(tail) = self.program()?.find_tail(head.state, head.symbol).cloned() {
             // process the instruction
             let next = tail.clone().into_head();
             // process the instruction
@@ -210,8 +209,8 @@ where
             Some(next)
         } else {
             #[cfg(feature = "tracing")]
-            tracing::error!("No symbol found at {}", self.actor.position());
-            panic!("No symbol found at {}", self.actor.position());
+            tracing::error!("No symbol found at {}", self.driver.position());
+            panic!("No symbol found at {}", self.driver.position());
         }
     }
 }

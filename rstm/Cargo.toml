@@ -109,6 +109,7 @@ wasi = [
 
 wasm = [
   "alloc",
+  "wasm-bindgen",
   "rstm-actors?/wasm",
   "rstm-core/wasm",
   "rstm-rules?/wasm",
@@ -141,11 +142,11 @@ tracing = [
   "rstm-tape?/tracing"
 ]
 
-wasm_bindgen = [
-  "rstm-actors?/wasm_bindgen",
-  "rstm-core/wasm_bindgen",
-  "rstm-rules?/wasm_bindgen",
-  "rstm-tape?/wasm_bindgen"
+wasm-bindgen = [
+  "rstm-actors?/wasm-bindgen",
+  "rstm-core/wasm-bindgen",
+  "rstm-rules?/wasm-bindgen",
+  "rstm-tape?/wasm-bindgen"
 ]
 
 # ************* [Benchmarks] *************

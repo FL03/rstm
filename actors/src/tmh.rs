@@ -6,7 +6,7 @@
 
 mod impl_tmh;
 
-use crate::exec::Executor;
+use crate::engine::TuringEngine;
 use rstm_core::{Direction, Head};
 use rstm_rules::Program;
 use rstm_state::{RawState, State};
@@ -15,6 +15,8 @@ use rstm_state::{RawState, State};
 /// manifested here by using the current position of the head as its symbol, serving as a
 /// mapping to a symbol on the tape. Every step taken by the machine will update the symbol of
 /// the head, thus _moving_ it along the tape.
+///
+/// The implementation is one of the primary _engines_ used by actors within the library.
 #[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
 #[repr(C)]
 pub struct TMH<Q, A> {
@@ -28,9 +30,9 @@ impl<Q, A> TMH<Q, A>
 where
     Q: RawState,
 {
-    pub fn new(tape: Vec<A>, state: State<Q>, symbol: usize) -> Self {
+    pub fn new(tape: Vec<A>, state: Q, symbol: usize) -> Self {
         Self {
-            head: Head { state, symbol },
+            head: Head::new(state, symbol),
             tape,
         }
     }
@@ -131,8 +133,8 @@ where
     }
     /// Executes the given program; the method is lazy, meaning it will not compute immediately
     /// but will return an [Executor] that is better suited for managing the runtime.
-    pub fn execute(self, program: Program<Q, A>) -> Executor<Q, A> {
-        Executor::new(self, program)
+    pub fn execute(self, program: Program<Q, A>) -> TuringEngine<Q, A> {
+        TuringEngine::new(self, program)
     }
     /// Checks if the tape is empty
     pub fn is_empty(&self) -> bool {
@@ -203,7 +205,7 @@ where
     /// the head by a single unit in the specified direction.
     #[cfg_attr(
         feature = "tracing",
-        tracing::instrument(skip_all, name = "handle", target = "actor")
+        tracing::instrument(skip_all, name = "step", target = "tmh")
     )]
     pub(crate) fn step(
         &mut self,

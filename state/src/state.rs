@@ -95,10 +95,9 @@ where
         self.set(Default::default());
         self
     }
-    /// Sets the state to a new value.
-    pub fn set(&mut self, state: Q) -> &mut Self {
+    /// update the state with the given value
+    pub fn set(&mut self, state: Q) {
         self.0 = state;
-        self
     }
     /// [`swap`](core::mem::swap) the inner value of the state with that of the given state.
     pub const fn swap(&mut self, other: &mut State<Q>) {

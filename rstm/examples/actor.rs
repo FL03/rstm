@@ -5,17 +5,16 @@
 extern crate rstm;
 
 use rstm::actors::TMH;
-use rstm::{State, program};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     _tracing("debug");
     // initialize the tape data
     let alpha = vec![0u8; 10];
     // initialize the state of the machine
-    let initial_state = State(0isize);
+    let initial_state = 0isize;
     // define the ruleset for the machine
-    let program = program! {
-        #[default_state(*initial_state)]
+    let program = rstm::program! {
+        #[default_state(initial_state)]
         (0, 0) -> Right(1, 0);
         (0, 1) -> Right(-1, 1);
         (1, 0) -> Right(0, 1);

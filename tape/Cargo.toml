@@ -95,7 +95,7 @@ wasi = [
 
 wasm = [
   "alloc",
-  "wasm_bindgen",
+  "wasm-bindgen",
   "rstm-core/wasm",
   "rstm-state/wasm",
 ]
@@ -121,7 +121,7 @@ tracing = [
   "tracing?/attributes",
 ]
 
-wasm_bindgen = ["dep:wasm-bindgen"]
+wasm-bindgen = ["dep:wasm-bindgen"]
 
 
 # ************* [Unit Tests] *************

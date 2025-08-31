@@ -14,7 +14,7 @@ pub trait RawState: Send + Sync + core::fmt::Debug {
 /// operations and implementations.
 pub trait DisplayState: RawState
 where
-    Self: core::fmt::Display,
+    Self: core::fmt::Debug + core::fmt::Display,
 {
     private!();
 }
@@ -26,11 +26,11 @@ where
 {
     private!();
 }
-/// The [`StdState`] trait extends the [`RawState`] trait to include standard traits commonly
-/// used for state manipulation and comparison.
-pub trait StdState: DisplayState
+/// The [`StdState`] trait extends the base [`RawState`] trait to include additional traits
+/// commonly used alongside the state.
+pub trait StdState: RawState
 where
-    Self: Clone + Default + PartialEq + PartialOrd,
+    Self: Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
 {
     private!();
 }
@@ -38,9 +38,7 @@ where
 pub trait NumState: StdState
 where
     Self: Copy
-        + Default
         + Eq
-        + PartialOrd
         + core::ops::Add<Output = Self>
         + core::ops::Sub<Output = Self>
         + core::ops::Mul<Output = Self>

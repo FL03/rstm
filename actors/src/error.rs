@@ -4,7 +4,7 @@
 */
 //! This module defines the custom error type for handling various actor-related errors.
 #[cfg(feature = "alloc")]
-use alloc::boxed::Box;
+use alloc::{boxed::Box, string::String};
 
 /// A type alias for a [`Result`](core::result::Result) that uses the custom [`Error`] type
 pub type Result<T> = core::result::Result<T, Error>;
@@ -12,6 +12,9 @@ pub type Result<T> = core::result::Result<T, Error>;
 /// the various errors that can occur in the state module
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[cfg(feature = "alloc")]
+    #[error("[Execution Error] {0}")]
+    ExecutionError(String),
     #[error("The actor has halted.")]
     Halted,
     #[error(transparent)]
