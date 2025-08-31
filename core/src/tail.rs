@@ -76,27 +76,24 @@ where
     pub const fn symbol_mut(&mut self) -> &mut A {
         &mut self.write_symbol
     }
-    /// updates the current [direction](Direction) and returns a mutable reference to the tail
-    pub fn set_direction(&mut self, direction: Direction) -> &mut Self {
+    /// update the direction of the tail
+    pub fn set_direction(&mut self, direction: Direction) {
         self.direction = direction;
-        self
     }
-    /// updates the current [state](State) and returns a mutable reference to the tail
-    pub fn set_state(&mut self, State(state): State<Q>) -> &mut Self {
+    /// update the configured state for the tail
+    pub fn set_state(&mut self, state: Q) {
         self.next_state = State(state);
-        self
     }
-    /// updates the current symbol and returns a mutable reference to the tail
-    pub fn set_symbol(&mut self, symbol: A) -> &mut Self {
+    /// update the defined symbol for the tail
+    pub fn set_symbol(&mut self, symbol: A) {
         self.write_symbol = symbol;
-        self
     }
-    /// Configures the tail with a new direction
+    /// consumes the current instance to create another with the given [`Direction`]
     pub fn with_direction(self, direction: Direction) -> Self {
         Self { direction, ..self }
     }
-    /// Configures the tail with a new state
-    pub fn with_state(self, State(state): State<Q>) -> Self {
+    /// consumes the current instance to create another with the given state
+    pub fn with_state(self, state: Q) -> Self {
         Self {
             next_state: State(state),
             ..self

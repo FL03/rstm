@@ -55,8 +55,8 @@ where
         Self { state, symbol }
     }
     /// Updates the current [state](State) and returns a new head
-    pub fn with_state(self, state: State<Q>) -> Self {
-        Self { state, ..self }
+    pub fn with_state(self, state: Q) -> Self {
+        Self { state: State(state), ..self }
     }
     /// Updates the current symbol and returns a new head
     pub fn with_symbol(self, symbol: S) -> Self {
@@ -91,7 +91,7 @@ where
         (&mut self.state, &mut self.symbol)
     }
     /// Updates the current state
-    pub fn set_state(&mut self, State(state): State<Q>) -> &mut Self {
+    pub fn set_state(&mut self, state: Q) -> &mut Self {
         self.state_mut().set(state);
         self
     }

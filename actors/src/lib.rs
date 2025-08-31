@@ -25,11 +25,18 @@ compile_error! {
     "Either the `alloc` or `std` feature must be enabled for this crate to compile."
 }
 
+#[macro_use]
+mod macros {
+    #[macro_use]
+    pub(crate) mod seal;
+}
+
+
 #[doc(inline)]
-pub use self::{actor::TMH, error::*, exec::Executor, traits::*};
+pub use self::{tmh::TMH, error::*, exec::Executor, traits::*};
 
 #[cfg(feature = "alloc")]
-pub(crate) mod actor;
+pub(crate) mod tmh;
 #[cfg(feature = "alloc")]
 pub(crate) mod exec;
 
@@ -40,14 +47,17 @@ pub mod traits {
     #[doc(inline)]
     pub use self::prelude::*;
 
+    mod actor;
     mod engine;
     mod handle;
 
     mod prelude {
-        #[doc(hidden)]
-        pub use super::engine::Engine;
         #[doc(inline)]
-        pub use super::handle::Handle;
+        pub use super::actor::*;
+        #[doc(inline)]
+        pub use super::engine::*;
+        #[doc(inline)]
+        pub use super::handle::*;
     }
 }
 
@@ -55,7 +65,7 @@ pub mod traits {
 pub mod prelude {
     #[cfg(feature = "alloc")]
     #[doc(inline)]
-    pub use crate::actor::TMH;
+    pub use crate::tmh::TMH;
     #[cfg(feature = "alloc")]
     #[doc(inline)]
     pub use crate::exec::Executor;

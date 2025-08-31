@@ -1,8 +1,9 @@
 /*
-    Appellation: actor <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: tmh <module>
+    Created At: 2025.08.31:00:16:37
+    Contrib: @FL03
 */
-use super::{Executor, Handle};
+use crate::{Executor, Handle};
 use rstm_core::{Direction, Head, Symbolic, Tail};
 use rstm_rules::Program;
 use rstm_state::{RawState, State};
@@ -30,8 +31,8 @@ where
             tape,
         }
     }
-    /// Constructs a new [Actor] with the given state; assumes the tape is empty and the head
-    /// is located at `0`.
+    /// returns a new instance of the [`TMH`] using the given state and an empty tape
+    /// with the head positioned at `0`
     pub fn from_state(state: State<Q>) -> Self {
         Self {
             head: Head { state, symbol: 0 },
@@ -65,7 +66,7 @@ where
         self
     }
     /// updates the current state of the head and returns a mutable reference to the actor
-    pub fn set_state(&mut self, state: State<Q>) -> &mut Self {
+    pub fn set_state(&mut self, state: Q) -> &mut Self {
         self.head_mut().set_state(state);
         self
     }

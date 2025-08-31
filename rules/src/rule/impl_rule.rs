@@ -85,12 +85,12 @@ where
         self
     }
     /// updates the current [State] and returns a mutable reference to the [Rule]
-    pub fn set_state(&mut self, state: State<Q>) -> &mut Self {
+    pub fn set_state(&mut self, state: Q) -> &mut Self {
         self.head_mut().set_state(state);
         self
     }
     /// updates the current [State] and returns a mutable reference to the [Rule]
-    pub fn set_next_state(&mut self, state: State<Q>) -> &mut Self {
+    pub fn set_next_state(&mut self, state: Q) -> &mut Self {
         self.tail_mut().set_state(state);
         self
     }
@@ -100,13 +100,13 @@ where
         self
     }
     /// updates the current [State] and symbol and returns a mutable reference to the [Rule]
-    pub fn set_head(&mut self, state: State<Q>, symbol: A) -> &mut Self {
+    pub fn set_head(&mut self, state: Q, symbol: A) -> &mut Self {
         self.head_mut().set_state(state);
         self.head_mut().set_symbol(symbol);
         self
     }
     /// updates the current [State] and symbol and returns a mutable reference to the [Rule]
-    pub fn set_tail(&mut self, state: State<Q>, symbol: A) -> &mut Self {
+    pub fn set_tail(&mut self, state: Q, symbol: A) -> &mut Self {
         self.tail_mut().set_state(state);
         self.tail_mut().set_symbol(symbol);
         self
