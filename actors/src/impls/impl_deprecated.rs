@@ -3,7 +3,7 @@
     Created At: 2025.08.31:14:48:57
     Contrib: @FL03
 */
-use super::TuringEngine;
+use crate::engine::TuringEngine;
 use rstm_state::RawState;
 
 #[doc(hidden)]

@@ -3,11 +3,7 @@
     Created At: 2025.08.31:14:49:50
     Contrib: @FL03
 */
-
 mod impl_turing_engine;
-
-#[allow(deprecated)]
-mod impl_deprecated;
 
 use crate::tmh::TMH;
 use rstm_rules::Program;

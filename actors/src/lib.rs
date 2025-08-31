@@ -26,6 +26,12 @@ mod macros {
     pub(crate) mod seal;
 }
 
+mod impls {
+
+    #[allow(deprecated)]
+    mod impl_deprecated;
+}
+
 #[doc(inline)]
 pub use self::{engine::TuringEngine, error::*, tmh::TMH, traits::*};
 
