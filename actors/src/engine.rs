@@ -10,27 +10,27 @@ use rstm_state::{RawState, State};
 /// The [`TuringEngine`] implementation is designed to handle the execution of a given program.
 /// The exact nature of the engine is determined, in part, by the type of _driver_ it employs
 ///
-pub struct TuringEngine<Q, A>
+pub struct TuringEngine<'a, Q, A>
 where
     Q: RawState,
 {
     /// the actor that will be executing the program
-    pub(crate) driver: TMH<Q, A>,
-    pub(crate) inputs: Vec<A>,
+    pub(crate) driver: &'a mut TMH<Q, A>,
     /// the program being executed
     pub(crate) program: Option<Program<Q, A>>,
     /// the number of steps taken by the actor
     pub(crate) steps: usize,
+    pub(crate) _inputs: Vec<A>,
 }
 
-impl<Q, A> TuringEngine<Q, A>
+impl<'a, Q, A> TuringEngine<'a, Q, A>
 where
     Q: RawState,
 {
-    pub const fn new(driver: TMH<Q, A>) -> Self {
+    pub const fn new(driver: &'a mut TMH<Q, A>) -> Self {
         Self {
             driver,
-            inputs: Vec::new(),
+            _inputs: Vec::new(),
             program: None,
             steps: 0,
         }
@@ -52,7 +52,7 @@ where
     }
     /// returns a reference to the inputs
     pub const fn inputs(&self) -> &Vec<A> {
-        &self.inputs
+        &self._inputs
     }
     /// returns a reference to the program
     pub fn program(&self) -> Option<&Program<Q, A>> {
@@ -128,7 +128,7 @@ where
     }
 }
 
-impl<D, Q, S> Handle<D> for TuringEngine<Q, S>
+impl<'a, D, Q, S> Handle<D> for TuringEngine<'a, Q, S>
 where
     Q: RawState + Clone + PartialEq,
     S: Symbolic,
@@ -141,7 +141,7 @@ where
     }
 }
 
-impl<Q, S> Engine<Q, S> for TuringEngine<Q, S>
+impl<'a, Q, S> Engine<Q, S> for TuringEngine<'a, Q, S>
 where
     Q: 'static + RawState + Clone + PartialEq,
     S: Symbolic,
@@ -155,7 +155,7 @@ where
     }
 }
 
-impl<Q, S> Iterator for TuringEngine<Q, S>
+impl<'a, Q, S> Iterator for TuringEngine<'a, Q, S>
 where
     Q: 'static + RawState + Clone + PartialEq,
     S: Symbolic,

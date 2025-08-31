@@ -7,7 +7,7 @@
 mod impl_tmh;
 
 use crate::engine::TuringEngine;
-use rstm_core::{Direction, Head};
+use rstm_core::{Direction, Error as CoreError, Head};
 use rstm_rules::Program;
 use rstm_state::{RawState, State};
 
@@ -135,7 +135,7 @@ where
     /// 
     /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run 
     /// until the corresponding `.run()` method is invoked on the engine.
-    pub fn execute(self, program: Program<Q, A>) -> TuringEngine<Q, A> {
+    pub fn execute(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Q, A> {
         TuringEngine::new(self).load(program)
     }
     /// Checks if the tape is empty
@@ -170,37 +170,39 @@ where
                 symbol,
             })
             .ok_or(
-                rstm_core::Error::IndexOutOfBounds {
+                CoreError::IndexOutOfBounds {
                     index: self.position(),
                     len: self.len(),
                 }
                 .into(),
             )
     }
-
-    /// Writes the given symbol to the tape
+    /// write a symbol to the tape at the current position of the head;
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "write", target = "actor")
     )]
-    pub fn write(&mut self, value: A) {
+    pub fn write(&mut self, value: A) -> crate::Result<()> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Writing to the tape...");
         let pos = self.position();
 
-        if pos == usize::MAX {
+        if pos < self.len() {
+            #[cfg(feature = "tracing")]
+            tracing::trace!("Updating the tape...");
+            self.tape[pos] = value;
+        } else if pos == self.len() {
+            #[cfg(feature = "tracing")]
+            tracing::trace!("Extending the tape...");
+            // append to the tape
+            self.tape_mut().push(value);
+        } else {
             #[cfg(feature = "tracing")]
             tracing::trace!("Prepending to the tape...");
             // prepend to the tape
-            self.tape.insert(0, value);
-        } else if pos >= self.len() {
-            #[cfg(feature = "tracing")]
-            tracing::trace!("Appending to the tape...");
-            // append to the tape
-            self.tape.push(value);
-        } else {
-            self.tape[pos] = value;
+            self.tape_mut().insert(0, value);
         }
+        Ok(())
     }
     /// Performs a single step of the Turing machine; returns the previous head of the tape.
     /// Each step writes the given symbol to the tape, updates the state of the head, and moves
@@ -214,12 +216,13 @@ where
         direction: Direction,
         state: State<Q>,
         symbol: A,
-    ) -> Head<Q, usize> {
+    ) -> crate::Result<Head<Q, usize>> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Transitioning the actor...");
         // write the symbol to the tape
-        self.write(symbol);
+        self.write(symbol)?;
         // update the head of the actor
-        self.head.replace(state, self.position() + direction)
+        let prev = self.head.replace(state, self.position() + direction);
+        Ok(prev)
     }
 }

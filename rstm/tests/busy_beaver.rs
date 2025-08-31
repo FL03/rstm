@@ -23,7 +23,7 @@ fn busy_beaver() {
         };
     };
 
-    let actor = TMH::from_state(initial_state).with_tape(input);
+    let mut actor = TMH::from_state(initial_state).with_tape(input);
     let mut rt = actor.execute(program);
     for _ in 0..10 {
         assert!(rt.next().is_some());

@@ -24,7 +24,7 @@ where
     Q: RawState + Clone + PartialEq,
     S: Symbolic,
 {
-    type Output = Head<Q, usize>;
+    type Output = crate::Result<Head<Q, usize>>;
 
     fn handle(&mut self, (direction, state, symbol): (Direction, State<Q>, S)) -> Self::Output {
         self.step(direction, state, symbol)
@@ -36,7 +36,7 @@ where
     Q: RawState + Clone + PartialEq,
     S: Symbolic,
 {
-    type Output = Head<Q, usize>;
+    type Output = crate::Result<Head<Q, usize>>;
 
     fn handle(
         &mut self,
@@ -51,7 +51,7 @@ where
     Q: RawState + Clone + PartialEq,
     S: Symbolic,
 {
-    type Output = Head<Q, usize>;
+    type Output = crate::Result<Head<Q, usize>>;
 
     fn handle(
         &mut self,
@@ -71,14 +71,16 @@ where
     S: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
+
+        let mut f = f.debug_list();
         for (i, c) in self.tape.iter().enumerate() {
             if i == self.position() {
-                write!(f, "[{c:?}]")?;
+                f.entry(&format!("[{c:?}]"));
             } else {
-                write!(f, "{c:?}")?;
+                f.entry(c);
             }
         }
-        Ok(())
+        f.finish()
     }
 }
 
