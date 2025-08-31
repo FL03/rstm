@@ -3,8 +3,11 @@
     Created At: 2025.08.31:00:16:37
     Contrib: @FL03
 */
-use crate::{Executor, Handle};
-use rstm_core::{Direction, Head, Symbolic, Tail};
+
+mod impl_tmh;
+
+use crate::exec::Executor;
+use rstm_core::{Direction, Head};
 use rstm_rules::Program;
 use rstm_state::{RawState, State};
 
@@ -214,85 +217,5 @@ where
         self.write(symbol);
         // update the head of the actor
         self.head.replace(state, self.position() + direction)
-    }
-}
-
-impl<Q, S> Handle<(Direction, State<Q>, S)> for TMH<Q, S>
-where
-    Q: RawState + Clone + PartialEq,
-    S: Symbolic,
-{
-    type Output = Head<Q, usize>;
-
-    fn handle(&mut self, (direction, state, symbol): (Direction, State<Q>, S)) -> Self::Output {
-        self.step(direction, state, symbol)
-    }
-}
-
-impl<Q, S> Handle<(Direction, Head<Q, S>)> for TMH<Q, S>
-where
-    Q: RawState + Clone + PartialEq,
-    S: Symbolic,
-{
-    type Output = Head<Q, usize>;
-
-    fn handle(
-        &mut self,
-        (direction, Head { state, symbol }): (Direction, Head<Q, S>),
-    ) -> Self::Output {
-        self.step(direction, state, symbol)
-    }
-}
-
-impl<Q, S> Handle<Tail<Q, S>> for TMH<Q, S>
-where
-    Q: RawState + Clone + PartialEq,
-    S: Symbolic,
-{
-    type Output = Head<Q, usize>;
-
-    fn handle(
-        &mut self,
-        Tail {
-            direction,
-            next_state: state,
-            write_symbol: symbol,
-        }: Tail<Q, S>,
-    ) -> Self::Output {
-        self.step(direction, state, symbol)
-    }
-}
-
-impl<Q, S> core::fmt::Debug for TMH<Q, S>
-where
-    Q: RawState,
-    S: core::fmt::Debug,
-{
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        for (i, c) in self.tape.iter().enumerate() {
-            if i == self.position() {
-                write!(f, "[{c:?}]")?;
-            } else {
-                write!(f, "{c:?}")?;
-            }
-        }
-        Ok(())
-    }
-}
-
-impl<Q, S> core::fmt::Display for TMH<Q, S>
-where
-    Q: RawState,
-    S: core::fmt::Display,
-{
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        for (i, c) in self.tape().iter().enumerate() {
-            if i == self.position() {
-                write!(f, "[{c}]")?;
-            } else {
-                write!(f, "{c}")?;
-            }
-        }
-        Ok(())
     }
 }

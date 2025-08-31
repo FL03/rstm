@@ -31,14 +31,13 @@ mod macros {
     pub(crate) mod seal;
 }
 
-
 #[doc(inline)]
-pub use self::{tmh::TMH, error::*, exec::Executor, traits::*};
+pub use self::{error::*, exec::Executor, tmh::TMH, traits::*};
 
-#[cfg(feature = "alloc")]
-pub(crate) mod tmh;
 #[cfg(feature = "alloc")]
 pub(crate) mod exec;
+#[cfg(feature = "alloc")]
+pub(crate) mod tmh;
 
 pub mod error;
 
@@ -65,10 +64,10 @@ pub mod traits {
 pub mod prelude {
     #[cfg(feature = "alloc")]
     #[doc(inline)]
-    pub use crate::tmh::TMH;
+    pub use crate::exec::Executor;
     #[cfg(feature = "alloc")]
     #[doc(inline)]
-    pub use crate::exec::Executor;
+    pub use crate::tmh::TMH;
     #[doc(inline)]
     pub use crate::traits::*;
 }

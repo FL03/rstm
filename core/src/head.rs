@@ -56,7 +56,10 @@ where
     }
     /// Updates the current [state](State) and returns a new head
     pub fn with_state(self, state: Q) -> Self {
-        Self { state: State(state), ..self }
+        Self {
+            state: State(state),
+            ..self
+        }
     }
     /// Updates the current symbol and returns a new head
     pub fn with_symbol(self, symbol: S) -> Self {
