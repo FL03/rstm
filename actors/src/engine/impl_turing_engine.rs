@@ -85,7 +85,7 @@ where
     }
     #[cfg_attr(
         feature = "tracing",
-        tracing::instrument(skip_all, name = "run", target = "actor")
+        tracing::instrument(skip_all, name = "run", target = "engine")
     )]
     pub fn run(&mut self) -> crate::Result<()>
     where
@@ -104,18 +104,27 @@ where
         }
         Ok(())
     }
+}
 
-    fn _handle_tail(&mut self, tail: Tail<Q, A>) -> crate::Result<Head<Q, A>>
+#[allow(dead_code)]
+/// This implementation is for any private methods used internally by the engine
+impl<'a, Q, A> TuringEngine<'a, Q, A>
+where
+    Q: RawState,
+{
+    /// increments the current epoch by a single unit
+    pub(crate) const fn next_epoch(&mut self) {
+        self.epoch += 1;
+    }
+    pub(crate) fn handle_tail(&mut self, tail: Tail<Q, A>) -> crate::Result<Head<Q, A>>
     where
         Q: HaltState + Clone + PartialEq,
         A: Symbolic,
     {
         // process the instruction
-        let next = tail.as_head().cloned();
-        // process the instruction
-        let _prev = self.handle(tail);
+        let _prev = self.handle(tail.clone())?;
         // return the head
-        Ok(next)
+        Ok(tail.into_head())
     }
 }
 
@@ -154,8 +163,6 @@ where
     type Item = Head<Q, S>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // increment the number of steps taken
-        self.epoch += 1;
         #[cfg(feature = "tracing")]
         tracing::info!("{tape:?}", tape = self.driver());
         // check if the actor is halted
@@ -177,6 +184,8 @@ where
         };
         // execute the program
         if let Some(tail) = self.program()?.find_tail(head.state, head.symbol).cloned() {
+            // increment the number of steps taken
+            self.epoch += 1;
             // process the instruction
             let next = tail.clone().into_head();
             // process the instruction
