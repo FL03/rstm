@@ -16,13 +16,14 @@ where
     A: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        let (a, b) = get_range_around(self.position(), self.len(), DISPLAY_RADIUS);
+        let position = self.position();
+        let (a, b) = get_range_around(position, self.len(), DISPLAY_RADIUS);
         // print out the tape with the head position highlighted
         for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
-            let cell = if idx == self.position() {
-                format!("[{c:?}]")
-            } else {
+            let cell = if idx <= self.len() && idx != position  {
                 format!("{c:?}")
+            } else {
+                format!("[{c:?}]")
             };
             f.write_str(&cell)?;
         }
@@ -38,7 +39,7 @@ where
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         let (a, b) = get_range_around(self.position(), self.len(), DISPLAY_RADIUS);
         // print out the tape with the head position highlighted
-        for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
+        for (idx, c) in (a..b).zip(self.tape[a..b].iter()) {
             let cell = if idx == self.position() {
                 format!("[{c}]")
             } else {
