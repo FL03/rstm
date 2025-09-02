@@ -184,12 +184,13 @@ where
         };
         // execute the program
         if let Some(tail) = self.program()?.find_tail(head.state, head.symbol).cloned() {
-            // increment the number of steps taken
             self.epoch += 1;
             // process the instruction
             let next = tail.clone().into_head();
             // process the instruction
             let _prev = self.handle(tail);
+            // update the epoch
+            self.next_epoch();
             // return the head
             Some(next)
         } else {
