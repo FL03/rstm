@@ -42,7 +42,7 @@ jobs:
           components: clippy, rustfmt
       - 
         name: Setup cargo-binstall
-        uses: cargo-bins/cargo-binstall@v1.15.1
+        uses: cargo-bins/cargo-binstall@v1.15.3
       -
         name: Setup the for sarif output
         run: cargo binstall -qy clippy-sarif sarif-fmt
