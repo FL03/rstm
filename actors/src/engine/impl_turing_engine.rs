@@ -215,11 +215,17 @@ where
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.step() {
-            Ok(Some(h)) => Some(h),
-            Ok(None) => None,
-            Err(e) => {
+            Ok(output) => match output {
+                Some(h) => Some(h),
+                None => {
+                    #[cfg(feature = "tracing")]
+                    tracing::info!("The engine has halted; terminating the iteration.");
+                    None
+                }
+            },
+            Err(_e) => {
                 #[cfg(feature = "tracing")]
-                tracing::error!("An error occurred during execution: {e}");
+                tracing::error!("An error occurred during execution: {_e}");
                 None
             }
         }
