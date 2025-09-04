@@ -24,10 +24,6 @@ test = true
 [[test]]
 name = "default"
 
-[[test]]
-name = "actor"
-required-features = ["std"]
-
 # ********* [Package Metadata] *********
 [package.metadata.docs.rs]
 all-features = false

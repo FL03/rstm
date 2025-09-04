@@ -24,6 +24,8 @@ lazy_static::lazy_static! {
         };
     };
 }
+
+
 #[test]
 fn test_tmh() -> rstm::Result<()> {
     // define some input for the machine
