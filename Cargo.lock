@@ -448,6 +448,7 @@ dependencies = [
  "rstm-core",
  "rstm-rules",
  "rstm-state",
+ "rstm-tape",
  "serde",
  "serde_derive",
  "smart-default",

@@ -17,6 +17,14 @@ use rstm_core::head::Head;
 /// The implementation is one of the primary _drivers_ used by actors within the library.
 /// By itself, the driver is not particularly useful, however, when given some input and a
 /// program, it can be used to perform computations.
+///
+/// ## Usage
+///
+/// Before executing any particular program, the tape should be loaded up with the necessary
+/// _inputs_ using the [`extend_tape`](TMH::extend_tape) method. The tape is represented
+/// as a [`Vec<A>`], where `A` is the type of the symbols allowed on the tape. After setting
+/// any inputs, we can use the [`execute`](TMH::execute) method to initialize a lazy executor
+/// that will run the program whenever the `run`
 #[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
 #[repr(C)]
 pub struct TMH<Q, A> {

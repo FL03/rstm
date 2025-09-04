@@ -125,7 +125,7 @@ where
     /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
     /// until the corresponding `.run()` method is invoked on the engine.
     pub fn execute(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Q, A> {
-        TuringEngine::new(self).load(program)
+        TuringEngine::new(self).load_with(program)
     }
     /// Checks if the tape is empty
     pub fn is_empty(&self) -> bool {

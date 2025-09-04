@@ -5,10 +5,10 @@
 */
 use super::TMH;
 use crate::{Actor, Handle, RawActor};
-use rstm_core::{Direction, Head, Symbolic, Tail, get_range_around};
+use rstm_core::{Direction, Head, Tail, get_range_around};
 use rstm_state::{RawState, State};
 
-const DISPLAY_RADIUS: usize = 10;
+const DISPLAY_RADIUS: usize = 5;
 
 impl<Q, A> core::fmt::Debug for TMH<Q, A>
 where
@@ -16,14 +16,14 @@ where
     A: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        let position = self.position();
-        let (a, b) = get_range_around(position, self.len(), DISPLAY_RADIUS);
+        let pos = self.position();
+        let (a, b) = get_range_around(pos, self.len(), DISPLAY_RADIUS);
         // print out the tape with the head position highlighted
         for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
-            let cell = if idx <= self.len() && idx != position  {
-                format!("{c:?}")
-            } else {
+            let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
                 format!("[{c:?}]")
+            } else {
+                format!("{c:?}")
             };
             f.write_str(&cell)?;
         }
@@ -37,10 +37,11 @@ where
     A: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        let (a, b) = get_range_around(self.position(), self.len(), DISPLAY_RADIUS);
+        let pos = self.position();
+        let (a, b) = get_range_around(pos, self.len(), DISPLAY_RADIUS);
         // print out the tape with the head position highlighted
-        for (idx, c) in (a..b).zip(self.tape[a..b].iter()) {
-            let cell = if idx == self.position() {
+        for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
+            let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
                 format!("[{c}]")
             } else {
                 format!("{c}")
@@ -55,44 +56,52 @@ impl<Q, A> RawActor for TMH<Q, A>
 where
     Q: RawState,
 {
-    type Store = Vec<A>;
+    type Store<_T> = Vec<_T>;
 
     seal!();
 }
 
-impl<Q, A> Actor for TMH<Q, A> where Q: RawState {}
-
-impl<Q, S> Handle<(Direction, State<Q>, S)> for TMH<Q, S>
+impl<Q, A> Actor<Q, A> for TMH<Q, A>
 where
-    Q: RawState + Clone + PartialEq,
-    S: Symbolic,
+    Q: RawState,
+{
+    fn store(&self) -> &Self::Store<A> {
+        &self.tape
+    }
+
+    fn store_mut(&mut self) -> &mut Self::Store<A> {
+        &mut self.tape
+    }
+}
+
+impl<Q, A> Handle<(Direction, State<Q>, A)> for TMH<Q, A>
+where
+    Q: RawState,
 {
     type Output = crate::Result<Head<Q, usize>>;
 
-    fn handle(&mut self, (direction, state, symbol): (Direction, State<Q>, S)) -> Self::Output {
+    fn handle(&mut self, (direction, state, symbol): (Direction, State<Q>, A)) -> Self::Output {
         self.step(direction, state, symbol)
     }
 }
 
-impl<Q, S> Handle<(Direction, Head<Q, S>)> for TMH<Q, S>
+impl<Q, A> Handle<(Direction, Head<Q, A>)> for TMH<Q, A>
 where
-    Q: RawState + Clone + PartialEq,
-    S: Symbolic,
+    Q: RawState,
 {
     type Output = crate::Result<Head<Q, usize>>;
 
     fn handle(
         &mut self,
-        (direction, Head { state, symbol }): (Direction, Head<Q, S>),
+        (direction, Head { state, symbol }): (Direction, Head<Q, A>),
     ) -> Self::Output {
         self.step(direction, state, symbol)
     }
 }
 
-impl<Q, S> Handle<Tail<Q, S>> for TMH<Q, S>
+impl<Q, A> Handle<Tail<Q, A>> for TMH<Q, A>
 where
-    Q: RawState + Clone + PartialEq,
-    S: Symbolic,
+    Q: RawState,
 {
     type Output = crate::Result<Head<Q, usize>>;
 
@@ -102,7 +111,7 @@ where
             direction,
             next_state: state,
             write_symbol: symbol,
-        }: Tail<Q, S>,
+        }: Tail<Q, A>,
     ) -> Self::Output {
         self.step(direction, state, symbol)
     }

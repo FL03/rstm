@@ -3,10 +3,16 @@
     Created At: 2025.08.31:00:17:44
     Contrib: @FL03
 */
+use super::Handle;
+use rstm_core::Tail;
+use rstm_tape::RawTape;
 
-/// The [`RawActor`] is the basis for all compatible actors within the system.
+/// The [`RawActor`] is the basis for all compatible actors within the system. Each
+/// implementation is required to define the _type_ of internal store it will use to
+/// manage its data. This abstraction allows for flexibility in the choice of data structures,
+/// enabling the actor to adapt to various use cases and performance requirements.
 pub trait RawActor {
-    type Store;
+    type Store<_T>: RawTape<Elem = _T>;
 
     private! {}
 }
@@ -27,5 +33,28 @@ pub trait RawActor {
 ///
 /// In line with robotics, an actor requires the introduction of a so-called _world space_ in
 /// order to make sense of the "world" (i.e. inputs) it interacts with.
-
-pub trait Actor: RawActor {}
+pub trait Actor<Q, A>: RawActor + Handle<Tail<Q, A>> {
+    /// returns an immutable reference to the internal store
+    fn store(&self) -> &Self::Store<A>;
+    /// returns a mutable reference to the internal store
+    fn store_mut(&mut self) -> &mut Self::Store<A>;
+    /// [`replace`](core::mem::replace) the current store with another before returning the previous value
+    fn replace_store(&mut self, store: Self::Store<A>) -> Self::Store<A> {
+        core::mem::replace(self.store_mut(), store)
+    }
+    /// set the store to the given value
+    fn set_store(&mut self, store: Self::Store<A>) {
+        *self.store_mut() = store;
+    }
+    /// [`swap`](core::mem::swap) the current store with another
+    fn swap_store(&mut self, store: &mut Self::Store<A>) {
+        core::mem::swap(self.store_mut(), store);
+    }
+    /// [`take`](core::mem::take) the current store, leaving the default value in its place
+    fn take_store(&mut self) -> Self::Store<A>
+    where
+        Self::Store<A>: Default,
+    {
+        core::mem::take(self.store_mut())
+    }
+}

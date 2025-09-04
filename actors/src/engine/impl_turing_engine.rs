@@ -5,7 +5,7 @@
 */
 use super::TuringEngine;
 use crate::tmh::TMH;
-use crate::traits::{Engine, Handle};
+use crate::traits::{Engine, Handle, RawEngine};
 use rstm_core::{Head, Symbolic, Tail};
 use rstm_rules::Program;
 use rstm_state::{HaltState, RawState, State};
@@ -23,7 +23,7 @@ where
         }
     }
     /// consumes the instance to return another loaded up with the given program
-    pub fn load(self, program: Program<Q, A>) -> Self {
+    pub fn load_with(self, program: Program<Q, A>) -> Self {
         TuringEngine {
             program: Some(program),
             ..self
@@ -97,9 +97,8 @@ where
         while let Some(_h) = self.next() {
             #[cfg(feature = "tracing")]
             tracing::info!(
-                "Executing step ({i}) with a context of {ctx:?}",
+                "Executing step ({i}) with a context of {_h:?}",
                 i = self.current_epoch(),
-                ctx = _h
             );
         }
         Ok(())
@@ -116,29 +115,27 @@ where
     pub(crate) const fn next_epoch(&mut self) {
         self.epoch += 1;
     }
-    pub(crate) fn handle_tail(&mut self, tail: Tail<Q, A>) -> crate::Result<Head<Q, A>>
-    where
-        Q: HaltState + Clone + PartialEq,
-        A: Symbolic,
-    {
-        // process the instruction
-        let _prev = self.handle(tail.clone())?;
-        // return the head
-        Ok(tail.into_head())
+}
+
+impl<'a, Q, A, X, Y> Handle<X> for TuringEngine<'a, Q, A>
+where
+    Q: RawState,
+    TMH<Q, A>: Handle<X, Output = Y>,
+{
+    type Output = Y;
+
+    fn handle(&mut self, args: X) -> Self::Output {
+        self.driver_mut().handle(args)
     }
 }
 
-impl<'a, D, Q, S> Handle<D> for TuringEngine<'a, Q, S>
+impl<'a, Q, A> RawEngine<Q, A> for TuringEngine<'a, Q, A>
 where
-    Q: HaltState + Clone + PartialEq,
-    S: Symbolic,
-    TMH<Q, S>: Handle<D>,
+    Q: RawState,
 {
-    type Output = <TMH<Q, S> as Handle<D>>::Output;
+    type Driver = TMH<Q, A>;
 
-    fn handle(&mut self, args: D) -> Self::Output {
-        self.driver_mut().handle(args)
-    }
+    seal!();
 }
 
 impl<'a, Q, S> Engine<Q, S> for TuringEngine<'a, Q, S>
@@ -184,7 +181,6 @@ where
         };
         // execute the program
         if let Some(tail) = self.program()?.find_tail(head.state, head.symbol).cloned() {
-            self.epoch += 1;
             // process the instruction
             let next = tail.clone().into_head();
             // process the instruction

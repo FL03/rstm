@@ -7,12 +7,18 @@
 /// compute a range around the current position of the head using the given radius that is
 /// within the bounds of the tape
 pub fn get_range_around(position: usize, len: usize, radius: usize) -> (usize, usize) {
-    let start = if position >= radius {
+    let at_end: bool = position >= (len - 1);
+    // determine the initial position
+    let start = if at_end && position >= (2 * radius) {
+        position - (2 * radius)
+    } else if position >= radius {
         position - radius
     } else {
         0
     };
-    let end = if (position + radius) < len - 1 {
+    // handle the case where we are at the end of the tape
+
+    let end = if (position + radius) < len {
         position + radius
     } else {
         len - 1

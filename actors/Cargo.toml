@@ -43,8 +43,9 @@ tag-name = "{{version}}"
 [dependencies]
 # local
 rstm-core = { workspace = true }
-rstm-state = { workspace = true }
 rstm-rules = { workspace = true }
+rstm-state = { workspace = true }
+rstm-tape = { workspace = true }
 # custom
 variants = { workspace = true }
 # error-handling
@@ -78,8 +79,9 @@ full = [
 # ********* [FF] Features *********
 nightly = [
   "rstm-core/nightly",
-  "rstm-state/nightly",
   "rstm-rules/nightly",
+  "rstm-state/nightly",
+  "rstm-tape/nightly",
 ]
 
 # ************* [FF:Environments] *************
@@ -89,6 +91,7 @@ std = [
   "rstm-core/std",
   "rstm-rules/std",
   "rstm-state/std",
+  "rstm-tape/std",
   "variants/std",
   "serde?/std",
   "strum/std",
@@ -101,6 +104,7 @@ wasi = [
   "rstm-core/wasi",
   "rstm-rules/wasi",
   "rstm-state/wasi",
+  "rstm-tape/wasi",
 ]
 
 wasm = [
@@ -109,6 +113,7 @@ wasm = [
   "rstm-core/wasm",
   "rstm-rules/wasm",
   "rstm-state/wasm",
+  "rstm-tape/wasm",
 ]
 
 # ********* [FF] Dependencies *********
@@ -116,6 +121,7 @@ alloc = [
   "rstm-core/alloc",
   "rstm-rules/alloc",
   "rstm-state/alloc",
+  "rstm-tape/alloc",
   "variants/alloc",
   "serde?/alloc",
 ]
@@ -127,6 +133,7 @@ serde = [
   "rstm-core/serde",
   "rstm-rules/serde",
   "rstm-state/serde",
+  "rstm-tape/serde",
 ]
 
 tracing = [
