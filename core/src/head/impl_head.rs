@@ -10,24 +10,24 @@ impl<Q, S> Head<Q, S> where Q: RawState {}
 
 impl<Q, S> core::fmt::Debug for Head<Q, S>
 where
-    Q: RawState,
+    Q: core::fmt::Debug,
     S: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.debug_tuple("Head")
-            .field(&self.state)
-            .field(&self.symbol)
+        f.debug_struct("Head")
+            .field("state", &self.state)
+            .field("symbol", &self.symbol)
             .finish()
     }
 }
 
 impl<Q, S> core::fmt::Display for Head<Q, S>
 where
-    Q: RawState,
+    Q: core::fmt::Display,
     S: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "{{ state: {:?}, symbol: {} }}", self.state, self.symbol)
+        write!(f, "{{ state: {}, symbol: {} }}", self.state, self.symbol)
     }
 }
 
