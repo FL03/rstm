@@ -2,7 +2,7 @@
     appellation: transition <module>
     authors: @FL03
 */
-use rstm_core::{Direction, Head, Rule,Symbol, Tail};
+use crate::{Direction, Head, Rule,Symbol, Tail};
 use rstm_state::{RawState, State};
 
 /// The [`Scope`] trait is used to describe objects containing information or references to the

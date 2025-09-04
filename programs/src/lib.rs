@@ -56,12 +56,9 @@ pub mod traits {
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod instruction;
     mod rulespace;
 
     mod prelude {
-        #[doc(inline)]
-        pub use super::instruction::*;
         #[doc(inline)]
         pub use super::rulespace::*;
     }

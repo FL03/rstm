@@ -49,6 +49,7 @@ pub mod traits {
 
     mod convert;
     mod increment;
+    mod instruction;
     mod symbols;
 
     mod prelude {
@@ -56,6 +57,8 @@ pub mod traits {
         pub use super::convert::*;
         #[doc(inline)]
         pub use super::increment::*;
+        #[doc(inline)]
+        pub use super::instruction::*;
         #[doc(inline)]
         pub use super::symbols::*;
     }
