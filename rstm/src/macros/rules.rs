@@ -90,6 +90,7 @@ macro_rules! rules {
     };
 }
 
+#[cfg(feature = "std")]
 /// a macro to create a [`HashMap`](std::collections::HashMap) of rules for a Turing machine.
 /// The macro takes a list of rules in the form of
 ///
@@ -106,7 +107,6 @@ macro_rules! rules {
 ///     (1, 1) -> Right(0, 0);
 /// }
 /// ```
-#[cfg(feature = "std")]
 #[macro_export]
 macro_rules! rulemap {
     (
