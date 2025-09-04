@@ -49,30 +49,35 @@ where
         &mut self.tape
     }
     /// update the current head and return a mutable reference to the actor
-    pub fn set_head(&mut self, head: Head<Q, usize>) -> &mut Self {
+    #[inline]
+    pub fn set_head(&mut self, head: Head<Q, usize>) {
         self.head = head;
-        self
     }
     /// updates the current position of the head and returns a mutable reference to the actor
-    pub fn set_position(&mut self, symbol: usize) -> &mut Self {
+    #[inline]
+    pub fn set_position(&mut self, symbol: usize) {
         self.head_mut().set_symbol(symbol);
-        self
     }
     /// updates the current state of the head and returns a mutable reference to the actor
-    pub fn set_state(&mut self, state: Q) -> &mut Self {
+    #[inline]
+    pub fn set_state(&mut self, state: Q) {
         self.head_mut().set_state(state);
-        self
     }
     /// update the current tape and return a mutable reference to the actor
-    pub fn set_tape(&mut self, tape: Vec<A>) -> &mut Self {
-        self.tape = tape;
-        self
+    #[inline]
+    pub fn set_tape<I>(&mut self, tape: I)
+    where
+        I: IntoIterator<Item = A>,
+    {
+        self.tape = Vec::from_iter(tape);
     }
     /// Consumes the current instance and returns a new instance with the given head
+    #[inline]
     pub fn with_head(self, head: Head<Q, usize>) -> Self {
         Self { head, ..self }
     }
     /// Consumes the current instance and returns a new instance with the given position
+    #[inline]
     pub fn with_position(self, symbol: usize) -> Self {
         Self {
             head: Head {
@@ -83,6 +88,7 @@ where
         }
     }
     /// consumes the current instance to create another with the given state
+    #[inline]
     pub fn with_state(self, state: State<Q>) -> Self {
         Self {
             head: Head { state, ..self.head },
@@ -90,6 +96,7 @@ where
         }
     }
     /// consumes the current instance to create another with the given tape
+    #[inline]
     pub fn with_tape<I>(self, alpha: I) -> Self
     where
         I: IntoIterator<Item = A>,
@@ -112,6 +119,7 @@ where
         self.head_mut().state_mut()
     }
     /// extends the tape with elements from the given iterator
+    #[inline]
     pub fn extend_tape<I>(&mut self, iter: I)
     where
         I: IntoIterator<Item = A>,
@@ -150,28 +158,20 @@ where
         state: State<Q>,
         symbol: A,
     ) -> crate::Result<Head<Q, usize>> {
+        let position = self.current_position();
         #[cfg(feature = "tracing")]
-        tracing::trace!(
-            "Reacting to the current context of cell: {:?}",
-            self.current_position()
-        );
+        tracing::trace!("Reacting to the current context of cell: {:?}", position);
         // write the symbol to the tape
         self.write(symbol)?;
         // update the head of the actor
-        let prev = self
-            .head
-            .replace(state, self.current_position() + direction);
+        let prev = self.head_mut().replace(state, position + direction);
 
         Ok(prev)
     }
     /// Reads the current symbol at the head of the tape
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "read", target = "tmh")
-    )]
     pub fn read(&self) -> crate::Result<Head<&'_ Q, &'_ A>> {
         #[cfg(feature = "tracing")]
-        tracing::trace!("Reading the tape...");
+        tracing::trace!("reading the tape...");
         self.tape()
             .get(self.current_position())
             .map(|symbol| Head {

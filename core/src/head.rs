@@ -10,6 +10,10 @@ mod impl_deprecated;
 
 use rstm_state::{RawState, State};
 
+pub type HeadRef<'a, Q, S> = Head<&'a Q, &'a S>;
+/// a head with mutable references to its state and symbol
+pub type HeadMut<'a, Q, S> = Head<&'a mut Q, &'a mut S>;
+
 /// The [Head] is formally defined to be a 2-tuple consisting of a state / symbol pair.
 #[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(
@@ -50,38 +54,38 @@ where
     {
         Self::new(<Q>::default(), symbol)
     }
-    /// Create a new instance from a 2-tuple: $(q,\alpha)$
+    /// Create a new instance from a 2-tuple: `(state, symbol)`
     pub fn from_tuple((state, symbol): (State<Q>, S)) -> Self {
         Self { state, symbol }
     }
-    /// Updates the current [state](State) and returns a new head
+    /// consumes the current instance to create another instance with the given state
     pub fn with_state(self, state: Q) -> Self {
         Self {
             state: State(state),
             ..self
         }
     }
-    /// Updates the current symbol and returns a new head
+    /// consumes the current instance to create another instance with the given symbol
     pub fn with_symbol(self, symbol: S) -> Self {
         Self { symbol, ..self }
     }
-    /// Returns a reference to the current state
+    /// returns a reference to the current state
     pub const fn state(&self) -> &State<Q> {
         &self.state
     }
-    /// Returns a mutable reference to the current [State]
+    /// returns a mutable reference to the current [State]
     pub const fn state_mut(&mut self) -> &mut State<Q> {
         &mut self.state
     }
-    /// Returns a reference to the current symbol
+    /// returns a reference to the current symbol
     pub const fn symbol(&self) -> &S {
         &self.symbol
     }
-    /// Returns a mutable reference to the current symbol
+    /// returns a mutable reference to the current symbol
     pub const fn symbol_mut(&mut self) -> &mut S {
         &mut self.symbol
     }
-    /// Returns a reference to the current state and symbol returing a 2-tuple
+    /// returns a reference to the current state and symbol returing a 2-tuple
     pub const fn as_tuple(&self) -> (&State<Q>, &S) {
         (&self.state, &self.symbol)
     }
@@ -89,19 +93,17 @@ where
     pub fn into_tuple(self) -> (State<Q>, S) {
         (self.state, self.symbol)
     }
-    /// Returns a mutable reference to the current state and symbol as a 2-tuple
+    /// returns a mutable reference to the current state and symbol as a 2-tuple
     pub const fn as_mut_tuple(&mut self) -> (&mut State<Q>, &mut S) {
         (&mut self.state, &mut self.symbol)
     }
-    /// Updates the current state
-    pub fn set_state(&mut self, state: Q) -> &mut Self {
-        self.state_mut().set(state);
-        self
+    /// updates the current state
+    pub fn set_state(&mut self, state: Q) {
+        self.state_mut().set(state)
     }
-    /// Updates the current symbol
-    pub fn set_symbol(&mut self, symbol: S) -> &mut Self {
+    /// updates the current symbol
+    pub fn set_symbol(&mut self, symbol: S) {
         self.symbol = symbol;
-        self
     }
     /// Replaces the current state and symbol with the given state and symbol; returns the
     /// previous instance of the head.
@@ -128,7 +130,7 @@ where
         // swap the symbols
         core::mem::swap(self.symbol_mut(), other.symbol_mut());
     }
-    /// Updates the current [State] and symbol
+    /// updates the current [State] and symbol
     pub fn update(&mut self, state: Option<State<Q>>, symbol: Option<S>) {
         if let Some(state) = state {
             self.state = state;
