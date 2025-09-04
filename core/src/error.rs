@@ -2,7 +2,7 @@
     Appellation: error <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-//! The [`error`](self) module defines the core [`Error`] type used throughout the library and 
+//! The [`error`](self) module defines the core [`Error`] type used throughout the library and
 //! provides a convenient alias for [`Result`](core::result::Result) types.
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, string::String};

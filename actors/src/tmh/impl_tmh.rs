@@ -14,16 +14,23 @@ impl<Q, A> TMH<Q, A>
 where
     Q: RawState,
 {
-    pub const fn new(state: Q, symbol: usize) -> Self {
+    pub const fn new(state: Q, tape: Vec<A>) -> Self {
         Self {
-            head: Head::new(state, symbol),
-            tape: Vec::new(),
+            head: Head::new(state, 0),
+            tape,
         }
+    }
+    /// returns a new instance of the [`TMH`] using the given tape
+    pub fn from_tape(tape: Vec<A>) -> Self
+    where
+        Q: Default,
+    {
+        Self::new(<Q>::default(), tape)
     }
     /// returns a new instance of the [`TMH`] using the given state and an empty tape
     /// with the head positioned at `0`
-    pub fn from_state(state: Q) -> Self {
-        Self::new(state, 0)
+    pub const fn from_state(state: Q) -> Self {
+        Self::new(state, Vec::new())
     }
     /// returns an immutable reference to the head of the tape
     pub const fn head(&self) -> &Head<Q, usize> {
@@ -75,14 +82,14 @@ where
             ..self
         }
     }
-    /// Consumes the current instance and returns a new instance with the given state
+    /// consumes the current instance to create another with the given state
     pub fn with_state(self, state: State<Q>) -> Self {
         Self {
             head: Head { state, ..self.head },
             ..self
         }
     }
-    /// Consumes the current instance and returns a new instance with the given alphabet
+    /// consumes the current instance to create another with the given tape
     pub fn with_tape<I>(self, alpha: I) -> Self
     where
         I: IntoIterator<Item = A>,
@@ -92,16 +99,8 @@ where
             ..self
         }
     }
-    /// returns an instance of the [Head] with an immutable reference to the state's inner
-    /// value
-    pub fn head_ref(&self) -> Head<&Q, usize> {
-        Head {
-            state: self.head.state.view(),
-            symbol: self.head.symbol,
-        }
-    }
     /// returns the current position of the head on the tape
-    pub const fn position(&self) -> usize {
+    pub const fn current_position(&self) -> usize {
         *self.head().symbol()
     }
     /// returns an instance of the state with an immutable reference to the inner value
@@ -154,25 +153,27 @@ where
         #[cfg(feature = "tracing")]
         tracing::trace!(
             "Reacting to the current context of cell: {:?}",
-            self.position()
+            self.current_position()
         );
         // write the symbol to the tape
         self.write(symbol)?;
         // update the head of the actor
-        let prev = self.head.replace(state, self.position() + direction);
+        let prev = self
+            .head
+            .replace(state, self.current_position() + direction);
 
         Ok(prev)
     }
     /// Reads the current symbol at the head of the tape
     #[cfg_attr(
         feature = "tracing",
-        tracing::instrument(skip_all, name = "read", target = "actor")
+        tracing::instrument(skip_all, name = "read", target = "tmh")
     )]
     pub fn read(&self) -> crate::Result<Head<&'_ Q, &'_ A>> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Reading the tape...");
         self.tape()
-            .get(self.position())
+            .get(self.current_position())
             .map(|symbol| Head {
                 state: self.state().view(),
                 symbol,
@@ -181,10 +182,10 @@ where
                 #[cfg(feature = "tracing")]
                 tracing::error!(
                     "[Index Error] the current position ({pos}) of the head is out of bounds...",
-                    pos = self.position()
+                    pos = self.current_position()
                 );
                 CoreError::IndexOutOfBounds {
-                    index: self.position(),
+                    index: self.current_position(),
                     len: self.len(),
                 }
                 .into()
@@ -193,16 +194,14 @@ where
     /// write a symbol to the tape at the current position of the head;
     #[cfg_attr(
         feature = "tracing",
-        tracing::instrument(skip_all, name = "write", target = "actor")
+        tracing::instrument(skip_all, name = "write", target = "tmh")
     )]
     pub fn write(&mut self, value: A) -> crate::Result<()> {
-        #[cfg(feature = "tracing")]
-        tracing::trace!("Writing to the tape...");
-        let pos = self.position();
+        let pos = self.current_position();
 
         if pos < self.len() {
             #[cfg(feature = "tracing")]
-            tracing::trace!("Updating the tape...");
+            tracing::trace!("Updating the tape at {pos}");
             self.tape[pos] = value;
         } else if pos == self.len() {
             #[cfg(feature = "tracing")]
@@ -228,7 +227,7 @@ where
     pub(crate) unsafe fn write_value(&mut self, value: A) -> crate::Result<()> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Writing to the tape...");
-        let pos = self.position();
+        let pos = self.current_position();
 
         if pos < self.len() {
             #[cfg(feature = "tracing")]

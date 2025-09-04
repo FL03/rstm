@@ -21,7 +21,7 @@ where
         Q: Eq + core::hash::Hash,
         A: Eq + core::hash::Hash,
     {
-        self.program()?.find_tail(state, symbol)
+        self.program.as_ref()?.find_tail(state, symbol)
     }
     /// Reads the current symbol at the head of the tape
     pub fn read(&self) -> crate::Result<Head<&Q, &A>> {
@@ -56,32 +56,26 @@ where
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
         while let Some(_h) = self.step()? {
-            #[cfg(feature = "tracing")]
-            tracing::info!(
-                "Executing step ({i}) with a context of {_h:?}",
-                i = self.current_epoch(),
-            );
+            if self.driver.is_halted() {
+                #[cfg(feature = "tracing")]
+                tracing::info!("The engine has halted; terminating the execution of the program.");
+                break;
+            }
         }
         Ok(())
     }
-}
-
-#[allow(dead_code)]
-/// This implementation is for any private methods used internally by the engine
-impl<'a, Q, A> TuringEngine<'a, Q, A>
-where
-    Q: RawState,
-{
-    /// increments the current epoch by a single unit
-    pub(crate) const fn next_epoch(&mut self) {
-        self.epoch += 1;
-    }
     /// execute a single step of the program
-    pub(crate) fn step(&mut self) -> crate::Result<Option<Head<Q, A>>>
+    #[cfg_attr(
+        feature = "tracing", 
+        tracing::instrument(skip_all, fields(step = self.cycles), name = "step", target = "TuringEngine", level = "trace")
+    )]
+    pub fn step(&mut self) -> crate::Result<Option<Head<Q, A>>>
     where
         Q: 'static + HaltState + Clone + PartialEq,
         A: Symbol,
     {
+        // increment the steps
+        self.next_cycle();
         #[cfg(feature = "tracing")]
         tracing::info!("{tape:?}", tape = self.driver());
         // check if the actor is halted
@@ -102,24 +96,29 @@ where
             }
         };
         // execute the program
-        if let Some(tail) = self
-            .program()
-            .and_then(|p| p.find_tail(head.state, head.symbol))
-            .cloned()
-        {
-            // process the instruction
-            let next = tail.clone().into_head();
-            // process the instruction
-            let _prev = self.handle(tail);
-            // update the epoch
-            self.next_epoch();
-            // return the head
-            Ok(Some(next))
-        } else {
-            #[cfg(feature = "tracing")]
-            tracing::error!("No symbol found at {}", self.driver.position());
-            Err(crate::Error::NoSymbolFound(self.current_epoch()))
-        }
+        let tail = self
+            .program()?
+            .find_tail(head.state, head.symbol)
+            .ok_or(crate::Error::NoRuleFound)?
+            .clone();
+        // process the instruction
+        let next = tail.clone().into_head();
+        // process the instruction
+        let _prev = self.handle(tail);
+        // return the head
+        Ok(Some(next))
+    }
+}
+
+#[allow(dead_code)]
+/// This implementation is for any private methods used internally by the engine
+impl<'a, Q, A> TuringEngine<'a, Q, A>
+where
+    Q: RawState,
+{
+    /// increments the current epoch by a single unit
+    pub(crate) const fn next_cycle(&mut self) {
+        self.cycles += 1;
     }
 }
 

@@ -13,9 +13,7 @@ use alloc::vec::Vec;
 use rstm_rules::Program;
 use rstm_state::{RawState, State};
 
-/// The [`TuringEngine`] implementation is designed to handle the execution of a given program.
-/// The exact nature of the engine is determined, in part, by the type of _driver_ it employs
-///
+/// The [`TuringEngine`] implementation is essentially a runtime for Turing machine, allowing
 pub struct TuringEngine<'a, Q, A>
 where
     Q: RawState,
@@ -24,11 +22,10 @@ where
     pub(crate) driver: &'a mut TMH<Q, A>,
     /// the program being executed
     pub(crate) program: Option<Program<Q, A>>,
-    /// the current epoch, or step, of the machine
-    pub(crate) epoch: usize,
+    /// the number of cycles executed
+    pub(crate) cycles: usize,
     pub(crate) _inputs: Vec<A>,
 }
-
 
 impl<'a, Q, A> TuringEngine<'a, Q, A>
 where
@@ -39,7 +36,7 @@ where
             driver,
             _inputs: Vec::new(),
             program: None,
-            epoch: 0,
+            cycles: 0,
         }
     }
     /// consumes the instance to return another loaded up with the given program
@@ -63,21 +60,21 @@ where
         &self._inputs
     }
     /// returns a reference to the program
-    pub fn program(&self) -> Option<&Program<Q, A>> {
-        self.program.as_ref()
+    pub fn program(&self) -> crate::Result<&Program<Q, A>> {
+        self.program.as_ref().ok_or(crate::Error::NoProgram)
     }
     /// returns a mutable reference to the program
-    pub fn program_mut(&mut self) -> Option<&mut Program<Q, A>> {
-        self.program.as_mut()
+    pub fn program_mut(&mut self) -> crate::Result<&mut Program<Q, A>> {
+        self.program.as_mut().ok_or(crate::Error::NoProgram)
     }
-    /// returns a copy of the current steps
-    pub const fn current_epoch(&self) -> usize {
-        self.epoch
+    /// returns a copy of the total number of cycles, or steps, the engine has preformed
+    pub const fn cycles(&self) -> usize {
+        self.cycles
     }
     /// returns a mutable reference to the current steps
     pub const fn current_state(&self) -> &State<Q> {
         self.driver().state()
-    }    
+    }
     /// returns true if the engine has a program loaded
     pub const fn has_program(&self) -> bool {
         self.program.is_some()

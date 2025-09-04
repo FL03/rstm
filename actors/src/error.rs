@@ -25,6 +25,8 @@ pub enum Error {
     NoInputs,
     #[error("An infinite loop was detected during execution.")]
     InfiniteLoop,
+    #[error("No rule found")]
+    NoRuleFound,
     #[error("No symbol found at position {0}.")]
     NoSymbolFound(usize),
     #[error(transparent)]

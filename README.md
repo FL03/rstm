@@ -44,9 +44,9 @@ Enabling the `serde` feature will allow for serialization and deserialization of
 
 Researchers have simplified the definition of a Turing machine, boiling it down into a dynamical system defined by a set of states, symbols, and rules. The rules define the behavior of the machine, dictating how it transitions from one state to another based on the current symbol being read. More specifically, the transition function $\delta$ where:
 
-```math
-\delta\colon{Q}\times{A}\rightarrow{Q}\times{A}\times\lbrace\pm{1},0\rbrace
-```
+$$
+\delta\colon{Q}\times{A}\rightarrow{Q}\times{A}\times\lbrace{\pm{1},0\rbrace}
+$$
 
 as defined within the paper [On the Topological Dynamics of Turing Machines](https://doi.org/10.1016/S0304-3975(96)00025-4) by Petr Kůrka. Therefore, we any rule-based procedural macros within the scope of `rstm` follow the following syntax:
 
@@ -105,34 +105,42 @@ The following example demonstrates the use of the `program!` macro to define a s
     }
 ```
 
-#### **Example #4**: The `TMH` implementation
+#### **Example #4**: Putting it all together with the `TMH` implementation
 
 ```rust
     extern crate rstm;
 
     use rstm::actors::TMH;
+    use rstm::rules::Program;
 
-    fn main() -> Result<(), Box<dyn std::error::Error>> {
-        tracing_subscriber::fmt().with_target(false).init();
-        // initialize the tape data
-        let inputs = vec![0_usize; 10];
-        let initial_state = 0_isize;
-        // create a new program from the ruleset
-        let program = rstm::program! {
-            #[default_state(0)]
+    fn main() -> rstm::Result<()> {
+        // initialize the logger
+        tracing_subscriber::fmt()
+            .with_max_level(tracing::Level::TRACE)
+            .with_target(false)
+            .with_timer(tracing_subscriber::fmt::time::uptime())
+            .init();
+        tracing::info!("Welcome to rstm!");
+        // define some input for the machine
+        let input = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
+        // initialize the state of the machine
+        let initial_state: isize = 0;
+        // define the ruleset for the machine
+        let program: Program<isize, usize> = rstm::program! {
+            #[default_state(initial_state)]
             rules: {
                 (0, 0) -> Right(1, 0);
-                (0, 1) -> Stay(-1, 1);
-                (1, 0) -> Left(0, 1);
+                (0, 1) -> Left(-1, 1);
+                (1, 0) -> Right(0, 1);
                 (1, 1) -> Right(-1, 0);
-                (-1, 0) -> Right(0, 0);
-                (-1, 1) -> Right(1, 1);
+                (-1, 0) -> Left(<isize>::MAX, 0);
+                (-1, 1) -> Left(1, 1);
             };
         };
         // create a new instance of the machine
-        let mut tmh = TMH::from_state(initial_state);
+        let tm = TMH::new(initial_state, input.to_vec());
         // execute the program
-        tm.execute(program).run()?;
+        dbg!(tm).execute(program).run()?;
         Ok(())
     }
 ```

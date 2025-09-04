@@ -3,7 +3,7 @@
     Created At: 2025.09.03:21:12:32
     Contrib: @FL03
 */
-//! The [`engine`](self) module provides core 
+//! The [`engine`](self) module provides core
 
 #[cfg(feature = "alloc")]
 #[doc(inline)]
@@ -17,9 +17,8 @@ pub(crate) mod prelude {
     #[cfg(feature = "alloc")]
     pub use super::turing_engine::*;
     #[doc(inline)]
-    pub use super::{RawEngine, Engine};
+    pub use super::{Engine, RawEngine};
 }
-
 
 use crate::traits::RawActor;
 

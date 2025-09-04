@@ -16,9 +16,9 @@
 /// [On the Topological Dynamics of Turing Machines](https://doi.org/10.1016/S0304-3975(96)00025-4)
 /// by Petr Kůrka. Specifically,
 ///
-/// ```math
-/// \delta\colon{Q}\times{A}\rightarrow{Q}\times{A}\times\lbrace\pm{1},0\rbrace
-/// ```
+/// $$
+/// \delta\colon{Q}\times{A}\rightarrow{Q}\times{A}\times\lbrace{\pm{1},0\rbrace}
+/// $$
 ///
 /// **note:** it is unnecessary for you to import the [`Direction`](crate::Direction) enum, as
 /// the macro hygenically imports each of its variants directly based on your usage.

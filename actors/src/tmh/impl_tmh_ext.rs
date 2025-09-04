@@ -16,7 +16,7 @@ where
     A: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        let pos = self.position();
+        let pos = self.current_position();
         let (a, b) = get_range_around(pos, self.len(), DISPLAY_RADIUS);
         // print out the tape with the head position highlighted
         for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
@@ -37,7 +37,7 @@ where
     A: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        let pos = self.position();
+        let pos = self.current_position();
         let (a, b) = get_range_around(pos, self.len(), DISPLAY_RADIUS);
         // print out the tape with the head position highlighted
         for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {

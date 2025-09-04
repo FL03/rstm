@@ -13,6 +13,6 @@ where
 {
     #[deprecated(since = "0.0.9", note = "use `current_epoch` instead")]
     pub const fn steps(&self) -> usize {
-        self.epoch
+        self.cycles
     }
 }

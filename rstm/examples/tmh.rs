@@ -1,11 +1,11 @@
 /*
-    Appellation: actor <example>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: tmh <example>
+    Created At: 2025.09.03:21:59:56
+    Contrib: @FL03
 */
 extern crate rstm;
 
-use rstm::actors::TMH;
-use rstm::rules::Program;
+use rstm::prelude::{Program, TMH};
 
 fn main() -> rstm::Result<()> {
     // initialize the logger
@@ -15,8 +15,8 @@ fn main() -> rstm::Result<()> {
         .with_timer(tracing_subscriber::fmt::time::uptime())
         .init();
     tracing::info!("Welcome to rstm!");
-    // initialize the tape data
-    let alpha = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
+    // define some input for the machine
+    let input = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
     // initialize the state of the machine
     let initial_state: isize = 0;
     // define the ruleset for the machine
@@ -32,10 +32,8 @@ fn main() -> rstm::Result<()> {
         };
     };
     // create a new instance of the machine
-    let mut tm = TMH::from_state(initial_state);
-    tm.extend_tape(alpha);
+    let tm = TMH::new(initial_state, input.to_vec());
     // execute the program
     dbg!(tm).execute(program).run()?;
-    tracing::info!("Execution successfull! Terminating the program...");
     Ok(())
 }
