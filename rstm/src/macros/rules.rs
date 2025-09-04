@@ -10,6 +10,9 @@
 /// ```no_run
 ///     (state, symbol) -> Direction(next_state, next_symbol)
 /// ```
+/// 
+/// **note:** it is unnecessary for you to import the [`Direction`](crate::Direction) enum, as
+/// the macro hygenically imports each of its variants directly based on your usage.
 ///
 /// The syntax is directly ispired by the simplified definition of a Turing machine as a
 /// dynamical system, as described in the paper
@@ -20,18 +23,13 @@
 /// \delta: Q\times{A}\rightarrow{Q}\times{A}\times{\lbrace\pm{1},0\rbrace}
 /// $$
 ///
-/// **note:** it is unnecessary for you to import the [`Direction`](crate::Direction) enum, as
-/// the macro hygenically imports each of its variants directly based on your usage.
+/// ## Basic Usage
 ///
-/// ## Examples
-///
-/// ### _Example #1:_ Basic Usage
-///
-/// define some rule, a, where when in state 0 and reading symbol 1, it writes symbol 0,
-/// moves the tape head to the right, and transitions to state 1
+/// Let's define a rule that, when in state `0` and reading symbol `1`, will write symbol `0`, 
+/// move the tape head to the right, and transition to state `1`.
 ///
 /// ```rust
-/// let a = rstm::rule! {
+/// rstm::rule! {
 ///     (0, 1) -> Right(1, 0)
 /// };
 /// ```
@@ -49,26 +47,24 @@ macro_rules! rule {
             .build()
     };
 }
-/// [`rules!`] is a macro that simplifies the creation of a vector of [`Rules`](crate::Rule).
-///
-/// ### Syntax
+/// [`rules!`] is a macro that simplifies the creation of an array of [`Rule`](crate::rules::Rule)
+/// instances for a Turing machine. The macro adheres to the syntax outlined in the [`rule!`] 
+/// macro, treating each "statement" as an individual rule:
 ///
 /// ```ignore
-/// ruleset! {
+/// rules! {
 ///     (state, symbol) -> direction(next_state, write_symbol);
 ///     ...
 /// }
 /// ```
 ///
-/// ### Example
+/// ## Basic Usage
 ///
 /// The following example demonstrates the usage of the macro to create a ruleset using three
 /// states `{-1, 0, 1}` and two symbols `{0, 1}`.
 ///
 /// ```rust
-/// use rstm::rules;
-///
-/// let rule = rules! {
+/// rstm::rules! {
 ///     (0, 0) -> Right(1, 1);
 ///     (0, 1,) -> Left(-1, 0);
 ///     (1, 0) -> Right(1, 1);
