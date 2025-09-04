@@ -8,13 +8,11 @@
 /// within the bounds of the tape
 pub fn get_range_around(position: usize, len: usize, radius: usize) -> (usize, usize) {
     // determine the initial position
-    let start = if position >= radius {
-        position - radius
-    } else {
+    let start = if position < radius {
         0
+    } else {
+        position - radius
     };
-    // handle the case where we are at the end of the tape
-
     let end = if (position + radius) < len {
         position + radius
     } else {
