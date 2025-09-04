@@ -10,7 +10,7 @@
 /// ```no_run
 ///     (state, symbol) -> Direction(next_state, next_symbol)
 /// ```
-/// 
+///
 /// **note:** it is unnecessary for you to import the [`Direction`](crate::Direction) enum, as
 /// the macro hygenically imports each of its variants directly based on your usage.
 ///
@@ -25,7 +25,7 @@
 ///
 /// ## Basic Usage
 ///
-/// Let's define a rule that, when in state `0` and reading symbol `1`, will write symbol `0`, 
+/// Let's define a rule that, when in state `0` and reading symbol `1`, will write symbol `0`,
 /// move the tape head to the right, and transition to state `1`.
 ///
 /// ```rust
@@ -48,7 +48,7 @@ macro_rules! rule {
     };
 }
 /// [`rules!`] is a macro that simplifies the creation of an array of [`Rule`](crate::rules::Rule)
-/// instances for a Turing machine. The macro adheres to the syntax outlined in the [`rule!`] 
+/// instances for a Turing machine. The macro adheres to the syntax outlined in the [`rule!`]
 /// macro, treating each "statement" as an individual rule:
 ///
 /// ```ignore
