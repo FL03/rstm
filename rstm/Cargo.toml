@@ -21,16 +21,17 @@ doc = true
 doctest = false
 test = true
 
-# ************* [Benchmarks] *************
+# ************* [benchmarks] *************
+
 [[bench]]
 harness = false
-name = "default"
-required-features = ["std"]
+name = "tmh"
+required-features = ["full"]
 
-# ************* [Examples] *************
+# ************* [examples] *************
 [[example]]
 name = "tmh"
-required-features = ["alloc", "tracing", "actors", "rules", "macros"]
+required-features = ["full"]
 
 # ************* [Unit Tests] *************
 [[test]]

@@ -25,10 +25,10 @@ fn main() -> rstm::Result<()> {
         rules: {
             (0, 0) -> Right(1, 0);
             (0, 1) -> Left(-1, 1);
-            (1, 0) -> Right(0, 1);
+            (1, 0) -> Right(1, 1);
             (1, 1) -> Right(-1, 0);
             (-1, 0) -> Left(<isize>::MAX, 0);
-            (-1, 1) -> Left(1, 1);
+            (-1, 1) -> Left(0, 1);
         };
     };
     // create a new instance of the machine
