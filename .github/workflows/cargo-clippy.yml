@@ -42,10 +42,10 @@ jobs:
           components: clippy, rustfmt
       - 
         name: Setup cargo-binstall
-        uses: cargo-bins/cargo-binstall@v1.15.1
+        uses: cargo-bins/cargo-binstall@v1.15.3
       -
         name: Setup the for sarif output
-        run: cargo binstall -qy clippy-sarif sarif-fmt
+        run: cargo binstall -y --force clippy-sarif sarif-fmt
       -
         name: cargo clippy
         continue-on-error: true

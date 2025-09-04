@@ -14,7 +14,6 @@
     Ord,
     PartialEq,
     PartialOrd,
-    variants::VariantConstructors,
     strum::AsRefStr,
     strum::Display,
     strum::EnumCount,
@@ -68,6 +67,18 @@ pub enum Direction {
  ************* Implementations *************
 */
 impl Direction {
+    /// a functional constructor for the [`Left`](Direction::Left) variant
+    pub const fn left() -> Self {
+        Self::Left
+    }
+    /// a functional constructor for the [`Right`](Direction::Right) variant
+    pub const fn right() -> Self {
+        Self::Right
+    }
+    /// a functional constructor for the [`Stay`](Direction::Stay) variant
+    pub const fn stay() -> Self {
+        Self::Stay
+    }
     /// Converts an [i8] value into a [`Direction`] by taking the modulus of the value.
     /// The function uses a modulator of 2 to determine the direction since there are
     /// only two actionable directions ([left](Direction::Left) and [right](Direction::Right)).
@@ -137,7 +148,7 @@ impl Default for Direction {
 
 impl<T> core::ops::Add<T> for Direction
 where
-    T: core::ops::Add<Output = T> + core::ops::Sub<Output = T> + num::One,
+    T: core::ops::Add<Output = T> + core::ops::Sub<Output = T> + num_traits::One,
 {
     type Output = T;
 
@@ -192,20 +203,32 @@ macro_rules! impl_apply_direction {
         }
 
     };
-    (signed: $($T:ty),* $(,)?) => {
+    (#[$kind:ident] $($T:ty),* $(,)?) => {
         $(
-            impl_apply_direction!(@signed $T);
-        )*
-    };
-    (unsigned: $($T:ty),* $(,)?) => {
-        $(
-            impl_apply_direction!(@unsigned $T);
+            impl_apply_direction!(@$kind $T);
         )*
     };
 
 }
-impl_apply_direction!(signed: i8, i16, i32, i64, i128, isize,);
-impl_apply_direction!(unsigned: u8, u16, u32, u64, u128, usize);
+impl_apply_direction! {
+    #[signed]
+    i8,
+    i16,
+    i32,
+    i64,
+    i128,
+    isize,
+}
+
+impl_apply_direction! {
+    #[unsigned]
+    u8,
+    u16,
+    u32,
+    u64,
+    u128,
+    usize
+}
 
 mod impl_from {
     use super::*;

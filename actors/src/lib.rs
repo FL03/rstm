@@ -1,14 +1,26 @@
 /*
-    Appellation: actors <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: rstm-actors <library>
+    Created At: 2025.09.03:18:46:32
+    Contrib: @FL03
 */
-//! This modules implements an [Actor] struct, which is a Turing machine with a moving head
-//! (TMH).
+//! The [`actors`](self) module establishes a framework for defining and managing Turing
+//! machines
 //!
+//! ## Overview
+//!
+//! Here, we define the concept of an _actor_ as a fundamental computational entity capable of
+//! executing actions based on a set of rules or stimuli. This abstraction allows us to define
+//! a distinct separation between the _actor_ and the _rulespace_, where the actor operates
+//! independently of the specific logic that governs its behavior. By isolating the actor from
+//! the rulespace, we can create a more modular and flexible system that can adapt to different
+//! sets of rules without altering the core functionality of the actor itself.
+//!
+//! That being said, the design of an actor
 #![allow(
+    clippy::missing_safety_doc,
     clippy::module_inception,
-    clippy::new_ret_no_self,
     clippy::needless_doctest_main,
+    clippy::self_named_constructors,
     clippy::should_implement_trait
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -24,13 +36,24 @@ compile_error! {
     "Either the `alloc` or `std` feature must be enabled for this crate to compile."
 }
 
+#[macro_use]
+mod macros {
+    #[macro_use]
+    pub(crate) mod seal;
+}
+
+mod impls {
+    #[allow(deprecated)]
+    mod impl_deprecated;
+}
+
 #[doc(inline)]
-pub use self::{actor::Actor, error::*, exec::Executor, traits::*};
+pub use self::{engine::TuringEngine, error::*, tmh::TMH, traits::*};
 
 #[cfg(feature = "alloc")]
-pub(crate) mod actor;
+pub(crate) mod engine;
 #[cfg(feature = "alloc")]
-pub(crate) mod exec;
+pub(crate) mod tmh;
 
 pub mod error;
 
@@ -39,14 +62,17 @@ pub mod traits {
     #[doc(inline)]
     pub use self::prelude::*;
 
+    mod actor;
     mod engine;
     mod handle;
 
     mod prelude {
-        #[doc(hidden)]
-        pub use super::engine::Engine;
         #[doc(inline)]
-        pub use super::handle::Handle;
+        pub use super::actor::*;
+        #[doc(inline)]
+        pub use super::engine::*;
+        #[doc(inline)]
+        pub use super::handle::*;
     }
 }
 
@@ -54,10 +80,10 @@ pub mod traits {
 pub mod prelude {
     #[cfg(feature = "alloc")]
     #[doc(inline)]
-    pub use crate::actor::Actor;
+    pub use crate::engine::TuringEngine;
     #[cfg(feature = "alloc")]
     #[doc(inline)]
-    pub use crate::exec::Executor;
+    pub use crate::tmh::TMH;
     #[doc(inline)]
     pub use crate::traits::*;
 }

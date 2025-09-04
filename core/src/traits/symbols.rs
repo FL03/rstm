@@ -27,35 +27,56 @@ pub trait Alphabet {
 
     fn to_vec(&self) -> Vec<Self::Elem>;
 }
+/// [`Symbolic`] is a marker trait used to signal a type that can be displayed.
+pub trait Symbolic: core::fmt::Debug + core::fmt::Display {
+    private! {}
+}
 
-/// [Symbolic] is a trait denoting types that can be used as symbols;
-/// this is useful for allowing symbols to represented with [char] or
-/// be a position on the tape, value mapping for an alphabet,.
-pub trait Symbolic
+/// The [`RawSymbol`] trait establishes the minimum requirements for a type to be used
+/// as a symbol within a Turing machine.
+pub trait RawSymbol: Symbolic + 'static {
+    private! {}
+}
+
+/// The [`Symbol`] trait extends the [`RawSymbol`] to define the expected behaviors of a symbol
+/// used within a Turing machine.
+pub trait Symbol
 where
-    Self: Clone
+    Self: RawSymbol
+        + Clone
         + Copy
         + Default
         + Eq
         + Ord
         + PartialEq
         + PartialOrd
-        + core::fmt::Debug
-        + core::fmt::Display
-        + core::hash::Hash
         + Send
         + Sync
-        + 'static,
+        + core::hash::Hash,
 {
 }
 
 /*
  ************* Implementations *************
 */
-#[cfg(feature = "alloc")]
-use alloc::vec::Vec;
 
-impl<S: Symbolic> Alphabet for [S] {
+impl<S> Symbolic for S
+where
+    S: core::fmt::Debug + core::fmt::Display,
+{
+    seal! {}
+}
+
+impl<S> RawSymbol for S
+where
+    S: Symbolic + 'static,
+{
+    seal! {}
+}
+
+impl<S> Symbol for S where S: RawSymbol + Copy + Default + Eq + Ord + Send + Sync + core::hash::Hash {}
+
+impl<S: Symbol> Alphabet for [S] {
     type Elem = S;
 
     fn as_slice(&self) -> &[S] {
@@ -80,40 +101,31 @@ impl<S: Symbolic> Alphabet for [S] {
 }
 
 #[cfg(feature = "alloc")]
-impl<S: Symbolic> Alphabet for Vec<S> {
-    type Elem = S;
+mod impl_alloc {
+    use super::{Alphabet, Symbol};
+    use alloc::vec::Vec;
 
-    fn as_slice(&self) -> &[S] {
-        self.as_slice()
+    impl<S: Symbol> Alphabet for Vec<S> {
+        type Elem = S;
+
+        fn as_slice(&self) -> &[S] {
+            self.as_slice()
+        }
+
+        fn as_mut_slice(&mut self) -> &mut [S] {
+            self.as_mut_slice()
+        }
+
+        fn is_empty(&self) -> bool {
+            self.is_empty()
+        }
+
+        fn len(&self) -> usize {
+            self.len()
+        }
+
+        fn to_vec(&self) -> Vec<S> {
+            self.clone()
+        }
     }
-
-    fn as_mut_slice(&mut self) -> &mut [S] {
-        self.as_mut_slice()
-    }
-
-    fn is_empty(&self) -> bool {
-        self.is_empty()
-    }
-
-    fn len(&self) -> usize {
-        self.len()
-    }
-
-    fn to_vec(&self) -> Vec<S> {
-        self.clone()
-    }
-}
-
-impl<S> Symbolic for S where
-    S: Copy
-        + Default
-        + Eq
-        + Ord
-        + core::fmt::Debug
-        + core::fmt::Display
-        + core::hash::Hash
-        + Send
-        + Sync
-        + 'static
-{
 }

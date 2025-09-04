@@ -5,6 +5,13 @@
 #[cfg(feature = "alloc")]
 use alloc::string::String;
 
+pub trait Stated {
+    type Ctx;
+
+    fn get(&self) -> &Self::Ctx;
+    fn get_mut(&mut self) -> &mut Self::Ctx;
+}
+
 /// [`RawState`] is a trait describing objects capable of being used as states in our library.
 /// The trait contains a single associated trait, the context, or inner value of the state.
 pub trait RawState: Send + Sync + core::fmt::Debug {
@@ -14,7 +21,7 @@ pub trait RawState: Send + Sync + core::fmt::Debug {
 /// operations and implementations.
 pub trait DisplayState: RawState
 where
-    Self: core::fmt::Display,
+    Self: core::fmt::Debug + core::fmt::Display,
 {
     private!();
 }
@@ -26,11 +33,11 @@ where
 {
     private!();
 }
-/// The [`StdState`] trait extends the [`RawState`] trait to include standard traits commonly
-/// used for state manipulation and comparison.
-pub trait StdState: DisplayState
+/// The [`StdState`] trait extends the base [`RawState`] trait to include additional traits
+/// commonly used alongside the state.
+pub trait StdState: RawState
 where
-    Self: Clone + Default + PartialEq + PartialOrd,
+    Self: Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
 {
     private!();
 }
@@ -38,9 +45,7 @@ where
 pub trait NumState: StdState
 where
     Self: Copy
-        + Default
         + Eq
-        + PartialOrd
         + core::ops::Add<Output = Self>
         + core::ops::Sub<Output = Self>
         + core::ops::Mul<Output = Self>
@@ -123,6 +128,13 @@ where
     seal!();
 }
 
+impl<Q> RawState for Option<Q>
+where
+    Q: RawState,
+{
+    seal!();
+}
+
 impl<Q> RawState for core::ops::ControlFlow<Q, Q>
 where
     Q: RawState,
@@ -158,7 +170,7 @@ macro_rules! impl_raw_state {
 impl_raw_state! {
     usize, u8, u16, u32, u64, u128,
     isize, i8, i16, i32, i64, i128,
-    f32, f64, bool, char,
+    f32, f64, bool, char, str,
 }
 
 #[cfg(feature = "alloc")]

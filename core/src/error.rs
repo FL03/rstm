@@ -11,19 +11,8 @@ pub type Result<T = ()> = core::result::Result<T, crate::Error>;
 /// The [`Error`] implementation describes the various errors that can occur within the library
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("[Index Error] Out of Bounds: {index} is out of bounds for a length of {len}")]
+    #[error("The specified index ({index}) is out of bounds for a collection of {len} elements.")]
     IndexOutOfBounds { index: usize, len: usize },
-    #[cfg(feature = "alloc")]
-    #[error("[Execution Error] {0}")]
-    ExecutionError(String),
-    #[cfg(feature = "alloc")]
-    #[error("[Runtime Error] {0}")]
-    RuntimeError(String),
-    #[error("[State Error] {0}")]
-    StateError(#[from] rstm_state::StateError),
-    #[cfg(feature = "alloc")]
-    #[error("[Transformation Error]: {0}")]
-    TransformationError(String),
     #[cfg(feature = "alloc")]
     #[error("[Type Error] {0}")]
     TypeError(String),
@@ -34,10 +23,12 @@ pub enum Error {
     FmtError(core::fmt::Error),
     #[cfg(feature = "std")]
     #[error(transparent)]
-    IoError(std::io::Error),
+    IOError(std::io::Error),
     #[cfg(feature = "alloc")]
-    #[error("[Unknown Error] {0}")]
+    #[error("An unknown error occurred: {0}")]
     Unknown(String),
+    #[error(transparent)]
+    StateError(#[from] rstm_state::StateError),
 }
 
 impl Error {

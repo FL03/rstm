@@ -3,20 +3,28 @@
     Created At: 2025.08.30:00:15:55
     Contrib: @FL03
 */
-use super::Handle;
+use super::actor::RawActor;
 
-use crate::error::Error;
-use rstm_core::state::RawState;
-use rstm_rules::{Rule, Tail};
+use rstm_rules::Program;
+use rstm_state::RawState;
 
-#[doc(hidden)]
-pub trait Engine<Q, S>: Handle<Tail<Q, S>>
+/// The [`RawEngine`] trait defines the basis for compatible engines within the system.
+pub trait RawEngine<Q, A>
 where
     Q: RawState,
 {
-    fn load<I>(&mut self, program: I)
-    where
-        I: IntoIterator<Item = Rule<Q, S>>;
+    type Driver: RawActor;
 
-    fn run(&mut self) -> Result<(), Error>;
+    private!();
+}
+
+/// An [`Engine`] is responsible for processing input according to some set of pre-defined
+/// rules using the configured driver.
+pub trait Engine<Q, S>: RawEngine<Q, S>
+where
+    Q: RawState,
+{
+    fn load(&mut self, program: Program<Q, S>);
+
+    fn run(&mut self) -> crate::Result<()>;
 }

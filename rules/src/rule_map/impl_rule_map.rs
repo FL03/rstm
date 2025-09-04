@@ -4,8 +4,8 @@
 */
 use super::RuleMap;
 use crate::Rule;
-use crate::types::{Head, Tail};
 use core::hash::Hash;
+use rstm_core::{Head, Tail};
 use rstm_state::RawState;
 use std::collections::hash_map;
 

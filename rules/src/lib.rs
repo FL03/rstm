@@ -1,6 +1,7 @@
 /*
-    Appellation: rstm-core <library>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: rstm-rules <library>
+    Created At: 2025.08.30:18:45:29
+    Contrib: @FL03
 */
 //! Rules for the rstm framework
 
@@ -27,67 +28,68 @@ mod macros {
 #[doc(inline)]
 pub use self::{
     error::*,
-    learned_rule::LearnedRule,
-    rule::{Rule, RuleBuilder},
+    rule::{LearnedRule, Rule},
     traits::*,
     types::*,
 };
 
+#[cfg(feature = "alloc")]
+#[doc(inline)]
+pub use self::program::*;
 #[cfg(feature = "std")]
 #[doc(inline)]
 pub use self::rule_map::RuleMap;
-#[cfg(feature = "alloc")]
-#[doc(inline)]
-pub use self::ruleset::*;
 
 pub mod error;
-pub(crate) mod learned_rule;
 pub(crate) mod rule;
 
+#[cfg(feature = "alloc")]
+pub mod program;
 #[cfg(feature = "std")]
 pub mod rule_map;
-#[cfg(feature = "alloc")]
-pub mod ruleset;
 
 pub mod traits {
     //! the traits defining compatible rules within the framework
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod program;
-    mod transition;
+    mod instruction;
+    mod rulespace;
 
     mod prelude {
         #[doc(inline)]
-        pub use super::program::*;
+        pub use super::instruction::*;
         #[doc(inline)]
-        pub use super::transition::*;
+        pub use super::rulespace::*;
     }
 }
 
-pub mod types {
+mod types {
     //! types essential to the construction of rules, programs, and other related objects
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod aliases;
-    mod head;
-    mod tail;
-
     mod prelude {
         #[doc(inline)]
         pub use super::aliases::*;
-        #[doc(inline)]
-        pub use super::head::*;
-        #[doc(inline)]
-        pub use super::tail::*;
+    }
+
+    mod aliases {
+        #[cfg(feature = "std")]
+        use rstm_core::{Head, Tail};
+
+        #[cfg(feature = "alloc")]
+        pub(crate) type RuleVec<Q, S> = alloc::vec::Vec<crate::Rule<Q, S>>;
+
+        /// A type alias for a [`HashMap`](std::collections::HashMap) with keys of type [`Head<Q, S>`] and values of type
+        /// [`Tail<Q, S>`].
+        #[cfg(feature = "std")]
+        pub type HeadMap<Q = usize, S = usize> = std::collections::HashMap<Head<Q, S>, Tail<Q, S>>;
     }
 }
 
 #[doc(hidden)]
 pub mod prelude {
-    #[doc(no_inline)]
-    pub use crate::learned_rule::LearnedRule;
     #[doc(no_inline)]
     pub use crate::rule::Rule;
     #[doc(no_inline)]
@@ -96,9 +98,9 @@ pub mod prelude {
     pub use crate::types::*;
 
     #[doc(no_inline)]
+    #[cfg(feature = "alloc")]
+    pub use crate::program::Program;
+    #[doc(no_inline)]
     #[cfg(feature = "std")]
     pub use crate::rule_map::RuleMap;
-    #[doc(no_inline)]
-    #[cfg(feature = "alloc")]
-    pub use crate::ruleset::InstructionSet;
 }

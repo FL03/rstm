@@ -8,18 +8,19 @@ members = [
   "rstm", 
   "rules",
   "state",
+  "tape",
 ]
 resolver = "3"
 
 [workspace.package]
 authors = [
-    "FL03 <joe@pzzld.org>",
-    "Scattered-Systems <support@scsys.io>",
+  "FL03 <joe@pzzld.org>",
+  "Scattered-Systems <support@scsys.io>",
 ]
 categories = [
-    "mathematics",
-    "science",
-    "simulation",
+  "mathematics",
+  "science",
+  "simulation",
 ]
 description = "This crate focuses on building concrete implementations for Turing Machines."
 edition = "2024"
@@ -29,18 +30,19 @@ license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/FL03/rstm.git"
 rust-version = "1.85.0"
-version = "0.0.8"
+version = "0.0.9"
 
 [workspace.dependencies]
-rstm = { default-features = false, path = "rstm", version = "0.0.8" }
-rstm-actors = { default-features = false, path = "actors", version = "0.0.8" }
-rstm-core = { default-features = false, path = "core", version = "0.0.8" }
-rstm-state = { default-features = false, path = "state", version = "0.0.8" }
-rstm-rules = { default-features = false, path = "rules", version = "0.0.8" }
+rstm = { default-features = false, path = "rstm", version = "0.0.9" }
+rstm-actors = { default-features = false, path = "actors", version = "0.0.9" }
+rstm-core = { default-features = false, path = "core", version = "0.0.9" }
+rstm-state = { default-features = false, path = "state", version = "0.0.9" }
+rstm-rules = { default-features = false, path = "rules", version = "0.0.9" }
+rstm-tape = { default-features = false, path = "tape", version = "0.0.9" }
 
 # custom
-contained = { default-features = false, features = ["derive", "macros"], version = "0.2" }
-scsys = { default-features = false, features = ["derive"], version = "0.3.0" }
+contained = { default-features = false, features = ["derive", "macros"], version = "0.2.1" }
+scsys = { default-features = false, features = ["derive"], version = "0.3.1" }
 variants = { default-features = false, features = ["derive"], version = "0.0.1" }
 # benchmarking
 # error-handling

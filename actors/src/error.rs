@@ -12,20 +12,27 @@ pub type Result<T> = core::result::Result<T, Error>;
 /// the various errors that can occur in the state module
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("The actor has halted.")]
+    #[cfg(feature = "alloc")]
+    #[error("[Execution Error] {0}")]
+    ExecutionError(String),
+    #[error("The actor is halted and should be terminated.")]
     Halted,
-    #[error(
-        "The actor attempted to access an index ({index}) outside the bounds of the tape (size: {len})."
-    )]
-    IndexOutOfBounds { index: usize, len: usize },
+    #[error("The actor is not ready to process inputs.")]
+    NotReady,
+    #[error("The actor has no program loaded.")]
+    NoProgram,
+    #[error("The actor has no inputs to process.")]
+    NoInputs,
+    #[error("An infinite loop was detected during execution.")]
+    InfiniteLoop,
+    #[error("No symbol found at position {0}.")]
+    NoSymbolFound(usize),
     #[error(transparent)]
     CoreError(#[from] rstm_core::Error),
     #[error(transparent)]
     RulesError(#[from] rstm_rules::Error),
     #[error(transparent)]
     StateError(#[from] rstm_state::StateError),
-    #[error("An unknown error was thrown by an actor: {0}")]
-    UnknwonError(String),
 }
 
 #[cfg(feature = "alloc")]

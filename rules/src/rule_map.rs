@@ -6,8 +6,9 @@
 mod impl_rule_map;
 
 use super::Rule;
-use crate::types::{Head, Tail};
+
 use core::hash::Hash;
+use rstm_core::{Head, Tail};
 use rstm_state::{RawState, State};
 use std::collections::hash_map::{self, HashMap};
 

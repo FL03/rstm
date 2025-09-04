@@ -4,6 +4,33 @@
 */
 use crate::state::State;
 
+use crate::traits::{RawState, StateRepr};
+
+impl<Q> StateRepr<Q> for State<Q>
+where
+    Q: RawState,
+{
+    type Repr<_V: RawState> = State<_V>;
+
+    seal! {}
+
+    fn get(&self) -> &Q {
+        &self.0
+    }
+
+    fn get_mut(&mut self) -> &mut Q {
+        &mut self.0
+    }
+
+    fn view(&self) -> Self::Repr<&Q> {
+        State::new(self.get())
+    }
+
+    fn view_mut(&mut self) -> Self::Repr<&mut Q> {
+        State::new(self.get_mut())
+    }
+}
+
 impl<Q> AsRef<Q> for State<Q> {
     fn as_ref(&self) -> &Q {
         &self.0

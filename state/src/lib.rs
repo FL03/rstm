@@ -10,6 +10,7 @@
     clippy::missing_safety_doc,
     clippy::module_inception,
     clippy::needless_doctest_main,
+    clippy::self_named_constructors,
     clippy::should_implement_trait
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
@@ -47,17 +48,17 @@ pub mod traits {
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod halted;
+    mod halting;
     mod raw_state;
-    mod stated;
+    mod stateful;
 
     mod prelude {
         #[doc(inline)]
-        pub use super::halted::*;
+        pub use super::halting::*;
         #[doc(inline)]
         pub use super::raw_state::*;
         #[doc(inline)]
-        pub use super::stated::*;
+        pub use super::stateful::*;
     }
 }
 
@@ -66,13 +67,13 @@ pub mod types {
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod halt;
+    mod halter;
 
     mod prelude {
         #[doc(inline)]
         pub use super::aliases::*;
         #[doc(inline)]
-        pub use super::halt::*;
+        pub use super::halter::*;
     }
 
     mod aliases {
