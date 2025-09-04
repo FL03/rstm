@@ -28,9 +28,8 @@ where
 #[cfg(feature = "alloc")]
 mod impl_alloc {
     use super::{RawSpace, RuleSpace};
-    use crate::rule::Rule;
     use alloc::vec::Vec;
-    use rstm_core::{Head, Tail};
+    use rstm_core::{Head, Rule, Tail};
     use rstm_state::RawState;
 
     impl<T> RawSpace for Vec<T> {

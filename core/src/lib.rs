@@ -24,6 +24,7 @@ pub use rstm_state as state;
 pub use self::{
     error::{Error, Result},
     head::Head,
+    rule::{LearnedRule, Rule},
     state::{RawState, State},
     tail::Tail,
     traits::*,
@@ -39,6 +40,7 @@ pub(crate) mod macros {
 
 pub mod error;
 pub mod head;
+pub mod rule;
 pub mod tail;
 
 pub mod traits {
@@ -91,6 +93,7 @@ pub mod prelude {
     pub use rstm_state::prelude::*;
 
     pub use crate::head::*;
+    pub use crate::rule::*;
     pub use crate::tail::*;
 
     pub use crate::traits::*;

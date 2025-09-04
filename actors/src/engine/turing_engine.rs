@@ -10,7 +10,7 @@ mod impl_deprecated;
 
 use crate::tmh::TMH;
 use alloc::vec::Vec;
-use rstm_rules::Program;
+use rstm_programs::Program;
 use rstm_state::{RawState, State};
 
 /// The [`TuringEngine`] implementation is essentially a runtime for Turing machine, allowing

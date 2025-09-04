@@ -38,11 +38,11 @@ name = "default"
 
 [[test]]
 name = "macros"
-required-features = ["macros", "rules"]
+required-features = ["macros"]
 
 [[test]]
 name = "tmh"
-required-features = ["alloc", "actors", "macros", "rules"]
+required-features = ["alloc", "actors", "macros", "programs"]
 
 
 # ********* [Package Metadata] *********
@@ -60,7 +60,7 @@ tag-name = "{{version}}"
 [dependencies]
 rstm-actors = { optional = true, workspace = true }
 rstm-core = { workspace = true }
-rstm-rules = { optional = true, workspace = true }
+rstm-programs = { optional = true, workspace = true }
 rstm-tape = { optional = true, workspace = true }
 
 [dev-dependencies]
@@ -74,7 +74,7 @@ tracing-subscriber = { features = ["json", "serde"], workspace = true }
 default = [
   "actors",
   "macros",
-  "rules",
+  "programs",
   "std",
   "tape",
 ]
@@ -89,14 +89,14 @@ full = [
 # ********* [FF] Features *********
 actors = [
   "alloc",
-  "rules",
+  "programs",
   "tape",
   "dep:rstm-actors",
 ]
 
 macros = []
 
-rules = ["dep:rstm-rules"]
+programs = ["dep:rstm-programs"]
 
 tape = [
   "alloc",
@@ -106,14 +106,14 @@ tape = [
 nightly = [
   "rstm-actors?/nightly",
   "rstm-core/nightly",
-  "rstm-rules?/nightly",
+  "rstm-programs?/nightly",
   "rstm-tape?/nightly"
 ]
 
 json = [
   "alloc",
   "rstm-core/json",
-  "rstm-rules?/json",
+  "rstm-programs?/json",
 ]
 
 # ********* [FF] Environments *********
@@ -121,7 +121,7 @@ std = [
   "alloc", 
   "rstm-actors?/std",
   "rstm-core/std",
-  "rstm-rules?/std",
+  "rstm-programs?/std",
   "rstm-tape?/std",
 ]
 
@@ -129,7 +129,7 @@ wasi = [
   "alloc",
   "rstm-actors?/wasi",
   "rstm-core/wasi",
-  "rstm-rules?/wasi",
+  "rstm-programs?/wasi",
   "rstm-tape?/wasi",
 ]
 
@@ -138,7 +138,7 @@ wasm = [
   "wasm-bindgen",
   "rstm-actors?/wasm",
   "rstm-core/wasm",
-  "rstm-rules?/wasm",
+  "rstm-programs?/wasm",
   "rstm-tape?/wasm",
 ]
 
@@ -147,20 +147,20 @@ wasm = [
 alloc = [
   "rstm-actors?/alloc",
   "rstm-core/alloc",
-  "rstm-rules?/alloc",
+  "rstm-programs?/alloc",
   "rstm-tape?/alloc",
 ]
 
 serde = [
   "rstm-actors?/serde",
   "rstm-core/serde",
-  "rstm-rules?/serde",
+  "rstm-programs?/serde",
   "rstm-tape?/serde"
 ]
 
 serde_json = [
   "rstm-core/serde_json",
-  "rstm-rules?/serde_json",
+  "rstm-programs?/serde_json",
 ]
 
 tracing = [
@@ -171,6 +171,6 @@ tracing = [
 wasm-bindgen = [
   "rstm-actors?/wasm-bindgen",
   "rstm-core/wasm-bindgen",
-  "rstm-rules?/wasm-bindgen",
+  "rstm-programs?/wasm-bindgen",
   "rstm-tape?/wasm-bindgen"
 ]

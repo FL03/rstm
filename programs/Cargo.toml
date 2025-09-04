@@ -1,7 +1,7 @@
 [package]
 build = "build.rs"
-description = "This crate defines a rule within the rstm framework and provides various structures and utilities for working with them."
-name = "rstm-rules"
+description = "This crate focuses on providing various structures and utilities for programs within rstm"
+name = "rstm-programs"
 
 authors.workspace = true
 categories.workspace = true

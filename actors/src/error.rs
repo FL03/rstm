@@ -32,7 +32,7 @@ pub enum Error {
     #[error(transparent)]
     CoreError(#[from] rstm_core::Error),
     #[error(transparent)]
-    RulesError(#[from] rstm_rules::Error),
+    ProgramsError(#[from] rstm_programs::Error),
     #[error(transparent)]
     StateError(#[from] rstm_state::StateError),
 }

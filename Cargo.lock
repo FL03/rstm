@@ -434,7 +434,7 @@ dependencies = [
  "lazy_static",
  "rstm-actors",
  "rstm-core",
- "rstm-rules",
+ "rstm-programs",
  "rstm-tape",
  "tracing",
  "tracing-subscriber",
@@ -446,7 +446,7 @@ version = "0.1.0"
 dependencies = [
  "lazy_static",
  "rstm-core",
- "rstm-rules",
+ "rstm-programs",
  "rstm-state",
  "rstm-tape",
  "serde",
@@ -481,7 +481,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rstm-rules"
+name = "rstm-programs"
 version = "0.1.0"
 dependencies = [
  "contained",

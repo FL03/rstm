@@ -22,7 +22,7 @@ pub(crate) mod prelude {
 
 use crate::traits::RawActor;
 
-use rstm_rules::Program;
+use rstm_programs::Program;
 use rstm_state::RawState;
 
 /// The [`RawEngine`] trait defines the basis for compatible engines within the system.

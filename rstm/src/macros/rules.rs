@@ -2,7 +2,6 @@
     Appellation: rules <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-#![cfg(feature = "rules")]
 
 /// The [`rule!`] macro enables the definition of a single, Turing compatible rule using the
 /// following syntax:
@@ -38,7 +37,7 @@ macro_rules! rule {
     (
         ($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal) $(;)?
     ) => {
-        $crate::rules::Rule::new()
+        $crate::rule::Rule::new()
             .state($crate::state::State($state))
             .symbol($symbol)
             .write_symbol($write)

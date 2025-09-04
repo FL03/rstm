@@ -17,6 +17,6 @@ updates:
       - rstm
       - actors
       - core
-      - rules
+      - programs
       - state
       - tape

@@ -3,9 +3,9 @@
     Created At: 2025.08.30:17:01:39
     Contrib: @FL03
 */
-#![cfg(all(feature = "rules", feature = "alloc"))]
+#![cfg(all(feature = "programs", feature = "alloc"))]
 
-/// The [`program!`] macro facilitates the creation of new [`Program`](crate::rules::Program)
+/// The [`program!`] macro facilitates the creation of new [`Program`](crate::programs::Program)
 /// instances using familiar syntax.
 ///
 /// ```ignore
@@ -41,7 +41,7 @@ macro_rules! program {
         $(#[default_state($q:expr)])?
         rules: {$(($state:expr, $symbol:expr) -> $direction:ident($next:expr, $write:expr));* $(;)?} $(;)?
     } => {
-        $crate::rules::Program::from_iter(
+        $crate::programs::Program::from_iter(
             $crate::rules! {
                 $(
                     ($state, $symbol) -> $direction($next, $write)

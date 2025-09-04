@@ -5,7 +5,7 @@
 */
 use super::LearnedRule;
 use crate::rule::Rule;
-use rstm_core::{Direction, Head, Tail};
+use crate::{Direction, Head, Tail};
 use rstm_state::RawState;
 
 impl<T, Q, S> LearnedRule<T, Q, S>

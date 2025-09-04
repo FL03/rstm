@@ -6,7 +6,7 @@ members = [
   "actors",
   "core",
   "rstm", 
-  "rules",
+  "programs",
   "state",
   "tape",
 ]
@@ -37,7 +37,7 @@ rstm = { default-features = false, path = "rstm", version = "0.1.0" }
 rstm-actors = { default-features = false, path = "actors", version = "0.1.0" }
 rstm-core = { default-features = false, path = "core", version = "0.1.0" }
 rstm-state = { default-features = false, path = "state", version = "0.1.0" }
-rstm-rules = { default-features = false, path = "rules", version = "0.1.0" }
+rstm-programs = { default-features = false, path = "programs", version = "0.1.0" }
 rstm-tape = { default-features = false, path = "tape", version = "0.1.0" }
 
 # custom

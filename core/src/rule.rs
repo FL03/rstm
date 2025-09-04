@@ -9,7 +9,7 @@ mod impl_rule;
 mod impl_rule_builder;
 mod impl_rule_ext;
 
-use rstm_core::{Direction, Head, Tail};
+use crate::{Direction, Head, Tail};
 use rstm_state::{RawState, State};
 
 /// The [`Rule`] implementation is a concrete representation of a single instruction, or rule,

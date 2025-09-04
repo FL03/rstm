@@ -4,7 +4,7 @@
 */
 use super::{Rule, RuleBuilder};
 
-use rstm_core::{Direction, Head, Tail};
+use crate::{Direction, Head, Tail};
 use rstm_state::{RawState, State};
 
 impl<Q, S> RuleBuilder<Q, S>

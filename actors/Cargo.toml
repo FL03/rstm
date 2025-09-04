@@ -39,7 +39,7 @@ tag-name = "{{version}}"
 [dependencies]
 # local
 rstm-core = { workspace = true }
-rstm-rules = { workspace = true }
+rstm-programs = { workspace = true }
 rstm-state = { workspace = true }
 rstm-tape = { workspace = true }
 # custom
@@ -75,7 +75,7 @@ full = [
 # ********* [FF] Features *********
 nightly = [
   "rstm-core/nightly",
-  "rstm-rules/nightly",
+  "rstm-programs/nightly",
   "rstm-state/nightly",
   "rstm-tape/nightly",
 ]
@@ -85,7 +85,7 @@ nightly = [
 std = [
   "alloc",
   "rstm-core/std",
-  "rstm-rules/std",
+  "rstm-programs/std",
   "rstm-state/std",
   "rstm-tape/std",
   "variants/std",
@@ -98,7 +98,7 @@ std = [
 wasi = [
   "alloc",
   "rstm-core/wasi",
-  "rstm-rules/wasi",
+  "rstm-programs/wasi",
   "rstm-state/wasi",
   "rstm-tape/wasi",
 ]
@@ -107,7 +107,7 @@ wasm = [
   "alloc",
   "wasm-bindgen",
   "rstm-core/wasm",
-  "rstm-rules/wasm",
+  "rstm-programs/wasm",
   "rstm-state/wasm",
   "rstm-tape/wasm",
 ]
@@ -115,7 +115,7 @@ wasm = [
 # ********* [FF] Dependencies *********
 alloc = [
   "rstm-core/alloc",
-  "rstm-rules/alloc",
+  "rstm-programs/alloc",
   "rstm-state/alloc",
   "rstm-tape/alloc",
   "variants/alloc",
@@ -127,7 +127,7 @@ serde = [
   "dep:serde_derive",
   "serde?/derive",
   "rstm-core/serde",
-  "rstm-rules/serde",
+  "rstm-programs/serde",
   "rstm-state/serde",
   "rstm-tape/serde",
 ]

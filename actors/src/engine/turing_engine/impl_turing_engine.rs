@@ -8,7 +8,7 @@ use crate::engine::{Engine, RawEngine};
 use crate::tmh::TMH;
 use crate::traits::Handle;
 use rstm_core::{Head, Symbol, Tail};
-use rstm_rules::Program;
+use rstm_programs::Program;
 use rstm_state::{HaltState, RawState, State};
 
 impl<'a, Q, A> TuringEngine<'a, Q, A>

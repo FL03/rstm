@@ -7,7 +7,7 @@ use super::TMH;
 use crate::engine::TuringEngine;
 use rstm_core::error::Error as CoreError;
 use rstm_core::{Direction, Head};
-use rstm_rules::Program;
+use rstm_programs::Program;
 use rstm_state::{Halt, RawState, State};
 
 impl<Q, A> TMH<Q, A>

@@ -28,7 +28,7 @@
 //!    fn main() -> rstm::Result<()> {
 //!        // initialize the logger
 //!        tracing_subscriber::fmt()
-//!            .with_max_level(tracing::Level::TRACE)
+//!            .with_max_level(tracing::Level::DEBUG)
 //!            .with_target(false)
 //!            .with_timer(tracing_subscriber::fmt::time::uptime())
 //!            .init();
@@ -84,20 +84,22 @@ mod macros {
 pub use rstm_actors as actors;
 #[doc(inline)]
 pub use rstm_core::*;
-#[cfg(feature = "rules")]
+#[cfg(feature = "programs")]
 #[doc(inline)]
-pub use rstm_rules as rules;
+pub use rstm_programs as programs;
 #[cfg(feature = "tape")]
 #[doc(inline)]
 pub use rstm_tape as tape;
 
 pub mod prelude {
+    #[cfg(feature = "macros")]
+    pub use crate::{rule, rules};
     #[cfg(feature = "actors")]
     pub use rstm_actors::prelude::*;
     #[doc(no_inline)]
     pub use rstm_core::prelude::*;
-    #[cfg(feature = "rules")]
-    pub use rstm_rules::prelude::*;
+    #[cfg(feature = "programs")]
+    pub use rstm_programs::prelude::*;
     #[cfg(feature = "tape")]
     pub use rstm_tape::prelude::*;
 }

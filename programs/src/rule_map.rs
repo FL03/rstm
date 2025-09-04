@@ -5,10 +5,8 @@
 
 mod impl_rule_map;
 
-use super::Rule;
-
 use core::hash::Hash;
-use rstm_core::{Head, Tail};
+use rstm_core::{Head, Rule,Tail};
 use rstm_state::{RawState, State};
 use std::collections::hash_map::{self, HashMap};
 
@@ -55,7 +53,7 @@ where
 
     pub fn from_rules<I>(iter: I) -> Self
     where
-        I: IntoIterator<Item = super::Rule<Q, S>>,
+        I: IntoIterator<Item = Rule<Q, S>>,
     {
         Self::from_iter(iter.into_iter().map(|Rule { head, tail }| (head, tail)))
     }
