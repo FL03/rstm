@@ -151,8 +151,7 @@ where
         // execute the program
         if let Some(tail) = self
             .program()
-            .map(|p| p.find_tail(head.state, head.symbol))
-            .flatten()
+            .and_then(|p| p.find_tail(head.state, head.symbol))
             .cloned()
         {
             // process the instruction
