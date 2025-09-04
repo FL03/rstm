@@ -17,7 +17,7 @@
 /// by Petr Kůrka. Specifically,
 ///
 /// $$
-/// \delta\colon{Q}\times{A}\rightarrow{Q}\times{A}\times\lbrace{\pm{1},0\rbrace}
+/// \delta: Q\times{A}\rightarrow{Q}\times{A}\times{\lbrace\pm{1},0\rbrace}
 /// $$
 ///
 /// **note:** it is unnecessary for you to import the [`Direction`](crate::Direction) enum, as

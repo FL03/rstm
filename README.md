@@ -45,7 +45,7 @@ Enabling the `serde` feature will allow for serialization and deserialization of
 Researchers have simplified the definition of a Turing machine, boiling it down into a dynamical system defined by a set of states, symbols, and rules. The rules define the behavior of the machine, dictating how it transitions from one state to another based on the current symbol being read. More specifically, the transition function $\delta$ where:
 
 $$
-\delta\colon{Q}\times{A}\rightarrow{Q}\times{A}\times\lbrace{\pm{1},0\rbrace}
+\delta: Q\times{A}\rightarrow{Q}\times{A}\times{\lbrace\pm{1},0\rbrace}
 $$
 
 as defined within the paper [On the Topological Dynamics of Turing Machines](https://doi.org/10.1016/S0304-3975(96)00025-4) by Petr Kůrka. Therefore, we any rule-based procedural macros within the scope of `rstm` follow the following syntax:

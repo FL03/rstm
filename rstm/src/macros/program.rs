@@ -5,14 +5,13 @@
 */
 #![cfg(all(feature = "rules", feature = "alloc"))]
 
-/// The [`program!`] macro facilitates the generation of new [`InstructionSet`](crate::rules::InstructionSet)
+/// The [`program!`] macro facilitates the creation of new [`Program`](crate::rules::Program)
 /// instances using familiar syntax.
 ///
 /// ```ignore
 /// program! {
 ///     #[default_state(initial_state)] // optional
-///     inputs: [input1, input2, ...] // optional
-///     rules: [(state, symbol) -> direction(next_state, write_symbol), ...]
+///     rules: {(state, symbol) -> direction(next_state, write_symbol), ...};
 /// }
 /// ```
 ///
@@ -40,7 +39,7 @@
 macro_rules! program {
     {
         $(#[default_state($q:expr)])?
-        rules: {$(($state:expr, $symbol:expr) -> $direction:ident($next:expr, $write:expr));* $(;)?};
+        rules: {$(($state:expr, $symbol:expr) -> $direction:ident($next:expr, $write:expr));* $(;)?} $(;)?
     } => {
         $crate::rules::Program::from_iter(
             $crate::rules! {
