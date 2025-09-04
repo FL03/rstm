@@ -8,7 +8,7 @@ use crate::{Actor, Handle, RawActor};
 use rstm_core::{Direction, Head, Tail, get_range_around};
 use rstm_state::{RawState, State};
 
-const DISPLAY_RADIUS: usize = 5;
+const DISPLAY_RADIUS: usize = 10;
 
 impl<Q, A> core::fmt::Debug for TMH<Q, A>
 where

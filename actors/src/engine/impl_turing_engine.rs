@@ -31,12 +31,13 @@ where
     }
     /// returns a reference to the actor
     pub const fn driver(&self) -> &TMH<Q, A> {
-        &self.driver
+        self.driver
     }
     /// returns a mutable reference to the actor
     pub const fn driver_mut(&mut self) -> &mut TMH<Q, A> {
-        &mut self.driver
+        self.driver
     }
+    #[doc(hidden)]
     /// returns a reference to the inputs
     pub const fn inputs(&self) -> &Vec<A> {
         &self._inputs
@@ -56,6 +57,10 @@ where
     /// returns a mutable reference to the current steps
     pub const fn current_state(&self) -> &State<Q> {
         self.driver().state()
+    }
+    /// returns true if the engine has a program loaded
+    pub const fn has_program(&self) -> bool {
+        self.program.is_some()
     }
     /// returns the tail associated with the head that is equal to the given state and symbol
     pub fn find_tail<K>(&self, state: State<&Q>, symbol: &A) -> Option<&Tail<Q, A>>
@@ -83,18 +88,21 @@ where
             }
         }
     }
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "run", target = "engine")
-    )]
+    /// runs the program until termination (i.e., a halt state is reached, an error occurs, etc.)
     pub fn run(&mut self) -> crate::Result<()>
     where
         Q: 'static + HaltState + Clone + PartialEq,
         A: Symbolic,
     {
+        // check for a program
+        if !self.has_program() {
+            #[cfg(feature = "tracing")]
+            tracing::error!("No program loaded; cannot execute step.");
+            return Err(crate::Error::NoProgram);
+        }
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
-        while let Some(_h) = self.next() {
+        while let Some(_h) = self.step()? {
             #[cfg(feature = "tracing")]
             tracing::info!(
                 "Executing step ({i}) with a context of {_h:?}",
@@ -114,6 +122,52 @@ where
     /// increments the current epoch by a single unit
     pub(crate) const fn next_epoch(&mut self) {
         self.epoch += 1;
+    }
+    /// execute a single step of the program
+    pub(crate) fn step(&mut self) -> crate::Result<Option<Head<Q, A>>>
+    where
+        Q: 'static + HaltState + Clone + PartialEq,
+        A: Symbolic,
+    {
+        #[cfg(feature = "tracing")]
+        tracing::info!("{tape:?}", tape = self.driver());
+        // check if the actor is halted
+        if self.driver.is_halted() {
+            #[cfg(feature = "tracing")]
+            tracing::warn!(
+                "A halted stated was detected; terminating the execution of the program..."
+            );
+            return Ok(None);
+        }
+        // read the tape
+        let head = if let Ok(cur) = self.read() {
+            cur
+        } else {
+            Head {
+                state: self.driver().state().view(),
+                symbol: &<A>::default(),
+            }
+        };
+        // execute the program
+        if let Some(tail) = self
+            .program()
+            .map(|p| p.find_tail(head.state, head.symbol))
+            .flatten()
+            .cloned()
+        {
+            // process the instruction
+            let next = tail.clone().into_head();
+            // process the instruction
+            let _prev = self.handle(tail);
+            // update the epoch
+            self.next_epoch();
+            // return the head
+            Ok(Some(next))
+        } else {
+            #[cfg(feature = "tracing")]
+            tracing::error!("No symbol found at {}", self.driver.position());
+            Err(crate::Error::NoSymbolFound(self.current_epoch()))
+        }
     }
 }
 
@@ -160,39 +214,14 @@ where
     type Item = Head<Q, S>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        #[cfg(feature = "tracing")]
-        tracing::info!("{tape:?}", tape = self.driver());
-        // check if the actor is halted
-        if self.driver.is_halted() {
-            #[cfg(feature = "tracing")]
-            tracing::warn!(
-                "A halted stated was detected; terminating the execution of the program..."
-            );
-            return None;
-        }
-        // read the tape
-        let head = if let Ok(cur) = self.read() {
-            cur
-        } else {
-            Head {
-                state: self.driver().state().view(),
-                symbol: &S::default(),
+        match self.step() {
+            Ok(Some(h)) => Some(h),
+            Ok(None) => None,
+            Err(e) => {
+                #[cfg(feature = "tracing")]
+                tracing::error!("An error occurred during execution: {e}");
+                None
             }
-        };
-        // execute the program
-        if let Some(tail) = self.program()?.find_tail(head.state, head.symbol).cloned() {
-            // process the instruction
-            let next = tail.clone().into_head();
-            // process the instruction
-            let _prev = self.handle(tail);
-            // update the epoch
-            self.next_epoch();
-            // return the head
-            Some(next)
-        } else {
-            #[cfg(feature = "tracing")]
-            tracing::error!("No symbol found at {}", self.driver.position());
-            panic!("No symbol found at {}", self.driver.position());
         }
     }
 }

@@ -16,7 +16,7 @@ fn main() -> rstm::Result<()> {
         .init();
     tracing::info!("Welcome to rstm!");
     // initialize the tape data
-    let alpha = [0_usize; 10];
+    let alpha = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
     // initialize the state of the machine
     let initial_state: isize = 0;
     // define the ruleset for the machine
@@ -27,7 +27,7 @@ fn main() -> rstm::Result<()> {
             (0, 1) -> Left(-1, 1);
             (1, 0) -> Right(0, 1);
             (1, 1) -> Right(-1, 0);
-            (-1, 0) -> Left(0, 0);
+            (-1, 0) -> Left(<isize>::MAX, 0);
             (-1, 1) -> Left(1, 1);
         };
     };

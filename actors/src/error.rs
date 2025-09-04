@@ -15,8 +15,18 @@ pub enum Error {
     #[cfg(feature = "alloc")]
     #[error("[Execution Error] {0}")]
     ExecutionError(String),
-    #[error("The actor has halted.")]
+    #[error("The actor is halted and should be terminated.")]
     Halted,
+    #[error("The actor is not ready to process inputs.")]
+    NotReady,
+    #[error("The actor has no program loaded.")]
+    NoProgram,
+    #[error("The actor has no inputs to process.")]
+    NoInputs,
+    #[error("An infinite loop was detected during execution.")]
+    InfiniteLoop,
+    #[error("No symbol found at position {0}.")]
+    NoSymbolFound(usize),
     #[error(transparent)]
     CoreError(#[from] rstm_core::Error),
     #[error(transparent)]
