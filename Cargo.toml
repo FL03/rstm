@@ -41,8 +41,8 @@ rstm-rules = { default-features = false, path = "rules", version = "0.0.9" }
 rstm-tape = { default-features = false, path = "tape", version = "0.0.9" }
 
 # custom
-contained = { default-features = false, features = ["derive", "macros"], version = "0.2" }
-scsys = { default-features = false, features = ["derive"], version = "0.3.0" }
+contained = { default-features = false, features = ["derive", "macros"], version = "0.2.1" }
+scsys = { default-features = false, features = ["derive"], version = "0.3.1" }
 variants = { default-features = false, features = ["derive"], version = "0.0.1" }
 # benchmarking
 # error-handling
