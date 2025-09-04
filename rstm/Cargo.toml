@@ -39,11 +39,15 @@ name = "default"
 
 [[test]]
 name = "busy_beaver"
-required-features = ["alloc", "actors", "macros"]
+required-features = ["alloc", "actors", "macros", "rules"]
 
 [[test]]
 name = "macros"
 required-features = ["macros", "rules"]
+
+[[test]]
+name = "tmh"
+required-features = ["alloc", "actors", "macros", "rules"]
 
 
 # ********* [Package Metadata] *********
@@ -77,6 +81,7 @@ default = [
   "macros",
   "rules",
   "std",
+  "tape",
 ]
 
 full = [
@@ -90,6 +95,7 @@ full = [
 actors = [
   "alloc",
   "rules",
+  "tape",
   "dep:rstm-actors",
 ]
 

@@ -27,7 +27,7 @@ fn main() -> rstm::Result<()> {
             (1, 0) -> Right(1, 1);
             (1, 1) -> Right(0, 0);
             (-1, 0) -> Left(<isize>::MAX, 0);
-            (-1, 1) -> Left(-1, 1);
+            (-1, 1) -> Left(-1, 0);
         };
     };
     // create a new instance of the machine

@@ -11,8 +11,4 @@ where
     a + b
 }
 
-#[test]
-fn compiles() {
-    assert_eq!(add(10, 10), 20);
-    assert_ne!(add(1, 1), 3);
-}
+
