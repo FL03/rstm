@@ -6,7 +6,7 @@
 use super::TuringEngine;
 use crate::tmh::TMH;
 use crate::traits::{Engine, Handle, RawEngine};
-use rstm_core::{Head, Symbolic, Tail};
+use rstm_core::{Head, Symbol, Tail};
 use rstm_rules::Program;
 use rstm_state::{HaltState, RawState, State};
 
@@ -92,7 +92,7 @@ where
     pub fn run(&mut self) -> crate::Result<()>
     where
         Q: 'static + HaltState + Clone + PartialEq,
-        A: Symbolic,
+        A: Symbol,
     {
         // check for a program
         if !self.has_program() {
@@ -127,7 +127,7 @@ where
     pub(crate) fn step(&mut self) -> crate::Result<Option<Head<Q, A>>>
     where
         Q: 'static + HaltState + Clone + PartialEq,
-        A: Symbolic,
+        A: Symbol,
     {
         #[cfg(feature = "tracing")]
         tracing::info!("{tape:?}", tape = self.driver());
@@ -195,7 +195,7 @@ where
 impl<'a, Q, S> Engine<Q, S> for TuringEngine<'a, Q, S>
 where
     Q: 'static + HaltState + Clone + PartialEq,
-    S: Symbolic,
+    S: Symbol,
 {
     fn load(&mut self, program: Program<Q, S>) {
         self.program = Some(program);
@@ -209,7 +209,7 @@ where
 impl<'a, Q, S> Iterator for TuringEngine<'a, Q, S>
 where
     Q: 'static + HaltState + Clone + PartialEq,
-    S: Symbolic,
+    S: Symbol,
 {
     type Item = Head<Q, S>;
 

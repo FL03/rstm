@@ -3,7 +3,7 @@
     authors: @FL03
 */
 use crate::rule::Rule;
-use rstm_core::{Direction, Head, Symbolic, Tail};
+use rstm_core::{Direction, Head, Symbol, Tail};
 use rstm_state::{RawState, State};
 
 /// The [`Scope`] trait is used to describe objects containing information or references to the
@@ -76,7 +76,7 @@ impl<A, Q, S> Instruction<Q, S> for A
 where
     A: Scope<Q, S> + Directive<Q, S>,
     Q: RawState,
-    S: Symbolic,
+    S: Symbol,
 {
     fn direction(&self) -> Direction {
         self.direction()
