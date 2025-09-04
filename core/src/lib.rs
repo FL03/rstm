@@ -27,7 +27,7 @@ pub use self::{
     state::{RawState, State},
     tail::Tail,
     traits::*,
-    types::*,
+    types::prelude::*,
     utils::*,
 };
 
@@ -64,10 +64,11 @@ pub mod types {
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod direction;
-    mod prelude {
+    pub mod direction;
+
+    pub(crate) mod prelude {
         #[doc(inline)]
-        pub use super::direction::*;
+        pub use super::direction::Direction;
     }
 }
 
@@ -93,6 +94,6 @@ pub mod prelude {
     pub use crate::tail::*;
 
     pub use crate::traits::*;
-    pub use crate::types::*;
+    pub use crate::types::prelude::*;
     pub use crate::utils::*;
 }

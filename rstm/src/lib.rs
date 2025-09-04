@@ -1,7 +1,5 @@
 //! # rstm
 //!
-//! Welcome to the `rstm` crate! This project focuses on providing useful abstra
-//!
 //! `rstm` is a Rust library dedicated to the construction and execution of Turing Machines.
 //! The crate is designed to be flexible and easy to use while preserving the abstract nature
 //! of the models.

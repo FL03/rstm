@@ -1,6 +1,6 @@
 [package]
 build = "build.rs"
-description = "this crate implements the core modules of the rstm sdk"
+description = "This crate defines a rule within the rstm framework and provides various structures and utilities for working with them."
 name = "rstm-rules"
 
 authors.workspace = true

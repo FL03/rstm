@@ -4,8 +4,9 @@
     Contrib: @FL03
 */
 use super::TuringEngine;
+use crate::engine::{Engine, RawEngine};
 use crate::tmh::TMH;
-use crate::traits::{Engine, Handle, RawEngine};
+use crate::traits::Handle;
 use rstm_core::{Head, Symbol, Tail};
 use rstm_rules::Program;
 use rstm_state::{HaltState, RawState, State};
@@ -14,54 +15,6 @@ impl<'a, Q, A> TuringEngine<'a, Q, A>
 where
     Q: RawState,
 {
-    pub const fn new(driver: &'a mut TMH<Q, A>) -> Self {
-        Self {
-            driver,
-            _inputs: Vec::new(),
-            program: None,
-            epoch: 0,
-        }
-    }
-    /// consumes the instance to return another loaded up with the given program
-    pub fn load_with(self, program: Program<Q, A>) -> Self {
-        TuringEngine {
-            program: Some(program),
-            ..self
-        }
-    }
-    /// returns a reference to the actor
-    pub const fn driver(&self) -> &TMH<Q, A> {
-        self.driver
-    }
-    /// returns a mutable reference to the actor
-    pub const fn driver_mut(&mut self) -> &mut TMH<Q, A> {
-        self.driver
-    }
-    #[doc(hidden)]
-    /// returns a reference to the inputs
-    pub const fn inputs(&self) -> &Vec<A> {
-        &self._inputs
-    }
-    /// returns a reference to the program
-    pub fn program(&self) -> Option<&Program<Q, A>> {
-        self.program.as_ref()
-    }
-    /// returns a mutable reference to the program
-    pub fn program_mut(&mut self) -> Option<&mut Program<Q, A>> {
-        self.program.as_mut()
-    }
-    /// returns a copy of the current steps
-    pub const fn current_epoch(&self) -> usize {
-        self.epoch
-    }
-    /// returns a mutable reference to the current steps
-    pub const fn current_state(&self) -> &State<Q> {
-        self.driver().state()
-    }
-    /// returns true if the engine has a program loaded
-    pub const fn has_program(&self) -> bool {
-        self.program.is_some()
-    }
     /// returns the tail associated with the head that is equal to the given state and symbol
     pub fn find_tail<K>(&self, state: State<&Q>, symbol: &A) -> Option<&Tail<Q, A>>
     where

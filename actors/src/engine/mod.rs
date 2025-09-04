@@ -1,9 +1,27 @@
 /*
     Appellation: engine <module>
-    Created At: 2025.08.30:00:15:55
+    Created At: 2025.09.03:21:12:32
     Contrib: @FL03
 */
-use super::actor::RawActor;
+//! The [`engine`](self) module provides core 
+
+#[cfg(feature = "alloc")]
+#[doc(inline)]
+pub use self::turing_engine::TuringEngine;
+
+#[cfg(feature = "alloc")]
+pub mod turing_engine;
+
+pub(crate) mod prelude {
+    #[doc(inline)]
+    #[cfg(feature = "alloc")]
+    pub use super::turing_engine::*;
+    #[doc(inline)]
+    pub use super::{RawEngine, Engine};
+}
+
+
+use crate::traits::RawActor;
 
 use rstm_rules::Program;
 use rstm_state::RawState;

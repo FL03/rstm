@@ -2,11 +2,13 @@
     Appellation: error <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+//! The [`error`](self) module defines the core [`Error`] type used throughout the library and 
+//! provides a convenient alias for [`Result`](core::result::Result) types.
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, string::String};
 
-/// A type alias for a [Result] with our custom error type: [`Error`](crate::Error)
-pub type Result<T = ()> = core::result::Result<T, crate::Error>;
+/// A type alias for a [`Result`](core::result::Result) with an error type of [`Error`]
+pub type Result<T = ()> = core::result::Result<T, self::Error>;
 
 /// The [`Error`] implementation describes the various errors that can occur within the library
 #[derive(Debug, thiserror::Error)]

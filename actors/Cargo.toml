@@ -1,10 +1,10 @@
 [package]
 build = "build.rs"
-description = "Computational actors for the rstm framework"
 name = "rstm-actors"
 
 authors.workspace = true
 categories.workspace = true
+description.workspace = true
 edition.workspace = true
 homepage.workspace = true
 keywords.workspace = true
