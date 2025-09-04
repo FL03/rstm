@@ -22,7 +22,6 @@ doctest = false
 test = true
 
 # ************* [benchmarks] *************
-
 [[bench]]
 harness = false
 name = "tmh"
@@ -36,10 +35,6 @@ required-features = ["full"]
 # ************* [Unit Tests] *************
 [[test]]
 name = "default"
-
-[[test]]
-name = "busy_beaver"
-required-features = ["alloc", "actors", "macros", "rules"]
 
 [[test]]
 name = "macros"

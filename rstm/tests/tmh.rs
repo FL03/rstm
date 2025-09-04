@@ -36,3 +36,9 @@ fn test_tmh() -> rstm::Result<()> {
     assert!(tm.execute(PROGRAM.clone()).run().is_ok());
     Ok(())
 }
+
+#[test]
+#[ignore = "test not implemented yet"]
+fn busy_beaver() -> rstm::Result<()> {
+    Ok(())
+}
