@@ -6,32 +6,30 @@
 #![cfg(all(feature = "programs", feature = "alloc"))]
 
 /// The [`program!`] macro facilitates the creation of new [`Program`](crate::programs::Program)
-/// instances using familiar syntax.
+/// instances using familiar syntax
 ///
 /// ```ignore
 /// program! {
 ///     #[default_state(initial_state)] // optional
-///     rules: {(state, symbol) -> direction(next_state, write_symbol), ...};
+///     rules: {(state, symbol) -> direction(next_state, write_symbol); ...};
 /// }
 /// ```
 ///
-/// ### Example
+/// ## Basic Usage
 ///
 /// The following example demonstrates the usage of the macro to create a program using three
 /// states `{-1, 0, 1}` and two symbols `{0, 1}`.
 ///
 /// ```rust
-/// use rstm::program;
-///
-/// let rule = program![
+/// let rule = rstm::program![
 ///     #[default_state(0)] // optional
 ///     rules: {
-///         (0, 0) -> Right(1, 1),
-///         (0, 1) -> Left(-1, 0),
-///         (1, 0) -> Right(1, 1),
-///         (1, 1) -> Left(-1, 1),
-///         (-1, 0) -> Right(0, 0),
-///         (-1, 1) -> Left(0, 1),
+///         (0, 0) -> Right(1, 1);
+///         (0, 1) -> Left(-1, 0);
+///         (1, 0) -> Right(1, 1);
+///         (1, 1) -> Left(-1, 1);
+///         (-1, 0) -> Right(0, 0);
+///         (-1, 1) -> Left(0, 1);
 ///     };
 /// ```
 #[cfg(feature = "alloc")]
