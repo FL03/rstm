@@ -1,8 +1,8 @@
 /*
     Appellation: program <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Created At: 2025.09.05:04:59:21
+    Contrib: @FL03
 */
-
 #![cfg(feature = "alloc")]
 
 #[allow(deprecated)]
@@ -13,8 +13,10 @@ use crate::types::RuleVec;
 use rstm_core::Rule;
 use rstm_state::{RawState, State};
 
-/// A [`Program`] defines an optional initial state along with a set of rules that dictate the
-/// behavior of the system.
+/// The [`Program`] implementation is designed to provide a structured representation of a set
+/// of rules and an optional initial state for a Turing machine or similar computational model.
+/// It encapsulates the rules that dictate the machine's behavior and the starting point for
+/// its execution.
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(
     feature = "serde",

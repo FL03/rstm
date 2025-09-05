@@ -81,7 +81,9 @@ where
         I: IntoIterator<Item = Rule<Q, S>>,
     {
         Self {
-            rules: std::collections::HashMap::from_iter(iter.into_iter().map(|rule| (rule.head, rule.tail))),
+            rules: std::collections::HashMap::from_iter(
+                iter.into_iter().map(|rule| (rule.head, rule.tail)),
+            ),
         }
     }
 }

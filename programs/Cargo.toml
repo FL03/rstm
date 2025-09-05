@@ -76,6 +76,7 @@ full = [
 # ********* [FF] Features *********
 json = [ 
   "alloc", 
+  "rstm-core/json",
   "rstm-state/json",
   "serde",
   "serde_json",

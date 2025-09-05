@@ -67,6 +67,8 @@ rstm-tape = { optional = true, workspace = true }
 anyhow = { features = ["std"], workspace = true }
 criterion = { features = ["plotters"], version = "0.7" }
 lazy_static = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { features = ["json", "serde"], workspace = true }
 

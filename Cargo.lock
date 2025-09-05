@@ -436,6 +436,8 @@ dependencies = [
  "rstm-core",
  "rstm-programs",
  "rstm-tape",
+ "serde",
+ "serde_json",
  "tracing",
  "tracing-subscriber",
 ]
