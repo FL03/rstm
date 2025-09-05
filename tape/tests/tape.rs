@@ -5,7 +5,7 @@
 use rstm_tape::StdTape;
 
 #[test]
-fn stdtape() {
+fn std_tape() {
     let mut tape = StdTape::<u8>::new();
     tape.write(0);
     tape.write(1);

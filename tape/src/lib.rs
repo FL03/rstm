@@ -21,6 +21,11 @@ extern crate alloc;
 
 extern crate rstm_core as rstm;
 
+#[cfg(not(any(feature = "alloc", feature = "std")))]
+compile_error! {
+    "Either the `alloc` or `std` feature must be enabled for the crate to compile"
+}
+
 #[macro_use]
 mod macros {
     #[macro_use]
@@ -55,13 +60,13 @@ pub mod traits {
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod fetch;
+    mod getter;
     mod memory;
     mod tape;
 
     mod prelude {
         #[doc(inline)]
-        pub use super::fetch::*;
+        pub use super::getter::*;
         #[doc(inline)]
         pub use super::memory::*;
         #[doc(inline)]

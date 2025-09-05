@@ -18,12 +18,7 @@ pub trait RawMemory {
     fn len(&self) -> usize;
 }
 
-pub trait Memory: RawMemory {
-    #[cfg(feature = "alloc")]
-    fn to_vec(&self) -> Vec<Self::Elem>
-    where
-        Self::Elem: Clone;
-}
+pub trait Memory: RawMemory {}
 
 pub trait MemoryMut: Memory {
     fn clear(&mut self);
@@ -43,6 +38,11 @@ pub trait SeqMemory: Memory {
 
     fn as_mut_slice(&mut self) -> &mut [Self::Elem];
 
+    #[cfg(feature = "alloc")]
+    fn to_vec(&self) -> Vec<Self::Elem>
+    where
+        Self::Elem: Clone;
+
     fn get<I>(&self, index: I) -> Option<&I::Output>
     where
         I: core::slice::SliceIndex<[Self::Elem]>;
@@ -55,8 +55,6 @@ pub trait SeqMemory: Memory {
 /*
  ************* Implementations *************
 */
-#[cfg(feature = "std")]
-use std::collections::HashMap;
 
 impl<T> RawMemory for [T] {
     type Elem = T;
@@ -72,15 +70,7 @@ impl<T> RawMemory for [T] {
     }
 }
 
-impl<T> Memory for [T] {
-    #[cfg(feature = "alloc")]
-    fn to_vec(&self) -> Vec<T>
-    where
-        T: Clone,
-    {
-        <[T]>::to_vec(self)
-    }
-}
+impl<T> Memory for [T] {}
 
 impl<T> SeqMemory for [T] {
     fn as_ptr(&self) -> *const T {
@@ -99,65 +89,12 @@ impl<T> SeqMemory for [T] {
         self
     }
 
-    fn get<I>(&self, index: I) -> Option<&I::Output>
-    where
-        I: core::slice::SliceIndex<[T]>,
-    {
-        <[T]>::get(self, index)
-    }
-
-    fn get_mut<I>(&mut self, index: I) -> Option<&mut I::Output>
-    where
-        I: core::slice::SliceIndex<[T]>,
-    {
-        <[T]>::get_mut(self, index)
-    }
-}
-
-#[cfg(feature = "alloc")]
-impl<T> RawMemory for Vec<T> {
-    type Elem = T;
-
-    seal!();
-
-    fn is_empty(&self) -> bool {
-        Vec::is_empty(self)
-    }
-
-    fn len(&self) -> usize {
-        Vec::len(self)
-    }
-}
-
-#[cfg(feature = "alloc")]
-impl<T> Memory for Vec<T> {
+    #[cfg(feature = "alloc")]
     fn to_vec(&self) -> Vec<T>
     where
         T: Clone,
     {
-        self.clone()
-    }
-}
-
-#[cfg(feature = "alloc")]
-impl<T> SeqMemory for Vec<T>
-where
-    Vec<T>: AsRef<[T]>,
-{
-    fn as_ptr(&self) -> *const T {
-        Vec::as_ptr(self)
-    }
-
-    fn as_mut_ptr(&mut self) -> *mut T {
-        Vec::as_mut_ptr(self)
-    }
-
-    fn as_slice(&self) -> &[T] {
-        Vec::as_slice(self)
-    }
-
-    fn as_mut_slice(&mut self) -> &mut [T] {
-        Vec::as_mut_slice(self)
+        <[T]>::to_vec(self)
     }
 
     fn get<I>(&self, index: I) -> Option<&I::Output>
@@ -175,17 +112,85 @@ where
     }
 }
 
-#[cfg(feature = "std")]
-impl<K, V> RawMemory for HashMap<K, V> {
-    type Elem = V;
+#[cfg(feature = "alloc")]
+mod impl_alloc {
+    use super::{Memory, RawMemory, SeqMemory};
+    use alloc::vec::Vec;
 
-    seal!();
+    impl<T> RawMemory for Vec<T> {
+        type Elem = T;
 
-    fn is_empty(&self) -> bool {
-        HashMap::is_empty(self)
+        seal!();
+
+        fn is_empty(&self) -> bool {
+            Vec::is_empty(self)
+        }
+
+        fn len(&self) -> usize {
+            Vec::len(self)
+        }
     }
 
-    fn len(&self) -> usize {
-        HashMap::len(self)
+    impl<T> Memory for Vec<T> {}
+
+    impl<T> SeqMemory for Vec<T>
+    where
+        Vec<T>: AsRef<[T]>,
+    {
+        fn as_slice(&self) -> &[T] {
+            Vec::as_slice(self)
+        }
+
+        fn as_mut_slice(&mut self) -> &mut [T] {
+            Vec::as_mut_slice(self)
+        }
+        fn to_vec(&self) -> Vec<T>
+        where
+            T: Clone,
+        {
+            self.clone()
+        }
+
+        fn as_ptr(&self) -> *const T {
+            Vec::as_ptr(self)
+        }
+
+        fn as_mut_ptr(&mut self) -> *mut T {
+            Vec::as_mut_ptr(self)
+        }
+
+        fn get<I>(&self, index: I) -> Option<&I::Output>
+        where
+            I: core::slice::SliceIndex<[T]>,
+        {
+            <[T]>::get(self, index)
+        }
+
+        fn get_mut<I>(&mut self, index: I) -> Option<&mut I::Output>
+        where
+            I: core::slice::SliceIndex<[T]>,
+        {
+            <[T]>::get_mut(self, index)
+        }
+    }
+}
+
+#[cfg(feature = "std")]
+mod impl_std {
+    use super::RawMemory;
+    use std::collections::HashMap;
+
+    impl<K, V> RawMemory for HashMap<K, V> {
+        type Elem = V;
+
+        seal!();
+
+        fn is_empty(&self) -> bool {
+            HashMap::is_empty(self)
+        }
+
+        fn len(&self) -> usize {
+            HashMap::len(self)
+        }
     }
 }
