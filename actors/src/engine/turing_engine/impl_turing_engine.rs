@@ -58,7 +58,10 @@ where
         while let Some(_h) = self.step()? {
             if self.driver.is_halted() {
                 #[cfg(feature = "tracing")]
-                tracing::info!("The engine has halted; terminating the execution of the program.");
+                tracing::info!(
+                    "The engine has halted after {} steps; terminating the execution of the program.",
+                    self.cycles
+                );
                 break;
             }
         }

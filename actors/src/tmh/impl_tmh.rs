@@ -14,15 +14,19 @@ impl<Q, A> TMH<Q, A>
 where
     Q: RawState,
 {
-    pub const fn new(state: Q, tape: Vec<A>) -> Self {
+    pub fn new<I>(state: Q, tape: I) -> Self
+    where
+        I: IntoIterator<Item = A>,
+    {
         Self {
             head: Head::new(state, 0),
-            tape,
+            tape: Vec::from_iter(tape),
         }
     }
     /// returns a new instance of the [`TMH`] using the given tape
-    pub fn from_tape(tape: Vec<A>) -> Self
+    pub fn from_tape<I>(tape: I) -> Self
     where
+        I: IntoIterator<Item = A>,
         Q: Default,
     {
         Self::new(<Q>::default(), tape)
@@ -30,7 +34,10 @@ where
     /// returns a new instance of the [`TMH`] using the given state and an empty tape
     /// with the head positioned at `0`
     pub const fn from_state(state: Q) -> Self {
-        Self::new(state, Vec::new())
+        Self {
+            head: Head::new(state, 0),
+            tape: Vec::new(),
+        }
     }
     /// returns an immutable reference to the head of the tape
     pub const fn head(&self) -> &Head<Q, usize> {

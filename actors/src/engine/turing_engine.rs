@@ -22,7 +22,7 @@ where
     pub(crate) driver: &'a mut TMH<Q, A>,
     /// the program being executed
     pub(crate) program: Option<Program<Q, A>>,
-    /// the number of cycles executed
+    /// the number of cycles executed; independent of the position of the head on the tape
     pub(crate) cycles: usize,
     pub(crate) _inputs: Vec<A>,
 }

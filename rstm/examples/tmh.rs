@@ -15,7 +15,7 @@ fn main() -> rstm::Result<()> {
         .with_timer(tracing_subscriber::fmt::time::uptime())
         .init();
     // define some input for the machine
-    let input = vec![0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
+    let input = [0, 0, 0, 0, 1, 0, 1, 1, 0, 1];
     // initialize the state of the machine
     let initial_state: isize = 0;
     // define the Program for the machine
