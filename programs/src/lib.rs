@@ -89,7 +89,7 @@ mod types {
         /// A type alias for a [`HashMap`](std::collections::HashMap) with keys of type [`Head<Q, S>`] and values of type
         /// [`Tail<Q, S>`].
         #[cfg(feature = "std")]
-        pub type HeadMap<Q = usize, S = usize> = std::collections::HashMap<Head<Q, S>, Tail<Q, S>>;
+        pub type HeadMap<Q = usize, A = usize> = std::collections::HashMap<Head<Q, A>, Tail<Q, A>>;
     }
 }
 

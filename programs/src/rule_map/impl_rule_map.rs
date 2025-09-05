@@ -58,14 +58,16 @@ where
 
 impl<Q, S> FromIterator<(Head<Q, S>, Tail<Q, S>)> for RuleMap<Q, S>
 where
-    Q: RawState + Default + Eq + Hash,
+    Q: RawState + Eq + Hash,
     S: Eq + Hash,
 {
     fn from_iter<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = (Head<Q, S>, Tail<Q, S>)>,
     {
-        Self::from_iter(iter)
+        Self {
+            rules: std::collections::HashMap::from_iter(iter),
+        }
     }
 }
 
@@ -78,7 +80,9 @@ where
     where
         I: IntoIterator<Item = Rule<Q, S>>,
     {
-        Self::from_rules(iter)
+        Self {
+            rules: std::collections::HashMap::from_iter(iter.into_iter().map(|rule| (rule.head, rule.tail))),
+        }
     }
 }
 

@@ -1,14 +1,17 @@
 /*
-    Appellation: workload <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: rule_map <module>
+    Created At: 2025.09.04:22:20:45
+    Contrib: @FL03
 */
 
 mod impl_rule_map;
 
 use core::hash::Hash;
 use rstm_core::{Head, Rule, Tail};
-use rstm_state::{RawState, State};
-use std::collections::hash_map::{self, HashMap};
+use rstm_state::RawState;
+use std::collections::hash_map;
+
+use crate::HeadMap;
 
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
@@ -17,8 +20,7 @@ where
     Q: RawState + Eq + Hash,
     S: Eq + Hash,
 {
-    pub(crate) initial_state: Option<State<Q>>,
-    pub(crate) rules: HashMap<Head<Q, S>, Tail<Q, S>>,
+    pub(crate) rules: HeadMap<Q, S>,
 }
 
 impl<Q, S> RuleMap<Q, S>
@@ -28,41 +30,15 @@ where
 {
     pub fn new() -> Self {
         Self {
-            initial_state: None,
-            rules: HashMap::new(),
+            rules: HeadMap::new(),
         }
     }
-    /// returns a new instance of the [`RuleMap`] with the given initial state.
-    pub fn from_state(initial_state: State<Q>) -> Self {
-        Self {
-            initial_state: Some(initial_state),
-            rules: HashMap::new(),
-        }
-    }
-    #[allow(clippy::should_implement_trait)]
-    /// returns a new instance of the [`RuleMap`] composed from an iterator of head/tail pairs
-    pub fn from_iter<I>(iter: I) -> Self
-    where
-        I: IntoIterator<Item = (Head<Q, S>, Tail<Q, S>)>,
-    {
-        Self {
-            initial_state: None,
-            rules: HashMap::from_iter(iter),
-        }
-    }
-
+    /// returns a new instance of the [`RuleMap`] composed from an iterator of rules
     pub fn from_rules<I>(iter: I) -> Self
     where
         I: IntoIterator<Item = Rule<Q, S>>,
     {
         Self::from_iter(iter.into_iter().map(|Rule { head, tail }| (head, tail)))
-    }
-    /// consumes the current instance to create another with the given initial state.
-    pub fn with_initial_state(self, state: State<Q>) -> Self {
-        Self {
-            initial_state: Some(state),
-            ..self
-        }
     }
     /// consumes the current instance to create another with the given instructions
     pub fn with_instructions(
@@ -70,20 +46,16 @@ where
         instructions: impl IntoIterator<Item = (Head<Q, S>, Tail<Q, S>)>,
     ) -> Self {
         Self {
-            rules: HashMap::from_iter(instructions),
+            rules: HeadMap::from_iter(instructions),
             ..self
         }
     }
-    /// returns an instance of [State] which owns a reference to the interval value.
-    pub fn initial_state(&self) -> Option<State<&'_ Q>> {
-        self.initial_state.as_ref().map(|state| state.view())
-    }
     /// returns an immutable reference to the set of rules.
-    pub const fn rules(&self) -> &HashMap<Head<Q, S>, Tail<Q, S>> {
+    pub const fn rules(&self) -> &HeadMap<Q, S> {
         &self.rules
     }
     /// returns a mutable reference to the set of rules.
-    pub const fn rules_mut(&mut self) -> &mut HashMap<Head<Q, S>, Tail<Q, S>> {
+    pub const fn rules_mut(&mut self) -> &mut HeadMap<Q, S> {
         &mut self.rules
     }
     /// Clears the set of rules.
