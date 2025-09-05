@@ -23,7 +23,7 @@ use rstm_state::{RawState, State};
 #[cfg_attr(
     feature = "serde",
     derive(serde::Deserialize, serde::Serialize),
-    serde(default, rename_all = "camelCase")
+    serde(rename_all = "camelCase")
 )]
 pub struct Rule<Q = String, A = char>
 where
@@ -35,15 +35,24 @@ where
     pub tail: Tail<Q, A>,
 }
 
+/// A [`LearnedRule`] is an extension of the basic [`Rule`] structure, incorporating a 
+/// confidence metric to quantify the reliability or certainty of the rule within the scope of 
+/// a learning context. This is particularly useful in scenarios where rules are derived from 
+/// data or experience, allowing for a more nuanced application of rules based on their 
+/// confidence levels.
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(rename_all = "camelCase")
+)]
 pub struct LearnedRule<C = f32, Q = usize, S = usize>
 where
     Q: RawState,
 {
     pub confidence: C,
-    pub head: Head<Q, S>,
-    pub tail: Tail<Q, S>,
+    #[cfg_attr(feature = "serde", serde(flatten))]
+    pub rule: Rule<Q, S>,
 }
 
 #[derive(Default)]
