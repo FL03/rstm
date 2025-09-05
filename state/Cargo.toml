@@ -1,6 +1,6 @@
 [package]
 build = "build.rs"
-description = "This crate provides various states for the rstm framework."
+description = "A generic state implementation and its supporting interfaces"
 name = "rstm-state"
 
 authors.workspace = true

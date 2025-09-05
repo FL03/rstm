@@ -25,12 +25,14 @@ pub enum Error {
     NoInputs,
     #[error("An infinite loop was detected during execution.")]
     InfiniteLoop,
+    #[error("No rule found")]
+    NoRuleFound,
     #[error("No symbol found at position {0}.")]
     NoSymbolFound(usize),
     #[error(transparent)]
     CoreError(#[from] rstm_core::Error),
     #[error(transparent)]
-    RulesError(#[from] rstm_rules::Error),
+    ProgramsError(#[from] rstm_programs::Error),
     #[error(transparent)]
     StateError(#[from] rstm_state::StateError),
 }

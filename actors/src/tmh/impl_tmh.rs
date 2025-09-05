@@ -7,23 +7,37 @@ use super::TMH;
 use crate::engine::TuringEngine;
 use rstm_core::error::Error as CoreError;
 use rstm_core::{Direction, Head};
-use rstm_rules::Program;
+use rstm_programs::Program;
 use rstm_state::{Halt, RawState, State};
 
 impl<Q, A> TMH<Q, A>
 where
     Q: RawState,
 {
-    pub const fn new(state: Q, symbol: usize) -> Self {
+    pub fn new<I>(state: Q, tape: I) -> Self
+    where
+        I: IntoIterator<Item = A>,
+    {
         Self {
-            head: Head::new(state, symbol),
-            tape: Vec::new(),
+            head: Head::new(state, 0),
+            tape: Vec::from_iter(tape),
         }
+    }
+    /// returns a new instance of the [`TMH`] using the given tape
+    pub fn from_tape<I>(tape: I) -> Self
+    where
+        I: IntoIterator<Item = A>,
+        Q: Default,
+    {
+        Self::new(<Q>::default(), tape)
     }
     /// returns a new instance of the [`TMH`] using the given state and an empty tape
     /// with the head positioned at `0`
-    pub fn from_state(state: Q) -> Self {
-        Self::new(state, 0)
+    pub const fn from_state(state: Q) -> Self {
+        Self {
+            head: Head::new(state, 0),
+            tape: Vec::new(),
+        }
     }
     /// returns an immutable reference to the head of the tape
     pub const fn head(&self) -> &Head<Q, usize> {
@@ -42,30 +56,35 @@ where
         &mut self.tape
     }
     /// update the current head and return a mutable reference to the actor
-    pub fn set_head(&mut self, head: Head<Q, usize>) -> &mut Self {
+    #[inline]
+    pub fn set_head(&mut self, head: Head<Q, usize>) {
         self.head = head;
-        self
     }
     /// updates the current position of the head and returns a mutable reference to the actor
-    pub fn set_position(&mut self, symbol: usize) -> &mut Self {
+    #[inline]
+    pub fn set_position(&mut self, symbol: usize) {
         self.head_mut().set_symbol(symbol);
-        self
     }
     /// updates the current state of the head and returns a mutable reference to the actor
-    pub fn set_state(&mut self, state: Q) -> &mut Self {
+    #[inline]
+    pub fn set_state(&mut self, state: Q) {
         self.head_mut().set_state(state);
-        self
     }
     /// update the current tape and return a mutable reference to the actor
-    pub fn set_tape(&mut self, tape: Vec<A>) -> &mut Self {
-        self.tape = tape;
-        self
+    #[inline]
+    pub fn set_tape<I>(&mut self, tape: I)
+    where
+        I: IntoIterator<Item = A>,
+    {
+        self.tape = Vec::from_iter(tape);
     }
     /// Consumes the current instance and returns a new instance with the given head
+    #[inline]
     pub fn with_head(self, head: Head<Q, usize>) -> Self {
         Self { head, ..self }
     }
     /// Consumes the current instance and returns a new instance with the given position
+    #[inline]
     pub fn with_position(self, symbol: usize) -> Self {
         Self {
             head: Head {
@@ -75,14 +94,16 @@ where
             ..self
         }
     }
-    /// Consumes the current instance and returns a new instance with the given state
+    /// consumes the current instance to create another with the given state
+    #[inline]
     pub fn with_state(self, state: State<Q>) -> Self {
         Self {
             head: Head { state, ..self.head },
             ..self
         }
     }
-    /// Consumes the current instance and returns a new instance with the given alphabet
+    /// consumes the current instance to create another with the given tape
+    #[inline]
     pub fn with_tape<I>(self, alpha: I) -> Self
     where
         I: IntoIterator<Item = A>,
@@ -92,16 +113,8 @@ where
             ..self
         }
     }
-    /// returns an instance of the [Head] with an immutable reference to the state's inner
-    /// value
-    pub fn head_ref(&self) -> Head<&Q, usize> {
-        Head {
-            state: self.head.state.view(),
-            symbol: self.head.symbol,
-        }
-    }
     /// returns the current position of the head on the tape
-    pub const fn position(&self) -> usize {
+    pub const fn current_position(&self) -> usize {
         *self.head().symbol()
     }
     /// returns an instance of the state with an immutable reference to the inner value
@@ -113,6 +126,7 @@ where
         self.head_mut().state_mut()
     }
     /// extends the tape with elements from the given iterator
+    #[inline]
     pub fn extend_tape<I>(&mut self, iter: I)
     where
         I: IntoIterator<Item = A>,
@@ -151,28 +165,22 @@ where
         state: State<Q>,
         symbol: A,
     ) -> crate::Result<Head<Q, usize>> {
+        let position = self.current_position();
         #[cfg(feature = "tracing")]
-        tracing::trace!(
-            "Reacting to the current context of cell: {:?}",
-            self.position()
-        );
+        tracing::trace!("Reacting to the current context of cell: {:?}", position);
         // write the symbol to the tape
         self.write(symbol)?;
         // update the head of the actor
-        let prev = self.head.replace(state, self.position() + direction);
+        let prev = self.head_mut().replace(state, position + direction);
 
         Ok(prev)
     }
     /// Reads the current symbol at the head of the tape
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "read", target = "actor")
-    )]
     pub fn read(&self) -> crate::Result<Head<&'_ Q, &'_ A>> {
         #[cfg(feature = "tracing")]
-        tracing::trace!("Reading the tape...");
+        tracing::trace!("reading the tape...");
         self.tape()
-            .get(self.position())
+            .get(self.current_position())
             .map(|symbol| Head {
                 state: self.state().view(),
                 symbol,
@@ -181,10 +189,10 @@ where
                 #[cfg(feature = "tracing")]
                 tracing::error!(
                     "[Index Error] the current position ({pos}) of the head is out of bounds...",
-                    pos = self.position()
+                    pos = self.current_position()
                 );
                 CoreError::IndexOutOfBounds {
-                    index: self.position(),
+                    index: self.current_position(),
                     len: self.len(),
                 }
                 .into()
@@ -193,16 +201,14 @@ where
     /// write a symbol to the tape at the current position of the head;
     #[cfg_attr(
         feature = "tracing",
-        tracing::instrument(skip_all, name = "write", target = "actor")
+        tracing::instrument(skip_all, name = "write", target = "tmh")
     )]
     pub fn write(&mut self, value: A) -> crate::Result<()> {
-        #[cfg(feature = "tracing")]
-        tracing::trace!("Writing to the tape...");
-        let pos = self.position();
+        let pos = self.current_position();
 
         if pos < self.len() {
             #[cfg(feature = "tracing")]
-            tracing::trace!("Updating the tape...");
+            tracing::trace!("Updating the tape at {pos}");
             self.tape[pos] = value;
         } else if pos == self.len() {
             #[cfg(feature = "tracing")]
@@ -228,7 +234,7 @@ where
     pub(crate) unsafe fn write_value(&mut self, value: A) -> crate::Result<()> {
         #[cfg(feature = "tracing")]
         tracing::trace!("Writing to the tape...");
-        let pos = self.position();
+        let pos = self.current_position();
 
         if pos < self.len() {
             #[cfg(feature = "tracing")]

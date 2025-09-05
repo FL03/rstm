@@ -2,31 +2,34 @@
     Appellation: error <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+//! The [`error`](self) module defines the core [`Error`] type used throughout the library and
+//! provides a convenient alias for [`Result`](core::result::Result) types.
 #[cfg(feature = "alloc")]
 use alloc::{boxed::Box, string::String};
 
-/// A type alias for a [Result] with our custom error type: [`Error`](crate::Error)
-pub type Result<T = ()> = core::result::Result<T, crate::Error>;
+/// A type alias for a [`Result`](core::result::Result) with an error type of [`Error`]
+pub type Result<T = ()> = core::result::Result<T, self::Error>;
 
 /// The [`Error`] implementation describes the various errors that can occur within the library
 #[derive(Debug, thiserror::Error)]
+#[non_exhaustive]
 pub enum Error {
     #[error("The specified index ({index}) is out of bounds for a collection of {len} elements.")]
     IndexOutOfBounds { index: usize, len: usize },
     #[cfg(feature = "alloc")]
-    #[error("[Type Error] {0}")]
-    TypeError(String),
-    #[cfg(feature = "alloc")]
-    #[error(transparent)]
-    BoxError(Box<dyn core::error::Error + Send + Sync + 'static>),
-    #[error(transparent)]
-    FmtError(core::fmt::Error),
-    #[cfg(feature = "std")]
-    #[error(transparent)]
-    IOError(std::io::Error),
-    #[cfg(feature = "alloc")]
     #[error("An unknown error occurred: {0}")]
     Unknown(String),
+    #[cfg(feature = "alloc")]
+    #[error(transparent)]
+    BoxError(#[from] Box<dyn core::error::Error + Send + Sync + 'static>),
+    #[error(transparent)]
+    FmtError(#[from] core::fmt::Error),
+    #[cfg(feature = "std")]
+    #[error(transparent)]
+    IOError(#[from] std::io::Error),
+    #[error(transparent)]
+    #[cfg(feature = "serde_json")]
+    JsonError(#[from] serde_json::Error),
     #[error(transparent)]
     StateError(#[from] rstm_state::StateError),
 }

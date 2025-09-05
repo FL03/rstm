@@ -11,15 +11,15 @@ pub trait RawTape {
 }
 /// The [`Tape`] trait extends the [`RawTape`] trait to provide additional functionality
 pub trait Tape<A = char>: RawTape<Elem = A> {
-    type Index;
+    type Key;
 
     fn clear(&mut self);
 
-    fn get(&self, index: &Self::Index) -> Option<&A>;
+    fn get(&self, index: &Self::Key) -> Option<&A>;
 
-    fn get_mut(&mut self, index: &Self::Index) -> Option<&mut A>;
+    fn get_mut(&mut self, index: &Self::Key) -> Option<&mut A>;
 
-    fn insert(&mut self, index: Self::Index, symbol: A);
+    fn insert(&mut self, index: Self::Key, symbol: A);
 
     fn is_empty(&self) -> bool;
 
@@ -29,38 +29,83 @@ pub trait Tape<A = char>: RawTape<Elem = A> {
 /*
  ************* Implementations *************
 */
+
+impl<T> RawTape for &T
+where
+    T: RawTape,
+{
+    type Elem = T::Elem;
+
+    seal! {}
+}
+
+impl<T> RawTape for &mut T
+where
+    T: RawTape,
+{
+    type Elem = T::Elem;
+
+    seal! {}
+}
+
+impl<T> RawTape for [T] {
+    type Elem = T;
+
+    seal! {}
+}
+
+impl<T, const N: usize> RawTape for [T; N] {
+    type Elem = T;
+
+    seal! {}
+}
+
 #[cfg(feature = "alloc")]
 mod impl_alloc {
     use super::{RawTape, Tape};
+    use alloc::collections::{BTreeMap, BTreeSet};
     use alloc::vec::Vec;
 
-    impl<A> RawTape for Vec<A> {
-        type Elem = A;
+    impl<T> RawTape for BTreeSet<T> {
+        type Elem = T;
 
-        seal!();
+        seal! {}
     }
-    impl<V> Tape<V> for Vec<V> {
-        type Index = usize;
+
+    impl<K, V> RawTape for BTreeMap<K, V> {
+        type Elem = V;
+
+        seal! {}
+    }
+
+    impl<T> RawTape for Vec<T> {
+        type Elem = T;
+
+        seal! {}
+    }
+
+    impl<T> Tape<T> for Vec<T> {
+        type Key = usize;
 
         fn clear(&mut self) {
             Vec::clear(self);
         }
 
-        fn get(&self, key: &Self::Index) -> Option<&V> {
+        fn get(&self, key: &Self::Key) -> Option<&T> {
             match key {
                 key if *key < self.len() => Some(&self[*key]),
                 _ => None,
             }
         }
 
-        fn get_mut(&mut self, key: &Self::Index) -> Option<&mut V> {
+        fn get_mut(&mut self, key: &Self::Key) -> Option<&mut T> {
             match key {
                 key if *key < self.len() => Some(&mut self[*key]),
                 _ => None,
             }
         }
 
-        fn insert(&mut self, key: Self::Index, value: V) {
+        fn insert(&mut self, key: Self::Key, value: T) {
             Vec::insert(self, key, value);
         }
 
@@ -73,17 +118,24 @@ mod impl_alloc {
         }
     }
 }
+
 #[cfg(feature = "std")]
 mod impl_std {
     use super::{RawTape, Tape};
 
     use core::hash::Hash;
-    use std::collections::HashMap;
+    use std::collections::{HashMap, HashSet};
 
-    impl<K, A> RawTape for HashMap<K, A> {
-        type Elem = A;
+    impl<T> RawTape for HashSet<T> {
+        type Elem = T;
 
-        seal!();
+        seal! {}
+    }
+
+    impl<K, V> RawTape for HashMap<K, V> {
+        type Elem = V;
+
+        seal! {}
     }
 
     impl<K, V> Tape<V> for HashMap<K, V>
@@ -91,7 +143,7 @@ mod impl_std {
         K: Eq + Hash,
         V: Eq + Hash,
     {
-        type Index = K;
+        type Key = K;
 
         fn clear(&mut self) {
             HashMap::clear(self);

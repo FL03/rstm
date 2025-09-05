@@ -25,6 +25,7 @@ use rstm_core::head::Head;
 /// as a [`Vec<A>`], where `A` is the type of the symbols allowed on the tape. After setting
 /// any inputs, we can use the [`execute`](TMH::execute) method to initialize a lazy executor
 /// that will run the program whenever the `run`
+///
 #[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
 #[repr(C)]
 pub struct TMH<Q, A> {

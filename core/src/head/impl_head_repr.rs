@@ -3,11 +3,11 @@
     Created At: 2025.08.31:00:01:56
     Contrib: @FL03
 */
-use super::Head;
+use super::{Head, HeadMut, HeadRef};
 use crate::types::Direction;
 use rstm_state::RawState;
 
-impl<'a, Q, S> Head<&'a Q, &'a S>
+impl<'a, Q, S> HeadRef<'a, Q, S>
 where
     Q: RawState,
 {
@@ -35,7 +35,7 @@ where
     }
 }
 
-impl<'a, Q, S> Head<&'a mut Q, &'a mut S>
+impl<'a, Q, S> HeadMut<'a, Q, S>
 where
     Q: RawState,
 {

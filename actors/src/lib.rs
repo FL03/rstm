@@ -42,16 +42,10 @@ mod macros {
     pub(crate) mod seal;
 }
 
-mod impls {
-    #[allow(deprecated)]
-    mod impl_deprecated;
-}
-
 #[doc(inline)]
-pub use self::{engine::TuringEngine, error::*, tmh::TMH, traits::*};
+pub use self::{engine::prelude::*, error::*, tmh::TMH, traits::*};
 
-#[cfg(feature = "alloc")]
-pub(crate) mod engine;
+pub mod engine;
 #[cfg(feature = "alloc")]
 pub(crate) mod tmh;
 
@@ -63,14 +57,11 @@ pub mod traits {
     pub use self::prelude::*;
 
     mod actor;
-    mod engine;
     mod handle;
 
     mod prelude {
         #[doc(inline)]
         pub use super::actor::*;
-        #[doc(inline)]
-        pub use super::engine::*;
         #[doc(inline)]
         pub use super::handle::*;
     }
@@ -78,9 +69,8 @@ pub mod traits {
 
 #[doc(hidden)]
 pub mod prelude {
-    #[cfg(feature = "alloc")]
     #[doc(inline)]
-    pub use crate::engine::TuringEngine;
+    pub use crate::engine::prelude::*;
     #[cfg(feature = "alloc")]
     #[doc(inline)]
     pub use crate::tmh::TMH;

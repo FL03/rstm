@@ -21,6 +21,14 @@ doc = true
 doctest = false
 test = true
 
+# ************* [Unit Tests] *************
+[[test]]
+name = "default"
+
+[[test]]
+name = "tape"
+required-features = ["alloc"]
+
 # ********* [Package Metadata] *********
 [package.metadata.docs.rs]
 all-features = false
@@ -45,6 +53,7 @@ thiserror = { workspace = true }
 # serialization
 serde = { optional = true, workspace = true }
 serde_derive = { optional = true, workspace = true }
+serde_json = { optional = true, workspace = true }
 # macros & utilities
 smart-default = { workspace = true }
 strum = { workspace = true }
@@ -72,6 +81,13 @@ full = [
 nightly = [
   "rstm-core/nightly",
   "rstm-state/nightly",
+]
+
+json = [
+  "alloc",
+  "serde",
+  "rstm-core/json",
+  "rstm-state/json",
 ]
 
 # ************* [FF:Environments] *************
@@ -116,18 +132,13 @@ serde = [
   "rstm-state/serde",
 ]
 
-tracing = [
-  "dep:tracing",
-  "tracing?/attributes",
+serde_json = [
+  "dep:serde_json",
+  "serde?/std",
+  "rstm-core/serde_json",
+  "rstm-state/serde_json",
 ]
 
+tracing = ["dep:tracing"]
+
 wasm-bindgen = ["dep:wasm-bindgen"]
-
-
-# ************* [Unit Tests] *************
-[[test]]
-name = "default"
-
-[[test]]
-name = "tape"
-required-features = ["alloc"]

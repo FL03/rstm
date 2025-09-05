@@ -1,0 +1,47 @@
+{
+  "initialState": 0,
+  "rules": [
+    {
+      "state": 0,
+      "symbol": 0,
+      "direction": "Right",
+      "nextState": 1,
+      "writeSymbol": 0
+    },
+    {
+      "state": 0,
+      "symbol": 1,
+      "direction": "Left",
+      "nextState": -1,
+      "writeSymbol": 1
+    },
+    {
+      "state": 1,
+      "symbol": 0,
+      "direction": "Right",
+      "nextState": 1,
+      "writeSymbol": 1
+    },
+    {
+      "state": 1,
+      "symbol": 1,
+      "direction": "Right",
+      "nextState": 0,
+      "writeSymbol": 0
+    },
+    {
+      "state": -1,
+      "symbol": 0,
+      "direction": "Left",
+      "nextState": 9223372036854775807,
+      "writeSymbol": 0
+    },
+    {
+      "state": -1,
+      "symbol": 1,
+      "direction": "Left",
+      "nextState": -1,
+      "writeSymbol": 0
+    }
+  ]
+}

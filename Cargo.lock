@@ -427,26 +427,28 @@ checksum = "caf4aa5b0f434c91fe5c7f1ecb6a5ece2130b02ad2a590589dda5146df959001"
 
 [[package]]
 name = "rstm"
-version = "0.0.9"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "criterion",
  "lazy_static",
  "rstm-actors",
  "rstm-core",
- "rstm-rules",
+ "rstm-programs",
  "rstm-tape",
+ "serde",
+ "serde_json",
  "tracing",
  "tracing-subscriber",
 ]
 
 [[package]]
 name = "rstm-actors"
-version = "0.0.9"
+version = "0.1.0"
 dependencies = [
  "lazy_static",
  "rstm-core",
- "rstm-rules",
+ "rstm-programs",
  "rstm-state",
  "rstm-tape",
  "serde",
@@ -462,7 +464,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-core"
-version = "0.0.9"
+version = "0.1.0"
 dependencies = [
  "contained",
  "lazy_static",
@@ -481,8 +483,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "rstm-rules"
-version = "0.0.9"
+name = "rstm-programs"
+version = "0.1.0"
 dependencies = [
  "contained",
  "lazy_static",
@@ -504,7 +506,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-state"
-version = "0.0.9"
+version = "0.1.0"
 dependencies = [
  "contained",
  "num-traits",
@@ -520,13 +522,14 @@ dependencies = [
 
 [[package]]
 name = "rstm-tape"
-version = "0.0.9"
+version = "0.1.0"
 dependencies = [
  "lazy_static",
  "rstm-core",
  "rstm-state",
  "serde",
  "serde_derive",
+ "serde_json",
  "smart-default",
  "strum",
  "thiserror",

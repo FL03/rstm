@@ -23,11 +23,12 @@ pub use rstm_state as state;
 #[doc(inline)]
 pub use self::{
     error::{Error, Result},
-    head::Head,
+    head::*,
+    rule::{LearnedRule, Rule},
     state::{RawState, State},
-    tail::Tail,
+    tail::*,
     traits::*,
-    types::*,
+    types::prelude::*,
     utils::*,
 };
 
@@ -39,6 +40,7 @@ pub(crate) mod macros {
 
 pub mod error;
 pub mod head;
+pub mod rule;
 pub mod tail;
 
 pub mod traits {
@@ -47,13 +49,16 @@ pub mod traits {
 
     mod convert;
     mod increment;
+    mod instruction;
     mod symbols;
 
-    mod prelude {
+    pub(crate) mod prelude {
         #[doc(inline)]
         pub use super::convert::*;
         #[doc(inline)]
         pub use super::increment::*;
+        #[doc(inline)]
+        pub use super::instruction::*;
         #[doc(inline)]
         pub use super::symbols::*;
     }
@@ -64,10 +69,11 @@ pub mod types {
     #[doc(inline)]
     pub use self::prelude::*;
 
-    mod direction;
-    mod prelude {
+    pub mod direction;
+
+    pub(crate) mod prelude {
         #[doc(inline)]
-        pub use super::direction::*;
+        pub use super::direction::Direction;
     }
 }
 
@@ -90,9 +96,10 @@ pub mod prelude {
     pub use rstm_state::prelude::*;
 
     pub use crate::head::*;
+    pub use crate::rule::*;
     pub use crate::tail::*;
 
     pub use crate::traits::*;
-    pub use crate::types::*;
+    pub use crate::types::prelude::*;
     pub use crate::utils::*;
 }

@@ -4,6 +4,7 @@
 */
 use rstm::prelude::{Direction, Head, Tail};
 
+#[cfg(feature = "programs")]
 #[test]
 fn test_ruleset() {
     let rules = rstm::program![

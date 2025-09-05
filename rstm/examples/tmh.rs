@@ -1,41 +1,40 @@
 /*
-    Appellation: actor <example>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: tmh <example>
+    Created At: 2025.09.03:21:59:56
+    Contrib: @FL03
 */
 extern crate rstm;
 
-use rstm::actors::TMH;
-use rstm::rules::Program;
+use rstm::prelude::{Program, TMH};
 
 fn main() -> rstm::Result<()> {
     // initialize the logger
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::TRACE)
+        .with_max_level(tracing::Level::DEBUG)
         .with_target(false)
         .with_timer(tracing_subscriber::fmt::time::uptime())
         .init();
-    tracing::info!("Welcome to rstm!");
-    // initialize the tape data
-    let alpha = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
+    // define some input for the machine
+    let input = [0, 0, 0, 0, 1, 0, 1, 1, 0, 1];
     // initialize the state of the machine
     let initial_state: isize = 0;
-    // define the ruleset for the machine
+    // define the Program for the machine
     let program: Program<isize, usize> = rstm::program! {
         #[default_state(initial_state)]
         rules: {
             (0, 0) -> Right(1, 0);
             (0, 1) -> Left(-1, 1);
-            (1, 0) -> Right(0, 1);
-            (1, 1) -> Right(-1, 0);
+            (1, 0) -> Right(1, 1);
+            (1, 1) -> Right(0, 0);
             (-1, 0) -> Left(<isize>::MAX, 0);
-            (-1, 1) -> Left(1, 1);
+            (-1, 1) -> Left(-1, 0);
         };
     };
+    // export the program to a JSON file
+    program.export_json("rstm/examples/tmh_program.json")?;
     // create a new instance of the machine
-    let mut tm = TMH::from_state(initial_state);
-    tm.extend_tape(alpha);
-    // execute the program
-    dbg!(tm).execute(program).run()?;
-    tracing::info!("Execution successfull! Terminating the program...");
+    let mut tm = TMH::new(initial_state, input);
+    // execute and run the program
+    tm.execute(program).run()?;
     Ok(())
 }
