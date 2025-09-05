@@ -35,10 +35,10 @@ where
     pub tail: Tail<Q, A>,
 }
 
-/// A [`LearnedRule`] is an extension of the basic [`Rule`] structure, incorporating a 
-/// confidence metric to quantify the reliability or certainty of the rule within the scope of 
-/// a learning context. This is particularly useful in scenarios where rules are derived from 
-/// data or experience, allowing for a more nuanced application of rules based on their 
+/// A [`LearnedRule`] is an extension of the basic [`Rule`] structure, incorporating a
+/// confidence metric to quantify the reliability or certainty of the rule within the scope of
+/// a learning context. This is particularly useful in scenarios where rules are derived from
+/// data or experience, allowing for a more nuanced application of rules based on their
 /// confidence levels.
 #[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(

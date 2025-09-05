@@ -123,10 +123,7 @@ where
 {
     /// associates the given tail with the current head, returning a new [`Rule`]
     pub fn append(self, tail: Tail<Q, A>) -> Rule<Q, A> {
-        Rule {
-            head: self,
-            tail: tail,
-        }
+        Rule { head: self, tail }
     }
     /// tries reading the given tape using the head as its coordinates.
     pub fn read<T>(self, tape: &'_ [T]) -> Option<&<A>::Output>

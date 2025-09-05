@@ -84,7 +84,7 @@ where
     }
     #[cfg(all(feature = "json", feature = "std"))]
     /// saves the current program as a `.json` file at the given path
-    pub fn export_json<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()> 
+    pub fn export_json<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()>
     where
         Q: serde::Serialize,
         A: serde::Serialize,
