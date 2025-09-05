@@ -38,6 +38,7 @@ fn main() -> rstm::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "json")]
 fn _save_program<V>(program: &V) -> rstm::Result<()>
 where
     V: serde::Serialize,
