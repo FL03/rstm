@@ -82,6 +82,19 @@ where
     {
         self.iter().filter(|i| *i.head() == state).collect()
     }
+    #[cfg(all(feature = "json", feature = "std"))]
+    /// saves the current program as a `.json` file at the given path
+    pub fn export_json<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()> 
+    where
+        Q: serde::Serialize,
+        A: serde::Serialize,
+    {
+        let serialized = serde_json::to_string_pretty(self).unwrap();
+        std::fs::write(path, serialized)?;
+        #[cfg(feature = "tracing")]
+        tracing::info!("Program exported as JSON");
+        Ok(())
+    }
 }
 
 impl<Q, A> AsRef<[Rule<Q, A>]> for Program<Q, A>

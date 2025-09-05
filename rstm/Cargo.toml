@@ -115,6 +115,7 @@ nightly = [
 json = [
   "alloc",
   "rstm-core/json",
+  "rstm-tape?/json",
   "rstm-programs?/json",
 ]
 
@@ -163,10 +164,12 @@ serde = [
 serde_json = [
   "rstm-core/serde_json",
   "rstm-programs?/serde_json",
+  "rstm-tape?/serde_json",
 ]
 
 tracing = [
   "rstm-actors?/tracing",
+  "rstm-programs?/tracing",
   "rstm-tape?/tracing"
 ]
 

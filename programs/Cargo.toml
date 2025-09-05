@@ -132,6 +132,8 @@ serde = [
 
 serde_json = ["dep:serde_json"]
 
+tracing = ["dep:tracing"]
+
 wasm-bindgen = ["dep:wasm-bindgen"]
 
 

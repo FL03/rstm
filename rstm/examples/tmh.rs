@@ -30,20 +30,11 @@ fn main() -> rstm::Result<()> {
             (-1, 1) -> Left(-1, 0);
         };
     };
-    // _save_program(&program)?;
+    // export the program to a JSON file
+    program.export_json("rstm/examples/tmh_program.json")?;
     // create a new instance of the machine
     let mut tm = TMH::new(initial_state, input);
     // execute and run the program
     tm.execute(program).run()?;
-    Ok(())
-}
-
-#[cfg(feature = "json")]
-fn _save_program<V>(program: &V) -> rstm::Result<()>
-where
-    V: serde::Serialize,
-{
-    let serialized = serde_json::to_string_pretty(&program)?;
-    std::fs::write("rstm/examples/tmh_program.json", serialized)?;
     Ok(())
 }

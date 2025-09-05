@@ -529,6 +529,7 @@ dependencies = [
  "rstm-state",
  "serde",
  "serde_derive",
+ "serde_json",
  "smart-default",
  "strum",
  "thiserror",
