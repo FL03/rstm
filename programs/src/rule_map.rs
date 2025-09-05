@@ -47,7 +47,6 @@ where
     ) -> Self {
         Self {
             rules: HeadMap::from_iter(instructions),
-            ..self
         }
     }
     /// returns an immutable reference to the set of rules.

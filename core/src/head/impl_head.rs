@@ -101,8 +101,8 @@ where
     }
     /// updates the current [State] and symbol
     pub fn update(&mut self, state: Option<State<Q>>, symbol: Option<A>) {
-        state.map(|s| self.set_state(s.value()));
-        symbol.map(|s| self.set_symbol(s));
+        if let Some(s) = state { self.set_state(s.value()) }
+        if let Some(s) = symbol { self.set_symbol(s) }
     }
     /// returns a reference to the current state and symbol returing a 2-tuple
     pub const fn as_tuple(&self) -> (&State<Q>, &A) {

@@ -11,8 +11,12 @@ impl<Q, A> Rule<Q, A>
 where
     Q: RawState,
 {
+    /// returns a new instance of the [`Rule`] from the given head and tail
+    pub const fn new(head: Head<Q, A>, tail: Tail<Q, A>) -> Self {
+        Self { head, tail }
+    }
     /// returns a new instance of a [`RuleBuilder`] for constructing a new [`Rule`]
-    pub const fn new() -> RuleBuilder<Q, A> {
+    pub const fn create() -> RuleBuilder<Q, A> {
         RuleBuilder::new()
     }
     /// initialize a new instance of the [`Rule`] from its consituent parts
@@ -25,7 +29,7 @@ where
     ) -> Self {
         let head = Head::new(state, symbol);
         let tail = Tail::new(direction, next_state, write_symbol);
-        Self { head, tail }
+        Self::new(head, tail)
     }
     /// returns an immutable reference to the [Head]
     pub const fn head(&self) -> &Head<Q, A> {

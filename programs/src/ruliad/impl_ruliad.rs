@@ -44,7 +44,6 @@ where
     {
         Self {
             rules: Vec::from_iter(rules),
-            ..self
         }
     }
     /// Returns an iterator over the elements.

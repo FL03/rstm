@@ -52,7 +52,7 @@ where
  ************* Implementations *************
 */
 
-impl<'a, T> RawPoint for &'a T
+impl<T> RawPoint for &T
 where
     T: RawSpace,
 {
@@ -62,7 +62,7 @@ where
     seal! {}
 }
 
-impl<'a, T> RawPoint for &'a mut T
+impl<T> RawPoint for &mut T
 where
     T: RawSpace,
 {

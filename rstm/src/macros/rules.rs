@@ -18,9 +18,9 @@
 /// [On the Topological Dynamics of Turing Machines](https://doi.org/10.1016/S0304-3975(96)00025-4)
 /// by Petr Kůrka. Specifically,
 ///
-/// $$
+/// ```math
 /// \delta: Q\times{A}\rightarrow{Q}\times{A}\times{\lbrace\pm{1},0\rbrace}
-/// $$
+/// ```
 ///
 /// ## Basic Usage
 ///
@@ -37,13 +37,13 @@ macro_rules! rule {
     (
         ($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal) $(;)?
     ) => {
-        $crate::rule::Rule::new()
-            .state($crate::state::State($state))
-            .symbol($symbol)
-            .write_symbol($write)
-            .direction($crate::Direction::$direction)
-            .next_state($crate::state::State($next))
-            .build()
+        $crate::rule::Rule::from_parts(
+            $state,
+            $symbol,
+            $crate::Direction::$direction,
+            $next,
+            $write,
+        )
     };
 }
 /// [`rules!`] is a macro that simplifies the creation of an array of [`Rule`](crate::rules::Rule)
