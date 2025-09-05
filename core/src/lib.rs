@@ -23,10 +23,10 @@ pub use rstm_state as state;
 #[doc(inline)]
 pub use self::{
     error::{Error, Result},
-    head::{Head, HeadMut, HeadRef},
+    head::*,
     rule::{LearnedRule, Rule},
     state::{RawState, State},
-    tail::{Tail, TailMut, TailRef},
+    tail::*,
     traits::*,
     types::prelude::*,
     utils::*,
