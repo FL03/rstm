@@ -3,7 +3,7 @@
     Created At: 2025.08.30:18:45:29
     Contrib: @FL03
 */
-//! The [`programs`](self) module provides various structures and utilities for defining and 
+//! The [`programs`](self) module provides various structures and utilities for defining and
 //! managing Turing machine programs, including rules, rule spaces, and program execution.
 #![allow(
     clippy::module_inception,
@@ -26,18 +26,18 @@ mod macros {
 }
 
 #[doc(inline)]
-pub use self::{
-    error::*,
-    traits::*,
-    types::*,
-};
+pub use self::{error::*, traits::*, types::*};
 
-#[cfg(feature = "alloc")]
-#[doc(inline)]
-pub use self::program::*;
 #[cfg(feature = "std")]
 #[doc(inline)]
 pub use self::rule_map::RuleMap;
+#[doc(hidden)]
+#[cfg(feature = "alloc")]
+pub use self::ruliad::*;
+
+#[doc(inline)]
+#[cfg(feature = "alloc")]
+pub use self::program::Program;
 
 #[cfg(not(any(feature = "alloc", feature = "std")))]
 compile_error! {
@@ -45,20 +45,25 @@ compile_error! {
 }
 
 pub mod error;
-
-#[cfg(feature = "alloc")]
 pub mod program;
+
 #[cfg(feature = "std")]
 pub mod rule_map;
+#[doc(hidden)]
+#[cfg(feature = "alloc")]
+pub mod ruliad;
 
 pub mod traits {
     //! the traits defining compatible rules within the framework
     #[doc(inline)]
     pub use self::prelude::*;
 
+    mod program;
     mod rulespace;
 
     mod prelude {
+        #[doc(inline)]
+        pub use super::program::*;
         #[doc(inline)]
         pub use super::rulespace::*;
     }
@@ -93,8 +98,9 @@ pub mod prelude {
     pub use crate::traits::*;
     pub use crate::types::*;
 
-    #[cfg(feature = "alloc")]
     pub use crate::program::Program;
     #[cfg(feature = "std")]
     pub use crate::rule_map::RuleMap;
+    // #[cfg(feature = "alloc")]
+    // pub use crate::ruliad::Ruliad;
 }

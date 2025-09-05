@@ -6,7 +6,7 @@
 mod impl_rule_map;
 
 use core::hash::Hash;
-use rstm_core::{Head, Rule,Tail};
+use rstm_core::{Head, Rule, Tail};
 use rstm_state::{RawState, State};
 use std::collections::hash_map::{self, HashMap};
 

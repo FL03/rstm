@@ -1,9 +1,11 @@
 /*
-    appellation: impl_rule_set <module>
-    authors: @FL03
+    Appellation: impl_program <module>
+    Created At: 2025.09.04:19:04:56
+    Contrib: @FL03
 */
 use crate::program::Program;
-use crate::RuleVec;
+
+use crate::types::RuleVec;
 use rstm_core::{Head, Rule, Tail};
 use rstm_state::{RawState, State};
 
@@ -13,67 +15,6 @@ impl<Q, S> Program<Q, S>
 where
     Q: RawState,
 {
-    /// returns a new, empty instance of the [`Program`]
-    pub const fn new() -> Self {
-        Self {
-            initial_state: None,
-            rules: RuleVec::new(),
-        }
-    }
-    /// returns a new instance of the [`Program`] using the given rules
-    pub fn from_rules<I>(iter: I) -> Self
-    where
-        I: IntoIterator<Item = Rule<Q, S>>,
-    {
-        Self {
-            initial_state: None,
-            rules: RuleVec::from_iter(iter),
-        }
-    }
-    /// Create a new instance of the [Program] using the given initial state.
-    pub fn from_state(initial_state: Q) -> Self {
-        Self {
-            initial_state: Some(State(initial_state)),
-            rules: RuleVec::new(),
-        }
-    }
-    /// Returns an owned reference to the initial state of the program.
-    pub fn initial_state(&self) -> Option<State<&'_ Q>> {
-        self.initial_state.as_ref().map(|state| state.view())
-    }
-    /// Returns a reference to the instructions.
-    pub const fn rules(&self) -> &RuleVec<Q, S> {
-        &self.rules
-    }
-    /// Returns a mutable reference to the instructions.
-    pub const fn rules_mut(&mut self) -> &mut RuleVec<Q, S> {
-        &mut self.rules
-    }
-    /// consumes the current instance to create another with the given default state
-    pub fn with_default_state(self, state: Q) -> Self {
-        Self {
-            initial_state: Some(State(state)),
-            ..self
-        }
-    }
-    /// consumes the current instance to create another with the given rules
-    pub fn with_rules<I>(self, rules: I) -> Self
-    where
-        I: IntoIterator<Item = Rule<Q, S>>,
-    {
-        Self {
-            rules: Vec::from_iter(rules),
-            ..self
-        }
-    }
-    /// Returns an iterator over the elements.
-    pub fn iter(&self) -> core::slice::Iter<'_, Rule<Q, S>> {
-        self.rules().iter()
-    }
-    /// Returns a mutable iterator over the elements.
-    pub fn iter_mut(&mut self) -> core::slice::IterMut<'_, Rule<Q, S>> {
-        self.rules_mut().iter_mut()
-    }
     /// returns an immutable reference to the tail for a given head; returns [`None`](Option::None)
     /// if no match is found.
     pub fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>

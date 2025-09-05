@@ -17,7 +17,7 @@ use rstm_state::{RawState, State};
 /// the behavior of the Turing machine when it encounters a specific state and symbol.
 ///
 /// **Note**: The inner fields are flattened for serialization purposes when using `serde`;
-/// this means that the fields of the `Head` and `Tail` structs will be serialized as if they
+/// this means that the fields of the [`Head`] and [`Tail`] structs will be serialized as if they
 /// were direct fields of the `Rule` struct itself.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(

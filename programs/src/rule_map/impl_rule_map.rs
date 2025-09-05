@@ -4,7 +4,7 @@
 */
 use super::RuleMap;
 use core::hash::Hash;
-use rstm_core::{Head, Rule,Tail};
+use rstm_core::{Head, Rule, Tail};
 use rstm_state::RawState;
 use std::collections::hash_map;
 

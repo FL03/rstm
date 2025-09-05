@@ -18,7 +18,7 @@ fn main() -> rstm::Result<()> {
     let input = vec![0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
     // initialize the state of the machine
     let initial_state: isize = 0;
-    // define the ruleset for the machine
+    // define the Program for the machine
     let program: Program<isize, usize> = rstm::program! {
         #[default_state(initial_state)]
         rules: {

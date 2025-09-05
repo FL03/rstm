@@ -16,9 +16,6 @@ pub enum Error {
     #[error("The specified index ({index}) is out of bounds for a collection of {len} elements.")]
     IndexOutOfBounds { index: usize, len: usize },
     #[cfg(feature = "alloc")]
-    #[error("[Type Error] {0}")]
-    TypeError(String),
-    #[cfg(feature = "alloc")]
     #[error(transparent)]
     BoxError(Box<dyn core::error::Error + Send + Sync + 'static>),
     #[error(transparent)]

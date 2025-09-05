@@ -23,10 +23,10 @@ pub use rstm_state as state;
 #[doc(inline)]
 pub use self::{
     error::{Error, Result},
-    head::Head,
+    head::{Head, HeadMut, HeadRef},
     rule::{LearnedRule, Rule},
     state::{RawState, State},
-    tail::Tail,
+    tail::{Tail, TailMut, TailRef},
     traits::*,
     types::prelude::*,
     utils::*,
@@ -52,7 +52,7 @@ pub mod traits {
     mod instruction;
     mod symbols;
 
-    mod prelude {
+    pub(crate) mod prelude {
         #[doc(inline)]
         pub use super::convert::*;
         #[doc(inline)]

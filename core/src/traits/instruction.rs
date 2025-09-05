@@ -1,22 +1,24 @@
 /*
-    appellation: transition <module>
-    authors: @FL03
+    Appellation: instruction <module>
+    Created At: 2025.09.04:18:27:25
+    Contrib: @FL03
 */
-use crate::{Direction, Head, Rule,Symbol, Tail};
+use crate::{Direction, Head, Rule, Symbol, Tail};
 use rstm_state::{RawState, State};
 
-/// The [`Scope`] trait is used to describe objects containing information or references to the
-/// current state and symbol of a Turing machine.
+/// The [`Scope`] trait establishes a common interface for all _head_-like objects;
 pub trait Scope<Q, S>
 where
     Q: RawState,
 {
+    /// returns an immutable reference to the current state
     fn current_state(&self) -> &State<Q>;
 
     fn current_symbol(&self) -> &S;
 }
 
-/// [`Directive`] is a trait describing the `tail` of a typical Turing machine;
+/// The [`Directive`] trait is used to define the expected behaviors of all _tail_-like objects
+/// within the system
 pub trait Directive<Q, S>
 where
     Q: RawState,

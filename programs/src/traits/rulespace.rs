@@ -6,19 +6,39 @@
 use rstm_core::{Head, Tail};
 use rstm_state::RawState;
 
-/// The [`RawSpace`] trait establishes the basis for all rule spaces within the library.
-pub trait RawSpace {
-    private! {}
+pub trait RawPoint {
+    type Key;
+    type Value;
 }
 
+/// The [`RawSpace`] trait defines the basic interface for any compatible stores used within
+/// the crate.
+pub trait RawSpace {
+    /// The type used to index into the storage structure.
+    type Key;
+    /// The type of values stored within the structure.
+    type Value;
+
+    private! {}
+}
+/// The [`RuleSpace`] extends the [`RawSpace`] trait to introduce rule-specific functionality.
+/// It provides a method to retrieve the tail of a rule given its head.
 pub trait RuleSpace<Q, S>: RawSpace
 where
     Q: RawState,
 {
+    /// returns the tail associated with the provided head, if it exists
     fn get(&self, head: &Head<Q, S>) -> Option<&Tail<Q, S>>
     where
         Q: PartialEq,
         S: PartialEq;
+    /// returns a mutable reference to the tail associated with the provided head, if it exists
+    fn get_mut(&mut self, head: &Head<Q, S>) -> Option<&mut Tail<Q, S>>
+    where
+        Q: PartialEq,
+        S: PartialEq;
+    /// inserts a new rule into the storage structure
+    fn insert(&mut self, head: Head<Q, S>, tail: Tail<Q, S>);
 }
 
 /*
@@ -33,6 +53,9 @@ mod impl_alloc {
     use rstm_state::RawState;
 
     impl<T> RawSpace for Vec<T> {
+        type Key = usize;
+        type Value = T;
+
         seal! {}
     }
 
@@ -50,6 +73,20 @@ mod impl_alloc {
                 }
             })
         }
+
+        fn get_mut(&mut self, key: &Head<Q, A>) -> Option<&mut Tail<Q, A>> {
+            self.iter_mut().find_map(|rule| {
+                if rule.head() == key {
+                    Some(rule.tail_mut())
+                } else {
+                    None
+                }
+            })
+        }
+
+        fn insert(&mut self, head: Head<Q, A>, tail: Tail<Q, A>) {
+            self.push(Rule { head, tail });
+        }
     }
 }
 
@@ -62,6 +99,9 @@ mod impl_std {
     use std::collections::HashMap;
 
     impl<K, V> RawSpace for HashMap<K, V> {
+        type Key = K;
+        type Value = V;
+
         seal! {}
     }
 
@@ -72,6 +112,14 @@ mod impl_std {
     {
         fn get(&self, key: &Head<Q, A>) -> Option<&Tail<Q, A>> {
             self.get(key)
+        }
+
+        fn get_mut(&mut self, key: &Head<Q, A>) -> Option<&mut Tail<Q, A>> {
+            self.get_mut(key)
+        }
+
+        fn insert(&mut self, head: Head<Q, A>, tail: Tail<Q, A>) {
+            self.insert(head, tail);
         }
     }
 }

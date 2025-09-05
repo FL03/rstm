@@ -12,20 +12,25 @@ use crate::Direction;
 use crate::Head;
 use rstm_state::{RawState, State};
 
+/// A type alias for a [`Tail`] containing immutable references to the next state and symbol.
+pub type TailRef<'a, Q, A> = Tail<&'a Q, &'a A>;
+/// A type alias for a [`Tail`] containing mutable references to the next state and symbol.
+pub type TailMut<'a, Q, A> = Tail<&'a mut Q, &'a mut A>;
+
 /// The [Tail] is a 3-tuple containing the direction, state, and symbol that an actor is
 /// instructed to execute whenever it assumes the head configuration assigned to the tail.
 #[derive(Clone, Copy, Default, PartialEq, Eq, Hash, Ord, PartialOrd)]
 #[cfg_attr(
     feature = "serde",
     derive(serde::Deserialize, serde::Serialize),
-    serde(rename_all = "lowercase")
+    serde(rename_all = "camelCase")
 )]
 #[repr(C)]
 pub struct Tail<Q, A> {
     pub direction: Direction,
-    #[cfg_attr(feature = "serde", serde(alias = "state"))]
+    #[cfg_attr(feature = "serde", serde(alias = "state", alias = "writeState"))]
     pub next_state: State<Q>,
-    #[cfg_attr(feature = "serde", serde(alias = "symbol", alias = "next_symbol"))]
+    #[cfg_attr(feature = "serde", serde(alias = "symbol", alias = "nextSymbol"))]
     pub write_symbol: A,
 }
 

@@ -66,29 +66,29 @@ where
     }
 }
 
-impl<Q, S> core::fmt::Debug for Tail<Q, S>
+impl<Q, A> core::fmt::Debug for Tail<Q, A>
 where
-    Q: RawState,
-    S: core::fmt::Debug,
+    Q: core::fmt::Debug,
+    A: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.debug_tuple("Tail")
-            .field(&self.direction)
-            .field(&self.next_state)
-            .field(&self.write_symbol)
+        f.debug_struct("Tail")
+            .field("direction", &self.direction)
+            .field("state", &self.next_state)
+            .field("symbol", &self.write_symbol)
             .finish()
     }
 }
 
 impl<Q, S> core::fmt::Display for Tail<Q, S>
 where
-    Q: RawState,
+    Q: core::fmt::Display,
     S: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
-            "{{ direction: {}, state: {:?}, symbol: {} }}",
+            "{{ direction: {}, state: {}, symbol: {} }}",
             self.direction, self.next_state, self.write_symbol
         )
     }

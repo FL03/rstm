@@ -2,14 +2,13 @@
     appellation: impl_deprecated <module>
     authors: @FL03
 */
-use crate::program::Program;
-
+use super::Ruliad;
 use crate::types::RuleVec;
 use rstm_core::{Head, Tail};
 use rstm_state::RawState;
 
 #[doc(hidden)]
-impl<Q, S> Program<Q, S>
+impl<Q, S> Ruliad<Q, S>
 where
     Q: RawState + Default,
 {
