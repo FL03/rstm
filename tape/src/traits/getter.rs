@@ -8,13 +8,13 @@
 pub trait Get<K> {
     type Output;
 
-    fn fetch(&self, index: K) -> Option<&Self::Output>;
+    fn get(&self, index: K) -> Option<&Self::Output>;
 }
 /// The [`GetMut`] trait extends the [`Get`] trait to provide mutable access to elements in a
 /// collection.
 pub trait GetMut<K>: Get<K> {
     /// Fetch a mutable reference to the element at the given index.
-    fn fetch_mut(&mut self, index: K) -> Option<&mut Self::Output>;
+    fn get_mut(&mut self, index: K) -> Option<&mut Self::Output>;
 }
 
 /*
@@ -28,7 +28,7 @@ where
 {
     type Output = I::Output;
 
-    fn fetch(&self, index: I) -> Option<&Self::Output> {
+    fn get(&self, index: I) -> Option<&Self::Output> {
         <[T]>::get(self, index)
     }
 }
@@ -38,7 +38,7 @@ where
     I: core::slice::SliceIndex<[T]>,
     I::Output: Sized,
 {
-    fn fetch_mut(&mut self, index: I) -> Option<&mut Self::Output> {
+    fn get_mut(&mut self, index: I) -> Option<&mut Self::Output> {
         <[T]>::get_mut(self, index)
     }
 }
@@ -57,7 +57,7 @@ mod impl_alloc {
     {
         type Output = I::Output;
 
-        fn fetch(&self, index: I) -> Option<&Self::Output> {
+        fn get(&self, index: I) -> Option<&Self::Output> {
             <[T]>::get(self, index)
         }
     }
@@ -67,7 +67,7 @@ mod impl_alloc {
         I: core::slice::SliceIndex<[T]>,
         I::Output: Sized,
     {
-        fn fetch_mut(&mut self, index: I) -> Option<&mut Self::Output> {
+        fn get_mut(&mut self, index: I) -> Option<&mut Self::Output> {
             <[T]>::get_mut(self, index)
         }
     }
@@ -79,7 +79,7 @@ mod impl_alloc {
     {
         type Output = V;
 
-        fn fetch(&self, index: Q) -> Option<&Self::Output> {
+        fn get(&self, index: Q) -> Option<&Self::Output> {
             <BTreeMap<K, V>>::get(self, &index)
         }
     }
@@ -89,7 +89,7 @@ mod impl_alloc {
         K: Ord + core::borrow::Borrow<Q>,
         Q: Ord,
     {
-        fn fetch_mut(&mut self, index: Q) -> Option<&mut Self::Output> {
+        fn get_mut(&mut self, index: Q) -> Option<&mut Self::Output> {
             <BTreeMap<K, V>>::get_mut(self, &index)
         }
     }
@@ -108,7 +108,7 @@ mod impl_std {
     {
         type Output = V;
 
-        fn fetch(&self, index: Q) -> Option<&Self::Output> {
+        fn get(&self, index: Q) -> Option<&Self::Output> {
             <HashMap<K, V>>::get(self, &index)
         }
     }
@@ -118,7 +118,7 @@ mod impl_std {
         K: Eq + Hash + core::borrow::Borrow<Q>,
         Q: Eq + Hash,
     {
-        fn fetch_mut(&mut self, index: Q) -> Option<&mut Self::Output> {
+        fn get_mut(&mut self, index: Q) -> Option<&mut Self::Output> {
             <HashMap<K, V>>::get_mut(self, &index)
         }
     }

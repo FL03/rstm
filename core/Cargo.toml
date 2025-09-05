@@ -25,6 +25,9 @@ test = true
 [[test]]
 name = "default"
 
+[[test]]
+name = "head2tails"
+
 # ********* [Package Metadata] *********
 [package.metadata.docs.rs]
 all-features = false

@@ -4,8 +4,12 @@
     Contrib: @FL03
 */
 use super::{Head, HeadMut, HeadRef};
+use crate::rule::Rule;
+use crate::tail::Tail;
 use rstm_state::{RawState, State};
 
+/// The base implementation of the [`Head`] type focusing on providing constructors and basic
+/// methods for manipulating its components.
 impl<Q, A> Head<Q, A>
 where
     Q: RawState,
@@ -62,18 +66,6 @@ where
     pub const fn symbol_mut(&mut self) -> &mut A {
         &mut self.symbol
     }
-    /// returns a reference to the current state and symbol returing a 2-tuple
-    pub const fn as_tuple(&self) -> (&State<Q>, &A) {
-        (&self.state, &self.symbol)
-    }
-    /// Consumes the head and returns the current state and symbol as a 2-tuple
-    pub fn into_tuple(self) -> (State<Q>, A) {
-        (self.state, self.symbol)
-    }
-    /// returns a mutable reference to the current state and symbol as a 2-tuple
-    pub const fn as_mut_tuple(&mut self) -> (&mut State<Q>, &mut A) {
-        (&mut self.state, &mut self.symbol)
-    }
     /// updates the current state
     pub fn set_state(&mut self, state: Q) {
         self.state_mut().set(state)
@@ -82,8 +74,8 @@ where
     pub fn set_symbol(&mut self, symbol: A) {
         self.symbol = symbol;
     }
-    /// Replaces the current state and symbol with the given state and symbol; returns the
-    /// previous instance of the head.
+    /// replaces the current values with the given state and symbol, returning the previous
+    /// instance of the [`Head`]
     pub const fn replace(&mut self, state: State<Q>, symbol: A) -> Self {
         Head {
             state: self.replace_state(state),
@@ -109,14 +101,40 @@ where
     }
     /// updates the current [State] and symbol
     pub fn update(&mut self, state: Option<State<Q>>, symbol: Option<A>) {
-        if let Some(state) = state {
-            self.state = state;
-        }
-        if let Some(symbol) = symbol {
-            self.symbol = symbol;
+        state.map(|s| self.set_state(s.value()));
+        symbol.map(|s| self.set_symbol(s));
+    }
+    /// returns a reference to the current state and symbol returing a 2-tuple
+    pub const fn as_tuple(&self) -> (&State<Q>, &A) {
+        (self.state(), self.symbol())
+    }
+    /// returns a mutable reference to the current state and symbol as a 2-tuple
+    pub const fn as_mut_tuple(&mut self) -> (&mut State<Q>, &mut A) {
+        (&mut self.state, &mut self.symbol)
+    }
+    /// Consumes the head and returns the current state and symbol as a 2-tuple
+    pub fn into_tuple(self) -> (State<Q>, A) {
+        (self.state, self.symbol)
+    }
+}
+impl<Q, A> Head<Q, A>
+where
+    Q: RawState,
+{
+    /// associates the given tail with the current head, returning a new [`Rule`]
+    pub fn append(self, tail: Tail<Q, A>) -> Rule<Q, A> {
+        Rule {
+            head: self,
+            tail: tail,
         }
     }
-
+    /// tries reading the given tape using the head as its coordinates.
+    pub fn read<T>(self, tape: &'_ [T]) -> Option<&<A>::Output>
+    where
+        A: core::slice::SliceIndex<[T]>,
+    {
+        tape.get(self.symbol)
+    }
     /// returns a new head with immutable references to the current state and symbol
     pub const fn view(&self) -> HeadRef<'_, Q, A> {
         Head {
@@ -130,102 +148,5 @@ where
             state: self.state.view_mut(),
             symbol: &mut self.symbol,
         }
-    }
-    /// tries reading the given tape using the head as its coordinates.
-    pub fn read<T>(self, tape: &'_ [T]) -> Option<&<A>::Output>
-    where
-        A: core::slice::SliceIndex<[T]>,
-    {
-        tape.get(self.symbol)
-    }
-}
-
-impl<Q, S> core::fmt::Debug for Head<Q, S>
-where
-    Q: core::fmt::Debug,
-    S: core::fmt::Debug,
-{
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.debug_struct("Head")
-            .field("state", &self.state)
-            .field("symbol", &self.symbol)
-            .finish()
-    }
-}
-
-impl<Q, S> core::fmt::Display for Head<Q, S>
-where
-    Q: core::fmt::Display,
-    S: core::fmt::Display,
-{
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "{{ state: {}, symbol: {} }}", self.state, self.symbol)
-    }
-}
-
-impl<Q, S> PartialEq<State<Q>> for Head<Q, S>
-where
-    Q: RawState + PartialEq,
-{
-    fn eq(&self, state: &State<Q>) -> bool {
-        self.state() == state
-    }
-}
-
-impl<Q, S> PartialEq<Head<Q, S>> for State<Q>
-where
-    Q: RawState + PartialEq,
-{
-    fn eq(&self, head: &Head<Q, S>) -> bool {
-        self == head.state()
-    }
-}
-
-impl<Q, S> PartialEq<Head<Q, S>> for State<&Q>
-where
-    Q: RawState + PartialEq,
-{
-    fn eq(&self, head: &Head<Q, S>) -> bool {
-        *self == head.state().view()
-    }
-}
-
-impl<'a, Q, S> PartialEq<State<&'a Q>> for Head<Q, S>
-where
-    Q: RawState + PartialEq,
-{
-    fn eq(&self, state: &State<&'a Q>) -> bool {
-        self.state().view() == *state
-    }
-}
-
-impl<Q, S> PartialEq<(State<Q>, S)> for Head<Q, S>
-where
-    Q: RawState + PartialEq,
-    S: PartialEq,
-{
-    fn eq(&self, (state, symbol): &(State<Q>, S)) -> bool {
-        &self.state == state && &self.symbol == symbol
-    }
-}
-
-impl<Q, S> PartialEq<(Q, S)> for Head<Q, S>
-where
-    State<Q>: PartialEq,
-    Q: RawState + PartialEq,
-    S: PartialEq,
-{
-    fn eq(&self, (state, symbol): &(Q, S)) -> bool {
-        self.state() == state && self.symbol() == symbol
-    }
-}
-
-impl<Q, S> PartialEq<Head<Q, S>> for (State<Q>, S)
-where
-    Q: RawState + PartialEq,
-    S: PartialEq,
-{
-    fn eq(&self, head: &Head<Q, S>) -> bool {
-        head.state() == &self.0 && head.symbol() == &self.1
     }
 }

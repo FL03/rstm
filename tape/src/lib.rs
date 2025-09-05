@@ -50,9 +50,7 @@ pub mod error;
 
 pub mod store;
 
-#[cfg(feature = "std")]
 pub mod hash_tape;
-#[cfg(feature = "alloc")]
 pub mod std_tape;
 
 pub mod traits {
@@ -61,12 +59,15 @@ pub mod traits {
     pub use self::prelude::*;
 
     mod getter;
+    mod io;
     mod memory;
     mod tape;
 
     mod prelude {
         #[doc(inline)]
         pub use super::getter::*;
+        #[doc(inline)]
+        pub use super::io::*;
         #[doc(inline)]
         pub use super::memory::*;
         #[doc(inline)]

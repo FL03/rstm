@@ -148,17 +148,38 @@ where
     Q: RawState,
 {
     fn extend<I: IntoIterator<Item = Rule<Q, A>>>(&mut self, iter: I) {
-        self.rules.extend(iter)
+        self.rules_mut().extend(iter)
+    }
+}
+
+impl<Q, A> Extend<(Head<Q, A>, Tail<Q, A>)> for Program<Q, A>
+where
+    Q: RawState,
+{
+    fn extend<I: IntoIterator<Item = (Head<Q, A>, Tail<Q, A>)>>(&mut self, iter: I) {
+        self.rules_mut()
+            .extend(iter.into_iter().map(|(head, tail)| Rule { head, tail }))
     }
 }
 
 impl<Q, A> FromIterator<Rule<Q, A>> for Program<Q, A>
 where
-    Q: RawState + Default,
+    Q: RawState,
 {
     fn from_iter<I: IntoIterator<Item = Rule<Q, A>>>(iter: I) -> Self {
-        let rules = RuleVec::from_iter(iter);
-        Self::from_rules(rules)
+        Self {
+            initial_state: None,
+            rules: iter.into_iter().collect::<RuleVec<Q, A>>(),
+        }
+    }
+}
+
+impl<Q, A> FromIterator<(Head<Q, A>, Tail<Q, A>)> for Program<Q, A>
+where
+    Q: RawState,
+{
+    fn from_iter<I: IntoIterator<Item = (Head<Q, A>, Tail<Q, A>)>>(iter: I) -> Self {
+        Self::from_rules(iter.into_iter().map(|(head, tail)| Rule { head, tail }))
     }
 }
 

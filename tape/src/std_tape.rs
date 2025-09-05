@@ -1,7 +1,10 @@
 /*
-    Appellation: tape <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: std_tape <module>
+    Created At: 2025.09.05:17:53:02
+    Contrib: @FL03
 */
+#![cfg(feature = "alloc")]
+
 use alloc::vec::Vec;
 use core::cell::Cell;
 use rstm_core::{Direction, Error};
@@ -22,7 +25,7 @@ use rstm_core::{Direction, Error};
 #[cfg_attr(
     feature = "serde",
     derive(serde::Serialize, serde::Deserialize),
-    serde(default, rename_all = "snake_case")
+    serde(default, rename_all = "camelCase")
 )]
 pub struct StdTape<S = char> {
     index: usize,

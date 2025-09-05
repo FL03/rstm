@@ -3,6 +3,7 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 mod impl_head;
+mod impl_head_ext;
 mod impl_head_repr;
 
 #[allow(deprecated)]

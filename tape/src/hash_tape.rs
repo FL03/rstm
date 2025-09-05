@@ -1,7 +1,10 @@
 /*
     Appellation: hash_tape <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Created At: 2025.09.05:17:53:32
+    Contrib: @FL03
 */
+#![cfg(feature = "std")]
+
 use rstm_core::Direction;
 use std::collections::hash_map::{self, HashMap};
 
