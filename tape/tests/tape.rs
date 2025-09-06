@@ -1,6 +1,7 @@
 /*
     Appellation: tape <test>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Created At: 2025.09.05:22:13:26
+    Contrib: @FL03
 */
 use rstm_tape::StdTape;
 

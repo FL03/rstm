@@ -24,7 +24,7 @@ where
     pub(crate) program: Option<Program<Q, A>>,
     /// the number of cycles executed; independent of the position of the head on the tape
     pub(crate) cycles: usize,
-    pub(crate) _inputs: Vec<A>,
+    pub(crate) output: Vec<A>,
 }
 
 impl<'a, Q, A> TuringEngine<'a, Q, A>
@@ -34,7 +34,7 @@ where
     pub const fn new(driver: &'a mut TMH<Q, A>) -> Self {
         Self {
             driver,
-            _inputs: Vec::new(),
+            output: Vec::new(),
             program: None,
             cycles: 0,
         }
@@ -56,8 +56,8 @@ where
     }
     #[doc(hidden)]
     /// returns a reference to the inputs
-    pub const fn inputs(&self) -> &Vec<A> {
-        &self._inputs
+    pub const fn output(&self) -> &Vec<A> {
+        &self.output
     }
     /// returns a reference to the program
     pub fn program(&self) -> crate::Result<&Program<Q, A>> {

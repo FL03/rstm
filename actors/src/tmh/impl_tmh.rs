@@ -175,8 +175,14 @@ where
 
         Ok(prev)
     }
-    /// Reads the current symbol at the head of the tape
-    pub fn read(&self) -> crate::Result<Head<&'_ Q, &'_ A>> {
+    /// returns a view of the current head containing immutable references to the state and
+    /// symbol.
+    ///
+    /// ## Errors
+    ///
+    /// The method will return an error if the current position of the head is out of bounds;
+    /// i.e., `i >= len()`.
+    pub fn get_head(&self) -> crate::Result<Head<&'_ Q, &'_ A>> {
         #[cfg(feature = "tracing")]
         tracing::trace!("reading the tape...");
         self.tape()
@@ -227,30 +233,4 @@ where
 
 #[allow(dead_code)]
 /// an implementation of the [`TMH`] providing useful, private methods
-impl<Q, A> TMH<Q, A>
-where
-    Q: RawState,
-{
-    pub(crate) unsafe fn write_value(&mut self, value: A) -> crate::Result<()> {
-        #[cfg(feature = "tracing")]
-        tracing::trace!("Writing to the tape...");
-        let pos = self.current_position();
-
-        if pos < self.len() {
-            #[cfg(feature = "tracing")]
-            tracing::trace!("Updating the tape...");
-            self.tape[pos] = value;
-        } else if pos == self.len() {
-            #[cfg(feature = "tracing")]
-            tracing::trace!("Extending the tape...");
-            // append to the tape
-            self.tape_mut().push(value);
-        } else {
-            #[cfg(feature = "tracing")]
-            tracing::trace!("Prepending to the tape...");
-            // prepend to the tape
-            self.tape_mut().insert(0, value);
-        }
-        Ok(())
-    }
-}
+impl<Q, A> TMH<Q, A> where Q: RawState {}

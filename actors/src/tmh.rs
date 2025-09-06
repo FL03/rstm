@@ -9,14 +9,9 @@ mod impl_tmh_ext;
 
 use rstm_core::head::Head;
 
-/// The [`TMH`] is an implementation of a Turing Machine with a "moving head"; this behavior is
-/// manifested here by using the current position of the head as its symbol, serving as a
-/// mapping to a symbol on the tape. Every step taken by the machine will update the symbol of
-/// the head, thus _moving_ it along the tape.
-///
-/// The implementation is one of the primary _drivers_ used by actors within the library.
-/// By itself, the driver is not particularly useful, however, when given some input and a
-/// program, it can be used to perform computations.
+/// The [`TMH`] is an implementation of a Turing Machine with a "moving head". Here, we
+/// manifest these behaviors by using the symbol of the head to represent its current position
+/// along a sequential collection of symbols, a.k.a. the tape, which is represented as a [`Vec<A>`]
 ///
 /// ## Usage
 ///

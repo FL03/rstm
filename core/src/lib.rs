@@ -45,21 +45,20 @@ pub mod tail;
 
 pub mod traits {
     /// this modules provides various traits used throughout the library
+    #[doc(inline)]
     pub use self::prelude::*;
 
     mod convert;
     mod increment;
     mod instruction;
+    mod io;
     mod symbols;
 
     pub(crate) mod prelude {
-        #[doc(inline)]
         pub use super::convert::*;
-        #[doc(inline)]
         pub use super::increment::*;
-        #[doc(inline)]
         pub use super::instruction::*;
-        #[doc(inline)]
+        pub use super::io::*;
         pub use super::symbols::*;
     }
 }

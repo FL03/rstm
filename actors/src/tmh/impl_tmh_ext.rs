@@ -5,6 +5,7 @@
 */
 use super::TMH;
 use crate::{Actor, Handle, RawActor};
+use rstm_core::traits::{Read, Write};
 use rstm_core::{Direction, Head, Tail, get_range_around};
 use rstm_state::{RawState, State};
 
@@ -49,6 +50,62 @@ where
             f.write_str(&cell)?;
         }
         Ok(())
+    }
+}
+
+impl<Q, A> Read<A> for TMH<Q, A>
+where
+    Q: RawState,
+    A: Clone,
+{
+    type Output = Option<usize>;
+
+    fn read(&mut self, buf: &mut [A]) -> Self::Output {
+        tracing::trace!("reading the tape...");
+        let pos = self.current_position();
+        if pos >= self.len() {
+            #[cfg(feature = "tracing")]
+            tracing::error!(
+                "[Index Error] the current position ({pos}) of the head is out of bounds...",
+                pos = self.current_position()
+            );
+            return None;
+        }
+        let len = buf.len().min(self.len() - pos);
+        buf[..len].clone_from_slice(&self.tape()[pos..pos + len]);
+        Some(len)
+    }
+}
+
+impl<Q, A> Write<A> for TMH<Q, A>
+where
+    Q: RawState,
+    A: Clone,
+{
+    type Output = Option<usize>;
+
+    fn write(&mut self, buf: &[A]) -> Self::Output {
+        let pos = self.current_position();
+        if pos > self.len() {
+            #[cfg(feature = "tracing")]
+            tracing::error!(
+                "[Index Error] the current position ({pos}) of the head is out of bounds...",
+                pos = self.current_position()
+            );
+            return None;
+        }
+        let len = buf.len();
+        if pos + len <= self.len() {
+            #[cfg(feature = "tracing")]
+            tracing::trace!("Updating the tape at {pos}");
+            self.tape_mut()[pos..pos + len].clone_from_slice(buf);
+        } else {
+            #[cfg(feature = "tracing")]
+            tracing::trace!("Extending the tape...");
+            // append to the tape
+            self.tape_mut().extend_from_slice(buf);
+        }
+        Some(len)
     }
 }
 

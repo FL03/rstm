@@ -7,14 +7,21 @@ use super::TuringEngine;
 use crate::engine::{Engine, RawEngine};
 use crate::tmh::TMH;
 use crate::traits::Handle;
-use rstm_core::{Head, Symbol, Tail};
+use rstm_core::{Head, Read, Symbol, Tail};
 use rstm_programs::Program;
-use rstm_state::{HaltState, RawState, State};
+use rstm_state::{Halt, RawState, State};
 
 impl<'a, Q, A> TuringEngine<'a, Q, A>
 where
     Q: RawState,
 {
+    /// returns true if the driver is in a halted state
+    pub fn is_halted(&self) -> bool
+    where
+        Q: Halt + 'static,
+    {
+        self.driver().is_halted()
+    }
     /// returns the tail associated with the head that is equal to the given state and symbol
     pub fn find_tail<K>(&self, state: State<&Q>, symbol: &A) -> Option<&Tail<Q, A>>
     where
@@ -24,12 +31,21 @@ where
         self.program.as_ref()?.find_tail(state, symbol)
     }
     /// Reads the current symbol at the head of the tape
-    pub fn read(&self) -> crate::Result<Head<&Q, &A>> {
-        self.driver().read()
+    pub fn load_head(&self) -> crate::Result<Head<&Q, &A>> {
+        self.driver().get_head()
+    }
+    pub fn read(&mut self) -> crate::Result<&A>
+    where
+        A: Clone,
+    {
+        self.driver
+            .read(&mut self.output)
+            .expect("Failed to read from the tape");
+        Ok(&self.output[self.driver().current_position()])
     }
     /// Reads the current symbol at the head of the tape
     pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&A>> {
-        if let Ok(Head { state, symbol }) = self.read() {
+        if let Ok(Head { state, symbol }) = self.load_head() {
             Head {
                 state,
                 symbol: core::mem::MaybeUninit::new(symbol),
@@ -44,7 +60,7 @@ where
     /// runs the program until termination (i.e., a halt state is reached, an error occurs, etc.)
     pub fn run(&mut self) -> crate::Result<()>
     where
-        Q: 'static + HaltState + Clone + PartialEq,
+        Q: 'static + Halt + RawState + Clone + PartialEq,
         A: Symbol,
     {
         // check for a program
@@ -56,6 +72,12 @@ where
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
         while let Some(_h) = self.step()? {
+            // #[cfg(feature = "tracing")]
+            // tracing::info!(
+            //     "Output after step #{i}: {tape:?}",
+            //     i = self.cycles,
+            //     tape = self.output,
+            // );
             if self.driver.is_halted() {
                 #[cfg(feature = "tracing")]
                 tracing::info!(
@@ -70,11 +92,11 @@ where
     /// execute a single step of the program
     #[cfg_attr(
         feature = "tracing", 
-        tracing::instrument(skip_all, fields(step = self.cycles), name = "step", target = "TuringEngine", level = "trace")
+        tracing::instrument(skip_all, fields(step = %self.cycles), name = "step", target = "TuringEngine", level = "trace")
     )]
     pub fn step(&mut self) -> crate::Result<Option<Head<Q, A>>>
     where
-        Q: 'static + HaltState + Clone + PartialEq,
+        Q: 'static + Halt + RawState + Clone + PartialEq,
         A: Symbol,
     {
         // increment the steps
@@ -82,7 +104,7 @@ where
         #[cfg(feature = "tracing")]
         tracing::info!("{tape:?}", tape = self.driver());
         // check if the actor is halted
-        if self.driver.is_halted() {
+        if self.is_halted() {
             #[cfg(feature = "tracing")]
             tracing::warn!(
                 "A halted stated was detected; terminating the execution of the program..."
@@ -90,25 +112,17 @@ where
             return Ok(None);
         }
         // read the tape
-        let head = if let Ok(cur) = self.read() {
-            cur
-        } else {
-            Head {
-                state: self.driver().state().view(),
-                symbol: &<A>::default(),
-            }
-        };
+        let Head { state, symbol } = self.load_head()?;
         // execute the program
         let tail = self
             .program()?
-            .find_tail(head.state, head.symbol)
+            .find_tail(state, symbol)
             .ok_or(crate::Error::NoRuleFound)?
             .clone();
         // process the instruction
         let next = tail.clone().into_head();
         // process the instruction
         let _prev = self.handle(tail);
-        // return the head
         Ok(Some(next))
     }
 }
@@ -148,7 +162,7 @@ where
 
 impl<'a, Q, S> Engine<Q, S> for TuringEngine<'a, Q, S>
 where
-    Q: 'static + HaltState + Clone + PartialEq,
+    Q: 'static + Halt + RawState + Clone + PartialEq,
     S: Symbol,
 {
     fn load(&mut self, program: Program<Q, S>) {
@@ -162,7 +176,7 @@ where
 
 impl<'a, Q, S> Iterator for TuringEngine<'a, Q, S>
 where
-    Q: 'static + HaltState + Clone + PartialEq,
+    Q: 'static + Halt + RawState + Clone + PartialEq,
     S: Symbol,
 {
     type Item = Head<Q, S>;

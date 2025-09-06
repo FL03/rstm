@@ -29,7 +29,15 @@ where
     ) -> Self {
         let head = Head::new(state, symbol);
         let tail = Tail::new(direction, next_state, write_symbol);
-        Self::new(head, tail)
+        Self { head, tail }
+    }
+    /// consumes the current object to create another with the given head
+    pub fn with_head(self, head: Head<Q, A>) -> Self {
+        Self { head, ..self }
+    }
+    /// consumes the current object to create another with the given tail
+    pub fn with_tail(self, tail: Tail<Q, A>) -> Self {
+        Self { tail, ..self }
     }
     /// returns an immutable reference to the [Head]
     pub const fn head(&self) -> &Head<Q, A> {
@@ -92,41 +100,34 @@ where
         self.tail_mut().symbol_mut()
     }
     /// updates the current [Direction] and returns a mutable reference to the [Rule]
-    pub fn set_direction(&mut self, direction: Direction) -> &mut Self {
+    pub fn set_direction(&mut self, direction: Direction) {
         self.tail_mut().set_direction(direction);
-        self
     }
     /// update the current symbol and return a mutable reference to the [Rule]
-    pub fn set_symbol(&mut self, symbol: A) -> &mut Self {
+    pub fn set_symbol(&mut self, symbol: A) {
         self.head_mut().set_symbol(symbol);
-        self
     }
     /// updates the current [State] and returns a mutable reference to the [Rule]
-    pub fn set_state(&mut self, state: Q) -> &mut Self {
+    pub fn set_state(&mut self, state: Q) {
         self.head_mut().set_state(state);
-        self
     }
     /// updates the current [State] and returns a mutable reference to the [Rule]
-    pub fn set_next_state(&mut self, state: Q) -> &mut Self {
+    pub fn set_next_state(&mut self, state: Q) {
         self.tail_mut().set_state(state);
-        self
     }
     /// updates the next symbol and returns a mutable reference to the [Rule]
-    pub fn set_next_symbol(&mut self, symbol: A) -> &mut Self {
+    pub fn set_next_symbol(&mut self, symbol: A) {
         self.tail_mut().set_symbol(symbol);
-        self
     }
     /// updates the current [State] and symbol and returns a mutable reference to the [Rule]
-    pub fn set_head(&mut self, state: Q, symbol: A) -> &mut Self {
+    pub fn set_head(&mut self, state: Q, symbol: A) {
         self.head_mut().set_state(state);
         self.head_mut().set_symbol(symbol);
-        self
     }
     /// updates the current [State] and symbol and returns a mutable reference to the [Rule]
-    pub fn set_tail(&mut self, state: Q, symbol: A) -> &mut Self {
+    pub fn set_tail(&mut self, state: Q, symbol: A) {
         self.tail_mut().set_state(state);
         self.tail_mut().set_symbol(symbol);
-        self
     }
     /// returns the next [Head] of the system
     pub const fn next_head(&self) -> Head<&'_ Q, &'_ A> {
