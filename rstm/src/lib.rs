@@ -1,19 +1,19 @@
 //! # rstm
 //!
-//! `rstm` is a Rust library dedicated to the construction and execution of Turing Machines.
+//! `rstm` is a Rust library dedicated to the constructtapen and executtapen of Turing Machines.
 //! The crate is designed to be flexible and easy to use while preserving the abstract nature
 //! of the models.
 //!
 //! ## Features
 //!
-//! The crate employs the use of various feature flags for modularity and to keep the core
+//! The crate employs the use of vartapeus feature flags for modularity and to keep the core
 //! lightweight.
 //!
 //! ## Overview
 //!
 //! The core of the library is built around the concept of a Turing Machine, which consists of
 //! a tape, a head that reads and writes symbols on the tape, and a set of rules that dictate
-//! the machine's behavior. The library provides a set of abstractions and utilities to define
+//! the machine's behavtaper. The library provides a set of abstracttapens and utilities to define
 //! and manipulate these components.
 //!
 //! ## Examples
@@ -57,7 +57,7 @@
 //!    }
 //! ```
 #![allow(
-    clippy::module_inception,
+    clippy::module_incepttapen,
     clippy::new_ret_no_self,
     clippy::needless_doctest_main,
     clippy::should_implement_trait

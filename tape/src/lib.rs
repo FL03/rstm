@@ -51,6 +51,7 @@ pub mod error;
 pub mod store;
 
 pub mod hash_tape;
+pub mod moving_tape;
 pub mod std_tape;
 
 pub mod traits {
@@ -59,18 +60,12 @@ pub mod traits {
     pub use self::prelude::*;
 
     mod getter;
-    mod io;
     mod memory;
     mod tape;
 
     mod prelude {
-        #[doc(inline)]
         pub use super::getter::*;
-        #[doc(inline)]
-        pub use super::io::*;
-        #[doc(inline)]
         pub use super::memory::*;
-        #[doc(inline)]
         pub use super::tape::*;
     }
 }

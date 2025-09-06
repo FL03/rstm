@@ -1,6 +1,6 @@
 [package]
 build = "build.rs"
-description = "This crate provides various tape implementations for the rstm framework"
+description = "Input / output interfaces, implementations, and utilities for the rstm framework "
 name = "rstm-tape"
 
 authors.workspace = true

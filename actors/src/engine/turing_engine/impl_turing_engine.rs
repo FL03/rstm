@@ -7,7 +7,7 @@ use super::TuringEngine;
 use crate::engine::{Engine, RawEngine};
 use crate::tmh::TMH;
 use crate::traits::Handle;
-use rstm_core::{Head, Symbol, Tail};
+use rstm_core::{Head, Read, Symbol, Tail};
 use rstm_programs::Program;
 use rstm_state::{HaltState, RawState, State};
 
@@ -24,12 +24,21 @@ where
         self.program.as_ref()?.find_tail(state, symbol)
     }
     /// Reads the current symbol at the head of the tape
-    pub fn read(&self) -> crate::Result<Head<&Q, &A>> {
-        self.driver().read()
+    pub fn load_head(&self) -> crate::Result<Head<&Q, &A>> {
+        self.driver().get_head()
+    }
+    pub fn read(&mut self) -> crate::Result<&A>
+    where
+        A: Clone,
+    {
+        self.driver
+            .read(&mut self.output)
+            .expect("Failed to read from the tape");
+        Ok(&self.output[self.driver().current_position()])
     }
     /// Reads the current symbol at the head of the tape
     pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&A>> {
-        if let Ok(Head { state, symbol }) = self.read() {
+        if let Ok(Head { state, symbol }) = self.load_head() {
             Head {
                 state,
                 symbol: core::mem::MaybeUninit::new(symbol),
@@ -70,7 +79,7 @@ where
     /// execute a single step of the program
     #[cfg_attr(
         feature = "tracing", 
-        tracing::instrument(skip_all, fields(step = self.cycles), name = "step", target = "TuringEngine", level = "trace")
+        tracing::instrument(skip_all, fields(step = %self.cycles), name = "step", target = "TuringEngine", level = "trace")
     )]
     pub fn step(&mut self) -> crate::Result<Option<Head<Q, A>>>
     where
@@ -90,25 +99,17 @@ where
             return Ok(None);
         }
         // read the tape
-        let head = if let Ok(cur) = self.read() {
-            cur
-        } else {
-            Head {
-                state: self.driver().state().view(),
-                symbol: &<A>::default(),
-            }
-        };
+        let symbol = self.read()?.clone();
         // execute the program
         let tail = self
             .program()?
-            .find_tail(head.state, head.symbol)
+            .find_tail(self.driver().head().state().view(), &symbol)
             .ok_or(crate::Error::NoRuleFound)?
             .clone();
         // process the instruction
         let next = tail.clone().into_head();
         // process the instruction
         let _prev = self.handle(tail);
-        // return the head
         Ok(Some(next))
     }
 }

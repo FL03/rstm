@@ -3,12 +3,12 @@ default-members = [
   "rstm",
 ]
 members = [ 
+  "rstm", 
   "actors",
   "core",
-  "rstm", 
+  "tape",
   "programs",
   "state",
-  "tape",
 ]
 resolver = "3"
 

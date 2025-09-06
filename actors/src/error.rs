@@ -23,6 +23,8 @@ pub enum Error {
     NoProgram,
     #[error("The actor has no inputs to process.")]
     NoInputs,
+    #[error("A read error occurred during execution.")]
+    ReadError,
     #[error("An infinite loop was detected during execution.")]
     InfiniteLoop,
     #[error("No rule found")]
@@ -35,6 +37,8 @@ pub enum Error {
     ProgramsError(#[from] rstm_programs::Error),
     #[error(transparent)]
     StateError(#[from] rstm_state::StateError),
+    #[error("Nothing was found")]
+    NoneError,
 }
 
 #[cfg(feature = "alloc")]
