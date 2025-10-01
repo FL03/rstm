@@ -41,7 +41,7 @@ rstm-programs = { default-features = false, path = "programs", version = "0.1.0"
 rstm-tape = { default-features = false, path = "tape", version = "0.1.0" }
 
 # custom
-contained = { default-features = false, features = ["derive", "macros"], version = "0.2.1" }
+contained = { default-features = false, features = ["derive", "macros"], version = "0.2.2" }
 scsys = { default-features = false, features = ["derive"], version = "0.3.1" }
 variants = { default-features = false, features = ["derive"], version = "0.0.1" }
 # benchmarking
