@@ -38,7 +38,7 @@ jobs:
           - rstm
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       -
         name: rustup
         uses: actions-rust-lang/setup-rust-toolchain@v1
