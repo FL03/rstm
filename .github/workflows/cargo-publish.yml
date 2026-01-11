@@ -4,51 +4,46 @@ concurrency:
   cancel-in-progress: false
   group: ${{ github.workflow }}-${{ github.ref }}
 
+on:
+  repository_dispatch:
+    types: [crates-io, cargo-publish]
+  workflow_dispatch:
+
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: full
 
-on:
-  repository_dispatch:
-    types: [ crates-io, cargo-publish ]
-  workflow_dispatch:
+permissions:
+  contents: read
+  deployments: write
 
 jobs:
   crates-io:
-    env:
-      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-    environment:
-      name: crates-io
-      url: ${{ steps.set-output-url.outputs.url || 'https://crates.io/crates/rstm' }}
-    permissions:
-      contents: read
-      deployments: write
-      packages: write
-      statuses: write
+    runs-on: ubuntu-latest
+    environment: crates-io
     strategy:
-      max-parallel: 1
       fail-fast: false
+      max-parallel: 1
       matrix:
         package:
+          # sdk
+          - rstm-traits
           - rstm-state
           - rstm-core
-          - rstm-programs
-          - rstm-tape
-          - rstm-actors
           - rstm
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      -
-        name: rustup
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.client_payload.ref  || github.ref }}
+          repository: ${{ github.repository }}
+          token: ${{ github.token }}
+      - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           cache-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      -
-        name: publish (${{ matrix.package }})
+      - name: Publish (${{ matrix.package }})
         run: cargo publish --locked --package ${{ matrix.package }}
-      -
-        name: Set the output url
-        id: set-output-url
-        run: |
-          echo "crate-url=https://crates.io/crates/${{ matrix.package }}" >> $GITHUB_OUTPUT
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

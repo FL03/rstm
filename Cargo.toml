@@ -2,13 +2,12 @@
 default-members = [
   "rstm",
 ]
-members = [ 
-  "actors",
+exclude = [".archive/**"]
+members = [
+  "rstm",
   "core",
-  "rstm", 
-  "programs",
   "state",
-  "tape",
+  "traits", "macros",
 ]
 resolver = "3"
 
@@ -25,31 +24,40 @@ categories = [
 description = "This crate focuses on building concrete implementations for Turing Machines."
 edition = "2024"
 homepage = "https://github.com/FL03/rstm/wiki"
-keywords = [ "turing", "turing-machine", "utm" ]
+keywords = ["turing", "turing-machine", "utm"]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/FL03/rstm.git"
 rust-version = "1.85.0"
-version = "0.1.0"
+version = "0.1.1"
 
 [workspace.dependencies]
-rstm = { default-features = false, path = "rstm", version = "0.1.0" }
-rstm-actors = { default-features = false, path = "actors", version = "0.1.0" }
-rstm-core = { default-features = false, path = "core", version = "0.1.0" }
-rstm-state = { default-features = false, path = "state", version = "0.1.0" }
-rstm-programs = { default-features = false, path = "programs", version = "0.1.0" }
-rstm-tape = { default-features = false, path = "tape", version = "0.1.0" }
-
+# local
+rstm = { default-features = false, path = "rstm", version = "0.1.1" }
+rstm-core = { default-features = false, path = "core", version = "0.1.1" }
+rstm-macros = { default-features = false, path = "macros", version = "0.1.1" }
+rstm-state = { default-features = false, path = "state", version = "0.1.1" }
+rstm-traits = { default-features = false, path = "traits", version = "0.1.1" }
 # custom
-contained = { default-features = false, features = ["derive", "macros"], version = "0.2.1" }
-scsys = { default-features = false, features = ["derive"], version = "0.3.1" }
-variants = { default-features = false, features = ["derive"], version = "0.0.1" }
-# benchmarking
+contained = { default-features = false, features = ["derive"], version = "0.2.3" }
+rspace-traits = { default-features = false, version = "0.0.7" }
+# developmemt
+criterion = { version = "0.8" }
+# async
+tokio = { default-features = false, version = "1" }
+async-trait = { default-features = false, version = "0.1" }
+# concurrency / parallelism
+crossbeam = { default-features = false, version = "0.8" }
+rayon = { default-features = false, version = "1" }
+# data-structures
+bytes = { default-features = false, version = "1" }
+hashbrown = { default-features = false, version = "0.16" }
 # error-handling
 anyhow = { default-features = false, version = "1" }
 thiserror = { default-features = false, version = "2" }
 # numbers
-num = { default-features = false, version = "0.4" }
+num-complex = { default-features = false, version = "0.4" }
+num-integer = { default-features = false, version = "0.1" }
 num-traits = { default-features = false, version = "0.2" }
 # random
 getrandom = { default-features = false, version = "0.3" }
@@ -61,16 +69,16 @@ serde_derive = { default-features = false, version = "1" }
 serde_json = { default-features = false, version = "1" }
 # macros & utilities
 lazy_static = { version = "1" }
+paste = { version = "1" }
 smart-default = { version = "0.7" }
 strum = { default-features = false, features = ["derive"], version = "0.27" }
-paste = { version = "1" }
 # logging
 tracing = { default-features = false, features = ["attributes"], version = "0.1" }
-tracing-subscriber = { default-features = false, features = ["ansi", "env-filter", "fmt"], version = "0.3" }
 # WebAssembly
 wasm-bindgen = { default-features = false, version = "0.2" }
 
 # ************* [Profiles] *************
+
 [profile.dev]
 codegen-units = 256
 debug = true
@@ -81,14 +89,14 @@ opt-level = 2
 overflow-checks = true
 panic = "abort"
 rpath = true
-strip = "symbols"
+strip = false
 
 [profile.release]
 codegen-units = 16
 debug = false
 debug-assertions = false
 incremental = false
-lto = true
+lto = "fat"
 opt-level = "z"
 overflow-checks = false
 panic = "abort"

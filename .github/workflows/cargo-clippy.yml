@@ -6,20 +6,12 @@ concurrency:
 
 on:
   pull_request:
-    branches: [ main, master ]
-    types: [ opened, reopened, synchronize ]
-    paths:
-      - ".github/workflows/cargo-clippy.yml"
-      - "**.rs"
-      - "**/Cargo.toml"
-      - "**/Cargo.lock"
+    types: [auto_merge_enabled, opened, ready_for_review, reopened]
   push:
-    branches: [ main, master ]
-    tags: [ latest, v*.*.*, "*-nightly" ]
-  release:
-    types: [ created, edited ]
+    branches: [main, master]
+    tags: [latest, v*.*.*, "*-nightly"]
   repository_dispatch:
-    types: [ clippy, cargo-clippy ]
+    types: [clippy, cargo-clippy]
   workflow_dispatch:
 
 jobs:
@@ -31,32 +23,29 @@ jobs:
       security-events: write
       statuses: write
     steps:
-      - 
-        name: Checkout
-        uses: actions/checkout@v5
-      -
-        name: Setup Rust
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          repository: ${{ github.repository }}
+          ref: ${{ github.event.client_payload.ref || github.ref }}
+          token: ${{ github.token }}
+      - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           cache-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          components: clippy, rustfmt
-      - 
-        name: Setup cargo-binstall
-        uses: cargo-bins/cargo-binstall@v1.15.3
-      -
-        name: Setup the for sarif output
-        run: cargo binstall -y --force clippy-sarif sarif-fmt
-      -
-        name: cargo clippy
-        continue-on-error: true
-        run:
-          cargo clippy
-          --features full
-          --message-format=json | clippy-sarif | tee rust-clippy-results.sarif | sarif-fmt
-      -
-        name: upload the analysis results
-        continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+          components: clippy,rustfmt
+      - name: Install SARIF tools
+        uses: taiki-e/install-action@v2
+        with:
+          tool: clippy-sarif sarif-fmt
+      - name: Run cargo clippy
+        run: |
+          cargo clippy \
+            --features full \
+            --message-format=json | clippy-sarif | tee rust-clippy-results.sarif | sarif-fmt
+      - name: Upload the results
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: rust-clippy-results.sarif
           wait-for-processing: true

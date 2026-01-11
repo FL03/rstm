@@ -14,168 +14,163 @@ repository.workspace = true
 rust-version.workspace = true
 version.workspace = true
 
-[lib]
-bench = true
-crate-type = ["cdylib", "rlib"]
-doc = true
-doctest = false
-test = true
-
-# ************* [benchmarks] *************
-[[bench]]
-harness = false
-name = "tmh"
-required-features = ["full"]
-
-# ************* [examples] *************
-[[example]]
-name = "tmh"
-required-features = ["full"]
-
-# ************* [Unit Tests] *************
-[[test]]
-name = "default"
-
-[[test]]
-name = "macros"
-required-features = ["macros"]
-
-[[test]]
-name = "tmh"
-required-features = ["alloc", "actors", "macros", "programs"]
-
-
-# ********* [Package Metadata] *********
 [package.metadata.docs.rs]
 all-features = false
-features = ["full"]
-rustc-args = ["--cfg", "docsrs" ]
+features = ["default"]
+rustc-args = ["--cfg", "docsrs"]
 version = "v{{version}}"
 
 [package.metadata.release]
 no-dev-version = true
 tag-name = "{{version}}"
 
-# ********* [Dependencies] *********
+[lib]
+bench = true
+doc = true
+doctest = false
+path = "lib.rs"
+test = true
+
+[[bench]]
+harness = false
+name = "tmh"
+required-features = ["full"]
+
+[[example]]
+name = "tmh"
+required-features = ["full"]
+
 [dependencies]
-rstm-actors = { optional = true, workspace = true }
 rstm-core = { workspace = true }
-rstm-programs = { optional = true, workspace = true }
-rstm-tape = { optional = true, workspace = true }
+rstm-macros = { optional = true, workspace = true }
+rstm-traits = { workspace = true }
 
 [dev-dependencies]
 anyhow = { features = ["std"], workspace = true }
-criterion = { features = ["plotters"], version = "0.7" }
+criterion = { features = ["plotters"], workspace = true }
 lazy_static = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tracing = { workspace = true }
-tracing-subscriber = { features = ["json", "serde"], workspace = true }
+
+[dev-dependencies.tracing-subscriber]
+features = [
+  "env-filter",
+  "fmt",
+  "json",
+  "serde",
+]
+version = "0.3"
 
 [features]
-default = [
-  "actors",
-  "macros",
-  "programs",
-  "std",
-  "tape",
-]
+default = ["actors", "macros", "std"]
 
 full = [
-  "default", 
+  "default",
+  "bytes",
+  "complex",
+  "hashbrown",
   "json",
-  "serde", 
-  "tracing"
+  "rand",
+  "serde",
+  "tracing",
 ]
 
 # ********* [FF] Features *********
-actors = [
-  "alloc",
-  "programs",
-  "tape",
-  "dep:rstm-actors",
+actors = []
+
+macros = [
+  "dep:rstm-macros",
+  "rstm-core/macros",
 ]
-
-macros = []
-
-programs = ["dep:rstm-programs"]
 
 tape = [
   "alloc",
-  "dep:rstm-tape",
 ]
 
 nightly = [
-  "rstm-actors?/nightly",
   "rstm-core/nightly",
-  "rstm-programs?/nightly",
-  "rstm-tape?/nightly"
+  "rstm-macros/nightly",
+  "rstm-traits/nightly",
 ]
 
 json = [
   "alloc",
+  "serde",
+  "serde_json",
   "rstm-core/json",
-  "rstm-tape?/json",
-  "rstm-programs?/json",
 ]
 
 # ********* [FF] Environments *********
 std = [
-  "alloc", 
-  "rstm-actors?/std",
+  "alloc",
   "rstm-core/std",
-  "rstm-programs?/std",
-  "rstm-tape?/std",
+  "rstm-traits/std",
 ]
 
 wasi = [
   "alloc",
-  "rstm-actors?/wasi",
   "rstm-core/wasi",
-  "rstm-programs?/wasi",
-  "rstm-tape?/wasi",
+  "rstm-traits/wasi",
 ]
 
 wasm = [
   "alloc",
-  "wasm-bindgen",
-  "rstm-actors?/wasm",
+  "wasm_bindgen",
   "rstm-core/wasm",
-  "rstm-programs?/wasm",
-  "rstm-tape?/wasm",
+  "rstm-traits/wasm",
 ]
 
 # ************* [FF:Dependencies] *************
 
 alloc = [
-  "rstm-actors?/alloc",
   "rstm-core/alloc",
-  "rstm-programs?/alloc",
-  "rstm-tape?/alloc",
+  "rstm-traits/alloc",
+]
+
+bytes = [
+  "rstm-core/bytes",
+  "rstm-traits/bytes",
+]
+
+complex = [
+  "rstm-core/complex",
+  "rstm-traits/complex",
+]
+
+hashbrown = [
+  "rstm-core/hashbrown",
+  "rstm-traits/hashbrown",
+]
+
+rand = [
+  "rstm-core/rand",
+  "rstm-traits/rand",
+]
+
+rayon = [
+  "rstm-core/rayon",
+  "rstm-traits/rayon",
+]
+
+rng = [
+  "rstm-core/rng",
 ]
 
 serde = [
-  "rstm-actors?/serde",
   "rstm-core/serde",
-  "rstm-programs?/serde",
-  "rstm-tape?/serde"
+  "rstm-traits/serde",
 ]
 
 serde_json = [
   "rstm-core/serde_json",
-  "rstm-programs?/serde_json",
-  "rstm-tape?/serde_json",
 ]
 
 tracing = [
-  "rstm-actors?/tracing",
-  "rstm-programs?/tracing",
-  "rstm-tape?/tracing"
+  "rstm-core/tracing",
 ]
 
-wasm-bindgen = [
-  "rstm-actors?/wasm-bindgen",
-  "rstm-core/wasm-bindgen",
-  "rstm-programs?/wasm-bindgen",
-  "rstm-tape?/wasm-bindgen"
+wasm_bindgen = [
+  "rstm-core/wasm_bindgen",
+  "rstm-traits/wasm_bindgen",
 ]

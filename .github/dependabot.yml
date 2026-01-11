@@ -1,22 +1,21 @@
 version: 2
 
 updates:
-  - package-ecosystem: devcontainers
+  - package-ecosystem: rust-toolchain
     directory: /
-    schedule: 
+    schedule:
       interval: monthly
   - package-ecosystem: github-actions
     directory: /
-    schedule: 
+    schedule:
       interval: monthly
   - package-ecosystem: cargo
     schedule:
       interval: monthly
     directories:
       - /
-      - rstm
-      - actors
-      - core
-      - programs
-      - state
-      - tape
+      - /rstm
+      - /core
+      - /macros
+      - /state
+      - /traits

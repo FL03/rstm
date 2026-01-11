@@ -32,10 +32,10 @@ fn state() {
 }
 
 #[test]
-fn halting() {
+fn halt_state() {
     let state = State(0_usize);
-    assert_eq!(state.halt().get(), &Halter::Halt(0));
-    assert_eq!(state.into_halt().get(), &Halter::State(0));
+    assert_eq! { state.halt(), Halter::Halt(0) }
+    assert_eq! { state.into_halt(), Halter::Step(0) }
 }
 
 #[test]

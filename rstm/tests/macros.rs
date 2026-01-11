@@ -1,48 +1,19 @@
 /*
-    Appellation: rules <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: macros <module>
+    Created At: 2026.01.11:11:54:31
+    Contrib: @FL03
 */
-use rstm::prelude::{Direction, Head, Tail};
+#![cfg(feature = "macros")]
+use rstm::ruler;
+use rstm::{Direction, Head, Rule, Tail};
 
-#[cfg(feature = "programs")]
 #[test]
-fn test_ruleset() {
-    let rules = rstm::program![
-        #[default_state(0)]
-        rules: {
-            (0, 0) -> Right(1, 1);
-            (0, 1) -> Left(-1, 0);
-            (1, 0) -> Right(1, 1);
-            (1, 1) -> Left(-1, 1);
-            (-1, 0) -> Right(0, 0);
-            (-1, 1) -> Left(0, 1);
-        };
-    ];
-    // validate the number of rules within the ruleset
-    assert_eq!(rules.len(), 6);
+fn test_ruler_macro() {
+    let rule: Rule<u8, char> = ruler![(0, ' ') -> Right(1u8, 'a')];
     // create a new head for a rule within the program
-    let head = Head::new(0, 0);
-    // retrieve and validate the tail for the given head
-    assert_eq!(rules.get(&head), Some(&Tail::new(Direction::Right, 1, 1)))
-}
-
-#[cfg(feature = "std")]
-#[test]
-fn test_rulemap() {
-    // create a new ruleset using the macro
-    let rules = rstm::rulemap! {
-        (0, 0) -> Right(1, 1);
-        (0, 1) -> Left(-1, 0);
-        (1, 0) -> Right(1, 1);
-        (1, 1) -> Left(-1, 1);
-        (-1, 0) -> Right(0, 0);
-        (-1, 1) -> Left(0, 1);
-    };
-    // validate the number of rules within the ruleset
-    assert_eq!(rules.len(), 6);
-    // create a new head for a rule within the program
-    let head: Head<isize, usize> = Head::new(0, 0);
-    let exp: Tail<isize, usize> = Tail::new(Direction::Right, 1, 1);
-    // retrieve and validate the tail for the given head
-    assert_eq!(rules.get(&head), Some(&exp))
+    let head = Head::new(0, ' ');
+    let exp = Tail::new(Direction::Right, 1, 'a');
+    // validate the composition of the rule
+    assert_eq! { rule.head(), &head }
+    assert_eq! { rule.tail(), &exp }
 }

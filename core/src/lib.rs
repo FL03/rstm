@@ -1,105 +1,113 @@
 /*
-    Appellation: rstm-core <library>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: eryon-rules <library>
+    Created At: 2025.12.15:16:51:44
+    Contrib: @FL03
 */
-//! The core modules for the `rstm` framework, providing a suite of fundamental abstractions
-//! and primitives for creating and managing state machines and related constructs.
+//! Rules and their components
+//!
+//!
 #![allow(
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
     clippy::missing_safety_doc,
     clippy::module_inception,
     clippy::needless_doctest_main,
-    clippy::self_named_constructors,
-    clippy::should_implement_trait
+    clippy::non_canonical_partial_ord_impl,
+    clippy::should_implement_trait,
+    clippy::upper_case_acronyms
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(feature = "nightly", feature(allocator_api))]
-
+#![cfg_attr(all(feature = "alloc", feature = "nightly"), feature(allocator_api))]
+// compile error if neither `alloc` nor `std` features are enabled
+#[cfg(not(any(feature = "alloc", feature = "std")))]
+compile_error! { "Either the `std` or `alloc` feature must be enabled to compile this crate." }
+// external crates
 #[cfg(feature = "alloc")]
 extern crate alloc;
-
-#[doc(inline)]
-pub use rstm_state as state;
-
-#[doc(inline)]
-pub use self::{
-    error::{Error, Result},
-    head::*,
-    rule::{LearnedRule, Rule},
-    state::{RawState, State},
-    tail::*,
-    traits::*,
-    types::prelude::*,
-    utils::*,
-};
-
+// macros
 #[macro_use]
 pub(crate) mod macros {
     #[macro_use]
-    pub mod seal;
+    pub(crate) mod rules;
+    #[macro_use]
+    pub(crate) mod program;
+    #[macro_use]
+    pub(crate) mod seal;
+}
+// redeclarations
+#[doc(inline)]
+pub use rstm_state as state;
+// modules
+pub mod actors;
+pub mod error;
+pub mod motion;
+pub mod programs;
+pub mod rules;
+
+mod cmp {
+    #[doc(inline)]
+    pub use self::{head::*, tail::*};
+
+    pub mod head;
+    pub mod tail;
 }
 
-pub mod error;
-pub mod head;
-pub mod rule;
-pub mod tail;
-
-pub mod traits {
-    /// this modules provides various traits used throughout the library
-    pub use self::prelude::*;
+mod traits {
+    #[doc(inline)]
+    pub use self::{convert::*, rulespace::*};
 
     mod convert;
-    mod increment;
-    mod instruction;
-    mod symbols;
-
-    pub(crate) mod prelude {
-        #[doc(inline)]
-        pub use super::convert::*;
-        #[doc(inline)]
-        pub use super::increment::*;
-        #[doc(inline)]
-        pub use super::instruction::*;
-        #[doc(inline)]
-        pub use super::symbols::*;
-    }
+    mod rulespace;
 }
 
-pub mod types {
-    //! The core types used throughout the library such as the [`Direction`] enum
+mod types {
     #[doc(inline)]
-    pub use self::prelude::*;
+    pub use self::{aliases::*, direction::*};
 
-    pub mod direction;
-
-    pub(crate) mod prelude {
-        #[doc(inline)]
-        pub use super::direction::Direction;
-    }
+    mod aliases;
+    mod direction;
 }
 
-pub mod utils {
-    //! useful utilities for managing and creating Turing machines and related constructs
+mod utils {
     #[doc(inline)]
-    pub use self::prelude::*;
+    pub use self::range::*;
 
-    mod bounds;
-
-    pub mod prelude {
-        #[doc(inline)]
-        pub use super::bounds::*;
-    }
+    mod range;
 }
 
+// re-exports (private)
+pub(crate) use rstm_traits::prelude::*;
+// re-exports (public)
+#[doc(inline)]
+pub use self::{
+    actors::TMH,
+    cmp::*,
+    error::{Error, Result},
+    motion::HeadStep,
+    programs::{InstructionSet, Program, RuleSet},
+    rules::*,
+    traits::*,
+    types::*,
+    utils::*,
+};
+#[doc(inline)]
+pub use rstm_state::{HaltState, Halter, IsHalted, RawState, State};
+// prelude
 #[doc(hidden)]
 pub mod prelude {
-    #[doc(no_inline)]
     pub use rstm_state::prelude::*;
 
-    pub use crate::head::*;
-    pub use crate::rule::*;
-    pub use crate::tail::*;
+    #[cfg(all(feature = "alloc", feature = "macros"))]
+    pub use crate::program;
+    #[cfg(feature = "macros")]
+    pub use crate::{rules, ruleset};
 
+    pub use crate::actors::prelude::*;
+    pub use crate::cmp::*;
+    pub use crate::motion::prelude::*;
+    pub use crate::programs::prelude::*;
+    pub use crate::rules::*;
     pub use crate::traits::*;
-    pub use crate::types::prelude::*;
+    pub use crate::types::*;
     pub use crate::utils::*;
 }

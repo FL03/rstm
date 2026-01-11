@@ -2,19 +2,13 @@
     Appellation: impl_repr <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::State;
-
-use crate::RawState;
 use crate::error::StateError;
-
+use crate::state::State;
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 use core::mem::MaybeUninit;
 
-impl<Q> State<&Q>
-where
-    Q: RawState,
-{
+impl<Q> State<&Q> {
     /// Clones the internal state and returning a new instance of [State]
     pub fn cloned(&self) -> State<Q>
     where
@@ -31,10 +25,7 @@ where
     }
 }
 
-impl<Q> State<&mut Q>
-where
-    Q: RawState,
-{
+impl<Q> State<&mut Q> {
     /// Clones the internal state and returning a new instance of [State]
     pub fn cloned(&self) -> State<Q>
     where
@@ -51,30 +42,21 @@ where
     }
 }
 
-impl<Q> State<*const Q>
-where
-    Q: RawState,
-{
+impl<Q> State<*const Q> {
     /// Creates a new instance of state with a raw pointer to the inner value.
     pub fn from_ptr(ptr: *const Q) -> Self {
         Self(ptr)
     }
 }
 
-impl<Q> State<*mut Q>
-where
-    Q: RawState,
-{
+impl<Q> State<*mut Q> {
     /// Creates a new instance of state with a mutable raw pointer to the inner value.
     pub fn from_mut_ptr(ptr: *mut Q) -> Self {
         Self(ptr)
     }
 }
 
-impl<Q> State<MaybeUninit<Q>>
-where
-    Q: RawState,
-{
+impl<Q> State<MaybeUninit<Q>> {
     /// Creates a new instance of state with an initialized inner value.
     pub fn init(value: Q) -> Self {
         Self(MaybeUninit::new(value))
@@ -104,7 +86,7 @@ where
 }
 
 impl State<()> {
-    /// returns a new instance of the state using an _empty_ value.
+    /// Creates a new instance of [State] with an empty state.
     pub const fn empty() -> Self {
         Self(())
     }
@@ -139,7 +121,7 @@ impl State<Box<dyn core::any::Any>> {
         self.0
             .downcast()
             .map(State)
-            .map_err(|_| StateError::DowncastError)
+            .map_err(|_| StateError::DowncastFailure)
     }
     /// Returns an immutable reference to the state if it is of type `Q`; returns `None`
     /// otherwise.
@@ -160,10 +142,7 @@ impl State<Box<dyn core::any::Any>> {
     }
 }
 
-impl<Q> State<Option<Q>>
-where
-    Q: RawState,
-{
+impl<Q> State<Option<Q>> {
     /// Creates a new instance of state whose inner state is [Option::None].
     pub const fn none() -> Self {
         Self(None)

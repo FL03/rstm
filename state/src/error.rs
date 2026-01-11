@@ -13,7 +13,7 @@ pub type Result<T> = core::result::Result<T, StateError>;
 #[derive(Debug, thiserror::Error)]
 pub enum StateError {
     #[error("Failed to downcast state")]
-    DowncastError,
+    DowncastFailure,
     #[cfg(feature = "alloc")]
     #[error("Invalid State: {0}")]
     InvalidState(String),

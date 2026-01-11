@@ -1,162 +1,119 @@
-# Artifacts
+# General
 
-**/.artifacts/data/
-**/.docker/data/
+**/.artifacts/data
+**/.cache
+**/.docker/data
+
+*.csv
+*.csv.*
+
+*.db
+*.db.*
+
+*.db-*.*
+
+*.lock
+*.lock.*
+
+*-lock.*
+
+*.log
+*.log.*
+
+*.zip
+*.zip.*
+
+## Operating Systems
+
+### NixOS
+!flake.lock
+
+### Windows (WSL2)
+**/*:Zone.Identifier
+
+# Configuration Files
+
+**/.config/*.config.*
+!**/default.config.*
+!**/docker.config.*
+
+*.env
+*.env.*
+
+!**/default.env
+!**/example.env
+
+## Development Environments
+**/.direnv/
+
+### JetBrains IDEs
+**/.idea/
+
+*.iml
+*.iml.*
+
+### Visual Studio Code
+**/.vscode/*
+
+!**/.vscode/settings.json
 
 # Language Specific
 
-## Node.js
-**/.DS_STORE
-**/build
+## Rust
 **/debug/
-**/dist/
-**/node_modules
+**/target/
 
-**/*.tsbuildinfo
+*.bk
+*.bk.*
 
-!**/package-lock.json
-!**/yarn.lock
-
-### Dependencies
-**/.pnp
-**/.pnp.*
-
-**/.yarn/install-state.gz
-
-### Frameworks
-
-#### Next.js
-**/.next
-**/out
-
-**/next-env.d.ts
-
-### SvelteKit
-**/__sapper__/
-**/.DS_STORE/
-**/.svelte-kit/
-
-### Package Manager
-**/yarn-error.log
+!**/Cargo.lock
 
 ## Python
 **/__pycache__/
 **/.pytest_cache/
 **/venv/
 
-**/*.egg
-**/*.egg.*
+*.egg
+*.egg.*
 
-**/*.egg-info
+*.egg-info
 
-**/*.pyc
-**/*.pyc.*
+*.pyc
+*.pyc.*
 
-**/*.pyo
-**/*.pyo.*
+*.pyo
+*.pyo.*
 
-**/*.pyz
-**/*.pyz.*
+*.pyz
+*.pyz.*
 
-**/*.pyzw
-**/*.pyzw.*
+*.pyzw
+*.pyzw.*
 
-**/*.whl
-**/*.whl.*
+*.whl
+*.whl.*
 
-## Rust
-**/target
 
-!**/Cargo.lock
+## Node
+**/build/
+**/debug/
+**/dist/
+**/node_modules/
 
-**/*.rs.bk
-**/*.rs.bk.*
+### Frameworks
 
-# Miscellaneous
+#### Next.js
+**/.next/
 
-## Development
-
-### Configuration
-**/.config/*.config.*
-
-!**/.config/default.config.*
-!**/.config/docker.config.*
-!**/.config/example.config.*
-
-#### dotenv
-**/.env.*
-**/*.env
-**/*.env.*
-
-!**/.env.default*
-!**/*default.env
-
-!**/*.env.example
-!**/*.env.example.*
-
-!**/*.example.env
-!**/*.example.env.*
-
-### IDE
-
-#### Atom
-**/.atom
-
-#### JetBrains
-**/.idea
-
-**/*.iml
-**/*.ipr
-**/*.iws
-
-#### Visual Studio Code
-**/.vscode/*
-!**/.vscode/settings.json
-
-### Integrations
+#### SvelteKit
+**/__sapper__/
+**/.DS_STORE/
+**/.svelte-kit/
 
 #### Supabase
-**/supabase/temp
+**/.supabase/
+**/supabase/tmp/
 
 #### Vercel
-**/.vercel
-
-## Directories
-**/build
-**/debug
-**/dist
-**/release
-
-### testing
-**/coverage
-
-## File Extensions
-**/*.bak
-**/*.bak.*
-
-**/*.bk
-**/*.bk.*
-
-**/*.db
-
-
-**/*.log
-**/*.log.*
-
-**/*.pem
-
-**/*.gz
-
-**/*.sqlite
-
-**/*.zip
-
-## Operating Systems
-
-### NixOs
-!**/flake.lock
-
-### Windows
-
-#### Windows Subsystem for Linux (WSL)
-**/*:Zone.identifier
+**/.vercel/
+**/.vercel_build_output/

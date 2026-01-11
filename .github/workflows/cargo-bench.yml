@@ -1,45 +1,63 @@
+# This workflow is used to benchmark a Rust project
 name: cargo-bench
+# The workflow may be manually triggered and is run automatically when:
+# - a pull request is closed on the default branch (main/master)
+# - a release is published
+# - a repository_dispatch event with the type "cargo-bench" is received
 
 concurrency:
   cancel-in-progress: false
   group: ${{ github.workflow }}-${{ github.ref }}
 
+on:
+  push:
+    branches: [main, master]
+    tags: [latest, v*.*.*, "*-nightly"]
+  repository_dispatch:
+    types: [cargo-bench]
+  workflow_dispatch:
+
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: full
 
-on:
-  repository_dispatch:
-    types: [ cargo-bench, benchmark ]
-  workflow_dispatch:
+permissions:
+  contents: write
+  checks: write
 
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      deployments: write
+    outputs:
+      id: ${{ steps.artifacts.outputs.artifact-id }}
+      digest: ${{ steps.artifacts.outputs.artifact-digest }}
+      url: ${{ steps.artifacts.outputs.artifact-url }}
     strategy:
       fail-fast: false
       matrix:
-        target: [ x86_64-unknown-linux-gnu ] # [ x86_64-unknown-linux-gnu, wasm32-unknown-unknown, wasm32-wasip1, wasm32-wasip2 ]
+        features: [full]
+        target: [x86_64-unknown-linux-gnu]
     steps:
-      -
-        name: Checkout
-        uses: actions/checkout@v5
-      -
-        name: Setup Rust
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.client_payload.ref  || github.ref }}
+          repository: ${{ github.repository }}
+          token: ${{ github.token }}
+      - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          cache-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          target: ${{ matrix.target }}
-      -
-        name: Benchmark the workspace
-        run: cargo bench -v --locked --workspace --features full --target ${{ matrix.target }}
-      -
-        name: Upload the benchmarks
+          cache-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}      
+      - name: Install cargo-criterion
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-criterion
+      - name: Benchmark (${{ matrix.target }})
+        run: cargo criterion --benches --locked --verbose --workspace --features ${{ matrix.features }} --target ${{ matrix.target }}
+      - name: Upload the benchmarks
         id: artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Benchmark Report (${{ github.run_id }})
           if-no-files-found: error

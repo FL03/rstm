@@ -2,118 +2,65 @@
     appellation: halted <module>
     authors: @FL03
 */
-use crate::traits::RawState;
+use crate::state::State;
 
-/// The [`Halt`] trait establishes a common interface for any _haltable_ type;
-pub trait Halt {
-    private! {}
-
+/// The [`IsHalted`] trait defines a contract for types that can be checked for a halted state.
+pub trait IsHalted {
+    /// returns true if the current state is considered to be _halted_, otherwise false.
     fn is_halted(&self) -> bool;
-}
-
-pub trait HaltState: Halt + RawState {
-    private! {}
 }
 
 /*
  ************* Implementations *************
 */
-use crate::state::State;
+use crate::Halter;
 
-impl<Q> HaltState for Q
-where
-    Q: Halt + RawState,
-{
-    seal! {}
-}
-
-impl<Q> Halt for State<Q>
-where
-    Q: RawState + Halt,
-{
-    seal!();
-
+impl<Q, H> IsHalted for State<Halter<Q, H>> {
     fn is_halted(&self) -> bool {
-        self.0.is_halted()
+        matches!(self.get(), &Halter::Halt(_))
+    }
+}
+impl<Q> IsHalted for State<Option<Q>> {
+    fn is_halted(&self) -> bool {
+        self.0.is_none()
     }
 }
 
-impl<Q> Halt for &Q
-where
-    Q: Halt,
-{
-    seal!();
-
-    fn is_halted(&self) -> bool {
-        <Q as Halt>::is_halted(*self)
-    }
-}
-
-impl<Q> Halt for &mut Q
-where
-    Q: Halt,
-{
-    seal!();
-
-    fn is_halted(&self) -> bool {
-        <Q as Halt>::is_halted(*self)
-    }
-}
-
-impl<Q> Halt for Option<Q>
-where
-    Q: RawState,
-{
-    seal!();
-
+impl<Q> IsHalted for Option<State<Q>> {
     fn is_halted(&self) -> bool {
         self.is_none()
     }
 }
 
-impl<Q> Halt for Option<State<Q>>
-where
-    Q: RawState,
-{
-    seal!();
-
-    fn is_halted(&self) -> bool {
-        self.is_none()
-    }
-}
-
-macro_rules! impl_num_haltable {
-    (#[impl($trait:ident)] $($t:ty),* $(,)?) => {
-        $(
-            impl $trait for $t {
-                seal!();
-
-                fn is_halted(&self) -> bool {
-                    *self == <$t>::MAX
-                }
+macro_rules! impl_is_halted {
+    ($($tag:ident {$($T:ty),* $(,)?}),* $(,)?) => {
+        $(impl_is_halted! { @impl #[$tag] $($T),* })*
+    };
+    (@impl #[unsigned] $($T:ty),*) => {
+        $(impl IsHalted for $T {
+            fn is_halted(&self) -> bool {
+                self == &<$T>::MAX
             }
-        )*
+        })*
+    };
+    (@impl #[signed] $($T:ty),*) => {
+        $(impl IsHalted for $T {
+            fn is_halted(&self) -> bool {
+                self.abs() == <$T>::MAX
+            }
+        })*
+    };
+    (@impl #[float]$($T:ty),*) => {
+        $(impl IsHalted for $T {
+            fn is_halted(&self) -> bool {
+                self.is_nan() || self.is_infinite()
+            }
+        })*
     };
 }
 
-impl_num_haltable!(
-    #[impl(Halt)]
-    u8, u16, u32, u64, u128, usize,
-    i8, i16, i32, i64, i128, isize,
-);
-
-impl Halt for f32 {
-    seal!();
-
-    fn is_halted(&self) -> bool {
-        self.is_infinite() || self.is_nan()
-    }
-}
-
-impl Halt for f64 {
-    seal!();
-
-    fn is_halted(&self) -> bool {
-        self.is_infinite() || self.is_nan()
-    }
+impl_is_halted! {
+    unsigned { u8, u16, u32, u64, u128, usize },
+    signed { i8, i16, i32, i64, i128, isize },
+    float { f32, f64 }
 }

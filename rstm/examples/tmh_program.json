@@ -5,43 +5,43 @@
       "state": 0,
       "symbol": 0,
       "direction": "Right",
-      "nextState": 1,
-      "writeSymbol": 0
+      "next_state": 1,
+      "write_symbol": 0
     },
     {
       "state": 0,
       "symbol": 1,
       "direction": "Left",
-      "nextState": -1,
-      "writeSymbol": 1
+      "next_state": -1,
+      "write_symbol": 1
     },
     {
       "state": 1,
       "symbol": 0,
       "direction": "Right",
-      "nextState": 1,
-      "writeSymbol": 1
+      "next_state": 1,
+      "write_symbol": 1
     },
     {
       "state": 1,
       "symbol": 1,
       "direction": "Right",
-      "nextState": 0,
-      "writeSymbol": 0
+      "next_state": 0,
+      "write_symbol": 0
     },
     {
       "state": -1,
       "symbol": 0,
       "direction": "Left",
-      "nextState": 9223372036854775807,
-      "writeSymbol": 0
+      "next_state": 9223372036854775807,
+      "write_symbol": 0
     },
     {
       "state": -1,
       "symbol": 1,
       "direction": "Left",
-      "nextState": -1,
-      "writeSymbol": 0
+      "next_state": -1,
+      "write_symbol": 0
     }
   ]
 }
