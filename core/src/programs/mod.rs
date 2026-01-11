@@ -26,11 +26,12 @@ mod traits {
 
     mod ruleset;
 }
+// mod types {
+//     #[doc(inline)]
+//     pub use self::aliases::*;
 
-mod types {
-    #[doc(inline)]
-    pub use self::aliases::*;
-}
+//     mod aliases;
+// }
 
 #[doc(hidden)]
 pub(crate) mod prelude {

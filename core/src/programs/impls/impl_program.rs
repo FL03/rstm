@@ -4,9 +4,9 @@
     Contrib: @FL03
 */
 #![cfg(feature = "alloc")]
-use crate::programs::{Program, RuleVec};
+use crate::programs::Program;
 
-use crate::{Head, Rule, Tail};
+use crate::{Head, Rule, RuleVec, Tail};
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};
 

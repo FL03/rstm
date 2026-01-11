@@ -64,7 +64,6 @@ mod types {
     #[doc(inline)]
     pub use self::{aliases::*, direction::*};
 
-
     mod aliases;
     mod direction;
 }
@@ -85,7 +84,7 @@ pub use self::{
     cmp::*,
     error::{Error, Result},
     motion::HeadStep,
-    programs::{InstructionSet, RuleSet},
+    programs::{InstructionSet, Program, RuleSet},
     rules::*,
     traits::*,
     types::*,

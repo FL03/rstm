@@ -39,7 +39,7 @@ macro_rules! program {
         $(#[default_state($q:expr)])?
         rules: {$(($state:expr, $symbol:expr) -> $direction:ident($next:expr, $write:expr)),* $(,)?} $(;)?
     } => {
-        $crate::program::Program::from_iter(
+        $crate::programs::Program::from_iter(
             $crate::ruleset! [$(($state, $symbol) -> $direction($next, $write)),*]
         )
         $(.with_default_state($q))?

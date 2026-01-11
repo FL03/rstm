@@ -5,8 +5,7 @@
 */
 extern crate rstm;
 
-use rstm::prelude::{Program, TMH};
-use rstm::programs;
+use rstm::actors::TMH;
 
 fn main() -> rstm::Result<()> {
     // initialize the logger
@@ -20,7 +19,7 @@ fn main() -> rstm::Result<()> {
     // initialize the state of the machine
     let initial_state: isize = 0;
     // define the Program for the machine
-    let program: Program<isize, usize> = programs! {
+    let program = rstm::program! {
         #[default_state(initial_state)]
         rules: {
             (0, 0) -> Right(1, 0usize),
@@ -32,10 +31,10 @@ fn main() -> rstm::Result<()> {
         };
     };
     // export the program to a JSON file
-    programs.export_json("rstm/examples/tmh_program.json")?;
+    program.export_json("rstm/examples/example.program.json")?;
     // create a new instance of the machine
     let mut tm = TMH::new(initial_state, input);
     // execute and run the program
-    tm.execute(programs).run()?;
+    tm.execute(program).run()?;
     Ok(())
 }

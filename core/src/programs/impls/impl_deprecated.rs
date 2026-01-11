@@ -4,9 +4,9 @@
 */
 #![allow(deprecated)]
 #![cfg(feature = "alloc")]
-use crate::programs::{Program, RuleVec};
+use crate::programs::Program;
 
-use crate::{Head, Tail};
+use crate::{Head, RuleVec, Tail};
 use rstm_state::RawState;
 
 #[doc(hidden)]

@@ -4,8 +4,8 @@
 */
 use crate::rules::{Rule, RuleBuilder};
 
-use rstm_state::State;
 use crate::{Direction, Head, Tail};
+use rstm_state::State;
 
 impl<Q, S> RuleBuilder<Q, S> {
     /// initialize a new instance of the [`RuleBuilder`]

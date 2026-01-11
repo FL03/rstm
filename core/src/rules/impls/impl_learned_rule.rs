@@ -4,8 +4,8 @@
     Contrib: @FL03
 */
 use crate::rules::{LearnedRule, Rule};
-use rstm_state::RawState;
 use crate::{Direction, Head, Tail};
+use rstm_state::RawState;
 
 impl<T, Q, S> LearnedRule<T, Q, S>
 where
