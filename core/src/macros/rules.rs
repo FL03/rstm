@@ -3,15 +3,6 @@
     Contrib: @FL03
 */
 
-/// the [`state!`] macro is a simple helper macro to create a [`State`](crate::state::State)
-/// instance.
-#[macro_export]
-macro_rules! state {
-    ($state:expr) => {
-        $crate::state::State::new($state)
-    };
-}
-
 #[macro_export]
 macro_rules! head {
     ($state:expr, $symbol:expr) => {
@@ -47,24 +38,23 @@ macro_rules! head {
 /// `0` reading some value `'a'` from the tape, and then writes a `c` to the tape, moves right,
 /// and updates the state to `1`.
 /// ```rust
-
-/// let a = eryon_rules::rule![(0, 'a') -> Right(1, 'c')];
-/// ```
-
+/// use rstm_core::rule;
+/// rule![(0, 'a') -> Right(1, 'c')];
 /// ```
 #[macro_export]
 macro_rules! rule {
-    {$(($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal)),* $(,)?} => {
-        $($crate::rule! { @impl ($state, $symbol) -> $direction($next, $write) } )*
-    };
-    {@impl ($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal)} => {
-        $crate::rules::Rule::init()
-            .state($crate::state::State($state))
-            .symbol($symbol)
-            .write_symbol($write)
-            .direction($crate::Direction::$direction)
-            .next_state($crate::state::State($next))
-            .build()
+    [($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal)] => {
+        $crate::rule::Rule {
+            head: $crate::Head {
+                state: rstm_state::State($state),
+                symbol: $symbol,
+            },
+            tail: $crate::Tail {
+                direction: $crate::Direction::$direction,
+                next_state: rstm_state::State($next),
+                write_symbol: $write,
+            }
+        }
     };
 }
 /// [`ruleset!`] is a macro that simplifies the creation of a vector of [`Rules`](crate::Rule).
@@ -81,7 +71,7 @@ macro_rules! rule {
 /// states `{-1, 0, 1}` and two symbols `{0, 1}`.
 ///
 /// ```rust
-/// use eryon_rules::ruleset;
+/// use rstm_core::ruleset;
 ///
 /// let rule = ruleset![
 ///     (0, 0) -> Right(1, 1),
@@ -114,7 +104,7 @@ macro_rules! ruleset {
 /// ## Basic Usage
 ///
 /// ```rust
-/// use eryon_rules::rulemap;
+/// use rstm_core::rulemap;
 ///
 /// rulemap! {
 ///     (0, 1) -> Right(0, 1),

@@ -4,10 +4,15 @@
     Contrib: @FL03
 */
 use syn::parse::{Parse, ParseStream};
-use syn::punctuated::Punctuated;
-use syn::token::{Impl, Paren};
-use syn::{AngleBracketedGenericArguments, Ident, Token, WhereClause, braced};
+use syn::token::Paren;
+use syn::{Ident, Token};
 
+#[allow(dead_code)]
+/// The abstract syntax tree for the head of a rule / Turing machine
+///
+/// ```no_run
+/// (state, symbol)
+/// ```
 pub struct HeadAst {
     pub group: Paren,
     pub state: Ident,
@@ -25,6 +30,10 @@ pub struct RuleAst {
     pub dot: Token![.],
     pub call: Ident,
 }
+
+/*
+ ************* Implementations *************
+*/
 
 impl Parse for HeadAst {
     fn parse(input: ParseStream) -> syn::Result<Self> {

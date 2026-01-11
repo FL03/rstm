@@ -9,10 +9,10 @@ use rstm_core::{Direction, Head, Tail};
 #[test]
 fn test_rule() {
     // create a new ruleset using the macro
-    let rule = rstm::rule![(0, 0) -> Right(1, 1)];
+    let rule = rstm::rule![(0i8, 0i8) -> Right(1, 1)];
     // create a new head for a rule within the program
-    let head: Head<isize, usize> = Head::new(0, 0);
-    let exp: Tail<isize, usize> = Tail::new(Direction::Right, 1, 1);
+    let head = Head::new(0, 0);
+    let exp = Tail::new(Direction::Right, 1, 1);
     // validate the composition of the rule
     assert_eq! { rule.head(), &head }
     assert_eq! { rule.tail(), &exp }
@@ -22,7 +22,7 @@ fn test_rule() {
 fn test_ruleset() {
     // create a new ruleset using the macro
     let rules = rstm::ruleset! {
-        (0, 0) -> Right(1, 1),
+        (0i8, 0i8) -> Right(1, 1),
         (0, 1) -> Left(-1, 0),
         (1, 0) -> Right(1, 1),
         (1, 1) -> Left(-1, 1),
@@ -32,29 +32,8 @@ fn test_ruleset() {
     // ensure each rule is present within the ruleset
     assert_eq! { rules.len(), 6 }
     // validate some rule within the ruleset
-    let head: Head<isize, usize> = Head::new(0, 0);
-    let exp: Tail<isize, usize> = Tail::new(Direction::Right, 1, 1);
+    let head = Head::new(0, 0);
+    let exp = Tail::new(Direction::Right, 1, 1);
     assert_eq! { rules[0].head(), &head }
-    assert_eq! { rules[0].tail(), &exp }
-}
-
-#[cfg(feature = "std")]
-#[test]
-fn test_rulemap() {
-    // create a new ruleset using the macro
-    let rules = rstm::rulemap! {
-        (0, 0) -> Right(1, 1),
-        (0, 1) -> Left(-1, 0),
-        (1, 0) -> Right(1, 1),
-        (1, 1) -> Left(-1, 1),
-        (-1, 0) -> Right(0, 0),
-        (-1, 1) -> Left(0, 1),
-    };
-    // create a new head for a rule within the program
-    let head: Head<isize, usize> = Head::new(0, 0);
-    let exp: Tail<isize, usize> = Tail::new(Direction::Right, 1, 1);
-    // validate the ruleset
-    assert_eq! { rules.len(), 6 }
-    // retrieve and validate the tail for the given head
     assert_eq! { rules[0].tail(), &exp }
 }

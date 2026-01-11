@@ -5,7 +5,7 @@
 use super::RuleAst;
 use syn::parse::{Parse, ParseStream};
 use syn::punctuated::Punctuated;
-use syn::token::{Impl, Paren};
+use syn::token::Impl;
 use syn::{AngleBracketedGenericArguments, Ident, Token, WhereClause, braced};
 
 fn _parse_ops(input: ParseStream) -> syn::Result<Punctuated<RuleAst, Token![,]>> {

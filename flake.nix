@@ -1,27 +1,42 @@
 {
-  description = "This flake is designed to be used ...";
+  description = "A developmental environment for a Rust project using Nix flakes with direnv";
 
   inputs = {
-    flake-utils.url  = "github:numtide/flake-utils";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = inputs: with inputs;
+  outputs = { self, nixpkgs, flake-utils, rust-overlay, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
-        code = pkgs.callPackage ./. { inherit nixpkgs system rust-overlay; };
+        overlays = [ (import rust-overlay) ];
+        pkgs = import nixpkgs { inherit system overlays; };
+        rustToolchain = pkgs.rust-bin.stable.latest.default;
       in rec {
-        packages = {
-          all = pkgs.symlinkJoin {
-            name = "all";
-            paths = with code; [ ];
+        packages.default = pkgs.rustPlatform.buildRustPackage {
+          pname = "rstm";
+          version = "0.1.1";
+          src = self; # ./.;
+          cargoLock = {
+            lockFile = ./Cargo.lock;
           };
-          default = packages.all;
+        };
+
+        devShells.default = pkgs.mkShell {
+          buildInputs = [
+            rustToolchain
+            pkgs.cargo
+            pkgs.rust-analyzer
+            pkgs.pkg-config
+            pkgs.openssl
+          ];
+          shellHook = ''
+            export CARGO_HOME=$PWD/.cargo
+          '';
         };
       }
     );

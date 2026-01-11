@@ -1,47 +1,43 @@
-{pkgs ? import <nixpkgs> {}}:
-pkgs.mkShell {
-  #nativeBuildInputs = with pkgs; [];  # only needed for developing nix/nixos
-  buildInputs = with pkgs; [
-    # common build inputs
-    direnv
-    duf
-    eza
-    fd
-    rustup
-    xclip
-    # project-specific build inputs
-    #bun
-    #deno
-    #nodejs
-    #nodePackages.pnpm
-  ];
-  env = {
-    #DENO_BIN="${pkgs.deno}/bin/deno";
-    #NODE_BIN="${pkgs.nodejs}/bin/nodejs";
+{ pkgs, nixpkgs, system, makeRustPlatform, rust-overlay }:
+let
+  rustPkgs = import nixpkgs {
+    inherit system;
+    overlays = [ (import rust-overlay) ];
   };
-  shellHook = ''
-    #alias ls=eza
-    #alias ls="ls -alh --color=auto"
-    alias ls="eza --long --group --header -a --classify --links --level=3 --color=auto --sort=type --time-style=long-iso --extended"
-    alias find=fd
-    alias fd="fd --hidden --list-details --color=auto" # cannot be aliased to 'find' if using hlissner doom emacs
-    #alias fd="fd --hidden --no-ignore --follow --list-details --color=auto" # cannot be aliased to 'find' if using hlissner doom emacs
-    #alias fd="find -L" # cannot be aliased if using hlissner doom emacs
-    alias du="duf"
- 
-    #git
-    alias gst="git status"
-    alias gc="git commit"
-    alias gcm="git commit -m"
-    alias ga="git add"
-    alias gaa="git add --all"
-    alias gcl="git clone -v --progress"
-    alias gb="git branch"
-    alias gp="git push -u"
-    alias gpu="git push -u"
- 
-    #import parent shell config
-    [ -x ~/.bashrc ] && source ~/.bashrc
-    [ -x ~/.zshrc ] && source ~/.zshrc
-  '';
+
+  rustVersion = "1.85.0";
+  wasmUnknownUknown = "wasm32-unknown-unknown";
+  wasm32Wasi = "wasm32-wasi";
+
+  rustDefaultTarget = rustPkgs.rust-bin.stable.${rustVersion}.default;
+
+  rustWithWasmTarget = rustPkgs.rust-bin.nightly.${rustVersion}.default.override {
+    targets = [ wasmUnknownUknown ];
+  };
+
+  rustPlatform = makeRustPlatform {
+    cargo = rustDefaultTarget;
+    rustc = rustDefaultTarget;
+  };
+
+  rustPlatformWasm = makeRustPlatform {
+    cargo = rustWithWasmTarget;
+    rustc = rustWithWasmTarget;
+  };
+
+  common = {
+    version = "0.1.1";
+    src = self;
+
+    cargoLock = {
+      lockFile = ./Cargo.lock;
+    };
+
+    nativeBuildInputs = [ pkgs.pkg-config ];
+    PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+  };
+in {
+  workspace = pkgs.rustPlatformWasm.buildRustPackage (common // {
+    cargoBuildFlags = "--release --workspace";
+  });
 }
