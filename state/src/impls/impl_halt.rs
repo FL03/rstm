@@ -2,21 +2,13 @@
     Appellation: wrap <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-use crate::state::{Halt, State};
+use crate::{Halter, RawState, State};
 
-impl<Q, H> crate::RawState for Halt<Q, H> {
+impl<Q, H> RawState for Halter<Q, H> {
     seal! {}
 }
 
-impl<Q, H> crate::Haltable for State<Halt<Q, H>> {
-    seal! {}
-
-    fn is_halted(&self) -> bool {
-        true
-    }
-}
-
-impl<Q, H> Halt<Q, H> {
+impl<Q, H> Halter<Q, H> {
     /// Creates a new instance of a [HaltState] with a halted state.
     pub const fn from_halt(state: H) -> Self {
         Self::Halt(state)
@@ -26,7 +18,7 @@ impl<Q, H> Halt<Q, H> {
         Self::Step(state)
     }
     /// [`swap`](core::mem::swap) the inner value of the halt state with that of the given state.
-    pub const fn swap(&mut self, other: &mut Halt<Q, H>) {
+    pub const fn swap(&mut self, other: &mut Halter<Q, H>) {
         match (self, other) {
             (Self::Step(a), Self::Step(b)) => core::mem::swap(a, b),
             (Self::Halt(a), Self::Halt(b)) => core::mem::swap(a, b),
@@ -34,34 +26,34 @@ impl<Q, H> Halt<Q, H> {
         }
     }
     /// returns a new instance of the halt state containing a reference to its inner value.
-    pub const fn view(&self) -> Halt<&Q, &H> {
+    pub const fn view(&self) -> Halter<&Q, &H> {
         match self {
-            Self::Step(inner) => Halt::Step(inner),
-            Self::Halt(inner) => Halt::Halt(inner),
+            Self::Step(inner) => Halter::Step(inner),
+            Self::Halt(inner) => Halter::Halt(inner),
         }
     }
     /// returns a new instance of the halt state containing a mutable reference to its inner
     /// value.
-    pub const fn view_mut(&mut self) -> Halt<&mut Q, &mut H> {
+    pub const fn view_mut(&mut self) -> Halter<&mut Q, &mut H> {
         match self {
-            Self::Step(inner) => Halt::Step(inner),
-            Self::Halt(inner) => Halt::Halt(inner),
+            Self::Step(inner) => Halter::Step(inner),
+            Self::Halt(inner) => Halter::Halt(inner),
         }
     }
     /// returns an owned version of the current haltable state
-    pub fn to_owned(&self) -> Halt<Q, H>
+    pub fn to_owned(&self) -> Halter<Q, H>
     where
         Q: Clone,
         H: Clone,
     {
         match self {
-            Self::Step(inner) => Halt::Step(inner.clone()),
-            Self::Halt(inner) => Halt::Halt(inner.clone()),
+            Self::Step(inner) => Halter::Step(inner.clone()),
+            Self::Halt(inner) => Halter::Halt(inner.clone()),
         }
     }
 }
 
-impl<Q> Halt<Q, Q> {
+impl<Q> Halter<Q, Q> {
     #[inline]
     /// consumes the current haltable state, returning the inner state.
     pub fn into_inner(self) -> Q {
@@ -72,9 +64,9 @@ impl<Q> Halt<Q, Q> {
     }
     #[inline]
     /// consumes the current instance to create another instance with a [`Halt`](Self::Halt)
-    pub fn halt(self) -> Halt<Q, Q> {
+    pub fn halt(self) -> Halter<Q, Q> {
         match self {
-            Self::Step(inner) => Halt::Halt(inner),
+            Self::Step(inner) => Halter::Halt(inner),
             _ => self,
         }
     }
@@ -88,16 +80,16 @@ impl<Q> Halt<Q, Q> {
     }
     #[inline]
     /// consumes the current instance to initialize a wrapper instance
-    pub fn into_halt_state(self) -> State<Halt<Q>> {
+    pub fn into_halt_state(self) -> State<Halter<Q>> {
         State(self)
     }
     /// returns a wrapped instance of the halt state containing a reference to its inner value.
-    pub const fn as_halt_state(&self) -> State<Halt<&Q>> {
+    pub const fn as_halt_state(&self) -> State<Halter<&Q>> {
         State(self.view())
     }
     /// returns a wrapped instance of the halt state containing a mutable reference to its
     /// inner value.
-    pub const fn as_mut_halt_state(&mut self) -> State<Halt<&mut Q>> {
+    pub const fn as_mut_halt_state(&mut self) -> State<Halter<&mut Q>> {
         State(self.view_mut())
     }
     /// returns a wrapped reference to the inner value
@@ -132,18 +124,18 @@ impl<Q> Halt<Q, Q> {
     }
 }
 
-impl<'a, Q, H> Halt<&'a Q, &'a H> {
+impl<'a, Q, H> Halter<&'a Q, &'a H> {
     #[inline]
     /// consumes the current instance of the halt state to create another with cloned inner
     /// values.
-    pub fn cloned(self) -> Halt<Q, H>
+    pub fn cloned(self) -> Halter<Q, H>
     where
         Q: Clone,
         H: Clone,
     {
         match self {
-            Self::Step(inner) => Halt::Step(inner.clone()),
-            Self::Halt(inner) => Halt::Halt(inner.clone()),
+            Self::Step(inner) => Halter::Step(inner.clone()),
+            Self::Halt(inner) => Halter::Halt(inner.clone()),
         }
     }
     #[inline]
@@ -151,60 +143,60 @@ impl<'a, Q, H> Halt<&'a Q, &'a H> {
     /// values.
     ///
     /// **Note**: This method does not mutate the specified _variant_.
-    pub fn copied(self) -> Halt<Q, H>
+    pub fn copied(self) -> Halter<Q, H>
     where
         Q: Copy,
         H: Copy,
     {
         match self {
-            Self::Step(&inner) => Halt::Step(inner),
-            Self::Halt(&inner) => Halt::Halt(inner),
+            Self::Step(&inner) => Halter::Step(inner),
+            Self::Halt(&inner) => Halter::Halt(inner),
         }
     }
 }
 
-impl<'a, Q, H> Halt<&'a mut Q, &'a mut H> {
+impl<'a, Q, H> Halter<&'a mut Q, &'a mut H> {
     #[inline]
     /// consumes the current instance of the halt state to create another with cloned inner
     /// values.
-    pub fn cloned(self) -> Halt<Q, H>
+    pub fn cloned(self) -> Halter<Q, H>
     where
         Q: Clone,
         H: Clone,
     {
         match self {
-            Self::Step(inner) => Halt::Step(inner.clone()),
-            Self::Halt(inner) => Halt::Halt(inner.clone()),
+            Self::Step(inner) => Halter::Step(inner.clone()),
+            Self::Halt(inner) => Halter::Halt(inner.clone()),
         }
     }
     #[inline]
     /// consumes the current instance of the halt state to create another with copied inner
     /// values.
-    pub fn copied(self) -> Halt<Q, H>
+    pub fn copied(self) -> Halter<Q, H>
     where
         Q: Copy,
         H: Copy,
     {
         match self {
-            Self::Step(&mut inner) => Halt::Step(inner),
-            Self::Halt(&mut inner) => Halt::Halt(inner),
+            Self::Step(&mut inner) => Halter::Step(inner),
+            Self::Halt(&mut inner) => Halter::Halt(inner),
         }
     }
 }
 
-impl<Q> AsRef<Q> for Halt<Q> {
+impl<Q> AsRef<Q> for Halter<Q> {
     fn as_ref(&self) -> &Q {
         self.get()
     }
 }
 
-impl<Q> AsMut<Q> for Halt<Q> {
+impl<Q> AsMut<Q> for Halter<Q> {
     fn as_mut(&mut self) -> &mut Q {
         self.get_mut()
     }
 }
 
-impl<Q> core::ops::Deref for Halt<Q> {
+impl<Q> core::ops::Deref for Halter<Q> {
     type Target = Q;
 
     fn deref(&self) -> &Self::Target {
@@ -212,13 +204,13 @@ impl<Q> core::ops::Deref for Halt<Q> {
     }
 }
 
-impl<Q> core::ops::DerefMut for Halt<Q> {
+impl<Q> core::ops::DerefMut for Halter<Q> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.get_mut()
     }
 }
 
-impl<Q> Default for Halt<Q>
+impl<Q> Default for Halter<Q>
 where
     Q: Default,
 {
@@ -227,7 +219,7 @@ where
     }
 }
 
-impl<Q> From<State<Q>> for Halt<Q> {
+impl<Q> From<State<Q>> for Halter<Q> {
     fn from(State(state): State<Q>) -> Self {
         Self::Step(state)
     }

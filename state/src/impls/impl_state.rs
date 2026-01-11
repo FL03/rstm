@@ -2,7 +2,7 @@
     Appellation: impl_state <module>
     Contrib: @FL03
 */
-use crate::state::{Halt, State};
+use crate::state::{Halter, State};
 
 impl<Q> State<Q> {
     /// a constructor method for the [`State`] type.
@@ -102,18 +102,18 @@ impl<Q> State<Q> {
         core::mem::take(self.get_mut())
     }
     /// converts the current reference into a haltable state initialized with the current state
-    pub fn as_halt(&self) -> State<Halt<&Q>> {
-        State::new(Halt::Halt(self.get()))
+    pub fn as_halt(&self) -> State<Halter<&Q>> {
+        State::new(Halter::Halt(self.get()))
     }
     /// consumes the wrapper to create another, haltable state that is initialized with the
     /// current state
-    pub fn into_halt(self) -> State<Halt<Q>> {
-        State::new(Halt::Step(self.value()))
+    pub fn into_halt(self) -> State<Halter<Q>> {
+        State::new(Halter::Step(self.value()))
     }
     /// consumes the current state, returning a new one with a [`Halt`](Halt::Halt)
     /// variant initialized with the current value.
-    pub fn halt(self) -> State<Halt<Q>> {
-        State::new(Halt::Halt(self.value()))
+    pub fn halt(self) -> State<Halter<Q>> {
+        State::new(Halter::Halt(self.value()))
     }
     /// returns a state with an owned inner value.
     pub const fn view(&self) -> State<&Q> {

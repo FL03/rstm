@@ -4,8 +4,8 @@
     Contrib: @FL03
 */
 use crate::actors::TMH;
-use alloc::vec::Vec;
 use crate::program::Program;
+use alloc::vec::Vec;
 use rstm_state::{RawState, State};
 
 /// The [`TuringEngine`] implementation is essentially a runtime for Turing machine, allowing

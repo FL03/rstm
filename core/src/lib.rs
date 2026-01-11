@@ -30,7 +30,9 @@ pub(crate) mod macros {
     #[macro_use]
     #[cfg(feature = "macros")]
     pub mod rules;
-
+    #[macro_use]
+    #[cfg(feature = "macros")]
+    pub mod program;
     #[macro_use]
     pub mod seal;
 }
@@ -86,19 +88,22 @@ pub use self::{
     program::{InstructionSet, RuleSet},
     rule::*,
     traits::*,
-    utils::*,
     types::*,
+    utils::*,
 };
 #[doc(inline)]
-pub use rstm_state::{Halt, HaltState, Haltable, RawState, State};
+pub use rstm_state::{HaltState, Halter, IsHalted, RawState, State};
 // prelude
 #[doc(hidden)]
 pub mod prelude {
     pub use rstm_state::prelude::*;
 
     #[cfg(feature = "macros")]
-    pub use crate::{rule, ruleset, state};
+    pub use crate::{rule, ruleset};
+    #[cfg(all(feature = "alloc", feature = "macros"))]
+    pub use crate::program;
 
+    pub use crate::actors::prelude::*;
     pub use crate::cmp::*;
     pub use crate::motion::prelude::*;
     pub use crate::program::prelude::*;

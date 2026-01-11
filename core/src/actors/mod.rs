@@ -16,13 +16,18 @@ mod impls {
     mod impl_tmh_ext;
     mod impl_turing_engine;
 }
+
 mod traits {
+    //! traits for actors
     #[doc(inline)]
     pub use self::actor::*;
     mod actor;
 }
+// prelude (local)
 #[doc(hidden)]
+#[allow(unused_imports)]
 pub(crate) mod prelude {
+    pub use super::engine::*;
     pub use super::tmh::TMH;
     pub use super::traits::*;
 }

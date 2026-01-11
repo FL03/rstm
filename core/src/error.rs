@@ -15,8 +15,15 @@ pub type Result<T = ()> = core::result::Result<T, Error>;
 #[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
 pub enum Error {
+    // custom errors
+    #[error("No program or ruleset has been loaded into the actor.")]
+    NoProgram,
+    #[error("No rule found associated with the current state and symbol.")]
+    NoRuleFound,
     #[error("Index {index} is out of bounds for length {len}.")]
     IndexOutOfBounds { index: usize, len: usize },
+    #[error("A halted machine attempted to perform an operation.")]
+    Halted,
     #[error("Unable to parse a rule from the given information.")]
     ParseRuleError,
     #[error("An invalid direction was specified.")]
@@ -25,6 +32,9 @@ pub enum Error {
     DowncastFailure,
     #[error("No symbol found at position {0}")]
     NoSymbolFoundAt(usize),
+    // internal errors
+    #[error(transparent)]
+    StateError(#[from] rstm_state::StateError),
     // external errors
     #[error(transparent)]
     AnyError(#[from] anyhow::Error),

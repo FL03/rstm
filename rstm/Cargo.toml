@@ -40,6 +40,10 @@ required-features = ["full"]
 name = "basic"
 required-features = ["full"]
 
+[[example]]
+name = "tmh"
+required-features = ["full"]
+
 [dependencies]
 rstm-core = { workspace = true }
 rstm-macros = { optional = true, workspace = true }

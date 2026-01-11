@@ -3,6 +3,8 @@
     Created At: 2026.01.11:13:48:50
     Contrib: @FL03
 */
+//! this modules provides the [`RawEngine`] and [`Engine`] traits alongside additional
+//! implementations for experiementing and building Turing machine engines
 #[cfg(feature = "alloc")]
 #[doc(inline)]
 pub use self::turing_engine::TuringEngine;

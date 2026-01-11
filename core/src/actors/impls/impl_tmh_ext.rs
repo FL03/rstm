@@ -3,11 +3,14 @@
     Created At: 2025.08.31:14:54:33
     Contrib: @FL03
 */
+#![cfg(feature = "alloc")]
+
 use crate::actors::tmh::TMH;
 use crate::actors::{Actor, RawActor};
 use crate::{Direction, Head, Tail, get_range_around};
+use alloc::vec::Vec;
 use rstm_state::{RawState, State};
-use rstm_traits::{Handle, ExecuteMut, Read, Write};
+use rstm_traits::{ExecuteMut, Handle, ReadBuf, WriteBuf};
 
 const DISPLAY_RADIUS: usize = 10;
 
@@ -53,14 +56,17 @@ where
     }
 }
 
-impl<Q, A> Read<A> for TMH<Q, A>
+impl<Q, A> ReadBuf<A> for TMH<Q, A>
 where
     Q: RawState,
     A: Clone,
 {
+    type Buf<'a, _T> = [_T];
     type Output = Option<usize>;
 
-    fn read(&mut self, buf: &mut [A]) -> Self::Output {
+    #[cfg_attr(feature = "tracing", tracing::instrument(skip_all))]
+    fn read(&mut self, buf: &mut Self::Buf<'_, A>) -> Self::Output {
+        #[cfg(feature = "tracing")]
         tracing::trace!("reading the tape...");
         let pos = self.current_position();
         if pos >= self.len() {
@@ -77,14 +83,15 @@ where
     }
 }
 
-impl<Q, A> Write<A> for TMH<Q, A>
+impl<Q, A> WriteBuf<A> for TMH<Q, A>
 where
     Q: RawState,
     A: Clone,
 {
+    type Buf<'a, _T> = [_T];
     type Output = Option<usize>;
 
-    fn write(&mut self, buf: &[A]) -> Self::Output {
+    fn write(&mut self, buf: &Self::Buf<'_, A>) -> Self::Output {
         let pos = self.current_position();
         if pos > self.len() {
             #[cfg(feature = "tracing")]
@@ -148,7 +155,7 @@ where
 {
     type Output = crate::Result<Head<Q, usize>>;
 
-    fn handle(
+    fn execute(
         &mut self,
         (direction, Head { state, symbol }): (Direction, Head<Q, A>),
     ) -> Self::Output {
@@ -162,7 +169,7 @@ where
 {
     type Output = crate::Result<Head<Q, usize>>;
 
-    fn handle(
+    fn execute(
         &mut self,
         Tail {
             direction,
@@ -173,7 +180,6 @@ where
         self.step(direction, state, symbol)
     }
 }
-
 
 impl<Q, A> Handle<(Direction, State<Q>, A)> for TMH<Q, A>
 where

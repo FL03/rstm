@@ -3,12 +3,15 @@
     Created At: 2025.08.31:00:34:06
     Contrib: @FL03
 */
-use crate::actors::tmh::TMH;
+#![cfg(feature = "alloc")]
+
 use crate::actors::engine::TuringEngine;
+use crate::actors::tmh::TMH;
 use crate::error::Error;
-use crate::{Direction, Head};
 use crate::program::Program;
-use rstm_state::{Halt, RawState, State};
+use crate::{Direction, Head};
+use alloc::vec::Vec;
+use rstm_state::{RawState, State};
 
 impl<Q, A> TMH<Q, A>
 where
@@ -148,7 +151,7 @@ where
     /// Checks if the tape is halted
     pub fn is_halted(&self) -> bool
     where
-        Q: 'static + rstm_state::Haltable,
+        Q: 'static + rstm_state::IsHalted,
     {
         self.head().state().is_halted()
     }

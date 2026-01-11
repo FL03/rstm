@@ -46,12 +46,12 @@ macro_rules! rule {
     [($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal)] => {
         $crate::rule::Rule {
             head: $crate::Head {
-                state: rstm_state::State($state),
+                state: $crate::State($state),
                 symbol: $symbol,
             },
             tail: $crate::Tail {
                 direction: $crate::Direction::$direction,
-                next_state: rstm_state::State($next),
+                next_state: $crate::State($next),
                 write_symbol: $write,
             }
         }

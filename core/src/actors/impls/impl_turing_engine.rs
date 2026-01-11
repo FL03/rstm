@@ -6,8 +6,8 @@
 use crate::actors::tmh::TMH;
 use crate::actors::{Engine, RawEngine, TuringEngine};
 use crate::program::Program;
-use crate::{Head, Read, Symbol, Tail};
-use rstm_state::{Halt, Haltable, RawState, State};
+use crate::{Head, ReadBuf, Symbol, Tail};
+use rstm_state::{IsHalted, RawState, State};
 use rstm_traits::Handle;
 
 impl<'a, Q, A> TuringEngine<'a, Q, A>
@@ -17,7 +17,7 @@ where
     /// returns true if the driver is in a halted state
     pub fn is_halted(&self) -> bool
     where
-        Q: Haltable + 'static,
+        Q: IsHalted + 'static,
     {
         self.driver().is_halted()
     }
@@ -36,6 +36,7 @@ where
     pub fn read(&mut self) -> crate::Result<&A>
     where
         A: Clone,
+        Self: ReadBuf<A, Buf<'a, A> = [A], Output = A>,
     {
         self.driver
             .read(&mut self.output)
@@ -59,7 +60,7 @@ where
     /// runs the program until termination (i.e., a halt state is reached, an error occurs, etc.)
     pub fn run(&mut self) -> crate::Result<()>
     where
-        Q: 'static + Haltable + RawState + Clone + PartialEq,
+        Q: 'static + IsHalted + RawState + Clone + PartialEq,
         A: Symbol,
     {
         // check for a program
@@ -95,7 +96,7 @@ where
     )]
     pub fn step(&mut self) -> crate::Result<Option<Head<Q, A>>>
     where
-        Q: 'static + Haltable + RawState + Clone + PartialEq,
+        Q: 'static + IsHalted + RawState + Clone + PartialEq,
         A: Symbol,
     {
         // increment the steps
@@ -161,7 +162,7 @@ where
 
 impl<'a, Q, S> Engine<Q, S> for TuringEngine<'a, Q, S>
 where
-    Q: 'static + Haltable + RawState + Clone + PartialEq,
+    Q: 'static + IsHalted + RawState + Clone + PartialEq,
     S: Symbol,
 {
     fn load(&mut self, program: Program<Q, S>) {
@@ -175,7 +176,7 @@ where
 
 impl<'a, Q, S> Iterator for TuringEngine<'a, Q, S>
 where
-    Q: 'static + Haltable + RawState + Clone + PartialEq,
+    Q: 'static + IsHalted + RawState + Clone + PartialEq,
     S: Symbol,
 {
     type Item = Head<Q, S>;
