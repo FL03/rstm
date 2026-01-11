@@ -30,6 +30,7 @@ jobs:
           - rstm-traits
           - rstm-state
           - rstm-core
+          - rstm-macros
           - rstm
     steps:
       - name: Checkout
