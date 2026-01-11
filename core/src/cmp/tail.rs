@@ -22,7 +22,7 @@ pub trait RawTail<Q, A> {
     /// returns the direction of the tail.
     fn direction(&self) -> Direction;
     /// returns an immutable reference to the next state.
-    fn next_state(&self) -> &Q;
+    fn next_state(&self) -> &State<Q>;
     /// returns a reference to the symbol configured for the head to write next.
     fn write_symbol(&self) -> &A;
 }
@@ -54,7 +54,7 @@ impl<Q, A> RawTail<Q, A> for (Direction, State<Q>, A) {
         self.0
     }
     /// returns an immutable reference to the next state.
-    fn next_state(&self) -> &Q {
+    fn next_state(&self) -> &State<Q> {
         &self.1
     }
     /// returns an immutable reference to the symbol to write.
@@ -70,8 +70,8 @@ impl<Q, A> RawTail<Q, A> for Tail<Q, A> {
         self.direction
     }
     /// returns an immutable reference to the next state.
-    fn next_state(&self) -> &Q {
-        self.next_state.get()
+    fn next_state(&self) -> &State<Q> {
+        &self.next_state
     }
     /// returns an immutable reference to the symbol to write.
     fn write_symbol(&self) -> &A {

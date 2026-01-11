@@ -18,7 +18,7 @@ pub type HeadEntry<'a, Q, S> = Head<&'a Q, &'a mut S>;
 /// [`RawHead`] is a marker trait used to define an interface for objects capable of being
 /// used as a _head_ in the context of Turing machine rules.
 pub trait RawHead<Q, S> {
-    fn state(&self) -> &Q;
+    fn state(&self) -> &State<Q>;
     fn symbol(&self) -> &S;
 
     private! {}
@@ -47,7 +47,7 @@ pub struct Head<Q, S> {
 impl<Q, A> RawHead<Q, A> for (State<Q>, A) {
     seal! {}
     /// returns an immutable reference to the state.
-    fn state(&self) -> &Q {
+    fn state(&self) -> &State<Q> {
         &self.0
     }
     /// returns an immutable reference to the symbol.
@@ -59,8 +59,8 @@ impl<Q, A> RawHead<Q, A> for (State<Q>, A) {
 impl<Q, A> RawHead<Q, A> for Head<Q, A> {
     seal! {}
     /// returns an immutable reference to the state.
-    fn state(&self) -> &Q {
-        self.state.as_ref()
+    fn state(&self) -> &State<Q> {
+        &self.state
     }
     /// returns an immutable reference to the symbol.
     fn symbol(&self) -> &A {

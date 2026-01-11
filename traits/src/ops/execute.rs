@@ -8,7 +8,7 @@
 pub trait ExecuteOnce<Rhs> {
     type Output;
 
-    fn execute_once(self, rhs: Rhs) -> Self::Output;
+    fn execute(self, rhs: Rhs) -> Self::Output;
 }
 /// A trait denoting the ability to execute a given operation, transaction, etc.
 pub trait Execute<Rhs> {
@@ -22,7 +22,7 @@ pub trait Execute<Rhs> {
 pub trait ExecuteMut<Rhs> {
     type Output;
 
-    fn execute_mut(&mut self, rhs: Rhs) -> Self::Output;
+    fn execute(&mut self, rhs: Rhs) -> Self::Output;
 }
 
 /*
@@ -34,7 +34,7 @@ where
 {
     type Output = V;
 
-    fn execute_once(self, rhs: U) -> Self::Output {
+    fn execute(self, rhs: U) -> Self::Output {
         self(rhs)
     }
 }
@@ -45,7 +45,7 @@ where
 {
     type Output = V;
 
-    fn execute_mut(&mut self, rhs: U) -> Self::Output {
+    fn execute(&mut self, rhs: U) -> Self::Output {
         self(rhs)
     }
 }

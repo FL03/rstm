@@ -1,0 +1,27 @@
+/*
+    Appellation: program <module>
+    Created At: 2025.09.05:04:59:21
+    Contrib: @FL03
+*/
+
+use crate::Rule;
+use rstm_state::{RawState, State};
+
+/// The [`Program`] implementation is designed to provide a structured representation of a set
+/// of rules and an optional initial state for a Turing machine or similar computational model.
+/// It encapsulates the rules that dictate the machine's behavior and the starting point for
+/// its execution.
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Serialize),
+    serde(rename_all = "camelCase")
+)]
+pub struct Program<Q = String, A = char>
+where
+    Q: RawState,
+{
+    pub(crate) initial_state: Option<State<Q>>,
+    #[cfg(feature = "alloc")]
+    pub(crate) rules: alloc::vec::Vec<Rule<Q, A>>,
+}

@@ -25,20 +25,26 @@ pub(crate) mod macros {
     pub(crate) mod seal;
 }
 // modules
-pub mod ops {
+mod io;
+mod symbols;
+
+mod ops {
     //! useful operations for finite state machines (Turing Machines) and their rules
     #[doc(inline)]
-    pub use self::{execute::*, increment::*, percentage::*};
+    pub use self::{execute::*, handle::*, increment::*, percentage::*};
 
     mod execute;
+    mod handle;
     mod increment;
     mod percentage;
 }
 // re-exports
 #[doc(inline)]
-pub use self::ops::*;
+pub use self::{io::*, ops::*, symbols::*};
 // prelude
 #[doc(hidden)]
 pub mod prelude {
+    pub use crate::symbols::*;
     pub use crate::ops::*;
+    pub use crate::io::*;
 }

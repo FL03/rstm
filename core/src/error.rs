@@ -15,6 +15,8 @@ pub type Result<T = ()> = core::result::Result<T, Error>;
 #[derive(Debug, thiserror::Error)]
 #[non_exhaustive]
 pub enum Error {
+    #[error("Index {index} is out of bounds for length {len}.")]
+    IndexOutOfBounds { index: usize, len: usize },
     #[error("Unable to parse a rule from the given information.")]
     ParseRuleError,
     #[error("An invalid direction was specified.")]

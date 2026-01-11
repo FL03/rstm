@@ -8,7 +8,7 @@ impl<Q, H> crate::RawState for Halt<Q, H> {
     seal! {}
 }
 
-impl<Q, H> crate::Haltable<Q> for State<Halt<Q, H>> {
+impl<Q, H> crate::Haltable for State<Halt<Q, H>> {
     seal! {}
 
     fn is_halted(&self) -> bool {

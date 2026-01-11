@@ -40,6 +40,8 @@ pub use rstm_state as state;
 // modules
 pub mod actors;
 pub mod error;
+pub mod motion;
+pub mod program;
 pub mod rule;
 
 mod cmp {
@@ -65,14 +67,26 @@ mod types {
     mod direction;
 }
 
-// re-exports
+mod utils {
+    #[doc(inline)]
+    pub use self::range::*;
+
+    mod range;
+}
+
+// re-exports (private)
+pub(crate) use rstm_traits::prelude::*;
+// re-exports (public)
 #[doc(inline)]
 pub use self::{
-    actors::MovingHead,
+    actors::TMH,
     cmp::*,
     error::{Error, Result},
+    motion::HeadStep,
+    program::{InstructionSet, RuleSet},
     rule::*,
     traits::*,
+    utils::*,
     types::*,
 };
 #[doc(inline)]
@@ -80,12 +94,16 @@ pub use rstm_state::{Halt, HaltState, Haltable, RawState, State};
 // prelude
 #[doc(hidden)]
 pub mod prelude {
+    pub use rstm_state::prelude::*;
+
     #[cfg(feature = "macros")]
     pub use crate::{rule, ruleset, state};
 
-    pub use crate::actors::prelude::*;
     pub use crate::cmp::*;
+    pub use crate::motion::prelude::*;
+    pub use crate::program::prelude::*;
     pub use crate::rule::*;
-    pub use crate::state::*;
+    pub use crate::traits::*;
     pub use crate::types::*;
+    pub use crate::utils::*;
 }

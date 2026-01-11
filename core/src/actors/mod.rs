@@ -1,36 +1,28 @@
 /*
-    Appellation: mod <module>
-    Created At: 2025.12.19:15:10:56
+    Appellation: actors <module>
+    Created At: 2026.01.11:13:46:49
     Contrib: @FL03
 */
+//! actors for modular Turing machine implementations
 #[doc(inline)]
-pub use self::moving_head::MovingHead;
+pub use self::{engine::*, tmh::TMH, traits::*};
 
-pub mod moving_head;
+pub mod engine;
+pub mod tmh;
 
-pub(crate) mod prelude {
-    pub use super::moving_head::*;
+mod impls {
+    mod impl_deprecated;
+    mod impl_tmh;
+    mod impl_tmh_ext;
+    mod impl_turing_engine;
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::{Head, Tail};
-
-    #[test]
-    fn test_moving_head() {
-        let mut head = Head::new(0u8, ' ');
-        let tail = Tail::right(1u8, 'A');
-        let moving_head = MovingHead::new(&mut head, tail);
-        let mut tape = vec![' '; 10];
-        // ensure an empty tape
-        assert_eq! { tape[0], ' ' }
-        // define the current position
-        let mut position = 0usize;
-
-        let prev = moving_head.step_on(&mut tape, &mut position);
-        assert_eq! { position, 1 }
-        assert_eq! { prev, (0u8, ' ') }
-        assert_eq! { tape[0], 'A' }
-    }
+mod traits {
+    #[doc(inline)]
+    pub use self::actor::*;
+    mod actor;
+}
+#[doc(hidden)]
+pub(crate) mod prelude {
+    pub use super::tmh::TMH;
+    pub use super::traits::*;
 }

@@ -36,7 +36,6 @@ pub mod error;
 mod state;
 
 mod impls {
-
     mod impl_halt;
     mod impl_state;
     mod impl_state_ops;
@@ -45,8 +44,9 @@ mod impls {
 
 mod traits {
     #[doc(inline)]
-    pub use self::{halting::*, raw_state::*};
+    pub use self::{convert::*, halting::*, raw_state::*};
 
+    mod convert;
     mod halting;
     mod raw_state;
 }
