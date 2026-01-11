@@ -17,7 +17,7 @@ use crate::{Direction, Head, Tail};
 #[cfg_attr(
     feature = "serde",
     derive(serde::Deserialize, serde::Serialize),
-    serde(deny_unknown_fields, rename_all = "snake_case")
+    serde(rename_all = "snake_case")
 )]
 #[repr(C)]
 pub struct Rule<Q = String, A = char> {

@@ -7,7 +7,7 @@
 #[cfg(feature = "alloc")]
 pub use self::program::Program;
 #[doc(inline)]
-pub use self::{instruction_set::*, traits::*, types::*};
+pub use self::{instruction_set::*, traits::*};
 
 mod instruction_set;
 mod program;
@@ -30,8 +30,6 @@ mod traits {
 mod types {
     #[doc(inline)]
     pub use self::aliases::*;
-
-    mod aliases;
 }
 
 #[doc(hidden)]
@@ -40,5 +38,4 @@ pub(crate) mod prelude {
     #[cfg(feature = "alloc")]
     pub use super::program::*;
     pub use super::traits::*;
-    pub use super::types::*;
 }

@@ -62,8 +62,10 @@ mod traits {
 
 mod types {
     #[doc(inline)]
-    pub use self::direction::*;
+    pub use self::{aliases::*, direction::*};
 
+
+    mod aliases;
     mod direction;
 }
 

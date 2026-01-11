@@ -44,7 +44,7 @@ macro_rules! head {
 #[macro_export]
 macro_rules! rule {
     [($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal)] => {
-        $crate::rule::Rule {
+        $crate::Rule {
             head: $crate::Head {
                 state: $crate::State($state),
                 symbol: $symbol,
@@ -93,7 +93,7 @@ macro_rules! ruleset {
     };
 }
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "hashbrown", feature = "std"))]
 /// a macro to create a [`HashMap`](std::collections::HashMap) of rules for a Turing machine.
 /// The macro takes a list of rules in the form of
 ///
@@ -120,7 +120,7 @@ macro_rules! rulemap {
         ),* $(,)?
     } => {
         {
-            let mut map = ::std::collections::HashMap::new();
+            let mut map = $crate::HeadMap::new();
             $(
                 map.insert(
                     $crate::Head::new($crate::state!($state), $symbol),
