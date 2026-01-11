@@ -67,7 +67,16 @@ mod types {
 
 // re-exports
 #[doc(inline)]
-pub use self::{actors::MovingHead, cmp::*, error::*, rule::*, state::*, traits::*, types::*};
+pub use self::{
+    actors::MovingHead,
+    cmp::*,
+    error::{Error, Result},
+    rule::*,
+    traits::*,
+    types::*,
+};
+#[doc(inline)]
+pub use rstm_state::{Halt, HaltState, Haltable, RawState, State};
 // prelude
 #[doc(hidden)]
 pub mod prelude {
