@@ -4,13 +4,13 @@
     Contrib: @FL03
 */
 use super::RuleSet;
-use crate::{    Head, Rule, Tail};
+use crate::{Head, Rule, Tail};
 use rstm_state::State;
 
 #[cfg(feature = "hashbrown")]
-use hashbrown::{HashSet, HashMap};
+use hashbrown::{HashMap, HashSet};
 #[cfg(all(not(feature = "hashbrown"), feature = "std"))]
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap, HashSet};
 
 pub type ProgramArray<Q, A, const N: usize> = InstructionSet<Q, A, [Rule<Q, A>; N]>;
 pub type ProgramSlice<Q, A> = InstructionSet<Q, A, [Rule<Q, A>]>;

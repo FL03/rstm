@@ -13,11 +13,11 @@ mod instruction_set;
 mod program;
 
 mod impls {
+    mod impl_deprecated;
     mod impl_instruction_set;
     mod impl_instruction_set_ext;
     mod impl_program;
     mod impl_program_ext;
-    mod impl_deprecated;
 }
 
 mod traits {

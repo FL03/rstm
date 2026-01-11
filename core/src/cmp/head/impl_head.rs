@@ -170,10 +170,10 @@ impl<Q, A> Head<Q, A> {
             symbol: &mut self.symbol,
         }
     }
-    /// use the given [`Tail`] to execute a single step using the [`HeadStep`] executor to 
+    /// use the given [`Tail`] to execute a single step using the [`HeadStep`] executor to
     /// manage the process.
-    /// 
-    /// **Note**: this method is _lazy_, meaning that the actual step is not performed until 
+    ///
+    /// **Note**: this method is _lazy_, meaning that the actual step is not performed until
     /// a valid operation is invoked on the executor.
     pub fn move_head<'a>(&'a mut self, tail: Tail<Q, A>) -> HeadStep<'a, Q, A> {
         HeadStep::new(self, tail)

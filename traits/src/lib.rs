@@ -44,7 +44,7 @@ pub use self::{io::*, ops::*, symbols::*};
 // prelude
 #[doc(hidden)]
 pub mod prelude {
-    pub use crate::symbols::*;
-    pub use crate::ops::*;
     pub use crate::io::*;
+    pub use crate::ops::*;
+    pub use crate::symbols::*;
 }

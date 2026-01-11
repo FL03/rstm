@@ -98,10 +98,10 @@ pub use rstm_state::{HaltState, Halter, IsHalted, RawState, State};
 pub mod prelude {
     pub use rstm_state::prelude::*;
 
-    #[cfg(feature = "macros")]
-    pub use crate::{rule, ruleset};
     #[cfg(all(feature = "alloc", feature = "macros"))]
     pub use crate::program;
+    #[cfg(feature = "macros")]
+    pub use crate::{rule, ruleset};
 
     pub use crate::actors::prelude::*;
     pub use crate::cmp::*;

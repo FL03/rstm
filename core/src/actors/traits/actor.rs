@@ -3,9 +3,9 @@
     Created At: 2025.08.31:00:17:44
     Contrib: @FL03
 */
-use rstm_traits::Handle;
 use crate::Tail;
 use rspace_traits::RawSpace;
+use rstm_traits::Handle;
 
 /// The [`RawActor`] is the basis for all compatible actors within the system. Each
 /// implementation is required to define the _type_ of internal store it will use to

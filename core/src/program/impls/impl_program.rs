@@ -6,8 +6,8 @@
 #![cfg(feature = "alloc")]
 use crate::program::{Program, RuleVec};
 
-use alloc::vec::Vec;
 use crate::{Head, Rule, Tail};
+use alloc::vec::Vec;
 use rstm_state::{RawState, State};
 
 impl<Q, A> Program<Q, A>
