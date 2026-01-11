@@ -14,6 +14,8 @@ updates:
       interval: monthly
     directories:
       - /
-      - bin/*
-      - crates/*
-      - examples/*
+      - /rstm
+      - /core
+      - /macros
+      - /state
+      - /traits

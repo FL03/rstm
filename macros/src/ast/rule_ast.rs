@@ -8,7 +8,7 @@ use syn::punctuated::Punctuated;
 use syn::token::{Impl, Paren};
 use syn::{AngleBracketedGenericArguments, Ident, Token, WhereClause, braced};
 
-pub struct HeadAst {    
+pub struct HeadAst {
     pub group: Paren,
     pub state: Ident,
     pub comma: Token![,],
@@ -16,7 +16,7 @@ pub struct HeadAst {
 }
 #[allow(dead_code)]
 /// The abstract syntax tree for a single operation rule;
-/// 
+///
 /// ```no_run
 /// (state, symbol) -> Direction(next_state, next_symbol)
 /// ```
@@ -57,4 +57,3 @@ impl Parse for RuleAst {
         })
     }
 }
-

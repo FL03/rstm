@@ -33,11 +33,11 @@ test = true
 
 [[bench]]
 harness = false
-name = "tmh"
+name = "default"
 required-features = ["full"]
 
 [[example]]
-name = "tmh"
+name = "basic"
 required-features = ["full"]
 
 [dependencies]
