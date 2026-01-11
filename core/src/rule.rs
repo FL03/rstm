@@ -9,8 +9,8 @@ mod impl_rule;
 mod impl_rule_builder;
 mod impl_rule_ext;
 
+use crate::state::State;
 use crate::{Direction, Head, Tail};
-use rstm_state::{RawState, State};
 
 /// The [`Rule`] implementation is a concrete representation of a single instruction, or rule,
 /// within a given Turing machine program. It encapsulates the necessary components to define
@@ -23,12 +23,10 @@ use rstm_state::{RawState, State};
 #[cfg_attr(
     feature = "serde",
     derive(serde::Deserialize, serde::Serialize),
-    serde(rename_all = "camelCase")
+    serde(rename_all = "snake_case")
 )]
-pub struct Rule<Q = String, A = char>
-where
-    Q: RawState,
-{
+#[repr(C)]
+pub struct Rule<Q = String, A = char> {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub head: Head<Q, A>,
     #[cfg_attr(feature = "serde", serde(flatten))]
@@ -44,12 +42,9 @@ where
 #[cfg_attr(
     feature = "serde",
     derive(serde::Deserialize, serde::Serialize),
-    serde(rename_all = "camelCase")
+    serde(rename_all = "snake_case")
 )]
-pub struct LearnedRule<C = f32, Q = usize, S = usize>
-where
-    Q: RawState,
-{
+pub struct LearnedRule<C = f32, Q = usize, S = usize> {
     pub confidence: C,
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub rule: Rule<Q, S>,
@@ -63,3 +58,6 @@ pub struct RuleBuilder<Q, S> {
     next_state: Option<State<Q>>,
     write_symbol: Option<S>,
 }
+
+#[cfg(test)]
+mod tests {}

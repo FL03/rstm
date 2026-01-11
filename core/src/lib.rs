@@ -1,104 +1,82 @@
 /*
-    Appellation: rstm-core <library>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Appellation: eryon-rules <library>
+    Created At: 2025.12.15:16:51:44
+    Contrib: @FL03
 */
-//! The core modules for the `rstm` framework, providing a suite of fundamental abstractions
-//! and primitives for creating and managing state machines and related constructs.
+//! Rules and their components
+//!
+//!
 #![allow(
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
     clippy::missing_safety_doc,
     clippy::module_inception,
     clippy::needless_doctest_main,
-    clippy::self_named_constructors,
-    clippy::should_implement_trait
+    clippy::non_canonical_partial_ord_impl,
+    clippy::should_implement_trait,
+    clippy::upper_case_acronyms
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(feature = "nightly", feature(allocator_api))]
-
+#![cfg_attr(all(feature = "alloc", feature = "nightly"), feature(allocator_api))]
+// compile error if neither `alloc` nor `std` features are enabled
+#[cfg(not(any(feature = "alloc", feature = "std")))]
+compile_error! { "Either the `std` or `alloc` feature must be enabled to compile this crate." }
+// external crates
 #[cfg(feature = "alloc")]
 extern crate alloc;
-
-#[doc(inline)]
-pub use rstm_state as state;
-
-#[doc(inline)]
-pub use self::{
-    error::{Error, Result},
-    head::*,
-    rule::{LearnedRule, Rule},
-    state::{RawState, State},
-    tail::*,
-    traits::*,
-    types::prelude::*,
-    utils::*,
-};
-
+// macros
 #[macro_use]
 pub(crate) mod macros {
     #[macro_use]
+    #[cfg(feature = "macros")]
+    pub mod rules;
+
+    #[macro_use]
     pub mod seal;
 }
-
+// redeclarations
+#[doc(inline)]
+pub use rstm_state as state;
+// modules
+pub mod actors;
 pub mod error;
-pub mod head;
 pub mod rule;
-pub mod tail;
 
-pub mod traits {
-    /// this modules provides various traits used throughout the library
+mod cmp {
     #[doc(inline)]
-    pub use self::prelude::*;
+    pub use self::{head::*, tail::*};
+
+    pub mod head;
+    pub mod tail;
+}
+
+mod traits {
+    #[doc(inline)]
+    pub use self::{convert::*, rulespace::*};
 
     mod convert;
-    mod increment;
-    mod instruction;
-    mod io;
-    mod symbols;
-
-    pub(crate) mod prelude {
-        pub use super::convert::*;
-        pub use super::increment::*;
-        pub use super::instruction::*;
-        pub use super::io::*;
-        pub use super::symbols::*;
-    }
+    mod rulespace;
 }
 
-pub mod types {
-    //! The core types used throughout the library such as the [`Direction`] enum
+mod types {
     #[doc(inline)]
-    pub use self::prelude::*;
+    pub use self::direction::*;
 
-    pub mod direction;
-
-    pub(crate) mod prelude {
-        #[doc(inline)]
-        pub use super::direction::Direction;
-    }
+    mod direction;
 }
 
-pub mod utils {
-    //! useful utilities for managing and creating Turing machines and related constructs
-    #[doc(inline)]
-    pub use self::prelude::*;
-
-    mod bounds;
-
-    pub mod prelude {
-        #[doc(inline)]
-        pub use super::bounds::*;
-    }
-}
-
+// re-exports
+#[doc(inline)]
+pub use self::{actors::MovingHead, cmp::*, error::*, rule::*, state::*, traits::*, types::*};
+// prelude
 #[doc(hidden)]
 pub mod prelude {
-    #[doc(no_inline)]
-    pub use rstm_state::prelude::*;
+    #[cfg(feature = "macros")]
+    pub use crate::{rule, ruleset, state};
 
-    pub use crate::head::*;
+    pub use crate::actors::prelude::*;
+    pub use crate::cmp::*;
     pub use crate::rule::*;
-    pub use crate::tail::*;
-
-    pub use crate::traits::*;
-    pub use crate::types::prelude::*;
-    pub use crate::utils::*;
+    pub use crate::state::*;
+    pub use crate::types::*;
 }

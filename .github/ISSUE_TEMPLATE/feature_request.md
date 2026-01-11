@@ -3,8 +3,8 @@ about: Suggest an idea for this project
 assignees: [ FL03 ]
 labels: [ enhancement ]
 name: Feature request
-projects: ['@FL03/rstmt:dev']
-title: ''
+title: 'rshyper-[000xxx]: '
+type: feature
 ---
 
 **Is your feature request related to a problem? Please describe.**

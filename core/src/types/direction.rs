@@ -2,6 +2,10 @@
     Appellation: direction <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
+/// [`IntoDirection`] is a simple conversion trait for consuming types to turn into a [`Direction`].
+pub trait IntoDirection {
+    fn into_direction(self) -> Direction;
+}
 /// [Direction] enumerates the various directions a head can move, namely: left, right, and stay.
 ///
 /// The included methods and implementations aim to streamline the conversion between [Direction] and other types.
@@ -22,42 +26,28 @@
     strum::VariantArray,
     strum::VariantNames,
 )]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde_derive::Deserialize, serde_derive::Serialize)
+)]
 #[strum(serialize_all = "lowercase")]
+#[repr(i8)]
 pub enum Direction {
     /// Represents a single left shift
     #[cfg_attr(
         feature = "serde",
-        serde(
-            alias = "left",
-            alias = "l",
-            alias = "L",
-            alias = "LEFT",
-            alias = "Left"
-        )
+        serde(alias = "left", alias = "l", alias = "L", alias = "LEFT",)
     )]
     Left = -1,
     #[cfg_attr(
         feature = "serde",
-        serde(
-            alias = "right",
-            alias = "r",
-            alias = "R",
-            alias = "RIGHT",
-            alias = "Right"
-        )
+        serde(alias = "right", alias = "r", alias = "R", alias = "RIGHT",)
     )]
     /// Represents a single right shift
     Right = 1,
     #[cfg_attr(
         feature = "serde",
-        serde(
-            alias = "stay",
-            alias = "s",
-            alias = "S",
-            alias = "STAY",
-            alias = "Stay"
-        )
+        serde(alias = "stay", alias = "s", alias = "S", alias = "STAY",)
     )]
     /// Represents no movement
     Stay = 0,
@@ -66,28 +56,27 @@ pub enum Direction {
 /*
  ************* Implementations *************
 */
+impl<T> IntoDirection for T
+where
+    T: Into<Direction>,
+{
+    fn into_direction(self) -> Direction {
+        self.into()
+    }
+}
+
 impl Direction {
-    /// a functional constructor for the [`Left`](Direction::Left) variant
+    /// A functional constructor for the [`Left`](Direction::Left) variant.
     pub const fn left() -> Self {
         Self::Left
     }
-    /// a functional constructor for the [`Right`](Direction::Right) variant
+    /// A functional constructor for the [`Right`](Direction::Right) variant.
     pub const fn right() -> Self {
         Self::Right
     }
-    /// a functional constructor for the [`Stay`](Direction::Stay) variant
+    /// A functional constructor for the [`Stay`](Direction::Stay) variant.
     pub const fn stay() -> Self {
         Self::Stay
-    }
-    /// Converts an [i8] value into a [`Direction`] by taking the modulus of the value.
-    /// The function uses a modulator of 2 to determine the direction since there are
-    /// only two actionable directions ([left](Direction::Left) and [right](Direction::Right)).
-    pub fn from_i8(value: i8) -> Self {
-        match value % 2 {
-            -1 => Self::Left,
-            1 => Self::Right,
-            _ => Self::Stay,
-        }
     }
     /// Converts a [char] value into a direction; matches the value to the corresponding
     /// [direction](Direction).
@@ -135,8 +124,8 @@ impl Direction {
     /// Applies the shift to the given position in the [direction](Direction) specified by the
     /// current instance. This is done using the [`wrapping_add_signed`](usize::wrapping_add_signed)
     /// method.
-    pub fn apply_unsigned(self, cur: usize) -> usize {
-        cur.wrapping_add_signed(self as isize)
+    pub const fn apply_unsigned(&self, cur: usize) -> usize {
+        cur.wrapping_add_signed(*self as isize)
     }
 }
 
@@ -157,6 +146,26 @@ where
             Self::Left => rhs - T::one(),
             Self::Right => rhs + T::one(),
             Self::Stay => rhs,
+        }
+    }
+}
+
+impl From<char> for Direction {
+    fn from(value: char) -> Self {
+        match value {
+            'L' | 'l' => Self::Left,
+            'R' | 'r' => Self::Right,
+            _ => Self::Stay,
+        }
+    }
+}
+
+impl From<&str> for Direction {
+    fn from(value: &str) -> Self {
+        match value {
+            "left" | "Left" | "LEFT" | "l" | "L" => Self::Left,
+            "right" | "Right" | "RIGHT" | "r" | "R" => Self::Right,
+            _ => Self::Stay,
         }
     }
 }
@@ -203,39 +212,25 @@ macro_rules! impl_apply_direction {
         }
 
     };
-    (#[$kind:ident] $($T:ty),* $(,)?) => {
+    (signed: $($T:ty),* $(,)?) => {
         $(
-            impl_apply_direction!(@$kind $T);
+            impl_apply_direction!(@signed $T);
+        )*
+    };
+    (unsigned: $($T:ty),* $(,)?) => {
+        $(
+            impl_apply_direction!(@unsigned $T);
         )*
     };
 
 }
-impl_apply_direction! {
-    #[signed]
-    i8,
-    i16,
-    i32,
-    i64,
-    i128,
-    isize,
-}
 
-impl_apply_direction! {
-    #[unsigned]
-    u8,
-    u16,
-    u32,
-    u64,
-    u128,
-    usize
-}
+impl_apply_direction!(signed: i8, i16, i32, i64, i128, isize,);
+impl_apply_direction!(unsigned: u8, u16, u32, u64, u128, usize);
 
-mod impl_from {
-    use super::*;
-    use crate::IntoDirection;
+macro_rules! impl_from_direction {
+        (@impl $($T:ident),*) => {
 
-    macro_rules! impl_from_direction {
-        ($($T:ident),*) => {
             paste::paste! {
                 impl Direction {
                     $(
@@ -246,19 +241,33 @@ mod impl_from {
                     )*
                 }
             }
+        };
+        ($($T:ident),*) => {
+            impl_from_direction!(@impl $($T),*);
             $(
                 impl From<$T> for Direction {
                     fn from(value: $T) -> Self {
                         match value % 3 {
-                            0 => Self::Stay,
-                            1 => Self::Right,
-                            _ => Self::Left,
+                            0 => Self::Left,
+                            1 => Self::Stay,
+                            _ => Self::Right,
+                        }
+                    }
+                }
+
+                impl From<Direction> for $T {
+                    fn from(value: Direction) -> Self {
+                        match value {
+                            Direction::Left => 0,
+                            Direction::Stay => 1,
+                            Direction::Right => 2,
                         }
                     }
                 }
             )*
         };
-        (signed: $($T:ty),*) => {
+        (signed: $($T:ident),*) => {
+            impl_from_direction!(@impl $($T),*);
             $(
                 impl From<$T> for Direction {
                     fn from(value: $T) -> Self {
@@ -273,26 +282,5 @@ mod impl_from {
         };
     }
 
-    impl_from_direction!(u8, u16, u32, u64, u128, usize);
-    impl_from_direction!(signed: i8, i16, i32, i64, i128, isize);
-
-    impl From<char> for Direction {
-        fn from(value: char) -> Self {
-            match value {
-                'L' | 'l' => Self::Left,
-                'R' | 'r' => Self::Right,
-                _ => Self::Stay,
-            }
-        }
-    }
-
-    impl From<&str> for Direction {
-        fn from(value: &str) -> Self {
-            match value {
-                "left" | "Left" | "LEFT" | "l" | "L" => Self::Left,
-                "right" | "Right" | "RIGHT" | "r" | "R" => Self::Right,
-                _ => Self::Stay,
-            }
-        }
-    }
-}
+impl_from_direction!(u8, u16, u32, u64, u128, usize);
+impl_from_direction!(signed: i8, i16, i32, i64, i128, isize);

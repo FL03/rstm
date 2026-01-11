@@ -6,19 +6,23 @@
 //! The [`state`](self) module provides abstractions and implementations for managing state
 //! within the `rstm` framework.
 //!
+#![crate_type = "lib"]
 #![allow(
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
     clippy::missing_safety_doc,
     clippy::module_inception,
     clippy::needless_doctest_main,
-    clippy::self_named_constructors,
-    clippy::should_implement_trait
+    clippy::non_canonical_partial_ord_impl,
+    clippy::should_implement_trait,
+    clippy::upper_case_acronyms
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
-#![cfg_attr(feature = "nightly", feature(allocator_api))]
-
+#![cfg_attr(all(feature = "alloc", feature = "nightly"), feature(allocator_api))]
+// external crates
 #[cfg(feature = "alloc")]
 extern crate alloc;
-
+// macros
 #[macro_use]
 mod macros {
     #[macro_use]
@@ -26,86 +30,42 @@ mod macros {
     #[macro_use]
     pub(crate) mod state;
 }
-
-#[doc(inline)]
-pub use self::{error::*, state::State, traits::*, types::*};
-
+// modules
+pub mod error;
+// modules (private)
 mod state;
 
-pub mod error;
-
 mod impls {
+
+    mod impl_halt;
     mod impl_state;
     mod impl_state_ops;
     mod impl_state_repr;
-
-    #[allow(deprecated)]
-    mod impl_state_deprecated;
 }
 
-pub mod traits {
-    //! the traits for defining the types of states and their behaviors
+mod traits {
     #[doc(inline)]
-    pub use self::prelude::*;
+    pub use self::{halting::*, raw_state::*};
 
     mod halting;
     mod raw_state;
-    mod stateful;
-
-    mod prelude {
-        #[doc(inline)]
-        pub use super::halting::*;
-        #[doc(inline)]
-        pub use super::raw_state::*;
-        #[doc(inline)]
-        pub use super::stateful::*;
-    }
 }
 
-pub mod types {
-    //! various types and type aliases for working with state
+mod types {
     #[doc(inline)]
-    pub use self::prelude::*;
+    pub use self::aliases::*;
 
-    mod halter;
-
-    mod prelude {
-        #[doc(inline)]
-        pub use super::aliases::*;
-        #[doc(inline)]
-        pub use super::halter::*;
-    }
-
-    mod aliases {
-        use crate::state::State;
-        #[cfg(feature = "alloc")]
-        /// A type alias for a [State] whose inner value is the dynamically sized type of a
-        /// boxed [`Any`](core::any::Any).
-        pub type AnyState = State<alloc::boxed::Box<dyn core::any::Any>>;
-        /// A type alias for a [State] whose inner value is a [core::mem::MaybeUninit] of
-        /// generic type `Q`.
-        pub type MaybeState<Q = bool> = State<core::mem::MaybeUninit<Q>>;
-        #[cfg(feature = "alloc")]
-        pub type SharedState<Q> = State<alloc::sync::Arc<Q>>;
-        #[cfg(feature = "std")]
-        pub type ShardState<Q> = State<std::sync::Arc<std::sync::Mutex<Q>>>;
-        /// A type alias for a [State] whose inner value is a reference to a generic type `Q`.
-        pub type RefState<'a, Q> = State<&'a Q>;
-        /// A type alias for a [State] whose inner value is a mutable reference to a generic
-        ///  type `Q`.
-        pub type MutState<'a, Q> = State<&'a mut Q>;
-        /// A type alias for a [State] whose inner value is a raw pointer to a generic type `Q`
-        pub type PtrState<Q> = State<*mut Q>;
-    }
+    mod aliases;
 }
-
+// re-exports
+#[doc(inline)]
+pub use self::{error::*, state::*, traits::*, types::*};
+// prelude
 #[doc(hidden)]
 pub mod prelude {
+    #[cfg(feature = "macros")]
     pub use crate::state;
-    #[doc(no_inline)]
     pub use crate::state::*;
-    #[doc(no_inline)]
     pub use crate::traits::*;
-    #[doc(no_inline)]
     pub use crate::types::*;
 }

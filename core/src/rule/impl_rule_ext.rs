@@ -4,75 +4,50 @@
 */
 use super::Rule;
 use crate::{Head, Tail};
-use rstm_state::RawState;
 
-impl<Q, S> AsRef<Head<Q, S>> for Rule<Q, S>
-where
-    Q: RawState,
-{
+impl<Q, S> AsRef<Head<Q, S>> for Rule<Q, S> {
     fn as_ref(&self) -> &Head<Q, S> {
         self.head()
     }
 }
 
-impl<Q, S> AsRef<Tail<Q, S>> for Rule<Q, S>
-where
-    Q: RawState,
-{
+impl<Q, S> AsRef<Tail<Q, S>> for Rule<Q, S> {
     fn as_ref(&self) -> &Tail<Q, S> {
         self.tail()
     }
 }
 
-impl<Q, S> AsMut<Head<Q, S>> for Rule<Q, S>
-where
-    Q: RawState,
-{
+impl<Q, S> AsMut<Head<Q, S>> for Rule<Q, S> {
     fn as_mut(&mut self) -> &mut Head<Q, S> {
         self.head_mut()
     }
 }
 
-impl<Q, S> AsMut<Tail<Q, S>> for Rule<Q, S>
-where
-    Q: RawState,
-{
+impl<Q, S> AsMut<Tail<Q, S>> for Rule<Q, S> {
     fn as_mut(&mut self) -> &mut Tail<Q, S> {
         self.tail_mut()
     }
 }
 
-impl<Q, S> core::borrow::Borrow<Head<Q, S>> for Rule<Q, S>
-where
-    Q: RawState,
-{
+impl<Q, S> core::borrow::Borrow<Head<Q, S>> for Rule<Q, S> {
     fn borrow(&self) -> &Head<Q, S> {
         self.head()
     }
 }
 
-impl<Q, S> core::borrow::Borrow<Tail<Q, S>> for Rule<Q, S>
-where
-    Q: RawState,
-{
+impl<Q, S> core::borrow::Borrow<Tail<Q, S>> for Rule<Q, S> {
     fn borrow(&self) -> &Tail<Q, S> {
         self.tail()
     }
 }
 
-impl<Q, S> core::borrow::BorrowMut<Head<Q, S>> for Rule<Q, S>
-where
-    Q: RawState,
-{
+impl<Q, S> core::borrow::BorrowMut<Head<Q, S>> for Rule<Q, S> {
     fn borrow_mut(&mut self) -> &mut Head<Q, S> {
         self.head_mut()
     }
 }
 
-impl<Q, S> core::borrow::BorrowMut<Tail<Q, S>> for Rule<Q, S>
-where
-    Q: RawState,
-{
+impl<Q, S> core::borrow::BorrowMut<Tail<Q, S>> for Rule<Q, S> {
     fn borrow_mut(&mut self) -> &mut Tail<Q, S> {
         self.tail_mut()
     }
@@ -80,7 +55,7 @@ where
 
 impl<Q, S> PartialEq<(Head<Q, S>, Tail<Q, S>)> for Rule<Q, S>
 where
-    Q: RawState + PartialEq,
+    Q: PartialEq,
     S: PartialEq,
 {
     fn eq(&self, other: &(Head<Q, S>, Tail<Q, S>)) -> bool {
@@ -90,7 +65,7 @@ where
 
 impl<Q, S> PartialEq<Head<Q, S>> for Rule<Q, S>
 where
-    Q: RawState + PartialEq,
+    Q: PartialEq,
     S: PartialEq,
 {
     fn eq(&self, other: &Head<Q, S>) -> bool {
@@ -100,7 +75,7 @@ where
 
 impl<Q, S> PartialEq<Tail<Q, S>> for Rule<Q, S>
 where
-    Q: RawState + PartialEq,
+    Q: PartialEq,
     S: PartialEq,
 {
     fn eq(&self, other: &Tail<Q, S>) -> bool {
@@ -108,19 +83,13 @@ where
     }
 }
 
-impl<Q, S> From<(Head<Q, S>, Tail<Q, S>)> for Rule<Q, S>
-where
-    Q: RawState,
-{
+impl<Q, S> From<(Head<Q, S>, Tail<Q, S>)> for Rule<Q, S> {
     fn from((head, tail): (Head<Q, S>, Tail<Q, S>)) -> Self {
         Self { head, tail }
     }
 }
 
-impl<Q, S> From<Rule<Q, S>> for (Head<Q, S>, Tail<Q, S>)
-where
-    Q: RawState,
-{
+impl<Q, S> From<Rule<Q, S>> for (Head<Q, S>, Tail<Q, S>) {
     fn from(rule: Rule<Q, S>) -> Self {
         (rule.head, rule.tail)
     }

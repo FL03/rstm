@@ -3,48 +3,22 @@
     Contrib: FL03 <jo3mccain@icloud.com>
 */
 use crate::state::State;
-use crate::traits::RawState;
 use num_traits::{Num, One, Zero};
 
-impl<Q> Num for State<Q>
-where
-    Q: RawState + Num,
-{
-    type FromStrRadixErr = Q::FromStrRadixErr;
-
-    fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
-        Q::from_str_radix(str, radix).map(State)
+contained::fmt_wrapper! {
+    impl State<T> {
+        Debug,
+        Display,
+        LowerExp,
+        LowerHex,
+        Octal,
+        UpperExp,
+        UpperHex,
     }
+
 }
-
-impl<Q> One for State<Q>
-where
-    Q: RawState + PartialEq + One,
-{
-    fn one() -> Self {
-        State(Q::one())
-    }
-
-    fn is_one(&self) -> bool {
-        self.0.is_one()
-    }
-}
-
-impl<Q> Zero for State<Q>
-where
-    Q: RawState + Zero,
-{
-    fn zero() -> Self {
-        State(Q::zero())
-    }
-
-    fn is_zero(&self) -> bool {
-        self.0.is_zero()
-    }
-}
-
-contained::impl_wrapper_unary! {
-    State {
+contained::unary_wrapper! {
+    impl State {
         Neg.neg,
         Not.not,
     }
@@ -62,5 +36,42 @@ contained::binary_wrapper! {
         BitXor.bitxor,
         Shl.shl,
         Shr.shr
+    }
+}
+
+impl<Q> Num for State<Q>
+where
+    Q: Num,
+{
+    type FromStrRadixErr = Q::FromStrRadixErr;
+
+    fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
+        Q::from_str_radix(str, radix).map(State)
+    }
+}
+
+impl<Q> One for State<Q>
+where
+    Q: PartialEq + One,
+{
+    fn one() -> Self {
+        State(Q::one())
+    }
+
+    fn is_one(&self) -> bool {
+        self.0.is_one()
+    }
+}
+
+impl<Q> Zero for State<Q>
+where
+    Q: Zero,
+{
+    fn zero() -> Self {
+        State(Q::zero())
+    }
+
+    fn is_zero(&self) -> bool {
+        self.0.is_zero()
     }
 }

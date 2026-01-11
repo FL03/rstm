@@ -1,41 +1,30 @@
 ---
-about: Suggest an idea for this project
+about: Create a report to help us improve
 assignees: [ FL03 ]
 labels: [ bug ]
 name: Bug report
-projects: ['@FL03/rstmt:dev']
-title: 'Bug report: '
+title: 'Bug Report: '
+type: bug
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+_**A clear and concise description of the bug.**_
 
-**To Reproduce**
-Steps to reproduce the behavior:
+## Methods
 
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+<!-- A detailed breakdown of the bug -->
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+### Reproducing the Bug
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+<!-- How can we reproduce the bug? -->
 
-**Desktop (please complete the following information):**
+1. Step 1)
+2. Step 2)
+3. Step 3)
 
-- OS: [e.g. iOS]
-- Browser [e.g. chrome, safari]
-- Version [e.g. 22]
+### Expectations
 
-**Smartphone (please complete the following information):**
+_**What were you expecting to happen?**_
 
-- Device: [e.g. iPhone6]
-- OS: [e.g. iOS8.1]
-- Browser [e.g. stock browser, safari]
-- Version [e.g. 22]
+### Outcome
 
-**Additional context**
-Add any other context about the problem here.
+_**What actually happened?**_

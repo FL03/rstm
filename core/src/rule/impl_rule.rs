@@ -4,19 +4,16 @@
 */
 use super::{Rule, RuleBuilder};
 
+use crate::state::State;
 use crate::{Direction, Head, Tail};
-use rstm_state::{RawState, State};
 
-impl<Q, A> Rule<Q, A>
-where
-    Q: RawState,
-{
+impl<Q, A> Rule<Q, A> {
     /// returns a new instance of the [`Rule`] from the given head and tail
     pub const fn new(head: Head<Q, A>, tail: Tail<Q, A>) -> Self {
         Self { head, tail }
     }
     /// returns a new instance of a [`RuleBuilder`] for constructing a new [`Rule`]
-    pub const fn create() -> RuleBuilder<Q, A> {
+    pub const fn init() -> RuleBuilder<Q, A> {
         RuleBuilder::new()
     }
     /// initialize a new instance of the [`Rule`] from its consituent parts
