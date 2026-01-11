@@ -4,23 +4,29 @@
     Contrib: @FL03
 */
 use syn::parse::{Parse, ParseStream};
-use syn::token::{Comma, Paren};
+use syn::token::Paren;
 use syn::{Expr, Ident, Token, parenthesized};
 #[allow(dead_code)]
+#[derive(Clone)]
 /// The abstract syntax tree for the head of a rule / Turing machine: `(state, symbol)`
 pub struct HeadAst {
     pub group: Paren,
     pub state: Expr,
-    pub comma: Comma,
+    pub comma: Token![,],
     pub symbol: Expr,
 }
 #[allow(dead_code)]
+#[derive(Clone)]
 /// The abstract syntax tree for the head of a rule / Turing machine: `Direction(state, symbol)`
 pub struct TailAst {
     pub direction: Ident,
-    pub head: HeadAst,
+    pub group: Paren,
+    pub next_state: Expr,
+    pub comma: Token![,],
+    pub next_symbol: Expr,
 }
 #[allow(dead_code)]
+#[derive(Clone)]
 /// The abstract syntax tree for a single operation rule
 ///
 /// `(state, symbol) -> Direction(next_state, next_symbol)`
@@ -44,12 +50,9 @@ impl RuleAst {
             tail:
                 TailAst {
                     direction,
-                    head:
-                        HeadAst {
-                            state: next_state,
-                            symbol: next_symbol,
-                            ..
-                        },
+                    next_state,
+                    next_symbol,
+                    ..
                 },
             ..
         } = self;
@@ -57,7 +60,7 @@ impl RuleAst {
         quote::quote! {
             rstm::Rule {
                 head: rstm::Head::new(#state, #symbol),
-                tail: rstm::Tail::new(#next_state, #next_symbol, rstm::Direction::#direction)
+                tail: rstm::Tail::new(rstm::Direction::#direction, #next_state, #next_symbol)
             }
         }
     }
@@ -68,7 +71,7 @@ impl Parse for HeadAst {
         let content;
         let group = parenthesized! { content in input };
         let state = content.parse::<Expr>()?;
-        let comma = content.parse::<Comma>()?;
+        let comma = content.parse::<Token![,]>()?;
         let symbol = content.parse::<Expr>()?;
         Ok(Self {
             group,
@@ -82,8 +85,18 @@ impl Parse for HeadAst {
 impl Parse for TailAst {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let direction = input.parse::<Ident>()?;
-        let head = input.parse::<HeadAst>()?;
-        Ok(Self { direction, head })
+        let content;
+        let group = parenthesized! { content in input };
+        let next_state = content.parse::<Expr>()?;
+        let comma = content.parse::<Token![,]>()?;
+        let next_symbol = content.parse::<Expr>()?;
+        Ok(Self {
+            direction,
+            next_state,
+            next_symbol,
+            group,
+            comma,
+        })
     }
 }
 

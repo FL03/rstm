@@ -30,12 +30,9 @@ fn handle_rule(
         tail:
             TailAst {
                 direction,
-                head:
-                    HeadAst {
-                        state: next_state,
-                        symbol: next_symbol,
-                        ..
-                    },
+                next_state,
+                next_symbol,
+                ..
             },
         ..
     }: &RuleAst,

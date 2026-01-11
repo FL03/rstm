@@ -3,7 +3,7 @@
     Created At: 2026.01.11:11:44:15
     Contrib: @FL03
 */
-use crate::ast::{HeadAst, RuleAst};
+use crate::ast::{HeadAst, RuleAst, TailAst};
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -11,22 +11,24 @@ pub fn impl_rule(rule: &RuleAst) -> TokenStream {
     handle_rule(rule)
 }
 
-
-fn handle_rule(RuleAst {
+fn handle_rule(
+    RuleAst {
         head: HeadAst { state, symbol, .. },
+        tail:
+            TailAst {
+                direction,
+                next_state,
+                next_symbol,
+                ..
+            },
         ..
-    }: &RuleAst) -> TokenStream {
+    }: &RuleAst,
+) -> TokenStream {
+    // create a rule
     quote! {
         rstm::Rule {
-            head: rstm::Head {
-                state: rstm::State(#state),
-                symbol: #symbol,
-            },
-            tail: rstm::Tail {
-                new_state: rstm::State(#state),
-                new_symbol: #symbol,
-                direction: rstm::Direction::Stay,
-            }
+            head: rstm::Head::new(#state, #symbol),
+            tail: rstm::Tail::new(rstm::Direction::#direction, #next_state, #next_symbol)
         }
     }
 }

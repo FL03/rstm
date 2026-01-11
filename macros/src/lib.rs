@@ -49,7 +49,7 @@ pub fn ruler(input: TokenStream) -> TokenStream {
 /// The [`fsm!`] generates a finite state machine implementation
 ///
 /// ```rust
-/// 
+///
 /// ```
 #[proc_macro]
 pub fn fsm(input: TokenStream) -> TokenStream {
