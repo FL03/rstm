@@ -41,7 +41,13 @@ rstm-traits = { default-features = false, path = "traits", version = "0.1.1" }
 # custom
 contained = { default-features = false, features = ["derive"], version = "0.2.3" }
 rspace-traits = { default-features = false, version = "0.0.7" }
+# developmemt
+criterion = { version = "0.8" }
+# async
+tokio = { default-features = false, version = "1" }
+async-trait = { default-features = false, version = "0.1" }
 # concurrency / parallelism
+crossbeam = { default-features = false, version = "0.8" }
 rayon = { default-features = false, version = "1" }
 # data-structures
 bytes = { default-features = false, version = "1" }

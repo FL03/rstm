@@ -4,7 +4,7 @@
     Contrib: @FL03
 */
 use crate::actors::TMH;
-use crate::program::Program;
+use crate::programs::Program;
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};
 

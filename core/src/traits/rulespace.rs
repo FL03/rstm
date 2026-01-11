@@ -4,7 +4,7 @@
     Contrib: @FL03
 */
 use crate::head::Head;
-use crate::rule::Rule;
+use crate::rules::Rule;
 use crate::state::State;
 use rspace_traits::RawSpace;
 

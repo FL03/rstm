@@ -14,7 +14,7 @@ mod turing_engine;
 
 use super::RawActor;
 
-use crate::program::Program;
+use crate::programs::Program;
 use rstm_state::RawState;
 
 /// The [`RawEngine`] trait defines the basis for compatible engines within the system.

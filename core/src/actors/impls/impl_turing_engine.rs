@@ -5,7 +5,7 @@
 */
 use crate::actors::tmh::TMH;
 use crate::actors::{Engine, RawEngine, TuringEngine};
-use crate::program::Program;
+use crate::programs::Program;
 use crate::{Head, ReadBuf, Symbol, Tail};
 use rstm_state::{IsHalted, RawState, State};
 use rstm_traits::Handle;

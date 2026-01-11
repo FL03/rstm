@@ -33,11 +33,7 @@ test = true
 
 [[bench]]
 harness = false
-name = "default"
-required-features = ["full"]
-
-[[example]]
-name = "basic"
+name = "tmh"
 required-features = ["full"]
 
 [[example]]
@@ -51,7 +47,8 @@ rstm-traits = { workspace = true }
 
 [dev-dependencies]
 anyhow = { features = ["std"], workspace = true }
-criterion = { features = ["plotters"], version = "0.8" }
+criterion = { features = ["plotters"], workspace = true }
+lazy_static = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tracing = { workspace = true }

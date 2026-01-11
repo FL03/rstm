@@ -9,7 +9,7 @@ use rstm_core::{Direction, Head, Tail};
 #[test]
 fn test_rule() {
     // create a new ruleset using the macro
-    let rule = rstm::rule![(0i8, 0i8) -> Right(1, 1)];
+    let rule = rstm::rules![(0i8, 0i8) -> Right(1, 1)];
     // create a new head for a rule within the program
     let head = Head::new(0, 0);
     let exp = Tail::new(Direction::Right, 1, 1);

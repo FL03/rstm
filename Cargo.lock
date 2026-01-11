@@ -803,6 +803,7 @@ version = "0.1.1"
 dependencies = [
  "anyhow",
  "criterion",
+ "lazy_static",
  "rstm-core",
  "rstm-macros",
  "rstm-traits",

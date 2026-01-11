@@ -5,7 +5,7 @@
 */
 use super::{Head, HeadMut, HeadRef};
 use crate::motion::HeadStep;
-use crate::rule::Rule;
+use crate::rules::Rule;
 use crate::state::State;
 use crate::tail::Tail;
 

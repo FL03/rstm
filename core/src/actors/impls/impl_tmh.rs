@@ -8,7 +8,7 @@
 use crate::actors::engine::TuringEngine;
 use crate::actors::tmh::TMH;
 use crate::error::Error;
-use crate::program::Program;
+use crate::programs::Program;
 use crate::{Direction, Head};
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};

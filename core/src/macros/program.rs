@@ -3,7 +3,7 @@
     Created At: 2025.08.30:17:01:39
     Contrib: @FL03
 */
-#![cfg(all(feature = "macros", feature = "alloc"))]
+#![cfg(feature = "macros")]
 
 /// The [`program!`] macro facilitates the creation of new [`Program`](crate::programs::Program)
 /// instances using familiar syntax

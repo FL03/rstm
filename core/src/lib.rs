@@ -28,13 +28,11 @@ extern crate alloc;
 #[macro_use]
 pub(crate) mod macros {
     #[macro_use]
-    #[cfg(feature = "macros")]
-    pub mod rules;
+    pub(crate) mod rules;
     #[macro_use]
-    #[cfg(feature = "macros")]
-    pub mod program;
+    pub(crate) mod program;
     #[macro_use]
-    pub mod seal;
+    pub(crate) mod seal;
 }
 // redeclarations
 #[doc(inline)]
@@ -43,8 +41,8 @@ pub use rstm_state as state;
 pub mod actors;
 pub mod error;
 pub mod motion;
-pub mod program;
-pub mod rule;
+pub mod programs;
+pub mod rules;
 
 mod cmp {
     #[doc(inline)]
@@ -85,8 +83,8 @@ pub use self::{
     cmp::*,
     error::{Error, Result},
     motion::HeadStep,
-    program::{InstructionSet, RuleSet},
-    rule::*,
+    programs::{InstructionSet, RuleSet},
+    rules::*,
     traits::*,
     types::*,
     utils::*,
@@ -101,13 +99,13 @@ pub mod prelude {
     #[cfg(all(feature = "alloc", feature = "macros"))]
     pub use crate::program;
     #[cfg(feature = "macros")]
-    pub use crate::{rule, ruleset};
+    pub use crate::{rules, ruleset};
 
     pub use crate::actors::prelude::*;
     pub use crate::cmp::*;
     pub use crate::motion::prelude::*;
-    pub use crate::program::prelude::*;
-    pub use crate::rule::*;
+    pub use crate::programs::prelude::*;
+    pub use crate::rules::*;
     pub use crate::traits::*;
     pub use crate::types::*;
     pub use crate::utils::*;
