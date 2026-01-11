@@ -27,9 +27,9 @@ tag-name = "{{version}}"
 [lib]
 bench = false
 doc = true
-doctest = true
+doctest = false
 proc-macro = true
-test = true
+test = false
 
 [dependencies]
 proc-macro2 = { version = "1" }

@@ -37,8 +37,7 @@ use syn::parse_macro_input;
 
 /// The [`ruler!`] generates a finite state machine implementation
 ///
-/// ```rust
-/// extern crate contained_macros::ruler;
+/// ```no_run
 /// ruler![(0, 'a') -> Right(1i8, 'b')];
 /// ```
 #[proc_macro]
@@ -50,8 +49,7 @@ pub fn ruler(input: TokenStream) -> TokenStream {
 /// The [`fsm!`] generates a finite state machine implementation
 ///
 /// ```rust
-/// extern crate contained_macros as macros;
-///
+/// 
 /// ```
 #[proc_macro]
 pub fn fsm(input: TokenStream) -> TokenStream {
