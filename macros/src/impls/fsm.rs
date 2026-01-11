@@ -2,9 +2,9 @@
     appellation: impl_binary <module>
     authors: @FL03
 */
-use crate::ast::{FiniteStateMachineAst, RuleAst};
+use crate::ast::{FiniteStateMachineAst, HeadAst, RuleAst, TailAst};
 use proc_macro2::TokenStream;
-use quote::{format_ident, quote};
+use quote::quote;
 
 /// Procedural macro entry point
 pub fn impl_wrapper_binary_ops(input: FiniteStateMachineAst) -> TokenStream {
@@ -24,12 +24,33 @@ fn generate_rules(FiniteStateMachineAst { ops, .. }: &FiniteStateMachineAst) -> 
     impls
 }
 
-fn handle_rule(rule: &RuleAst) -> TokenStream {
-    let RuleAst { name, .. } = rule;
-    let fn_name = format_ident!("{}", name);
+fn handle_rule(
+    RuleAst {
+        head: HeadAst { state, symbol, .. },
+        tail:
+            TailAst {
+                direction,
+                head:
+                    HeadAst {
+                        state: next_state,
+                        symbol: next_symbol,
+                        ..
+                    },
+            },
+        ..
+    }: &RuleAst,
+) -> TokenStream {
     quote! {
-        pub fn #fn_name() {
-            // implementation goes here
+        rstm::Rule {
+            head: rstm::Head {
+                state: rstm::State(#state),
+                symbol: #symbol,
+            },
+            tail: rstm::Tail {
+                new_state: rstm::State(#next_state),
+                new_symbol: #next_symbol,
+                direction: rstm::Direction::#direction,
+            }
         }
     }
 }

@@ -20,6 +20,17 @@ mod impls {
     pub mod rule;
 }
 
+pub(crate) mod keywords {
+    syn::custom_keyword! { direction }
+    syn::custom_keyword! { state }
+    syn::custom_keyword! { symbol }
+
+    syn::custom_keyword! { head }
+    syn::custom_keyword! { tail }
+
+    syn::custom_keyword! { rule }
+}
+
 use crate::ast::{FiniteStateMachineAst, RuleAst};
 use proc_macro::TokenStream;
 use syn::parse_macro_input;
@@ -27,13 +38,13 @@ use syn::parse_macro_input;
 /// The [`ruler!`] generates a finite state machine implementation
 ///
 /// ```rust
-/// extern crate contained_macros as macros;
-///
+/// extern crate contained_macros::ruler;
+/// ruler![(0, 'a') -> Right(1i8, 'b')];
 /// ```
 #[proc_macro]
 pub fn ruler(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as RuleAst);
-    let output = impls::impl_rule(ast);
+    let output = impls::impl_rule(&ast);
     output.into()
 }
 /// The [`fsm!`] generates a finite state machine implementation
