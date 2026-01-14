@@ -16,7 +16,7 @@ macro_rules! head {
 /// The [`rule!`] macro enables the definition of a single, Turing compatible rule using the
 /// following syntax:
 ///
-/// ```no_run
+/// ```ignore
 ///     (state, symbol) -> Direction(next_state, next_symbol)
 /// ```
 ///
@@ -26,7 +26,7 @@ macro_rules! head {
 /// by Petr Kůrka. Specifically,
 ///
 /// ```math
-/// \delta : Q\times{A}\rightarrow{(Q\times{A})\times{D}\quad\text{where} \ D\in\lbrace{0,\pm{1}\rbrace}
+/// \delta:Q\times{A}\rightarrow(Q\times{A})\times{D}\quad\text{where} \ D=\lbrace{0,\pm{1}\rbrace}
 /// ```
 ///
 /// **note:** it is unnecessary for you to import the [`Direction`](crate::Direction) enum, as
