@@ -90,6 +90,8 @@ pub use self::{
     types::*,
     utils::*,
 };
+#[cfg(feature = "macros")]
+pub use rstm_state::s;
 #[doc(inline)]
 pub use rstm_state::{HaltState, Halter, IsHalted, RawState, State};
 // prelude

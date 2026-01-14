@@ -71,19 +71,18 @@ impl<Q> State<Q> {
     {
         State(f(self.value()))
     }
-    /// reset the state backl to its logical default and return a mutable reference to the
-    /// state itself.
-    pub fn reset(&mut self) -> &mut Self
+    /// reset the state back to its logical default, returning the previous value.
+    pub fn reset(&mut self) -> State<Q>
     where
         Q: Default,
     {
-        self.set(Default::default());
-        self
+        let prev = self.take();
+        State(prev)
     }
     /// update the current value of the object with the given state.
     #[inline]
     pub fn set(&mut self, state: Q) {
-        self.0 = state
+        self.0 = state;
     }
     /// [`replace`](core::mem::replace) the inner value of the state with the given state,
     pub const fn replace(&mut self, state: Q) -> Q {

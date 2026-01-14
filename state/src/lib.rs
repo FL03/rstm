@@ -64,7 +64,7 @@ pub use self::{error::*, state::*, traits::*, types::*};
 #[doc(hidden)]
 pub mod prelude {
     #[cfg(feature = "macros")]
-    pub use crate::state;
+    pub use crate::s;
     pub use crate::state::*;
     pub use crate::traits::*;
     pub use crate::types::*;
