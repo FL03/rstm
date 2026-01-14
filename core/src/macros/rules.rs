@@ -84,12 +84,8 @@ macro_rules! rule {
 /// ```
 #[macro_export]
 macro_rules! ruleset {
-    {$(
-        ($state:expr, $symbol:literal $(,)?) -> $dir:ident($next:expr, $write:literal $(,)?)
-    ),* $(,)?} => {
-        [$(
-            $crate::rule! { ($state, $symbol) -> $dir($next, $write) },
-        )*]
+    {$(($state:expr, $symbol:literal $(,)?) -> $dir:ident($next:expr, $write:literal $(,)?)),* $(,)?} => {
+        [$($crate::rule! { ($state, $symbol) -> $dir($next, $write) }),*]
     };
 }
 
