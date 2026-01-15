@@ -5,10 +5,10 @@
 */
 #![cfg(feature = "macros")]
 
-/// the [`state!`] macro is a simple helper macro to create a [`State`](crate::state::State)
+/// the [`s!`] macro is a simple helper macro to create a [`State`](crate::state::State)
 /// instance.
 #[macro_export]
-macro_rules! state {
+macro_rules! s {
     ($($state:expr),* $(,)?) => {
         $(
             $crate::state::State($state),

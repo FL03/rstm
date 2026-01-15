@@ -2,7 +2,7 @@
     Appellation: impl_state <module>
     Contrib: @FL03
 */
-use crate::state::{Halter, State};
+use crate::state::{Halt, State};
 
 impl<Q> State<Q> {
     /// a constructor method for the [`State`] type.
@@ -71,19 +71,18 @@ impl<Q> State<Q> {
     {
         State(f(self.value()))
     }
-    /// reset the state backl to its logical default and return a mutable reference to the
-    /// state itself.
-    pub fn reset(&mut self) -> &mut Self
+    /// reset the state back to its logical default, returning the previous value.
+    pub fn reset(&mut self) -> State<Q>
     where
         Q: Default,
     {
-        self.set(Default::default());
-        self
+        let prev = self.take();
+        State(prev)
     }
     /// update the current value of the object with the given state.
     #[inline]
     pub fn set(&mut self, state: Q) {
-        self.0 = state
+        self.0 = state;
     }
     /// [`replace`](core::mem::replace) the inner value of the state with the given state,
     pub const fn replace(&mut self, state: Q) -> Q {
@@ -102,18 +101,18 @@ impl<Q> State<Q> {
         core::mem::take(self.get_mut())
     }
     /// converts the current reference into a haltable state initialized with the current state
-    pub fn as_halt(&self) -> State<Halter<&Q>> {
-        State::new(Halter::Halt(self.get()))
+    pub fn as_halt(&self) -> State<Halt<&Q>> {
+        State::new(Halt::Halt(self.get()))
     }
     /// consumes the wrapper to create another, haltable state that is initialized with the
     /// current state
-    pub fn into_halt(self) -> State<Halter<Q>> {
-        State::new(Halter::Step(self.value()))
+    pub fn into_halt(self) -> State<Halt<Q>> {
+        State::new(Halt::Step(self.value()))
     }
     /// consumes the current state, returning a new one with a [`Halt`](Halt::Halt)
     /// variant initialized with the current value.
-    pub fn halt(self) -> State<Halter<Q>> {
-        State::new(Halter::Halt(self.value()))
+    pub fn halt(self) -> State<Halt<Q>> {
+        State::new(Halt::Halt(self.value()))
     }
     /// returns a state with an owned inner value.
     pub const fn view(&self) -> State<&Q> {

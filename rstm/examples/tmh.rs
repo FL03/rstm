@@ -10,7 +10,7 @@ use rstm::actors::TMH;
 fn main() -> rstm::Result<()> {
     // initialize the logger
     tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::DEBUG)
+        .with_max_level(tracing::Level::TRACE)
         .with_target(false)
         .with_timer(tracing_subscriber::fmt::time::uptime())
         .init();
@@ -35,6 +35,6 @@ fn main() -> rstm::Result<()> {
     // create a new instance of the machine
     let mut tm = TMH::new(initial_state, input);
     // execute and run the program
-    tm.execute(program).run()?;
+    tm.load(program).run()?;
     Ok(())
 }

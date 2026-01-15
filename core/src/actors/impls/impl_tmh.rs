@@ -5,18 +5,19 @@
 */
 #![cfg(feature = "alloc")]
 
-use crate::actors::engine::TuringEngine;
-use crate::actors::tmh::TMH;
+use crate::actors::{TMH, TuringEngine};
 use crate::error::Error;
 use crate::programs::Program;
 use crate::{Direction, Head};
+use alloc::string::String;
 use alloc::vec::Vec;
-use rstm_state::{RawState, State};
+use rstm_state::{IsHalted, RawState, State};
 
 impl<Q, A> TMH<Q, A>
 where
     Q: RawState,
 {
+    /// create a new instance of the [`TMH`] using the given state and tape.
     pub fn new<I>(state: Q, tape: I) -> Self
     where
         I: IntoIterator<Item = A>,
@@ -32,7 +33,10 @@ where
         I: IntoIterator<Item = A>,
         Q: Default,
     {
-        Self::new(<Q>::default(), tape)
+        Self {
+            head: Head::default(),
+            tape: Vec::from_iter(tape),
+        }
     }
     /// returns a new instance of the [`TMH`] using the given state and an empty tape
     /// with the head positioned at `0`
@@ -57,6 +61,18 @@ where
     /// returns a mutable reference of the tape
     pub const fn tape_mut(&mut self) -> &mut Vec<A> {
         &mut self.tape
+    }
+    /// returns the current position of the head on the tape
+    pub const fn current_position(&self) -> usize {
+        *self.head().symbol()
+    }
+    /// returns an instance of the state with an immutable reference to the inner value
+    pub const fn state(&self) -> &State<Q> {
+        self.head().state()
+    }
+    /// returns an instance of the state with a mutable reference to the inner value
+    pub const fn state_mut(&mut self) -> &mut State<Q> {
+        self.head_mut().state_mut()
     }
     /// update the current head and return a mutable reference to the actor
     #[inline]
@@ -116,17 +132,11 @@ where
             ..self
         }
     }
-    /// returns the current position of the head on the tape
-    pub const fn current_position(&self) -> usize {
-        *self.head().symbol()
-    }
-    /// returns an instance of the state with an immutable reference to the inner value
-    pub const fn state(&self) -> &State<Q> {
-        self.head().state()
-    }
-    /// returns an instance of the state with a mutable reference to the inner value
-    pub const fn state_mut(&mut self) -> &mut State<Q> {
-        self.head_mut().state_mut()
+    /// clears the tape
+    pub fn clear(&mut self) {
+        #[cfg(feature = "tracing")]
+        tracing::trace!("clearing the tape...");
+        self.tape_mut().clear();
     }
     /// extends the tape with elements from the given iterator
     #[inline]
@@ -136,29 +146,28 @@ where
     {
         self.tape_mut().extend(iter)
     }
-    /// returns an engine loaded with the given program and using the current instance as the
-    /// driver.
-    ///
-    /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
-    /// until the corresponding `.run()` method is invoked on the engine.
-    pub fn execute(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Q, A> {
-        TuringEngine::new(self).load_with(program)
+    /// returns the length of the tape
+    pub const fn len(&self) -> usize {
+        self.tape().len()
     }
     /// Checks if the tape is empty
-    pub fn is_empty(&self) -> bool {
-        self.tape.is_empty()
+    pub const fn is_empty(&self) -> bool {
+        self.tape().is_empty()
     }
     /// Checks if the tape is halted
     pub fn is_halted(&self) -> bool
     where
-        Q: 'static + rstm_state::IsHalted,
+        Q: IsHalted,
     {
         self.head().state().is_halted()
     }
-    /// returns the length of the tape
-    #[inline]
-    pub fn len(&self) -> usize {
-        self.tape.len()
+    /// loads the given program and current driver into an engine used to magane the execution
+    /// process.
+    ///
+    /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
+    /// until the corresponding `.run()` method is invoked on the engine.
+    pub fn load(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Self, Q, A> {
+        TuringEngine::new(self).load_with(program)
     }
     /// returns the _current_ head of the actor, using the given directive to write some symbol
     /// onto the tape before shifting the head and updating its state.
@@ -170,7 +179,7 @@ where
     ) -> crate::Result<Head<Q, usize>> {
         let position = self.current_position();
         #[cfg(feature = "tracing")]
-        tracing::trace!("Reacting to the current context of cell: {:?}", position);
+        tracing::trace! { "Reacting to the current context of cell: {:?}", position }
         // write the symbol to the tape
         self.write(symbol)?;
         // update the head of the actor
@@ -186,8 +195,6 @@ where
     /// The method will return an error if the current position of the head is out of bounds;
     /// i.e., `i >= len()`.
     pub fn get_head(&self) -> crate::Result<Head<&'_ Q, &'_ A>> {
-        #[cfg(feature = "tracing")]
-        tracing::trace!("reading the tape...");
         self.tape()
             .get(self.current_position())
             .map(|symbol| Head {
@@ -217,23 +224,59 @@ where
 
         if pos < self.len() {
             #[cfg(feature = "tracing")]
-            tracing::trace!("Updating the tape at {pos}");
+            tracing::trace! { "Updating the tape at {pos}" }
             self.tape[pos] = value;
         } else if pos == self.len() {
             #[cfg(feature = "tracing")]
-            tracing::trace!("Extending the tape...");
+            tracing::trace! { "Extending the tape..." }
             // append to the tape
             self.tape_mut().push(value);
         } else {
             #[cfg(feature = "tracing")]
-            tracing::trace!("Prepending to the tape...");
+            tracing::trace! { "Prepending to the tape..." }
             // prepend to the tape
             self.tape_mut().insert(0, value);
         }
         Ok(())
     }
+    /// returns a string representation of the tape with the current head position highlighted
+    /// in brackets.
+    pub fn pretty_print(&self, radius: usize) -> String
+    where
+        A: core::fmt::Debug,
+    {
+        let mut cells = Vec::new();
+        let pos = self.current_position();
+        let (a, b) = crate::get_range_around(pos, self.len(), radius);
+        // print out the tape with the head position highlighted
+        for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
+            let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
+                format!("[{c:?}]")
+            } else {
+                format!("{c:?}")
+            };
+            cells.push(cell);
+        }
+        cells.join("")
+    }
+    /// returns a string representation of the tape with the current head position highlighted
+    /// in brackets.
+    pub fn print(&self, radius: usize) -> String
+    where
+        A: core::fmt::Display,
+    {
+        let mut cells = Vec::new();
+        let pos = self.current_position();
+        let (a, b) = crate::get_range_around(pos, self.len(), radius);
+        // print out the tape with the head position highlighted
+        for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
+            let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
+                format! { "[{c}]" }
+            } else {
+                format! { "{c}" }
+            };
+            cells.push(cell);
+        }
+        cells.join("")
+    }
 }
-
-#[allow(dead_code)]
-/// an implementation of the [`TMH`] providing useful, private methods
-impl<Q, A> TMH<Q, A> where Q: RawState {}

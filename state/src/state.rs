@@ -14,7 +14,7 @@
 #[repr(transparent)]
 pub struct State<Q: ?Sized = bool>(pub Q);
 
-/// Inline with the formal definition of a halt state, the [`Halter`] implementation
+/// Inline with the formal definition of a halt state, the [`Halt`] implementation
 /// extends a stateful object, enabling _**any**_ given state to be halted.
 #[derive(
     Clone,
@@ -35,7 +35,7 @@ pub struct State<Q: ?Sized = bool>(pub Q);
 )]
 #[strum_discriminants(name(HaltTag), derive(Hash, Ord, PartialOrd))]
 #[repr(C)]
-pub enum Halter<Q = usize, H = Q> {
+pub enum Halt<Q = usize, H = Q> {
     Halt(H),
     Step(Q),
 }

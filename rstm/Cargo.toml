@@ -25,11 +25,7 @@ no-dev-version = true
 tag-name = "{{version}}"
 
 [lib]
-bench = true
-doc = true
-doctest = false
 path = "lib.rs"
-test = true
 
 [[bench]]
 harness = false

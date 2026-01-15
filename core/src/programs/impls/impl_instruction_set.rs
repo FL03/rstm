@@ -4,19 +4,35 @@
     Contrib: @FL03
 */
 use crate::programs::{InstructionSet, RuleSet};
-use rstm_state::{IntoState, State};
+use crate::rules::Rule;
+use rstm_state::{IntoState, RawState, State};
 
 impl<R, Q, A> InstructionSet<R, Q, A>
 where
+    Q: RawState,
     R: RuleSet<Q, A>,
 {
     /// initialize a new program from the given rule set
-    pub fn from_rules(rules: R) -> Self {
+    pub const fn from_rules(rules: R) -> Self {
         Self {
             rules,
             initial_state: None,
-            _marker: core::marker::PhantomData,
+            _marker: core::marker::PhantomData::<Rule<Q, A>>,
         }
+    }
+    #[cfg(all(feature = "json", feature = "std"))]
+    /// load a program from a `.json` file at the given path
+    pub fn load_from_json<P: AsRef<std::path::Path>>(path: P) -> crate::Result<Self>
+    where
+        Self: serde::de::DeserializeOwned,
+    {
+        // open the file
+        let file = std::fs::File::open(path)?;
+        // create a buffered reader
+        let reader = std::io::BufReader::new(file);
+        // deserialize the program
+        let p = serde_json::from_reader(reader)?;
+        Ok(p)
     }
     /// returns a reference to the ruleset
     pub const fn rules(&self) -> &R {

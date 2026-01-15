@@ -1,5 +1,6 @@
 /*
-    Appellation: default <module>
+    Appellation: tmh <module>
+    Created At: 2026.01.15:10:49:11
     Contrib: @FL03
 */
 use core::hint::black_box;
@@ -29,7 +30,7 @@ lazy_static::lazy_static! {
 
 fn setup_tmh() -> TMH<isize, usize> {
     // define some input for the machine
-    let input = vec![0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
+    let input = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
     // initialize the state of the machine
     let initial_state: isize = 0;
     // create a new instance of the machine
@@ -47,7 +48,7 @@ fn bench_tmh(c: &mut Criterion) {
         b.iter_batched(
             setup_tmh,
             |mut tmh| {
-                let mut engine = tmh.execute(PROGRAM.clone());
+                let mut engine = tmh.load(PROGRAM.clone());
                 black_box(engine.step().expect("should step"));
             },
             BatchSize::SmallInput,

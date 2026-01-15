@@ -2,14 +2,28 @@
     appellation: raw_state <module>
     authors: @FL03
 */
-#[cfg(feature = "alloc")]
-use alloc::string::String;
-
+use crate::IsHalted;
 /// [`RawState`] is a sealed marker trait used to define objects used to represent states.
 /// The primary benefit of such a trait is preventing cases where the [`State`](crate::State)
 /// implementation is used as a state itself: `State<State<Q>>`.
 pub trait RawState {
     private! {}
+}
+/// The [`HaltingState`] trait is used to define states that are capable of representing halting
+/// conditions within a Turing machine simulation. For instance, if our state is of type
+/// `isize`, then we might define `<isize>::MAX` to represent a halting state.
+pub trait HaltingState
+where
+    Self: RawState + IsHalted,
+{
+    private! {}
+}
+/// The [`StateExt`] trait is used to extend the base [`RawState`] trait, introducing
+/// additional traits and constraints that are commonly required for state representations.
+pub trait StateExt: HaltingState
+where
+    Self: Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
+{
 }
 /// The [`HashState`] trait extends the [`RawState`] trait to include hashing capabilities,
 /// streamlining the process of using states as keys in hash maps or sets.
@@ -19,25 +33,15 @@ where
 {
     private! {}
 }
-/// The [`StdState`] trait extends the [`RawState`] trait to include standard traits commonly
-/// used for state manipulation and comparison.
-pub trait StdState
-where
-    Self: Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
-{
-    private! {}
-}
 /// The [`NumState`] trait extends the [`RawState`] trait to include numeric operations.
-pub trait NumState: StdState
+pub trait NumState: StateExt
 where
     Self: Copy
         + Default
         + Eq
-        + PartialOrd
         + core::ops::Add<Output = Self>
         + core::ops::Div<Output = Self>
         + core::ops::Mul<Output = Self>
-        + core::ops::Neg<Output = Self>
         + core::ops::Not<Output = Self>
         + core::ops::Rem<Output = Self>
         + core::ops::Sub<Output = Self>
@@ -57,6 +61,10 @@ where
 /*
  ************* Implementations *************
 */
+impl RawState for &str {
+    seal! {}
+}
+
 impl RawState for () {
     seal! {}
 }
@@ -75,6 +83,13 @@ where
     seal! {}
 }
 
+impl<T> HaltingState for T
+where
+    T: RawState + IsHalted,
+{
+    seal! {}
+}
+
 impl<T> HashState for T
 where
     T: RawState + Eq + core::hash::Hash,
@@ -82,16 +97,20 @@ where
     seal! {}
 }
 
-impl<T> StdState for T
-where
-    T: RawState + Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
+impl<T> StateExt for T where
+    T: HaltingState
+        + Clone
+        + Default
+        + PartialEq
+        + PartialOrd
+        + core::fmt::Debug
+        + core::fmt::Display
 {
-    seal! {}
 }
 
 impl<T> NumState for T
 where
-    T: StdState
+    T: StateExt
         + Copy
         + Eq
         + PartialOrd
@@ -100,7 +119,6 @@ where
         + core::ops::Mul<Output = Self>
         + core::ops::Div<Output = Self>
         + core::ops::Rem<Output = Self>
-        + core::ops::Neg<Output = Self>
         + core::ops::Not<Output = Self>
         + core::ops::AddAssign
         + core::ops::DivAssign
@@ -136,34 +154,38 @@ impl RawState for Box<dyn RawState> {
 }
 
 macro_rules! impl_raw_state {
-    ($($t:ty),* $(,)?) => {
-        $(impl_raw_state!{ @impl $t })*
+    (impl $trait:ident for {$($T:ty),* $(,)?}) => {
+        $(impl_raw_state!{ @impl $trait for $T })*
     };
-    ($($($cont:ident)::*<$T:ident $(where $($rest:tt)*)?>),* $(,)?) => {
+    (impl $trait:ident for {$($($cont:ident)::*<$T:ident $(where $($rest:tt)*)?>),* $(,)?}) => {
         $(impl_raw_state! {
             @impl<$T> $cont::* $(where $($rest)*)?
         })*
     };
-    (@impl $t:ty) => {
-        impl $crate::traits::RawState for $t {
+    (@impl $trait:ident for $t:ty) => {
+        impl $trait for $t {
             seal! {}
         }
     };
-    (@impl $($cont:ident)::*$(<$($T:ident),*>)? $(where $($rest:tt)*)?) => {
-        impl<$($T),*> $crate::traits::RawState for $(cont)::*$(<$($T),*>)? $(where $($rest)*)? {
+    (@impl $trait:ident for $($cont:ident)::*$(<$($T:ident),*>)? $(where $($rest:tt)*)?) => {
+        impl<$($T),*> $trait for $(cont)::*$(<$($T),*>)? $(where $($rest)*)? {
             seal! {}
         }
     };
 }
 
 impl_raw_state! {
-    usize, u8, u16, u32, u64, u128,
-    isize, i8, i16, i32, i64, i128,
-    f32, f64,
-    bool, char, str
+    impl RawState for {
+        usize, u8, u16, u32, u64, u128,
+        isize, i8, i16, i32, i64, i128,
+        f32, f64,
+        bool, char, str
+    }
 }
 
 #[cfg(feature = "alloc")]
 impl_raw_state! {
-    String,
+    impl RawState for {
+        alloc::string::String,
+    }
 }

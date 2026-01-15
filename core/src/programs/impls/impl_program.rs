@@ -38,6 +38,20 @@ where
             rules: Vec::new(),
         }
     }
+    #[cfg(all(feature = "json", feature = "std"))]
+    /// load a program from a `.json` file at the given path
+    pub fn load_from_json<P: AsRef<std::path::Path>>(path: P) -> crate::Result<Self>
+    where
+        Program<Q, A>: serde::de::DeserializeOwned,
+    {
+        // open the file
+        let file = std::fs::File::open(path)?;
+        // create a buffered reader
+        let reader = std::io::BufReader::new(file);
+        // deserialize the program
+        let p = serde_json::from_reader(reader)?;
+        Ok(p)
+    }
     /// Returns an owned reference to the initial state of the program.
     pub fn initial_state(&self) -> Option<State<&'_ Q>> {
         self.initial_state.as_ref().map(|state| state.view())
@@ -77,13 +91,14 @@ where
     }
     /// returns an immutable reference to the tail for a given head; returns [`None`](Option::None)
     /// if no match is found.
-    pub fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>>
+    pub fn get<Z>(&self, head: &Z) -> Option<&Tail<Q, A>>
     where
         Q: PartialEq,
         A: PartialEq,
+        Z: core::borrow::Borrow<Head<Q, A>>,
     {
         self.iter().find_map(|i| {
-            if i.head() == head {
+            if i.head() == head.borrow() {
                 Some(i.tail())
             } else {
                 None
@@ -92,13 +107,14 @@ where
     }
     /// returns a mutable reference to the tail for a given head; returns [`None`](Option::None)
     /// if no match is found.
-    pub fn get_mut(&mut self, head: &Head<Q, A>) -> Option<&mut Tail<Q, A>>
+    pub fn get_mut<Z>(&mut self, head: &Z) -> Option<&mut Tail<Q, A>>
     where
         Q: PartialEq,
         A: PartialEq,
+        Z: core::borrow::Borrow<Head<Q, A>>,
     {
         self.iter_mut().find_map(|i| {
-            if i.head() == head {
+            if i.head() == head.borrow() {
                 Some(i.tail_mut())
             } else {
                 None

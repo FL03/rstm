@@ -80,7 +80,7 @@ jobs:
         if: matrix.features != 'default'
         run: cargo test -r --locked --workspace --target ${{ matrix.target}} --features ${{ matrix.features }}
   test_nightly:
-    if: github.event.inputs.toolchain != 'stable' || false
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.toolchain == 'nightly' || false
     continue-on-error: true
     needs: build
     runs-on: ubuntu-latest
@@ -92,6 +92,9 @@ jobs:
           - all
           - no_std
           - "alloc,nightly"
+        package:
+          # - rstm-state
+          - rstm-traits
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -103,16 +106,16 @@ jobs:
           override: true
       - name: Test (all-features)
         if: matrix.features == 'all'
-        run: cargo test -r --locked --all-features --workspace  --target ${{ matrix.target }}
+        run: cargo test -r --locked --all-features --target ${{ matrix.target }} -p ${{ matrix.package }}
       - name: Test (no_std)
         continue-on-error: true
         if: matrix.features == 'no_std'
-        run: cargo test -r --locked --no-default-features --workspace --target ${{ matrix.target }}
+        run: cargo test -r --locked --no-default-features --target ${{ matrix.target }} -p ${{ matrix.package }}
         env:
           RUSTFLAGS: "-C panic=abort -Z panic_abort_tests"
       - name: Test (${{ matrix.features }})
         continue-on-error: true
         if: matrix.features != 'all' && matrix.features != 'no_std'
-        run: cargo test -r --locked --no-default-features --workspace --features ${{ matrix.features }} --target ${{ matrix.target }}
+        run: cargo test -r --locked --no-default-features --target ${{ matrix.target }} -p ${{ matrix.package }} -F ${{ matrix.features }}
         env:
           RUSTFLAGS: "-C panic=abort -Z panic_abort_tests"

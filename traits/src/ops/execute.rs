@@ -25,6 +25,30 @@ pub trait ExecuteMut<Rhs> {
     fn execute(&mut self, rhs: Rhs) -> Self::Output;
 }
 
+/// The [`TryExecuteOnce`] trait defines the ability for an object to perform
+/// one execution or computation that may fail, returning a `Result` configured to use the
+/// defined error type.
+pub trait TryExecuteOnce<Rhs> {
+    type Error;
+    type Output;
+
+    fn try_execute(self, rhs: Rhs) -> Result<Self::Output, Self::Error>;
+}
+
+pub trait TryExecuteMut<Rhs> {
+    type Error;
+    type Output;
+
+    fn try_execute(&mut self, rhs: Rhs) -> Result<Self::Output, Self::Error>;
+}
+
+pub trait TryExecute<Rhs> {
+    type Error;
+    type Output;
+
+    fn try_execute(&self, rhs: Rhs) -> Result<Self::Output, Self::Error>;
+}
+
 /*
  ************* Implementations *************
 */

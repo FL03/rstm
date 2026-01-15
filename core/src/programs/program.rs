@@ -15,8 +15,9 @@ use rstm_state::{RawState, State};
 #[cfg_attr(
     feature = "serde",
     derive(serde::Serialize),
-    serde(rename_all = "camelCase")
+    serde(deny_unknown_fields, rename_all = "snake_case")
 )]
+#[repr(C)]
 pub struct Program<Q = String, A = char>
 where
     Q: RawState,

@@ -43,18 +43,18 @@
 //!        let program: Program<isize, usize> = rstm::program! {
 //!            #[default_state(initial_state)]
 //!            rules: {
-//!                (0, 0) -> Right(1, 0);
-//!                (0, 1) -> Left(-1, 1);
-//!                (1, 0) -> Right(0, 1);
-//!                (1, 1) -> Right(-1, 0);
-//!                (-1, 0) -> Left(<isize>::MAX, 0);
-//!                (-1, 1) -> Left(1, 1);
+//!                (0, 0) -> Right(1, 0),
+//!                (0, 1) -> Stay(-1, 1),
+//!                (1, 0) -> Right(0, 1),
+//!                (1, 1) -> Right(-1, 0),
+//!                (-1, 0) -> Left(<isize>::MAX, 0),
+//!                (-1, 1) -> Left(1, 1),
 //!            };
 //!        };
-//!        // create a new instance of the machine
-//!        let tm = TMH::new(initial_state, input.to_vec());
-//!        // execute the program
-//!        dbg!(tm).execute(program).run()?;
+//!        // initialize a new driver
+//!        let mut tm = TMH::new(initial_state, input);
+//!        // load the program and run the engine
+//!        tm.load(program).run()?;
 //!        Ok(())
 //!    }
 //! ```
