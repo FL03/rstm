@@ -52,7 +52,7 @@
 //!            };
 //!        };
 //!        // initialize a new driver
-//!        let tm = TMH::new(initial_state, input);
+//!        let mut tm = TMH::new(initial_state, input);
 //!        // load the program and run the engine
 //!        tm.load(program).run()?;
 //!        Ok(())
