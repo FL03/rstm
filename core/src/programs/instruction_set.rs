@@ -12,8 +12,8 @@ use hashbrown::{HashMap, HashSet};
 #[cfg(all(not(feature = "hashbrown"), feature = "std"))]
 use std::collections::{HashMap, HashSet};
 
-pub type ProgramArray<Q, A, const N: usize> = InstructionSet<Q, A, [Rule<Q, A>; N]>;
 pub type ProgramSlice<Q, A> = InstructionSet<Q, A, [Rule<Q, A>]>;
+pub type ProgramArray<Q, A, const N: usize> = InstructionSet<Q, A, [Rule<Q, A>; N]>;
 #[cfg(feature = "alloc")]
 /// a type alias for a [`InstructionSet`] using a [`Vec`](alloc::vec::Vec) as the ruleset
 pub type ProgramVec<Q, A> = InstructionSet<Q, A, alloc::vec::Vec<Rule<Q, A>>>;
