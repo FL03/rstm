@@ -8,6 +8,34 @@ use crate::head::Head;
 use crate::types::Direction;
 use rstm_state::State;
 
+impl<Q, A> core::fmt::Debug for Tail<Q, A>
+where
+    Q: core::fmt::Debug,
+    A: core::fmt::Debug,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_tuple("Tail")
+            .field(&self.direction)
+            .field(&self.next_state)
+            .field(&self.write_symbol)
+            .finish()
+    }
+}
+
+impl<Q, S> core::fmt::Display for Tail<Q, S>
+where
+    Q: core::fmt::Display,
+    S: core::fmt::Display,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f,
+            "{{ direction: {}, next_state: {}, write_symbol: {} }}",
+            self.direction, self.next_state, self.write_symbol
+        )
+    }
+}
+
 impl<Q, A> From<(Direction, Head<Q, A>)> for Tail<Q, A> {
     fn from((direction, head): (Direction, Head<Q, A>)) -> Self {
         Tail {
