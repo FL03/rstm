@@ -4,10 +4,11 @@
     Contrib: @FL03
 */
 use crate::programs::{InstructionSet, RuleSet};
-use rstm_state::{IntoState, State};
+use rstm_state::{IntoState, RawState, State};
 
 impl<R, Q, A> InstructionSet<R, Q, A>
 where
+    Q: RawState,
     R: RuleSet<Q, A>,
 {
     /// initialize a new program from the given rule set

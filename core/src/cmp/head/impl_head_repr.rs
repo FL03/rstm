@@ -5,8 +5,12 @@
 */
 use super::{Head, HeadMut, HeadRef};
 use crate::types::Direction;
+use rstm_state::RawState;
 
-impl<'a, Q, S> HeadRef<'a, Q, S> {
+impl<'a, Q, S> HeadRef<'a, Q, S>
+where
+    Q: RawState,
+{
     /// returns a new [`Head`] with cloned elements
     pub fn cloned(&self) -> Head<Q, S>
     where
@@ -31,7 +35,10 @@ impl<'a, Q, S> HeadRef<'a, Q, S> {
     }
 }
 
-impl<'a, Q, S> HeadMut<'a, Q, S> {
+impl<'a, Q, S> HeadMut<'a, Q, S>
+where
+    Q: RawState,
+{
     /// returns a new [`Head`] with cloned elements
     pub fn cloned(&self) -> Head<Q, S>
     where

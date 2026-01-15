@@ -6,13 +6,16 @@
 use super::{Head, HeadMut, HeadRef};
 use crate::motion::HeadStep;
 use crate::rules::Rule;
-use crate::state::State;
 use crate::tail::Tail;
+use rstm_state::{RawState, State};
 
 /// The core implementation of the [`Head`] providing fundamental methods for its manipulation,
 /// including various constructors, accessors, and mutators as well as convienience methods for
 /// converting between representations.
-impl<Q, A> Head<Q, A> {
+impl<Q, A> Head<Q, A>
+where
+    Q: RawState,
+{
     /// initialize a new instance of the [`Head`] given some state and symbol
     pub const fn new(state: Q, symbol: A) -> Self {
         Self {
@@ -146,7 +149,10 @@ impl<Q, A> Head<Q, A> {
         (self.state, self.symbol)
     }
     /// associates the given tail with the current head, returning a new [`Rule`]
-    pub fn append(self, tail: Tail<Q, A>) -> Rule<Q, A> {
+    pub fn into_rule_with_tail(self, tail: Tail<Q, A>) -> Rule<Q, A>
+    where
+        Q: RawState,
+    {
         Rule { head: self, tail }
     }
     /// tries reading the given tape using the head as its coordinates.
@@ -174,35 +180,9 @@ impl<Q, A> Head<Q, A> {
     /// manage the process.
     ///
     /// **Note**: this method is _lazy_, meaning that the actual step is not performed until
-    /// a valid operation is invoked on the executor.
-    pub fn move_head<'a>(&'a mut self, tail: Tail<Q, A>) -> HeadStep<'a, Q, A> {
+    /// an actionable method is called on the returned [`HeadStep`] instance, namely
+    /// [`execute`](HeadStep::execute) or [`move_along`](HeadStep::move_along).
+    pub fn step<'a>(&'a mut self, tail: Tail<Q, A>) -> HeadStep<'a, Q, A> {
         HeadStep::new(self, tail)
-    }
-}
-
-impl<Q, S> From<S> for Head<Q, S>
-where
-    Q: Default,
-{
-    fn from(symbol: S) -> Self {
-        Self::new(Q::default(), symbol)
-    }
-}
-
-impl<Q, S> From<(Q, S)> for Head<Q, S> {
-    fn from((state, symbol): (Q, S)) -> Self {
-        Self::new(state, symbol)
-    }
-}
-
-impl<Q, S> From<(State<Q>, S)> for Head<Q, S> {
-    fn from((state, symbol): (State<Q>, S)) -> Self {
-        Head { state, symbol }
-    }
-}
-
-impl<Q, S> From<Head<Q, S>> for (State<Q>, S) {
-    fn from(Head { state, symbol }: Head<Q, S>) -> Self {
-        (state, symbol)
     }
 }

@@ -5,8 +5,8 @@
 */
 use super::Tail;
 use crate::head::Head;
-use crate::state::State;
 use crate::types::Direction;
+use rstm_state::State;
 
 impl<Q, A> From<(Direction, Head<Q, A>)> for Tail<Q, A> {
     fn from((direction, head): (Direction, Head<Q, A>)) -> Self {
@@ -63,8 +63,8 @@ where
 {
     fn eq(&self, (other_direction, other_head): &(Direction, Head<Q, A>)) -> bool {
         &self.direction == other_direction
-            && &self.next_state == other_head.state()
-            && &self.write_symbol == other_head.symbol()
+            && &self.next_state == &other_head.state
+            && &self.write_symbol == &other_head.symbol
     }
 }
 

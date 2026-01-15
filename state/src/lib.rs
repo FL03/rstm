@@ -19,6 +19,7 @@
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(all(feature = "alloc", feature = "nightly"), feature(allocator_api))]
+#![cfg_attr(feature = "nightly", feature(arbitrary_self_types))]
 // external crates
 #[cfg(feature = "alloc")]
 extern crate alloc;
@@ -43,12 +44,15 @@ mod impls {
 }
 
 mod traits {
+    #[cfg(feature = "nightly")]
+    pub use self::stated::*;
     #[doc(inline)]
     pub use self::{convert::*, halting::*, raw_state::*};
 
     mod convert;
     mod halting;
     mod raw_state;
+    mod stated;
 }
 
 mod types {

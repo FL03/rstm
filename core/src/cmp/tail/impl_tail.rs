@@ -5,10 +5,13 @@
 */
 use super::Tail;
 use crate::head::Head;
-use crate::state::State;
 use crate::types::Direction;
+use rstm_state::{RawState, State};
 
-impl<Q, A> Tail<Q, A> {
+impl<Q, A> Tail<Q, A>
+where
+    Q: RawState,
+{
     /// initializes a new [`Tail`] with the given direction, state, and symbol
     pub const fn new(direction: Direction, next_state: Q, write_symbol: A) -> Self {
         Self {

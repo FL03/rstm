@@ -14,21 +14,20 @@ pub(crate) mod prelude {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::{Head, Tail};
 
     #[test]
     fn test_moving_head() {
         let mut head = Head::new(0u8, ' ');
         let tail = Tail::right(1u8, 'A');
-        let tmh = HeadStep::new(&mut head, tail);
+        let step = head.step(tail);
         let mut tape = vec![' '; 10];
         // ensure an empty tape
         assert_eq! { tape[0], ' ' }
         // define the current position
         let mut position = 0usize;
 
-        let prev = tmh.step_on(&mut tape, &mut position);
+        let prev = step.move_along(&mut tape, &mut position);
         assert_eq! { position, 1 }
         assert_eq! { prev, (0u8, ' ') }
         assert_eq! { tape[0], 'A' }

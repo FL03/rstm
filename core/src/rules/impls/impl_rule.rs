@@ -5,9 +5,12 @@
 use crate::rules::{Rule, RuleBuilder};
 
 use crate::{Direction, Head, Tail};
-use rstm_state::State;
+use rstm_state::{RawState, State};
 
-impl<Q, A> Rule<Q, A> {
+impl<Q, A> Rule<Q, A>
+where
+    Q: RawState,
+{
     /// returns a new instance of the [`Rule`] from the given head and tail
     pub const fn new(head: Head<Q, A>, tail: Tail<Q, A>) -> Self {
         Self { head, tail }

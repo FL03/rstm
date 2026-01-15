@@ -3,8 +3,8 @@
     Created At: 2025.08.30:01:04:10
     Contrib: @FL03
 */
-use crate::state::State;
 use crate::{Direction, Head, Tail};
+use rstm_state::{RawState, State};
 
 /// The [`Rule`] implementation is a concrete representation of a single instruction, or rule,
 /// within a given Turing machine program. It encapsulates the necessary components to define
@@ -20,7 +20,10 @@ use crate::{Direction, Head, Tail};
     serde(rename_all = "snake_case")
 )]
 #[repr(C)]
-pub struct Rule<Q = String, A = char> {
+pub struct Rule<Q = String, A = char>
+where
+    Q: RawState,
+{
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub head: Head<Q, A>,
     #[cfg_attr(feature = "serde", serde(flatten))]
@@ -38,14 +41,20 @@ pub struct Rule<Q = String, A = char> {
     derive(serde::Deserialize, serde::Serialize),
     serde(rename_all = "snake_case")
 )]
-pub struct LearnedRule<C = f32, Q = usize, S = usize> {
+pub struct LearnedRule<C = f32, Q = usize, S = usize>
+where
+    Q: RawState,
+{
     pub confidence: C,
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub rule: Rule<Q, S>,
 }
 
 #[derive(Default)]
-pub struct RuleBuilder<Q, S> {
+pub struct RuleBuilder<Q, S>
+where
+    Q: RawState,
+{
     pub(crate) direction: Direction,
     pub(crate) state: Option<State<Q>>,
     pub(crate) symbol: Option<S>,

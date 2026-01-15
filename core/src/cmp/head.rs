@@ -6,7 +6,7 @@ mod impl_head;
 mod impl_head_ext;
 mod impl_head_repr;
 
-use crate::state::State;
+use rstm_state::State;
 
 /// a type alias for a [`Head`] containing immutable references to its state and symbol
 pub type HeadRef<'a, Q, S> = Head<&'a Q, &'a S>;

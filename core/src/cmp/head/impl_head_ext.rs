@@ -5,8 +5,8 @@
 */
 use super::Head;
 use crate::rules::Rule;
-use crate::state::State;
 use crate::tail::Tail;
+use rstm_state::{RawState, State};
 
 impl<Q, A> core::fmt::Debug for Head<Q, A>
 where
@@ -31,7 +31,10 @@ where
     }
 }
 
-impl<Q, A> core::ops::Add<Tail<Q, A>> for Head<Q, A> {
+impl<Q, A> core::ops::Add<Tail<Q, A>> for Head<Q, A>
+where
+    Q: RawState,
+{
     type Output = Rule<Q, A>;
 
     fn add(self, rhs: Tail<Q, A>) -> Self::Output {
@@ -47,7 +50,7 @@ where
     Q: PartialEq,
 {
     fn eq(&self, state: &State<Q>) -> bool {
-        self.state() == state
+        &self.state == state
     }
 }
 
@@ -56,7 +59,7 @@ where
     Q: PartialEq,
 {
     fn eq(&self, head: &Head<Q, A>) -> bool {
-        self == head.state()
+        self == &head.state
     }
 }
 
@@ -65,7 +68,7 @@ where
     Q: PartialEq,
 {
     fn eq(&self, head: &Head<Q, A>) -> bool {
-        *self == head.state().view()
+        *self == head.state.view()
     }
 }
 
@@ -74,7 +77,7 @@ where
     Q: PartialEq,
 {
     fn eq(&self, state: &State<&'a Q>) -> bool {
-        self.state().view() == *state
+        self.state.view() == *state
     }
 }
 
@@ -105,7 +108,7 @@ where
     A: PartialEq,
 {
     fn eq(&self, (state, symbol): &(Q, A)) -> bool {
-        self.state() == state && self.symbol() == symbol
+        &self.state == state && &self.symbol == symbol
     }
 }
 
@@ -115,6 +118,39 @@ where
     A: PartialEq,
 {
     fn eq(&self, head: &Head<Q, A>) -> bool {
-        head.state() == &self.0 && head.symbol() == &self.1
+        head.state == &self.0 && &head.symbol == &self.1
+    }
+}
+
+impl<Q, S> From<S> for Head<Q, S>
+where
+    Q: Default,
+{
+    fn from(symbol: S) -> Self {
+        Head {
+            state: State::default(),
+            symbol,
+        }
+    }
+}
+
+impl<Q, S> From<(Q, S)> for Head<Q, S> {
+    fn from((state, symbol): (Q, S)) -> Self {
+        Head {
+            state: State(state),
+            symbol,
+        }
+    }
+}
+
+impl<Q, S> From<(State<Q>, S)> for Head<Q, S> {
+    fn from((state, symbol): (State<Q>, S)) -> Self {
+        Head { state, symbol }
+    }
+}
+
+impl<Q, S> From<Head<Q, S>> for (State<Q>, S) {
+    fn from(Head { state, symbol }: Head<Q, S>) -> Self {
+        (state, symbol)
     }
 }

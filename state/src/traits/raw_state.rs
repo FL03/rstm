@@ -57,6 +57,10 @@ where
 /*
  ************* Implementations *************
 */
+impl RawState for &str {
+    seal! {}
+}
+
 impl RawState for () {
     seal! {}
 }

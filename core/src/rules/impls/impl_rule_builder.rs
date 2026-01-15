@@ -5,9 +5,12 @@
 use crate::rules::{Rule, RuleBuilder};
 
 use crate::{Direction, Head, Tail};
-use rstm_state::State;
+use rstm_state::{RawState, State};
 
-impl<Q, S> RuleBuilder<Q, S> {
+impl<Q, S> RuleBuilder<Q, S>
+where
+    Q: RawState,
+{
     /// initialize a new instance of the [`RuleBuilder`]
     pub const fn new() -> Self {
         Self {
@@ -79,7 +82,10 @@ impl<Q, S> RuleBuilder<Q, S> {
     }
 }
 
-impl<Q, S> From<RuleBuilder<Q, S>> for Rule<Q, S> {
+impl<Q, S> From<RuleBuilder<Q, S>> for Rule<Q, S>
+where
+    Q: RawState,
+{
     fn from(builder: RuleBuilder<Q, S>) -> Self {
         builder.build()
     }

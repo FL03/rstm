@@ -5,8 +5,8 @@
 */
 use crate::head::Head;
 use crate::rules::Rule;
-use crate::state::State;
 use rspace_traits::RawSpace;
+use rstm_state::{RawState, State};
 
 /// A [`HeadSpace`] is a particular _kind_ of space that deals with the _heads_ of rules.
 pub trait HeadSpace<Q, S>: RawSpace<Elem = Head<Q, S>> {}
@@ -14,7 +14,10 @@ pub trait HeadSpace<Q, S>: RawSpace<Elem = Head<Q, S>> {}
 /// then a rulespace defines how those configurations can change or evolve over time. In other
 /// words, if a c-space is a disconnected point cloud, then a rulespace is a set of rules that
 /// connect those points together, defining morphisms between them.
-pub trait RuleSpace<Q, S> {
+pub trait RuleSpace<Q, S>
+where
+    Q: RawState,
+{
     type Space<_Q, _S>: ?Sized + HeadSpace<_Q, _S>;
 
     /// Retrieve the underlying configuration space associated with this rulespace.
@@ -29,7 +32,7 @@ impl<Q, S> HeadSpace<Q, S> for [Head<Q, S>] {}
 
 impl<Q, S> RuleSpace<Q, S> for [Rule<Q, S>]
 where
-    Q: PartialEq,
+    Q: RawState + PartialEq,
     S: PartialEq,
 {
     type Space<_Q, _S> = dyn HeadSpace<_Q, _S>;
@@ -43,14 +46,16 @@ where
 
 #[cfg(feature = "alloc")]
 mod impl_alloc {
-    use super::*;
+    use super::{HeadSpace, RuleSpace};
+    use crate::{Head, Rule};
     use alloc::vec::Vec;
+    use rstm_state::{RawState, State};
 
     impl<Q, A> HeadSpace<Q, A> for Vec<Head<Q, A>> {}
 
     impl<Q, A> RuleSpace<Q, A> for Vec<Rule<Q, A>>
     where
-        Q: PartialEq,
+        Q: RawState + PartialEq,
         A: PartialEq,
     {
         type Space<_Q, _S> = dyn HeadSpace<_Q, _S>;

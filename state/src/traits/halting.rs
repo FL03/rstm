@@ -13,11 +13,11 @@ pub trait IsHalted {
 /*
  ************* Implementations *************
 */
-use crate::Halter;
+use crate::Halt;
 
-impl<Q, H> IsHalted for State<Halter<Q, H>> {
+impl<Q, H> IsHalted for State<Halt<Q, H>> {
     fn is_halted(&self) -> bool {
-        matches!(self.get(), &Halter::Halt(_))
+        matches!(self.get(), &Halt::Halt(_))
     }
 }
 impl<Q> IsHalted for State<Option<Q>> {

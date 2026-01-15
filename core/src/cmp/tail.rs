@@ -8,7 +8,7 @@ mod impl_tail_ext;
 mod impl_tail_repr;
 
 use crate::Direction;
-use crate::state::State;
+use rstm_state::{RawState, State};
 
 /// A type alias for a [`Tail`] containing immutable references to the next state and symbol.
 pub type TailRef<'a, Q, A> = Tail<&'a Q, &'a A>;
@@ -17,7 +17,10 @@ pub type TailMut<'a, Q, A> = Tail<&'a mut Q, &'a mut A>;
 
 /// [`RawTail`] is a sealed marker trait used to denote objects capable of being used to
 /// represent the _tail_ of a rule for a Turing machine.
-pub trait RawTail<Q, A> {
+pub trait RawTail<Q, A>
+where
+    Q: RawState,
+{
     private! {}
     /// returns the direction of the tail.
     fn direction(&self) -> Direction;
@@ -47,7 +50,10 @@ pub struct Tail<Q, A> {
 /*
  ************* Implementations *************
 */
-impl<Q, A> RawTail<Q, A> for (Direction, State<Q>, A) {
+impl<Q, A> RawTail<Q, A> for (Direction, State<Q>, A)
+where
+    Q: RawState,
+{
     seal! {}
     /// returns the direction of the tail.
     fn direction(&self) -> Direction {
@@ -63,7 +69,10 @@ impl<Q, A> RawTail<Q, A> for (Direction, State<Q>, A) {
     }
 }
 
-impl<Q, A> RawTail<Q, A> for Tail<Q, A> {
+impl<Q, A> RawTail<Q, A> for Tail<Q, A>
+where
+    Q: RawState,
+{
     seal! {}
     /// returns the direction of the tail.
     fn direction(&self) -> Direction {

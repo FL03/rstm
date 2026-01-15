@@ -93,7 +93,7 @@ pub use self::{
 #[cfg(feature = "macros")]
 pub use rstm_state::s;
 #[doc(inline)]
-pub use rstm_state::{HaltState, Halter, IsHalted, RawState, State};
+pub use rstm_state::{Halt, HaltState, IsHalted, RawState, State};
 // prelude
 #[doc(hidden)]
 pub mod prelude {

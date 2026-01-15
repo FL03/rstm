@@ -4,8 +4,11 @@
     Contrib: @FL03
 */
 use super::{Tail, TailMut, TailRef};
-
-impl<'a, Q, S> TailRef<'a, Q, S> {
+use rstm_state::RawState;
+impl<'a, Q, S> TailRef<'a, Q, S>
+where
+    Q: RawState,
+{
     /// returns a new [`Tail`] with cloned elements
     pub fn cloned(&self) -> Tail<Q, S>
     where
@@ -32,7 +35,10 @@ impl<'a, Q, S> TailRef<'a, Q, S> {
     }
 }
 
-impl<'a, Q, S> TailMut<'a, Q, S> {
+impl<'a, Q, S> TailMut<'a, Q, S>
+where
+    Q: RawState,
+{
     /// returns a new [`Tail`] with cloned elements
     pub fn cloned(&self) -> Tail<Q, S>
     where

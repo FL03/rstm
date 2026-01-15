@@ -5,7 +5,7 @@
 */
 use super::RuleSet;
 use crate::{Head, Rule, Tail};
-use rstm_state::State;
+use rstm_state::{RawState, State};
 
 #[cfg(feature = "hashbrown")]
 use hashbrown::{HashMap, HashSet};
@@ -33,6 +33,7 @@ pub type ProgramSet<Q, A> = InstructionSet<Q, A, HashSet<Rule<Q, A>>>;
 )]
 pub struct InstructionSet<R, Q, A>
 where
+    Q: RawState,
     R: RuleSet<Q, A>,
 {
     pub(crate) rules: R,
