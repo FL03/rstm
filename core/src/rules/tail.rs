@@ -3,9 +3,6 @@
     Created At: 2025.12.15:21:29:04
     Contrib: @FL03
 */
-mod impl_tail;
-mod impl_tail_ext;
-mod impl_tail_repr;
 
 use crate::Direction;
 use rstm_state::{RawState, State};

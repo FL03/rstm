@@ -91,13 +91,14 @@ where
     }
     /// returns an immutable reference to the tail for a given head; returns [`None`](Option::None)
     /// if no match is found.
-    pub fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>>
+    pub fn get<Z>(&self, head: &Z) -> Option<&Tail<Q, A>>
     where
         Q: PartialEq,
         A: PartialEq,
+        Z: core::borrow::Borrow<Head<Q, A>>,
     {
         self.iter().find_map(|i| {
-            if i.head() == head {
+            if i.head() == head.borrow() {
                 Some(i.tail())
             } else {
                 None

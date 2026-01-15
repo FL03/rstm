@@ -10,7 +10,7 @@ pub trait RawState {
     private! {}
 }
 /// The [`HaltingState`] trait is used to define states that are capable of representing halting
-/// conditions within a Turing machine simulation. For instance, if our state is of type 
+/// conditions within a Turing machine simulation. For instance, if our state is of type
 /// `isize`, then we might define `<isize>::MAX` to represent a halting state.
 pub trait HaltingState
 where
@@ -18,8 +18,8 @@ where
 {
     private! {}
 }
-/// The [`Stateful`] trait is used to extend the base [`RawState`] trait, introducing 
-/// additional traits and constraints that are commonly required for state representations. 
+/// The [`Stateful`] trait is used to extend the base [`RawState`] trait, introducing
+/// additional traits and constraints that are commonly required for state representations.
 pub trait Stateful: RawState
 where
     Self: Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
@@ -97,9 +97,8 @@ where
     seal! {}
 }
 
-impl<T> Stateful for T
-where
-    T: RawState + Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
+impl<T> Stateful for T where
+    T: RawState + Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display
 {
 }
 

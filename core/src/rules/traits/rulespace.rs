@@ -3,8 +3,7 @@
     Created At: 2025.12.16:17:22:50
     Contrib: @FL03
 */
-use crate::head::Head;
-use crate::rules::Rule;
+use crate::{Head, Rule};
 use rspace_traits::RawSpace;
 use rstm_state::{RawState, State};
 

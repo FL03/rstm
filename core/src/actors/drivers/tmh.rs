@@ -3,7 +3,7 @@
     Created At: 2025.08.31:00:16:37
     Contrib: @FL03
 */
-use crate::head::Head;
+use crate::rules::Head;
 
 /// The [`TMH`] is an implementation of a Turing Machine with a "moving head". Here, we
 /// manifest these behaviors by using the symbol of the head to represent its current position

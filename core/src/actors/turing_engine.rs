@@ -47,6 +47,10 @@ where
             ..self
         }
     }
+    /// increments the current epoch by a single unit indicating the end of a cycle or step
+    pub const fn next_cycle(&mut self) {
+        self.cycles += 1;
+    }
     /// returns a reference to the actor
     pub const fn driver(&self) -> &D {
         self.driver

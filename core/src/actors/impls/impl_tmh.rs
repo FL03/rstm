@@ -18,7 +18,10 @@ where
     Q: RawState,
 {
     /// create a new instance of the [`TMH`] using the given state and tape.
-    pub fn new<I>(state: Q, tape: I) -> Self where I: IntoIterator<Item = A> {
+    pub fn new<I>(state: Q, tape: I) -> Self
+    where
+        I: IntoIterator<Item = A>,
+    {
         Self {
             head: Head::new(state, 0),
             tape: Vec::from_iter(tape),

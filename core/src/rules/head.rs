@@ -2,10 +2,6 @@
     Appellation: head <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-mod impl_head;
-mod impl_head_ext;
-mod impl_head_repr;
-
 use rstm_state::{RawState, State};
 
 /// a type alias for a [`Head`] containing immutable references to its state and symbol
@@ -21,7 +17,9 @@ pub trait RawHead<Q, A>
 where
     Q: RawState,
 {
+    /// returns a reference to the current state of the head
     fn state(&self) -> &State<Q>;
+    /// returns a reference to the symbol of the head
     fn symbol(&self) -> &A;
 
     private! {}

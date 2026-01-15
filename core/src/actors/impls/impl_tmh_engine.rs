@@ -107,10 +107,8 @@ where
             self.output.extend(self.driver().tape().clone());
         }
         self.output = self.driver().tape().to_vec();
-        // increment the steps
-        self.next_cycle();
         #[cfg(feature = "tracing")]
-        tracing::info!("{tape:?}", tape = self.driver());
+        tracing::trace!("{tape:?}", tape = self.driver());
         // check if the actor is halted
         if self.is_halted() {
             #[cfg(feature = "tracing")]
@@ -127,21 +125,12 @@ where
             .find_tail(state, symbol)
             .ok_or(crate::Error::NoRuleFound)?
             .clone();
+        // increment the steps
+        self.next_cycle();
         // process the instruction
         let step = self.driver.head_mut().step(tail);
+        // apply the step
         Ok(step.shift(&mut self.output))
-    }
-}
-
-#[allow(dead_code)]
-/// This implementation is for any private methods used internally by the engine
-impl<'a, Q, A> TMHEngine<'a, Q, A>
-where
-    Q: RawState,
-{
-    /// increments the current epoch by a single unit
-    pub(crate) const fn next_cycle(&mut self) {
-        self.cycles += 1;
     }
 }
 

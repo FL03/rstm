@@ -3,8 +3,8 @@
     Created At: 2025.08.31:00:01:56
     Contrib: @FL03
 */
-use super::{Head, HeadMut, HeadRef};
-use crate::types::Direction;
+use crate::Direction;
+use crate::rules::{Head, HeadMut, HeadRef};
 use rstm_state::RawState;
 
 impl<'a, Q, S> HeadRef<'a, Q, S>

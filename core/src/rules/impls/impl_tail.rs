@@ -3,9 +3,8 @@
     Created At: 2025.08.30:23:58:26
     Contrib: @FL03
 */
-use super::Tail;
-use crate::head::Head;
-use crate::types::Direction;
+use crate::rules::Tail;
+use crate::{Direction, Head};
 use rstm_state::{RawState, State};
 
 impl<Q, A> Tail<Q, A>

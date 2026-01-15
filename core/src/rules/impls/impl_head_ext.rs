@@ -3,9 +3,8 @@
     Created At: 2025.09.05:17:57:25
     Contrib: @FL03
 */
-use super::Head;
-use crate::rules::Rule;
-use crate::tail::Tail;
+use crate::rules::Head;
+use crate::{Rule, Tail};
 use rstm_state::{RawState, State};
 
 impl<Q, A> core::fmt::Debug for Head<Q, A>

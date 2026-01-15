@@ -44,30 +44,6 @@ pub mod motion;
 pub mod programs;
 pub mod rules;
 
-mod cmp {
-    #[doc(inline)]
-    pub use self::{head::*, tail::*};
-
-    pub mod head;
-    pub mod tail;
-}
-
-mod traits {
-    #[doc(inline)]
-    pub use self::{convert::*, rulespace::*};
-
-    mod convert;
-    mod rulespace;
-}
-
-mod types {
-    #[doc(inline)]
-    pub use self::{aliases::*, direction::*};
-
-    mod aliases;
-    mod direction;
-}
-
 mod utils {
     #[doc(inline)]
     pub use self::range::*;
@@ -81,13 +57,10 @@ pub(crate) use rstm_traits::prelude::*;
 #[doc(inline)]
 pub use self::{
     actors::TMH,
-    cmp::*,
     error::{Error, Result},
     motion::HeadStep,
     programs::{InstructionSet, Program, RuleSet},
-    rules::*,
-    traits::*,
-    types::*,
+    rules::prelude::*,
     utils::*,
 };
 #[cfg(feature = "macros")]
@@ -105,12 +78,9 @@ pub mod prelude {
     pub use crate::{rules, ruleset};
 
     pub use crate::actors::prelude::*;
-    pub use crate::cmp::*;
     pub use crate::motion::prelude::*;
     pub use crate::programs::prelude::*;
-    pub use crate::rules::*;
-    pub use crate::traits::*;
-    pub use crate::types::*;
+    pub use crate::rules::prelude::*;
     pub use crate::utils::*;
 }
 

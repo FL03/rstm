@@ -3,10 +3,9 @@
     Created At: 2025.08.31:00:00:55
     Contrib: @FL03
 */
-use super::{Head, HeadMut, HeadRef};
 use crate::motion::HeadStep;
-use crate::rules::Rule;
-use crate::tail::Tail;
+use crate::{Head, HeadMut, HeadRef};
+use crate::{Rule, Tail};
 use rstm_state::{RawState, State};
 
 /// The core implementation of the [`Head`] providing fundamental methods for its manipulation,

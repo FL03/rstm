@@ -3,7 +3,8 @@
     Created At: 2025.09.04:19:35:05
     Contrib: @FL03
 */
-use super::{Tail, TailMut, TailRef};
+use crate::rules::{Tail, TailMut, TailRef};
+
 use rstm_state::RawState;
 impl<'a, Q, S> TailRef<'a, Q, S>
 where

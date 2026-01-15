@@ -3,8 +3,7 @@
     Created At: 2025.12.15:21:29:39
     Contrib: @FL03
 */
-use crate::head::Head;
-use crate::tail::Tail;
+use crate::{Head, Tail};
 
 /// Converts to a [`Head`] by reference.
 pub trait AsHead<Q, A> {

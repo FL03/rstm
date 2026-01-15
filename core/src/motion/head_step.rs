@@ -68,16 +68,25 @@ where
         if next_state.is_halted() {
             return None;
         }
-        tape.get(self.head.symbol).cloned().map(|sym| {
+        if let Some(sym) = tape.get(self.head.symbol).cloned() {
             // update the tape at the head's current position
             tape[self.head.symbol] = write_symbol;
             // update the head position based on the tail's direction
             self.head.symbol += direction;
-            // reconstruct & return the previous head
-            Head {
+            // reconstruct the previous head
+            let prev = Head {
                 state: self.head.replace_state(next_state),
                 symbol: sym,
-            }
-        })
+            };
+            return Some(prev);
+        }
+        #[cfg(feature = "tracing")]
+        tracing::error!(
+            "The position of the head ({}) is out of tape bounds for a tape of length {}",
+            self.head.symbol,
+            tape.len()
+        );
+        // return None if the head's position is out of bounds
+        None
     }
 }

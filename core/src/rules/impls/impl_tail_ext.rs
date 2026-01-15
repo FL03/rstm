@@ -3,9 +3,8 @@
     Created At: 2025.12.19:13:21:00
     Contrib: @FL03
 */
-use super::Tail;
-use crate::head::Head;
-use crate::types::Direction;
+use crate::rules::Tail;
+use crate::{Direction, Head};
 use rstm_state::State;
 
 impl<Q, A> core::fmt::Debug for Tail<Q, A>
@@ -33,6 +32,12 @@ where
             "{{ direction: {}, next_state: {}, write_symbol: {} }}",
             self.direction, self.next_state, self.write_symbol
         )
+    }
+}
+
+impl<Q, A> core::borrow::Borrow<Direction> for Tail<Q, A> {
+    fn borrow(&self) -> &Direction {
+        &self.direction
     }
 }
 
