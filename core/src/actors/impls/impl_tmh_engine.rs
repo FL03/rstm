@@ -6,7 +6,7 @@
 use crate::actors::{Engine, RawEngine, TMH, TMHEngine};
 use crate::programs::Program;
 use crate::{Head, ReadInto, Symbolic, Tail};
-use rstm_state::{IsHalted, RawState, State};
+use rstm_state::{HaltingState, IsHalted, RawState, State};
 use rstm_traits::Handle;
 
 impl<'a, Q, A> TMHEngine<'a, Q, A>
@@ -58,10 +58,14 @@ where
             }
         }
     }
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "run", target = "engine")
+    )]
     /// runs the program until termination (i.e., a halt state is reached, an error occurs, etc.)
     pub fn run(&mut self) -> crate::Result<()>
     where
-        Q: 'static + IsHalted + RawState + Clone + PartialEq,
+        Q: 'static + HaltingState + Clone + PartialEq,
         A: Symbolic,
     {
         // check for a program
@@ -73,12 +77,8 @@ where
         #[cfg(feature = "tracing")]
         tracing::info!("Running the program...");
         while let Some(_h) = self.step()? {
-            // #[cfg(feature = "tracing")]
-            // tracing::info!(
-            //     "Output after step #{i}: {tape:?}",
-            //     i = self.cycles,
-            //     tape = self.output,
-            // );
+            #[cfg(feature = "tracing")]
+            tracing::debug!("{:?}", self.driver());
             if self.driver.is_halted() {
                 #[cfg(feature = "tracing")]
                 tracing::info!(
@@ -93,11 +93,11 @@ where
     /// execute a single step of the program
     #[cfg_attr(
         feature = "tracing", 
-        tracing::instrument(skip_all, fields(step = %self.cycles), name = "step", target = "TuringEngine", level = "trace")
+        tracing::instrument(skip_all, fields(step = %self.cycles), name = "step", target = "engine")
     )]
     pub fn step(&mut self) -> crate::Result<Option<Head<Q, A>>>
     where
-        Q: 'static + IsHalted + RawState + Clone + PartialEq,
+        Q: 'static + RawState + Clone + PartialEq,
         A: Symbolic,
     {
         // if the output tape is empty, initialize it from the driver's tape
@@ -105,17 +105,6 @@ where
             #[cfg(feature = "tracing")]
             tracing::warn! { "Output tape is empty; initializing from driver's tape..." };
             self.output.extend(self.driver().tape().clone());
-        }
-        self.output = self.driver().tape().to_vec();
-        #[cfg(feature = "tracing")]
-        tracing::trace!("{tape:?}", tape = self.driver());
-        // check if the actor is halted
-        if self.is_halted() {
-            #[cfg(feature = "tracing")]
-            tracing::warn!(
-                "A halted stated was detected; terminating the execution of the program..."
-            );
-            return Ok(None);
         }
         // read the tape
         let Head { state, symbol } = self.get_head()?;

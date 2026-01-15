@@ -6,7 +6,7 @@
 #![cfg(feature = "alloc")]
 
 use crate::actors::{Driver, RawDriver, TMH};
-use crate::{DEFAULT_DISPLAY_RADIUS, Direction, Head, Tail, get_range_around};
+use crate::{DEFAULT_DISPLAY_RADIUS, Direction, Head, Tail};
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};
 use rstm_traits::{ExecuteMut, Handle, ReadInto, WriteInto};
@@ -27,18 +27,7 @@ where
     A: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        let pos = self.current_position();
-        let (a, b) = get_range_around(pos, self.len(), DEFAULT_DISPLAY_RADIUS);
-        // print out the tape with the head position highlighted
-        for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
-            let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
-                format!("[{c}]")
-            } else {
-                format!("{c}")
-            };
-            f.write_str(&cell)?;
-        }
-        Ok(())
+        f.write_str(self.print(DEFAULT_DISPLAY_RADIUS).as_str())
     }
 }
 

@@ -4,7 +4,7 @@
     Contrib: @FL03
 */
 use crate::{Head, Tail};
-use rstm_state::{IsHalted, RawState};
+use rstm_state::RawState;
 
 /// [`HeadStep`] is a structure responsible for managing the step operation of a moving head
 /// in a Turing machine simulation.
@@ -54,20 +54,18 @@ where
 {
     /// this method shifts the head along the tape, returning a head containing the previous
     /// state and symbol.
+    ///
+    /// **note**: this method **does not** check if the current nor the next state is halted,
+    /// it is up to the caller to establishing halting.
     pub fn shift(self, tape: &mut [A]) -> Option<Head<Q, A>>
     where
         A: Clone,
-        Q: IsHalted,
     {
         let Tail {
             next_state,
             direction,
             write_symbol,
         } = self.tail;
-        // halt the machine if the next state is a halting state
-        if next_state.is_halted() {
-            return None;
-        }
         if let Some(sym) = tape.get(self.head.symbol).cloned() {
             // update the tape at the head's current position
             tape[self.head.symbol] = write_symbol;

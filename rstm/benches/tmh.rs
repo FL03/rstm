@@ -48,7 +48,7 @@ fn bench_tmh(c: &mut Criterion) {
         b.iter_batched(
             setup_tmh,
             |mut tmh| {
-                let mut engine = tmh.execute(PROGRAM.clone());
+                let mut engine = tmh.load(PROGRAM.clone());
                 black_box(engine.step().expect("should step"));
             },
             BatchSize::SmallInput,

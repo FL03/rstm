@@ -61,7 +61,7 @@ where
     /// returns a mutable reference of the tape
     pub const fn tape_mut(&mut self) -> &mut Vec<A> {
         &mut self.tape
-    }    
+    }
     /// returns the current position of the head on the tape
     pub const fn current_position(&self) -> usize {
         *self.head().symbol()
@@ -161,12 +161,12 @@ where
     {
         self.head().state().is_halted()
     }
-    /// returns an engine loaded with the given program and using the current instance as the
-    /// driver.
+    /// loads the given program and current driver into an engine used to magane the execution
+    /// process.
     ///
     /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
     /// until the corresponding `.run()` method is invoked on the engine.
-    pub fn execute(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Self, Q, A> {
+    pub fn load(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Self, Q, A> {
         TuringEngine::new(self).load_with(program)
     }
     /// returns the _current_ head of the actor, using the given directive to write some symbol

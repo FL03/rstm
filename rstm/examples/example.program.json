@@ -1,5 +1,5 @@
 {
-  "initialState": 0,
+  "initial_state": 0,
   "rules": [
     {
       "state": 0,
