@@ -2,13 +2,29 @@
     Appellation: ruleset <module>
     Contrib: @FL03
 */
-
+/// The [`head!`] macro simplifies the creation of a [`Head`](crate::Head) struct
+/// by providing a concise syntax for specifying the state and symbol.
 #[macro_export]
 macro_rules! head {
     ($state:expr, $symbol:expr) => {
-        $crate::head::Head {
+        $crate::Head {
             state: $crate::State($state),
             symbol: $symbol,
+        }
+    };
+}
+///! the [`tail!`] macro facilitates the creation of a [`Tail`](crate::Tail) struct
+///! by providing a concise syntax for specifying the direction, next state, and symbol to
+/// write. As with other macros in this module, the variants of the [`Direction`](crate::Direction)
+/// are hygenically imported based on usage, meaning one only needs to specify the variant name
+///! directly, i.e. `Left`, `Right`, or `Stay`.
+#[macro_export]
+macro_rules! tail {
+    ($direction:ident, $state:expr, $symbol:expr) => {
+        $crate::Tail {
+            direction: $crate::Direction::$direction,
+            next_state: $crate::State($state),
+            write_symbol: $symbol,
         }
     };
 }
@@ -38,22 +54,14 @@ macro_rules! head {
 /// and updates the state to `1`.
 ///
 /// ```rust
-/// use rstm_core::rule;
-/// rule![(0, 'a') -> Right(1, 'c')];
+/// let rule = rstm_core::rule![(0, 'a') -> Right(1, 'c')];
 /// ```
 #[macro_export]
 macro_rules! rule {
     [($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal)] => {
         $crate::Rule {
-            head: $crate::Head {
-                state: $crate::State($state),
-                symbol: $symbol,
-            },
-            tail: $crate::Tail {
-                direction: $crate::Direction::$direction,
-                next_state: $crate::State($next),
-                write_symbol: $write,
-            }
+            head: $crate::head!($state, $symbol),
+            tail: $crate::tail!($direction, $next, $write),
         }
     };
 }
@@ -72,9 +80,7 @@ macro_rules! rule {
 /// states `{-1, 0, 1}` and two symbols `{0, 1}`.
 ///
 /// ```rust
-/// use rstm_core::ruleset;
-///
-/// let rule = ruleset![
+/// let rule = rstm_core::ruleset![
 ///     (0, 0) -> Right(1, 1),
 ///     (0, 1) -> Left(-1, 0),
 ///     (1, 0) -> Right(1, 1),
@@ -101,16 +107,14 @@ macro_rules! ruleset {
 /// ## Basic Usage
 ///
 /// ```rust
-/// use rstm_core::rulemap;
-///
-/// rulemap! {
+/// let rules = rstm_core::head_map! {
 ///     (0, 1) -> Right(0, 1),
 ///     (0, 0) -> Left(1, 1),
 ///     (1, 1) -> Right(0, 0),
-/// }
+/// };
 /// ```
 #[macro_export]
-macro_rules! rulemap {
+macro_rules! head_map {
     {$(($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal)),* $(,)?} => {
         {
             let mut map = $crate::HeadMap::new();
