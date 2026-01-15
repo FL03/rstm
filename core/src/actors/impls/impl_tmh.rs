@@ -61,6 +61,18 @@ where
     /// returns a mutable reference of the tape
     pub const fn tape_mut(&mut self) -> &mut Vec<A> {
         &mut self.tape
+    }    
+    /// returns the current position of the head on the tape
+    pub const fn current_position(&self) -> usize {
+        *self.head().symbol()
+    }
+    /// returns an instance of the state with an immutable reference to the inner value
+    pub const fn state(&self) -> &State<Q> {
+        self.head().state()
+    }
+    /// returns an instance of the state with a mutable reference to the inner value
+    pub const fn state_mut(&mut self) -> &mut State<Q> {
+        self.head_mut().state_mut()
     }
     /// update the current head and return a mutable reference to the actor
     #[inline]
@@ -120,17 +132,11 @@ where
             ..self
         }
     }
-    /// returns the current position of the head on the tape
-    pub const fn current_position(&self) -> usize {
-        *self.head().symbol()
-    }
-    /// returns an instance of the state with an immutable reference to the inner value
-    pub const fn state(&self) -> &State<Q> {
-        self.head().state()
-    }
-    /// returns an instance of the state with a mutable reference to the inner value
-    pub const fn state_mut(&mut self) -> &mut State<Q> {
-        self.head_mut().state_mut()
+    /// clears the tape
+    pub fn clear(&mut self) {
+        #[cfg(feature = "tracing")]
+        tracing::trace!("clearing the tape...");
+        self.tape_mut().clear();
     }
     /// extends the tape with elements from the given iterator
     #[inline]
@@ -140,13 +146,9 @@ where
     {
         self.tape_mut().extend(iter)
     }
-    /// returns an engine loaded with the given program and using the current instance as the
-    /// driver.
-    ///
-    /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
-    /// until the corresponding `.run()` method is invoked on the engine.
-    pub fn execute(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Self, Q, A> {
-        TuringEngine::new(self).load_with(program)
+    /// returns the length of the tape
+    pub const fn len(&self) -> usize {
+        self.tape().len()
     }
     /// Checks if the tape is empty
     pub const fn is_empty(&self) -> bool {
@@ -159,9 +161,13 @@ where
     {
         self.head().state().is_halted()
     }
-    /// returns the length of the tape
-    pub const fn len(&self) -> usize {
-        self.tape().len()
+    /// returns an engine loaded with the given program and using the current instance as the
+    /// driver.
+    ///
+    /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
+    /// until the corresponding `.run()` method is invoked on the engine.
+    pub fn execute(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Self, Q, A> {
+        TuringEngine::new(self).load_with(program)
     }
     /// returns the _current_ head of the actor, using the given directive to write some symbol
     /// onto the tape before shifting the head and updating its state.

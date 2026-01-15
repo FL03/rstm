@@ -29,7 +29,7 @@ where
         self.program.as_ref()?.find_tail(state, symbol)
     }
     /// Reads the current symbol at the head of the tape
-    pub fn load_head(&self) -> crate::Result<Head<&Q, &A>> {
+    pub fn get_head(&self) -> crate::Result<Head<&Q, &A>> {
         self.driver().get_head()
     }
     /// read the current symbol at the head of the tape into the internal buffer
@@ -46,7 +46,7 @@ where
     }
     /// Reads the current symbol at the head of the tape
     pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&A>> {
-        if let Ok(Head { state, symbol }) = self.load_head() {
+        if let Ok(Head { state, symbol }) = self.get_head() {
             Head {
                 state,
                 symbol: core::mem::MaybeUninit::new(symbol),
@@ -118,7 +118,7 @@ where
             return Ok(None);
         }
         // read the tape
-        let Head { state, symbol } = self.load_head()?;
+        let Head { state, symbol } = self.get_head()?;
         // execute the program
         let tail = self
             .program()?
