@@ -3,14 +3,13 @@
     Created At: 2025.08.31:14:48:57
     Contrib: @FL03
 */
-use crate::actors::tmh::TMH;
-use crate::actors::{Engine, RawEngine, TuringEngine};
+use crate::actors::{Engine, RawEngine, TMH, TMHEngine};
 use crate::programs::Program;
-use crate::{Head, ReadBuf, Symbol, Tail};
+use crate::{Head, ReadInto, Symbol, Tail};
 use rstm_state::{IsHalted, RawState, State};
 use rstm_traits::Handle;
 
-impl<'a, Q, A> TuringEngine<'a, Q, A>
+impl<'a, Q, A> TMHEngine<'a, Q, A>
 where
     Q: RawState,
 {
@@ -33,15 +32,17 @@ where
     pub fn load_head(&self) -> crate::Result<Head<&Q, &A>> {
         self.driver().get_head()
     }
-    pub fn read(&mut self) -> crate::Result<&A>
+    /// read the current symbol at the head of the tape into the internal buffer
+    pub fn read_into(&mut self, buf: &mut [A]) -> crate::Result<A>
     where
         A: Clone,
-        Self: ReadBuf<A, Buf<'a, A> = [A], Output = A>,
+        Self: ReadInto<A, Buf<A> = [A], Output = A>,
     {
-        self.driver
-            .read(&mut self.output)
-            .expect("Failed to read from the tape");
-        Ok(&self.output[self.driver().current_position()])
+        let pos = self
+            .driver
+            .read(&mut buf[..])
+            .ok_or(crate::Error::NothingToRead)?;
+        Ok(buf[pos].clone())
     }
     /// Reads the current symbol at the head of the tape
     pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&A>> {
@@ -52,7 +53,7 @@ where
             }
         } else {
             Head {
-                state: self.current_state().view(),
+                state: self.current_state(),
                 symbol: core::mem::MaybeUninit::uninit(),
             }
         }
@@ -129,7 +130,7 @@ where
 
 #[allow(dead_code)]
 /// This implementation is for any private methods used internally by the engine
-impl<'a, Q, A> TuringEngine<'a, Q, A>
+impl<'a, Q, A> TMHEngine<'a, Q, A>
 where
     Q: RawState,
 {
@@ -139,7 +140,7 @@ where
     }
 }
 
-impl<'a, Q, A, X, Y> Handle<X> for TuringEngine<'a, Q, A>
+impl<'a, Q, A, X, Y> Handle<X> for TMHEngine<'a, Q, A>
 where
     Q: RawState,
     TMH<Q, A>: Handle<X, Output = Y>,
@@ -151,7 +152,7 @@ where
     }
 }
 
-impl<'a, Q, A> RawEngine<Q, A> for TuringEngine<'a, Q, A>
+impl<'a, Q, A> RawEngine<Q, A> for TMHEngine<'a, Q, A>
 where
     Q: RawState,
 {
@@ -160,26 +161,26 @@ where
     seal!();
 }
 
-impl<'a, Q, S> Engine<Q, S> for TuringEngine<'a, Q, S>
+impl<'a, Q, A> Engine<Q, A> for TMHEngine<'a, Q, A>
 where
     Q: 'static + IsHalted + RawState + Clone + PartialEq,
-    S: Symbol,
+    A: Symbol,
 {
-    fn load(&mut self, program: Program<Q, S>) {
+    fn load(&mut self, program: Program<Q, A>) {
         self.program = Some(program);
     }
 
     fn run(&mut self) -> Result<(), crate::Error> {
-        TuringEngine::run(self)
+        TMHEngine::run(self)
     }
 }
 
-impl<'a, Q, S> Iterator for TuringEngine<'a, Q, S>
+impl<'a, Q, A> Iterator for TMHEngine<'a, Q, A>
 where
     Q: 'static + IsHalted + RawState + Clone + PartialEq,
-    S: Symbol,
+    A: Symbol,
 {
-    type Item = Head<Q, S>;
+    type Item = Head<Q, A>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.step() {

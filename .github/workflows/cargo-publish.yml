@@ -29,6 +29,7 @@ jobs:
           # sdk
           - rstm-traits
           - rstm-state
+          - rstm-tape
           - rstm-core
           - rstm-macros
           - rstm

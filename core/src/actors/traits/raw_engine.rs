@@ -5,14 +5,8 @@
 */
 //! this modules provides the [`RawEngine`] and [`Engine`] traits alongside additional
 //! implementations for experiementing and building Turing machine engines
-#[cfg(feature = "alloc")]
-#[doc(inline)]
-pub use self::turing_engine::TuringEngine;
 
-#[cfg(feature = "alloc")]
-mod turing_engine;
-
-use super::RawActor;
+use super::RawDriver;
 
 use crate::programs::Program;
 use rstm_state::RawState;
@@ -22,18 +16,18 @@ pub trait RawEngine<Q, A>
 where
     Q: RawState,
 {
-    type Driver: RawActor;
+    type Driver: RawDriver<Q, A>;
 
     private!();
 }
 
 /// An [`Engine`] is responsible for processing input according to some set of pre-defined
 /// rules using the configured driver.
-pub trait Engine<Q, S>: RawEngine<Q, S>
+pub trait Engine<Q, A>: RawEngine<Q, A>
 where
     Q: RawState,
 {
-    fn load(&mut self, program: Program<Q, S>);
+    fn load(&mut self, program: Program<Q, A>);
 
     fn run(&mut self) -> crate::Result<()>;
 }

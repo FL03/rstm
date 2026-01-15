@@ -113,3 +113,6 @@ pub mod prelude {
     pub use crate::types::*;
     pub use crate::utils::*;
 }
+
+/// defines the radius around the head position to be displayed when printing the tape
+pub const DEFAULT_DISPLAY_RADIUS: usize = 10;

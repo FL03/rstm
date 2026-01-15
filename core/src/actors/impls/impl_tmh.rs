@@ -5,11 +5,11 @@
 */
 #![cfg(feature = "alloc")]
 
-use crate::actors::engine::TuringEngine;
-use crate::actors::tmh::TMH;
+use crate::actors::{TMH, TuringEngine};
 use crate::error::Error;
 use crate::programs::Program;
 use crate::{Direction, Head};
+use alloc::string::String;
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};
 
@@ -141,24 +141,23 @@ where
     ///
     /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
     /// until the corresponding `.run()` method is invoked on the engine.
-    pub fn execute(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Q, A> {
+    pub fn execute(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Self, Q, A> {
         TuringEngine::new(self).load_with(program)
     }
     /// Checks if the tape is empty
-    pub fn is_empty(&self) -> bool {
-        self.tape.is_empty()
+    pub const fn is_empty(&self) -> bool {
+        self.tape().is_empty()
     }
     /// Checks if the tape is halted
     pub fn is_halted(&self) -> bool
     where
-        Q: 'static + rstm_state::IsHalted,
+        Q: rstm_state::IsHalted,
     {
         self.head().state().is_halted()
     }
     /// returns the length of the tape
-    #[inline]
-    pub fn len(&self) -> usize {
-        self.tape.len()
+    pub const fn len(&self) -> usize {
+        self.tape().len()
     }
     /// returns the _current_ head of the actor, using the given directive to write some symbol
     /// onto the tape before shifting the head and updating its state.
@@ -170,7 +169,7 @@ where
     ) -> crate::Result<Head<Q, usize>> {
         let position = self.current_position();
         #[cfg(feature = "tracing")]
-        tracing::trace!("Reacting to the current context of cell: {:?}", position);
+        tracing::trace! { "Reacting to the current context of cell: {:?}", position }
         // write the symbol to the tape
         self.write(symbol)?;
         // update the head of the actor
@@ -217,23 +216,59 @@ where
 
         if pos < self.len() {
             #[cfg(feature = "tracing")]
-            tracing::trace!("Updating the tape at {pos}");
+            tracing::trace! { "Updating the tape at {pos}" }
             self.tape[pos] = value;
         } else if pos == self.len() {
             #[cfg(feature = "tracing")]
-            tracing::trace!("Extending the tape...");
+            tracing::trace! { "Extending the tape..." }
             // append to the tape
             self.tape_mut().push(value);
         } else {
             #[cfg(feature = "tracing")]
-            tracing::trace!("Prepending to the tape...");
+            tracing::trace! { "Prepending to the tape..." }
             // prepend to the tape
             self.tape_mut().insert(0, value);
         }
         Ok(())
     }
+    /// returns a string representation of the tape with the current head position highlighted
+    /// in brackets.
+    pub fn pretty_print(&self, radius: usize) -> String
+    where
+        A: core::fmt::Debug,
+    {
+        let mut cells = Vec::new();
+        let pos = self.current_position();
+        let (a, b) = crate::get_range_around(pos, self.len(), radius);
+        // print out the tape with the head position highlighted
+        for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
+            let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
+                format!("[{c:?}]")
+            } else {
+                format!("{c:?}")
+            };
+            cells.push(cell);
+        }
+        cells.join("")
+    }
+    /// returns a string representation of the tape with the current head position highlighted
+    /// in brackets.
+    pub fn print(&self, radius: usize) -> String
+    where
+        A: core::fmt::Display,
+    {
+        let mut cells = Vec::new();
+        let pos = self.current_position();
+        let (a, b) = crate::get_range_around(pos, self.len(), radius);
+        // print out the tape with the head position highlighted
+        for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
+            let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
+                format! { "[{c}]" }
+            } else {
+                format! { "{c}" }
+            };
+            cells.push(cell);
+        }
+        cells.join("")
+    }
 }
-
-#[allow(dead_code)]
-/// an implementation of the [`TMH`] providing useful, private methods
-impl<Q, A> TMH<Q, A> where Q: RawState {}

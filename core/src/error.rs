@@ -16,6 +16,8 @@ pub type Result<T = ()> = core::result::Result<T, Error>;
 #[non_exhaustive]
 pub enum Error {
     // custom errors
+    #[error("Unable to find anything to read from the current position of the head.")]
+    NothingToRead,
     #[error("No program or ruleset has been loaded into the actor.")]
     NoProgram,
     #[error("No rule found associated with the current state and symbol.")]

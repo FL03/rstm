@@ -1,13 +1,12 @@
 [workspace]
-default-members = [
-  "rstm",
-]
-exclude = [".archive/**"]
+default-members = ["rstm"]
 members = [
   "rstm",
   "core",
+  "macros",
   "state",
-  "traits", "macros",
+  "tape",
+  "traits", 
 ]
 resolver = "3"
 
@@ -37,10 +36,11 @@ rstm = { default-features = false, path = "rstm", version = "0.1.2" }
 rstm-core = { default-features = false, path = "core", version = "0.1.2" }
 rstm-macros = { default-features = false, path = "macros", version = "0.1.2" }
 rstm-state = { default-features = false, path = "state", version = "0.1.2" }
+rstm-tape = { default-features = false, path = "tape", version = "0.1.2" }
 rstm-traits = { default-features = false, path = "traits", version = "0.1.2" }
 # custom
-contained = { default-features = false, features = ["derive"], version = "0.2.3" }
-rspace-traits = { default-features = false, version = "0.0.7" }
+contained = { default-features = false, features = ["macros"], version = "0.2.3" }
+rspace-traits = { default-features = false, version = "0.0.8" }
 # developmemt
 criterion = { version = "0.8" }
 # async

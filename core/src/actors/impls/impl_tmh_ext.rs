@@ -5,14 +5,11 @@
 */
 #![cfg(feature = "alloc")]
 
-use crate::actors::tmh::TMH;
-use crate::actors::{Actor, RawActor};
-use crate::{Direction, Head, Tail, get_range_around};
+use crate::actors::{Driver, RawDriver, TMH};
+use crate::{DEFAULT_DISPLAY_RADIUS, Direction, Head, Tail, get_range_around};
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};
-use rstm_traits::{ExecuteMut, Handle, ReadBuf, WriteBuf};
-
-const DISPLAY_RADIUS: usize = 10;
+use rstm_traits::{ExecuteMut, Handle, ReadInto, WriteInto};
 
 impl<Q, A> core::fmt::Debug for TMH<Q, A>
 where
@@ -20,18 +17,7 @@ where
     A: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        let pos = self.current_position();
-        let (a, b) = get_range_around(pos, self.len(), DISPLAY_RADIUS);
-        // print out the tape with the head position highlighted
-        for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
-            let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
-                format!("[{c:?}]")
-            } else {
-                format!("{c:?}")
-            };
-            f.write_str(&cell)?;
-        }
-        Ok(())
+        f.write_str(self.pretty_print(DEFAULT_DISPLAY_RADIUS).as_str())
     }
 }
 
@@ -42,7 +28,7 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         let pos = self.current_position();
-        let (a, b) = get_range_around(pos, self.len(), DISPLAY_RADIUS);
+        let (a, b) = get_range_around(pos, self.len(), DEFAULT_DISPLAY_RADIUS);
         // print out the tape with the head position highlighted
         for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
             let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
@@ -56,16 +42,16 @@ where
     }
 }
 
-impl<Q, A> ReadBuf<A> for TMH<Q, A>
+impl<Q, A> ReadInto<A> for TMH<Q, A>
 where
     Q: RawState,
     A: Clone,
 {
-    type Buf<'a, _T> = [_T];
+    type Buf<_T> = [_T];
     type Output = Option<usize>;
 
     #[cfg_attr(feature = "tracing", tracing::instrument(skip_all))]
-    fn read(&mut self, buf: &mut Self::Buf<'_, A>) -> Self::Output {
+    fn read(&mut self, buf: &mut Self::Buf<A>) -> Self::Output {
         #[cfg(feature = "tracing")]
         tracing::trace!("reading the tape...");
         let pos = self.current_position();
@@ -83,7 +69,7 @@ where
     }
 }
 
-impl<Q, A> WriteBuf<A> for TMH<Q, A>
+impl<Q, A> WriteInto<A> for TMH<Q, A>
 where
     Q: RawState,
     A: Clone,
@@ -91,7 +77,7 @@ where
     type Buf<'a, _T> = [_T];
     type Output = Option<usize>;
 
-    fn write(&mut self, buf: &Self::Buf<'_, A>) -> Self::Output {
+    fn write(&mut self, buf: &mut Self::Buf<'_, A>) -> Self::Output {
         let pos = self.current_position();
         if pos > self.len() {
             #[cfg(feature = "tracing")]
@@ -116,24 +102,28 @@ where
     }
 }
 
-impl<Q, A> RawActor for TMH<Q, A>
+impl<Q, A> RawDriver<Q, A> for TMH<Q, A>
 where
     Q: RawState,
 {
-    type Store<_T> = Vec<_T>;
+    type Tape<_T> = Vec<_T>;
 
-    seal!();
-}
+    seal! {}
 
-impl<Q, A> Actor<Q, A> for TMH<Q, A>
-where
-    Q: RawState,
-{
-    fn store(&self) -> &Self::Store<A> {
-        &self.tape
+    fn current_state(&self) -> State<&Q> {
+        self.head().state().view()
     }
 
-    fn store_mut(&mut self) -> &mut Self::Store<A> {
+    fn tape(&self) -> &Self::Tape<A> {
+        &self.tape
+    }
+}
+
+impl<Q, A> Driver<Q, A> for TMH<Q, A>
+where
+    Q: RawState,
+{
+    fn store_mut(&mut self) -> &mut Self::Tape<A> {
         &mut self.tape
     }
 }

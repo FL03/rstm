@@ -1,11 +1,11 @@
 version: 2
 
 updates:
-  - package-ecosystem: rust-toolchain
+  - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
-  - package-ecosystem: github-actions
+  - package-ecosystem: rust-toolchain
     directory: /
     schedule:
       interval: monthly
@@ -18,4 +18,5 @@ updates:
       - /core
       - /macros
       - /state
+      - /tape
       - /traits
