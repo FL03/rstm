@@ -6,8 +6,6 @@
 
 ***
 
-_**The library is currently in the early stages of development and is still settling in on a feel for the api.**_
-
 Welcome to `rstm`! This crate provides a simple and easy-to-use interface for creating and executing Turing machines. The crate is designed to be flexible and extensible, allowing developers to create and execute a wide range of Turing machines. Furthermore, the crate focuses on efficiency and leverages feature-gating to reduce overhead.
 
 ## Features
@@ -65,24 +63,21 @@ For more examples visit the [examples](rstm/examples) directory.
 The following example demonstrates the use of the `rule!` macro to define a single rule:
 
 ```rust
-    // define the ruleset for the machine
-    rstm::rule! {
-        (0, 0) -> Right(1, 0);
-    }
+    rstm::rule! { (0, 0) -> Right(1, 0) }
 ```
 
-#### **Example #2**: Using the `rules!` macro
+#### **Example #2**: Using the `ruleset!` macro
 
 The following example demonstrates the use of the `rules!` macro to define a set of rules:
 
 ```rust
-    rstm::rules! {
-        (0, 0) -> Right(1, 0);
-        (0, 1) -> Stay(-1, 1);
-        (1, 0) -> Left(0, 1);
-        (1, 1) -> Right(-1, 0);
-        (-1, 0) -> Right(0, 0);
-        (-1, 1) -> Right(1, 1);
+    rstm::ruleset! {
+        (0, 0) -> Right(1, 0),
+        (0, 1) -> Stay(-1, 1),
+        (1, 0) -> Left(0, 1),
+        (1, 1) -> Right(-1, 0),
+        (-1, 0) -> Right(0, 0),
+        (-1, 1) -> Right(1, 1),
     }
 ```
 
@@ -95,12 +90,12 @@ The following example demonstrates the use of the `program!` macro to define a s
     rstm::program! {
         #[default_state(0)]
         rules: {
-            (0, 0) -> Right(1, 0);
-            (0, 1) -> Stay(-1, 1);
-            (1, 0) -> Left(0, 1);
-            (1, 1) -> Right(-1, 0);
-            (-1, 0) -> Right(0, 0);
-            (-1, 1) -> Right(1, 1);
+            (0, 0) -> Right(1, 0),
+            (0, 1) -> Stay(-1, 1),
+            (1, 0) -> Left(0, 1),
+            (1, 1) -> Right(-1, 0),
+            (-1, 0) -> Right(0, 0),
+            (-1, 1) -> Right(<i8>::MAX, 1),
         };
     }
 ```
@@ -129,12 +124,12 @@ The following example demonstrates the use of the `program!` macro to define a s
         let program: Program<isize, usize> = rstm::program! {
             #[default_state(initial_state)]
             rules: {
-                (0, 0) -> Right(1, 0);
-                (0, 1) -> Left(-1, 1);
-                (1, 0) -> Right(0, 1);
-                (1, 1) -> Right(-1, 0);
-                (-1, 0) -> Left(<isize>::MAX, 0);
-                (-1, 1) -> Left(1, 1);
+                (0, 0) -> Right(1, 0),
+                (0, 1) -> Left(-1, 1),
+                (1, 0) -> Right(0, 1),
+                (1, 1) -> Right(-1, 0),
+                (-1, 0) -> Left(<isize>::MAX, 0),
+                (-1, 1) -> Left(1, 1),
             };
         };
         // create a new instance of the machine
