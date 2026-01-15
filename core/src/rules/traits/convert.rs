@@ -3,7 +3,7 @@
     Created At: 2025.12.15:21:29:39
     Contrib: @FL03
 */
-use crate::{Head, Tail};
+use crate::{Direction, Head, Tail};
 
 /// Converts to a [`Head`] by reference.
 pub trait AsHead<Q, A> {
@@ -22,10 +22,21 @@ pub trait AsTail<Q, A> {
 pub trait IntoTail<Q, A> {
     fn into_tail(self) -> Tail<Q, A>;
 }
-
+/// [`IntoDirection`] is a simple conversion trait for consuming types to turn into a [`Direction`].
+pub trait IntoDirection {
+    fn into_direction(self) -> Direction;
+}
 /*
  ************* Implementations *************
 */
+impl<T> IntoDirection for T
+where
+    T: Into<Direction>,
+{
+    fn into_direction(self) -> Direction {
+        self.into()
+    }
+}
 
 impl<Q, A, T> IntoHead<Q, A> for T
 where

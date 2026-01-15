@@ -2,10 +2,7 @@
     Appellation: direction <module>
     Contrib: FL03 <jo3mccain@icloud.com>
 */
-/// [`IntoDirection`] is a simple conversion trait for consuming types to turn into a [`Direction`].
-pub trait IntoDirection {
-    fn into_direction(self) -> Direction;
-}
+
 /// [Direction] enumerates the various directions a head can move, namely: left, right, and stay.
 ///
 /// The included methods and implementations aim to streamline the conversion between [Direction] and other types.
@@ -56,15 +53,6 @@ pub enum Direction {
 /*
  ************* Implementations *************
 */
-impl<T> IntoDirection for T
-where
-    T: Into<Direction>,
-{
-    fn into_direction(self) -> Direction {
-        self.into()
-    }
-}
-
 impl Direction {
     /// A functional constructor for the [`Left`](Direction::Left) variant.
     pub const fn left() -> Self {
@@ -236,7 +224,7 @@ macro_rules! impl_from_direction {
                     $(
                         /// Converts an instance of the named type into a [Direction].
                         pub fn [<from_ $T>](value: $T) -> Self {
-                            value.into_direction()
+                            $crate::IntoDirection::into_direction(value)
                         }
                     )*
                 }
