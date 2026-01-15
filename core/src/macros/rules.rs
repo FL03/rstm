@@ -120,8 +120,8 @@ macro_rules! head_map {
             let mut map = $crate::HeadMap::new();
             $(
                 map.insert(
-                    $crate::Head::new($crate::State($state), $symbol),
-                    $crate::Tail::new($crate::Direction::$direction, $crate::State($next), $write)
+                    $crate::head!($state, $symbol),
+                    $crate::tail!($direction, $next, $write)
                 );
             )*
             map
