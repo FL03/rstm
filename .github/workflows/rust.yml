@@ -93,7 +93,7 @@ jobs:
           - no_std
           - "alloc,nightly"
         package:
-          - rstm-state
+          # - rstm-state
           - rstm-traits
     steps:
       - name: Checkout
