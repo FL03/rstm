@@ -58,10 +58,10 @@ macro_rules! tail {
 /// ```
 #[macro_export]
 macro_rules! rule {
-    [($state:expr, $symbol:literal) -> $direction:ident($next:expr, $write:literal)] => {
+    [($state:expr, $symbol:literal) -> $direction:ident($next_state:expr, $write_symbol:literal)] => {
         $crate::Rule {
             head: $crate::head!($state, $symbol),
-            tail: $crate::tail!($direction, $next, $write),
+            tail: $crate::tail!($direction, $next_state, $write_symbol),
         }
     };
 }
