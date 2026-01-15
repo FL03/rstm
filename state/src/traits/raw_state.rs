@@ -18,9 +18,9 @@ where
 {
     private! {}
 }
-/// The [`Stateful`] trait is used to extend the base [`RawState`] trait, introducing
+/// The [`StateExt`] trait is used to extend the base [`RawState`] trait, introducing
 /// additional traits and constraints that are commonly required for state representations.
-pub trait Stateful: RawState
+pub trait StateExt: RawState
 where
     Self: Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
 {
@@ -34,7 +34,7 @@ where
     private! {}
 }
 /// The [`NumState`] trait extends the [`RawState`] trait to include numeric operations.
-pub trait NumState: Stateful
+pub trait NumState: StateExt
 where
     Self: Copy
         + Default
@@ -97,14 +97,14 @@ where
     seal! {}
 }
 
-impl<T> Stateful for T where
+impl<T> StateExt for T where
     T: RawState + Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display
 {
 }
 
 impl<T> NumState for T
 where
-    T: Stateful
+    T: StateExt
         + Copy
         + Eq
         + PartialOrd

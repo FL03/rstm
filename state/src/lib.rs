@@ -44,15 +44,13 @@ mod impls {
 }
 
 mod traits {
-    #[cfg(feature = "nightly")]
-    pub use self::stated::*;
     #[doc(inline)]
-    pub use self::{convert::*, halting::*, raw_state::*};
+    pub use self::{convert::*, halting::*, raw_state::*, stateful::*};
 
     mod convert;
     mod halting;
     mod raw_state;
-    mod stated;
+    mod stateful;
 }
 
 mod types {
