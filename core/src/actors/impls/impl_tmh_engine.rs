@@ -100,6 +100,13 @@ where
         Q: 'static + IsHalted + RawState + Clone + PartialEq,
         A: Symbol,
     {
+        // if the output tape is empty, initialize it from the driver's tape
+        if self.output.is_empty() {
+            #[cfg(feature = "tracing")]
+            tracing::warn! { "Output tape is empty; initializing from driver's tape..." };
+            self.output.extend(self.driver().tape().clone());
+        }
+        self.output = self.driver().tape().to_vec();
         // increment the steps
         self.next_cycle();
         #[cfg(feature = "tracing")]
@@ -122,7 +129,7 @@ where
             .clone();
         // process the instruction
         let step = self.driver.head_mut().step(tail);
-        Ok(Some(step.shift(&mut self.output)))
+        Ok(step.shift(&mut self.output))
     }
 }
 

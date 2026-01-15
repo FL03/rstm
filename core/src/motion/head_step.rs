@@ -65,7 +65,7 @@ where
 {
     /// this method shifts the head along the tape, returning a head containing the previous
     /// state and symbol.
-    pub fn shift(self, tape: &mut [A]) -> Head<Q, A>
+    pub fn shift(self, tape: &mut [A]) -> Option<Head<Q, A>>
     where
         A: Clone,
         Q: IsHalted,
@@ -75,17 +75,20 @@ where
             direction,
             write_symbol,
         } = self.tail;
-        let prev_symbol = tape[self.head.symbol].clone();
-        // update the tape at the head's current position
-        tape[self.head.symbol] = write_symbol;
-        // update the head position based on the tail's direction
-        self.head.symbol += direction;
-        // replace the state
-        let prev_state = self.head.replace_state(next_state);
-        // reconstruct & return the previous head
-        Head {
-            state: prev_state,
-            symbol: prev_symbol,
+        // halt the machine if the next state is a halting state
+        if next_state.is_halted() {
+            return None;
         }
+        tape.get(self.head.symbol).cloned().map(|sym| {
+            // update the tape at the head's current position
+            tape[self.head.symbol] = write_symbol;
+            // update the head position based on the tail's direction
+            self.head.symbol += direction;
+            // reconstruct & return the previous head
+            Head {
+                state: self.head.replace_state(next_state),
+                symbol: sym,
+            }
+        })
     }
 }

@@ -10,6 +10,21 @@ use crate::{Head, Rule, RuleVec, Tail};
 use alloc::vec::{self, Vec};
 use rstm_state::RawState;
 
+#[cfg(feature = "serde_json")]
+impl<Q, A> Program<Q, A>
+where
+    Q: RawState,
+{
+    /// serializes the current instance into a JSON string
+    pub fn to_json(&self) -> serde_json::Value
+    where
+        A: serde::Serialize,
+        Q: serde::Serialize,
+    {
+        serde_json::to_value(self).expect("Failed to serialize the Program instance")
+    }
+}
+
 impl<Q, A> AsRef<[Rule<Q, A>]> for Program<Q, A>
 where
     Q: RawState,
