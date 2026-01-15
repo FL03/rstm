@@ -830,9 +830,9 @@ checksum = "7a2d987857b319362043e95f5353c0535c1f58eec5336fdfcf626430af7def58"
 
 [[package]]
 name = "rspace-traits"
-version = "0.0.8"
+version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "309a27b5c3e2c889fa140ac0fef65c5ac79be6e22d84048ec6148f6842c2d327"
+checksum = "f14d444107a912e6c13038f81d3d44ba4147fcbf82872b0a0a572263f556b334"
 dependencies = [
  "hashbrown 0.16.1",
  "ndarray",

@@ -40,7 +40,7 @@ rstm-tape = { default-features = false, path = "tape", version = "0.1.2" }
 rstm-traits = { default-features = false, path = "traits", version = "0.1.2" }
 # custom
 contained = { default-features = false, features = ["macros"], version = "0.2.3" }
-rspace-traits = { default-features = false, version = "0.0.8" }
+rspace-traits = { default-features = false, version = "0.0.9" }
 # developmemt
 criterion = { version = "0.8" }
 # async

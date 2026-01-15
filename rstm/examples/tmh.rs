@@ -23,7 +23,7 @@ fn main() -> rstm::Result<()> {
         default_state: 0,
         rules: {
             (0, 0) -> Right(1, 0usize),
-            (0, 1) -> Left(-1, 1),
+            (0, 1) -> Right(-1, 1),
             (1, 0) -> Right(1, 1),
             (1, 1) -> Right(0, 0),
             (-1, 0) -> Left(<isize>::MAX, 0),
@@ -33,7 +33,7 @@ fn main() -> rstm::Result<()> {
     // export the program to a JSON file
     program.export_json("rstm/examples/example.program.json")?;
     // create a new instance of the machine
-    let mut tm = TMH::new(initial_state, input);
+    let mut tm = TMH::from_state(initial_state).with_tape(input);
     // execute and run the program
     tm.execute(program).run()?;
     Ok(())

@@ -17,10 +17,8 @@ impl<Q, A> TMH<Q, A>
 where
     Q: RawState,
 {
-    pub fn new<I>(state: Q, tape: I) -> Self
-    where
-        I: IntoIterator<Item = A>,
-    {
+    /// create a new instance of the [`TMH`] using the given state and tape.
+    pub fn new<I>(state: Q, tape: I) -> Self where I: IntoIterator<Item = A> {
         Self {
             head: Head::new(state, 0),
             tape: Vec::from_iter(tape),
@@ -32,7 +30,10 @@ where
         I: IntoIterator<Item = A>,
         Q: Default,
     {
-        Self::new(<Q>::default(), tape)
+        Self {
+            head: Head::default(),
+            tape: Vec::from_iter(tape),
+        }
     }
     /// returns a new instance of the [`TMH`] using the given state and an empty tape
     /// with the head positioned at `0`
@@ -151,7 +152,7 @@ where
     /// Checks if the tape is halted
     pub fn is_halted(&self) -> bool
     where
-        State<Q>: IsHalted,
+        Q: IsHalted,
     {
         self.head().state().is_halted()
     }

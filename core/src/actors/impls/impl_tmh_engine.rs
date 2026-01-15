@@ -16,7 +16,7 @@ where
     /// returns true if the driver is in a halted state
     pub fn is_halted(&self) -> bool
     where
-        State<Q>: IsHalted,
+        Q: IsHalted,
     {
         self.driver().is_halted()
     }
@@ -33,7 +33,7 @@ where
         self.driver().get_head()
     }
     /// read the current symbol at the head of the tape into the internal buffer
-    pub fn read_into(&mut self, buf: &mut [A]) -> crate::Result<A>
+    pub fn read(&mut self, buf: &mut [A]) -> crate::Result<A>
     where
         A: Clone,
         Self: ReadInto<A, Buf<A> = [A], Output = A>,

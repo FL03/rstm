@@ -50,10 +50,13 @@ where
     type Buf<_T> = [_T];
     type Output = Option<usize>;
 
-    #[cfg_attr(feature = "tracing", tracing::instrument(skip_all))]
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "read", target = "tmh")
+    )]
     fn read(&mut self, buf: &mut Self::Buf<A>) -> Self::Output {
         #[cfg(feature = "tracing")]
-        tracing::trace!("reading the tape...");
+        tracing::trace! { "reading the tape..." }
         let pos = self.current_position();
         if pos >= self.len() {
             #[cfg(feature = "tracing")]
@@ -77,20 +80,24 @@ where
     type Buf<'a, _T> = [_T];
     type Output = Option<usize>;
 
+    #[cfg_attr(
+        feature = "tracing",
+        tracing::instrument(skip_all, name = "write", target = "tmh")
+    )]
     fn write(&mut self, buf: &mut Self::Buf<'_, A>) -> Self::Output {
         let pos = self.current_position();
         if pos > self.len() {
             #[cfg(feature = "tracing")]
-            tracing::error!(
-                "[Index Error] the current position ({pos}) of the head is out of bounds...",
-                pos = self.current_position()
-            );
+            tracing::error! {
+                "[Index Error] the current position ({}) of the head is out of bounds for tape of length {}",
+                pos, self.len(),
+            };
             return None;
         }
         let len = buf.len();
         if pos + len <= self.len() {
             #[cfg(feature = "tracing")]
-            tracing::trace!("Updating the tape at {pos}");
+            tracing::trace! { "Updating the tape at {pos}" };
             self.tape_mut()[pos..pos + len].clone_from_slice(buf);
         } else {
             #[cfg(feature = "tracing")]
