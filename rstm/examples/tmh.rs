@@ -20,14 +20,14 @@ fn main() -> rstm::Result<()> {
     let initial_state: isize = 0;
     // define the Program for the machine
     let program = rstm::program! {
-        default_state: 0,
+        #[default_state(0)]
         rules: {
             (0, 0) -> Right(1, 0usize),
             (0, 1) -> Right(-1, 1),
-            (1, 0) -> Right(1, 1),
+            (1, 0) -> Left(1, 1),
             (1, 1) -> Right(0, 0),
-            (-1, 0) -> Left(<isize>::MAX, 0),
-            (-1, 1) -> Left(-1, 0),
+            (-1, 0) -> Stay(<isize>::MAX, 0),
+            (-1, 1) -> Right(-1, 0),
         };
     };
     // export the program to a JSON file

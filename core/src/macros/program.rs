@@ -22,7 +22,7 @@
 ///
 /// ```rust
 /// let rule = rstm_core::program! {
-///     default_state: 0,
+///     #[default_state(0)]
 ///     rules: {
 ///         (0, 0) -> Right(1, 1),
 ///         (0, 1) -> Left(-1, 0),
@@ -37,7 +37,7 @@
 #[macro_export]
 macro_rules! program {
     {
-        $(default_state: $ds:expr,)?
+        $(#[default_state($ds:expr)])?
         rules: {$(($state:expr, $symbol:expr) -> $direction:ident($next:expr, $write:expr)),* $(,)?} $(;)?
     } => {
         $crate::programs::Program::from_iter(

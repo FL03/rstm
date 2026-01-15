@@ -86,7 +86,7 @@ The following example demonstrates the use of the `program!` macro to define a s
 ```rust
     // define the ruleset for the machine
     rstm::program! {
-        #[default_state(0)]
+        #[default_state(0)] // optional
         rules: {
             (0, 0) -> Right(1, 0),
             (0, 1) -> Stay(-1, 1),

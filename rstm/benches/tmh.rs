@@ -1,5 +1,6 @@
 /*
-    Appellation: default <module>
+    Appellation: tmh <module>
+    Created At: 2026.01.15:10:49:11
     Contrib: @FL03
 */
 use core::hint::black_box;
@@ -15,7 +16,7 @@ const DEFAULT_DURATION_SECS: u64 = 10;
 
 lazy_static::lazy_static! {
     static ref PROGRAM: Program<isize, usize> = rstm::program! {
-        default_state: 0,
+        #[default_state(0)]
         rules: {
             (0, 0) -> Right(1, 0),
             (0, 1) -> Left(-1, 1),
