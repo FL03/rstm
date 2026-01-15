@@ -8,9 +8,7 @@
 
 Welcome to `rstm`! This crate provides a simple and easy-to-use interface for creating and executing Turing machines. The crate is designed to be flexible and extensible, allowing developers to create and execute a wide range of Turing machines. Furthermore, the crate focuses on efficiency and leverages feature-gating to reduce overhead.
 
-## Features
-
-### Rules
+## Rules
 
 ```rust
     pub struct Rule<Q, A> {
@@ -34,11 +32,11 @@ where `Head` and `Tail` are defined as follows:
     }
 ```
 
-#### Serialization
+### Serialization
 
-Enabling the `serde` feature will allow for serialization and deserialization of the `Rule` and other implementations within the crate. That being said, the serialization of the `Rule` macro is notable for the fact that it flattens both the `head` and `tail` fields, resulting in a more compact representation. Moreover, to facilitate interactions with javascript environments, the `[#serde(rename_all = "camelCase")]` attribute is applied wherever applicable.
+Enabling the `serde` feature will allow for serialization and deserialization of the `Rule` and other implementations within the crate. That being said, the serialization of the `Rule` macro is notable for the fact that it flattens both the `head` and `tail` fields, resulting in a more compact representation.
 
-#### `rule!`, `rules!`, and other rule-based macros
+## `rule!`, `ruleset!`, and other rule-based macros
 
 Researchers have simplified the definition of a Turing machine, boiling it down into a dynamical system defined by a set of states, symbols, and rules. The rules define the behavior of the machine, dictating how it transitions from one state to another based on the current symbol being read. More specifically, the transition function $\delta$ where:
 
@@ -46,7 +44,7 @@ $$
 \delta: Q\times{A}\rightarrow{Q}\times{A}\times{\lbrace\pm{1},0\rbrace}
 $$
 
-as defined within the paper [On the Topological Dynamics of Turing Machines](https://doi.org/10.1016/S0304-3975(96)00025-4) by Petr Kůrka. Therefore, we any rule-based procedural macros within the scope of `rstm` follow the following syntax:
+as defined within the paper [On the Topological Dynamics of Turing Machines](https://doi.org/10.1016/S0304-3975(96)00025-4) by Petr Kůrka. Therefore, we allow any rule-based procedural macros within the scope of `rstm` to follow the following syntax:
 
 ```ignore
 (state, symbol) -> Direction(next_state, next_symbol)
