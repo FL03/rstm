@@ -144,7 +144,7 @@ where
     }
     /// returns the next [Head] of the system
     pub const fn next_head(&self) -> Head<&'_ R, &'_ B> {
-        self.tail().as_head()
+        self.tail().get_head()
     }
     /// consumes the current object and returns the next [Head] of the system
     pub fn into_next_head(self) -> Head<R, B> {

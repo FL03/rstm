@@ -33,7 +33,14 @@ where
         Self::new(Direction::Right, state, symbol)
     }
     /// returns a new instance of the [`Tail`] using the given direction and head
-    pub fn from_head(direction: Direction, head: Head<Q, A>) -> Self {
+    pub fn from_head(head: Head<Q, A>) -> Self {
+        Self {
+            direction: Direction::Stay,
+            next_state: head.state,
+            write_symbol: head.symbol,
+        }
+    }
+    pub fn from_head_with_direction(head: Head<Q, A>, direction: Direction) -> Self {
         Self {
             direction,
             next_state: head.state,
@@ -69,7 +76,7 @@ where
         &mut self.write_symbol
     }
     /// update the direction of the tail
-    pub fn set_direction(&mut self, direction: Direction) {
+    pub const fn set_direction(&mut self, direction: Direction) {
         self.direction = direction;
     }
     /// update the configured state for the tail
@@ -98,26 +105,42 @@ where
             ..self
         }
     }
-    /// converts a [`Tail`] reference into an owned head.
-    pub const fn as_head(&self) -> Head<&Q, &A> {
+    /// returns an instance of the [`Head`] containing references to the next state and symbol.
+    pub const fn get_head(&self) -> Head<&Q, &A> {
         Head {
             state: self.next_state.view(),
             symbol: &self.write_symbol,
         }
     }
     /// returns a new [`Head`] initialized with mutable references to the state and symbol
-    pub fn as_head_mut(&mut self) -> Head<&mut Q, &mut A> {
+    pub fn get_head_mut(&mut self) -> Head<&mut Q, &mut A> {
         Head {
             state: self.next_state.view_mut(),
             symbol: &mut self.write_symbol,
         }
     }
-    /// consumes the current tail to convert it into a [head](Head)
+    /// consumes the current instance of the tail to convert it into a [`Head`] containing the
+    /// next state and symbol to write.
     pub fn into_head(self) -> Head<Q, A> {
         Head {
             state: self.next_state,
             symbol: self.write_symbol,
         }
+    }
+    /// convert the tail into a 2-tuple consisting of a [`Direction`] and a [`Head`]
+    pub fn into_head_tuple(self) -> (Direction, Head<Q, A>) {
+        let Tail {
+            direction,
+            next_state,
+            write_symbol,
+        } = self;
+        (
+            direction,
+            Head {
+                state: next_state,
+                symbol: write_symbol,
+            },
+        )
     }
     /// returns an instance of the [head](Head) where each element within
     /// the created instance is a mutable reference

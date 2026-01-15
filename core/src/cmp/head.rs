@@ -6,7 +6,7 @@ mod impl_head;
 mod impl_head_ext;
 mod impl_head_repr;
 
-use rstm_state::State;
+use rstm_state::{RawState, State};
 
 /// a type alias for a [`Head`] containing immutable references to its state and symbol
 pub type HeadRef<'a, Q, S> = Head<&'a Q, &'a S>;
@@ -17,9 +17,12 @@ pub type HeadMut<'a, Q, S> = Head<&'a mut Q, &'a mut S>;
 pub type HeadEntry<'a, Q, S> = Head<&'a Q, &'a mut S>;
 /// [`RawHead`] is a marker trait used to define an interface for objects capable of being
 /// used as a _head_ in the context of Turing machine rules.
-pub trait RawHead<Q, S> {
+pub trait RawHead<Q, A>
+where
+    Q: RawState,
+{
     fn state(&self) -> &State<Q>;
-    fn symbol(&self) -> &S;
+    fn symbol(&self) -> &A;
 
     private! {}
 }
@@ -44,7 +47,10 @@ pub struct Head<Q, S> {
 /*
  ************* Implementations *************
 */
-impl<Q, A> RawHead<Q, A> for (State<Q>, A) {
+impl<Q, A> RawHead<Q, A> for (State<Q>, A)
+where
+    Q: RawState,
+{
     seal! {}
     /// returns an immutable reference to the state.
     fn state(&self) -> &State<Q> {
@@ -56,7 +62,10 @@ impl<Q, A> RawHead<Q, A> for (State<Q>, A) {
     }
 }
 
-impl<Q, A> RawHead<Q, A> for Head<Q, A> {
+impl<Q, A> RawHead<Q, A> for Head<Q, A>
+where
+    Q: RawState,
+{
     seal! {}
     /// returns an immutable reference to the state.
     fn state(&self) -> &State<Q> {

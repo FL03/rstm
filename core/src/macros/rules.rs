@@ -57,15 +57,16 @@ macro_rules! rule {
         }
     };
 }
-/// [`ruleset!`] is a macro that simplifies the creation of a vector of [`Rules`](crate::Rule).
+/// [`ruleset!`] is a macro that simplifies the creation of an array of [`Rules`](crate::Rule).
 ///
-/// ### Syntax
+/// The syntax follows the [`rule!`] macro, allowing for multiple rules to be defined in a
+/// single invocation.
 ///
 /// ```ignore
 /// ruleset![(state, symbol) -> direction(next_state, write_symbol), ...]
 /// ```
 ///
-/// ### Example
+/// ## Basic Usage
 ///
 /// The following example demonstrates the usage of the macro to create a ruleset using three
 /// states `{-1, 0, 1}` and two symbols `{0, 1}`.
@@ -93,7 +94,7 @@ macro_rules! ruleset {
 /// a macro to create a `HashMap` of rules for a Turing machine.
 /// The macro takes a list of rules in the form of
 ///
-/// ```no_run
+/// ```ignore
 ///     (state, symbol) -> Direction(next_state, next_symbol)
 /// ```
 ///

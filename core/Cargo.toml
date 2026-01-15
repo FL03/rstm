@@ -26,9 +26,6 @@ tag-name = "{{version}}"
 
 [lib]
 bench = false
-crate-type = ["lib"]
-doctest = false
-test = true
 
 [[test]]
 name = "macros"
