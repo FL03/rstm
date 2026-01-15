@@ -80,7 +80,7 @@ jobs:
         if: matrix.features != 'default'
         run: cargo test -r --locked --workspace --target ${{ matrix.target}} --features ${{ matrix.features }}
   test_nightly:
-    if: github.event.inputs.toolchain != 'stable' || false
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.toolchain == 'nightly' || false
     continue-on-error: true
     needs: build
     runs-on: ubuntu-latest
