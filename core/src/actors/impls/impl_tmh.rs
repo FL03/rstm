@@ -195,8 +195,6 @@ where
     /// The method will return an error if the current position of the head is out of bounds;
     /// i.e., `i >= len()`.
     pub fn get_head(&self) -> crate::Result<Head<&'_ Q, &'_ A>> {
-        #[cfg(feature = "tracing")]
-        tracing::trace!("reading the tape...");
         self.tape()
             .get(self.current_position())
             .map(|symbol| Head {
