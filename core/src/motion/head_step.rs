@@ -16,17 +16,6 @@ where
     pub(crate) head: &'a mut Head<Q, A>,
     pub(crate) tail: Tail<R, B>,
 }
-
-impl<'a, Q1, Q2, A, B> HeadStep<'a, Q1, A, Q2, B>
-where
-    Q1: RawState,
-    Q2: RawState,
-{
-    /// a private constructor used to create a new instance of the [`HeadStep`]
-    pub(crate) const fn new(head: &'a mut Head<Q1, A>, tail: Tail<Q2, B>) -> Self {
-        Self { head, tail }
-    }
-}
 /// the standard implementation of [`HeadStep`] focuses on instances where the head and tail
 /// share the same type-space; meaning `Head<Q, A>` and `Tail<Q, A>` types are being utilized.
 impl<'a, Q, A> HeadStep<'a, Q, A>

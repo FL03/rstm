@@ -20,13 +20,12 @@ macro_rules! head {
 ///     (state, symbol) -> Direction(next_state, next_symbol)
 /// ```
 ///
-/// The syntax is directly ispired by the simplified definition of a Turing machine as a
-/// dynamical system, as described in the paper
-/// [On the Topological Dynamics of Turing Machines](https://doi.org/10.1016/S0304-3975(96)00025-4)
+/// The syntax is directly inspired by the simplified definition of a Turing machine as a
+/// dynamical system, as described in the paper [On the Topological Dynamics of Turing Machines](https://doi.org/10.1016/S0304-3975(96)00025-4)
 /// by Petr Kůrka. Specifically,
 ///
 /// ```math
-/// \delta:Q\times{A}\rightarrow(Q\times{A})\times{D}\quad\text{where} \ D=\lbrace{0,\pm{1}\rbrace}
+/// \delta:Q\times{A}\rightarrow{Q}\times{A}\times\lbrace{0,\pm{1}\rbrace}
 /// ```
 ///
 /// **note:** it is unnecessary for you to import the [`Direction`](crate::Direction) enum, as
@@ -37,6 +36,7 @@ macro_rules! head {
 /// Let's use the macro to define some rule, `a`, that considers a head that is in a state of
 /// `0` reading some value `'a'` from the tape, and then writes a `c` to the tape, moves right,
 /// and updates the state to `1`.
+///
 /// ```rust
 /// use rstm_core::rule;
 /// rule![(0, 'a') -> Right(1, 'c')];

@@ -186,6 +186,6 @@ where
     where
         Q2: RawState,
     {
-        HeadStep::new(self, tail)
+        HeadStep { head: self, tail }
     }
 }
