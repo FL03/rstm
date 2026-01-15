@@ -23,7 +23,7 @@ where
         }
     }
     /// returns a new [`Head`] with copied elements
-    pub fn copied(&self) -> Head<Q, S>
+    pub const fn copied(&self) -> Head<Q, S>
     where
         Q: Copy,
         S: Copy,

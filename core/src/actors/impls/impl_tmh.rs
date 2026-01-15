@@ -11,7 +11,7 @@ use crate::programs::Program;
 use crate::{Direction, Head};
 use alloc::string::String;
 use alloc::vec::Vec;
-use rstm_state::{RawState, State};
+use rstm_state::{IsHalted, RawState, State};
 
 impl<Q, A> TMH<Q, A>
 where
@@ -151,7 +151,7 @@ where
     /// Checks if the tape is halted
     pub fn is_halted(&self) -> bool
     where
-        Q: rstm_state::IsHalted,
+        State<Q>: IsHalted,
     {
         self.head().state().is_halted()
     }

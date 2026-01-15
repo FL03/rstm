@@ -17,7 +17,7 @@ impl<Q> State<&Q> {
         State(self.0.clone())
     }
     /// Copies the internal state and returning a new instance of [State]
-    pub fn copied(&self) -> State<Q>
+    pub const fn copied(&self) -> State<Q>
     where
         Q: Copy,
     {
@@ -34,7 +34,7 @@ impl<Q> State<&mut Q> {
         State(self.0.clone())
     }
     /// Copies the internal state and returning a new instance of [State]
-    pub fn copied(&self) -> State<Q>
+    pub const fn copied(&self) -> State<Q>
     where
         Q: Copy,
     {

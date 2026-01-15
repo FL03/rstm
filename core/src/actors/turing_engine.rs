@@ -60,6 +60,10 @@ where
     pub const fn output(&self) -> &Vec<A> {
         &self.output
     }
+
+    pub const fn output_mut(&mut self) -> &mut Vec<A> {
+        &mut self.output
+    }
     /// returns a reference to the program
     pub fn program(&self) -> crate::Result<&Program<Q, A>> {
         self.program.as_ref().ok_or(crate::Error::NoProgram)

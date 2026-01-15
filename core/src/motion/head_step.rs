@@ -4,7 +4,7 @@
     Contrib: @FL03
 */
 use crate::{Head, Tail};
-use rstm_state::RawState;
+use rstm_state::{IsHalted, RawState};
 
 /// [`HeadStep`] is a structure responsible for managing the step operation of a moving head
 /// in a Turing machine simulation.
@@ -27,6 +27,8 @@ where
         Self { head, tail }
     }
 }
+/// the standard implementation of [`HeadStep`] focuses on instances where the head and tail
+/// share the same type-space; meaning `Head<Q, A>` and `Tail<Q, A>` types are being utilized.
 impl<'a, Q, A> HeadStep<'a, Q, A>
 where
     Q: RawState,
@@ -43,7 +45,6 @@ where
         // replace the head with the next state and symbol, returning the previous head
         self.head.replace(next_state, write_symbol)
     }
-
     #[inline]
     /// this method performs the step operation onto the tape, assuming the head's symbol to be  
     pub fn move_along(self, tape: &mut [A], pos: &mut usize) -> Head<Q, A>
@@ -56,33 +57,35 @@ where
     }
 }
 
+/// this implementation of the [`HeadStep`] is specifically designed for scenarios where the
+/// head's symbol is used to define the position
 impl<'a, Q, A> HeadStep<'a, Q, usize, Q, A>
 where
     Q: RawState,
 {
-    pub fn apply_directional(self) -> Head<Q, usize> {
+    /// this method shifts the head along the tape, returning a head containing the previous
+    /// state and symbol.
+    pub fn shift(self, tape: &mut [A]) -> Head<Q, A>
+    where
+        A: Clone,
+        Q: IsHalted,
+    {
         let Tail {
             next_state,
             direction,
-            ..
+            write_symbol,
         } = self.tail;
-        // replace the head with the next state and symbol, returning the previous head
-        let prev_state = self.head.replace_state(next_state);
-        let prev_symbol = self.head.symbol;
+        let prev_symbol = tape[self.head.symbol].clone();
+        // update the tape at the head's current position
+        tape[self.head.symbol] = write_symbol;
+        // update the head position based on the tail's direction
         self.head.symbol += direction;
+        // replace the state
+        let prev_state = self.head.replace_state(next_state);
+        // reconstruct & return the previous head
         Head {
             state: prev_state,
             symbol: prev_symbol,
         }
-    }
-    /// this method performs the step operation onto the tape, assuming the head's symbol to be  
-    /// an usize value representing a position on the tape.
-    pub fn move_along_tape(self, tape: &mut [A], pos: &mut usize) -> Head<Q, usize>
-    where
-        A: Clone,
-    {
-        tape[*pos] = self.tail.write_symbol.clone();
-        self.head.symbol += self.tail.direction;
-        self.apply_directional()
     }
 }

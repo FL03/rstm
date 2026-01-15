@@ -22,7 +22,7 @@ where
         }
     }
     /// returns a new [`Tail`] with copied elements
-    pub fn copied(&self) -> Tail<Q, S>
+    pub const fn copied(&self) -> Tail<Q, S>
     where
         Q: Copy,
         S: Copy,
@@ -52,7 +52,7 @@ where
         }
     }
     /// returns a new [`Tail`] with copied elements
-    pub fn copied(&self) -> Tail<Q, S>
+    pub const fn copied(&self) -> Tail<Q, S>
     where
         Q: Copy,
         S: Copy,

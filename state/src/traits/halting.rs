@@ -15,18 +15,22 @@ pub trait IsHalted {
 */
 use crate::Halt;
 
-impl<Q, H> IsHalted for State<Halt<Q, H>> {
+impl<Q> IsHalted for State<Q>
+where
+    Q: IsHalted,
+{
     fn is_halted(&self) -> bool {
-        matches!(self.get(), &Halt::Halt(_))
-    }
-}
-impl<Q> IsHalted for State<Option<Q>> {
-    fn is_halted(&self) -> bool {
-        self.0.is_none()
+        self.get().is_halted()
     }
 }
 
-impl<Q> IsHalted for Option<State<Q>> {
+impl<Q, H> IsHalted for Halt<Q, H> {
+    fn is_halted(&self) -> bool {
+        matches!(self, &Halt::Halt(_))
+    }
+}
+
+impl<Q> IsHalted for Option<Q> {
     fn is_halted(&self) -> bool {
         self.is_none()
     }

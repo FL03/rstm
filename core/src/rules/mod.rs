@@ -15,7 +15,9 @@ mod impls {
     mod impl_rule;
     mod impl_rule_builder;
     mod impl_rule_ext;
+    mod impl_rule_repr;
 }
+// prelude (local)
 #[doc(hidden)]
 #[allow(unused_imports)]
 pub(crate) mod prelude {

@@ -16,7 +16,7 @@ where
     /// returns true if the driver is in a halted state
     pub fn is_halted(&self) -> bool
     where
-        Q: IsHalted + 'static,
+        State<Q>: IsHalted,
     {
         self.driver().is_halted()
     }
@@ -121,10 +121,8 @@ where
             .ok_or(crate::Error::NoRuleFound)?
             .clone();
         // process the instruction
-        let next = tail.clone().into_head();
-        // process the instruction
-        let _prev = self.handle(tail);
-        Ok(Some(next))
+        let step = self.driver.head_mut().step(tail);
+        Ok(Some(step.shift(&mut self.output)))
     }
 }
 

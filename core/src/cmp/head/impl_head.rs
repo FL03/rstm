@@ -181,8 +181,11 @@ where
     ///
     /// **Note**: this method is _lazy_, meaning that the actual step is not performed until
     /// an actionable method is called on the returned [`HeadStep`] instance, namely
-    /// [`execute`](HeadStep::execute) or [`move_along`](HeadStep::move_along).
-    pub fn step<'a>(&'a mut self, tail: Tail<Q, A>) -> HeadStep<'a, Q, A> {
+    /// [`apply`](HeadStep::apply) or [`move_along`](HeadStep::move_along).
+    pub fn step<'a, Q2, B>(&'a mut self, tail: Tail<Q2, B>) -> HeadStep<'a, Q, A, Q2, B>
+    where
+        Q2: RawState,
+    {
         HeadStep::new(self, tail)
     }
 }

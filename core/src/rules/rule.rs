@@ -20,14 +20,15 @@ use rstm_state::{RawState, State};
     serde(rename_all = "snake_case")
 )]
 #[repr(C)]
-pub struct Rule<Q = String, A = char>
+pub struct Rule<Q1 = String, A = char, Q2 = Q1, B = A>
 where
-    Q: RawState,
+    Q1: RawState,
+    Q2: RawState,
 {
     #[cfg_attr(feature = "serde", serde(flatten))]
-    pub head: Head<Q, A>,
+    pub head: Head<Q1, A>,
     #[cfg_attr(feature = "serde", serde(flatten))]
-    pub tail: Tail<Q, A>,
+    pub tail: Tail<Q2, B>,
 }
 
 /// A [`LearnedRule`] is an extension of the basic [`Rule`] structure, incorporating a
@@ -51,15 +52,16 @@ where
 }
 
 #[derive(Default)]
-pub struct RuleBuilder<Q, S>
+pub struct RuleBuilder<Q1, A, Q2, B>
 where
-    Q: RawState,
+    Q1: RawState,
+    Q2: RawState,
 {
     pub(crate) direction: Direction,
-    pub(crate) state: Option<State<Q>>,
-    pub(crate) symbol: Option<S>,
-    pub(crate) next_state: Option<State<Q>>,
-    pub(crate) write_symbol: Option<S>,
+    pub(crate) state: Option<State<Q1>>,
+    pub(crate) symbol: Option<A>,
+    pub(crate) next_state: Option<State<Q2>>,
+    pub(crate) write_symbol: Option<B>,
 }
 
 #[cfg(test)]
