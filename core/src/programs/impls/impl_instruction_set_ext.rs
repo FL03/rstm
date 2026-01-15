@@ -3,7 +3,8 @@
     Created At: 2026.01.11:12:33:32
     Contrib: @FL03
 */
-use crate::programs::{Instruction, InstructionSet, RuleSet};
+use crate::programs::{InstructionSet, RuleSet};
+use crate::rules::Instruction;
 use rstm_state::RawState;
 
 impl<R, Q, A> core::fmt::Debug for InstructionSet<R, Q, A>

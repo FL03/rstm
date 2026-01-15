@@ -32,9 +32,10 @@ mod impls {
 
 mod traits {
     #[doc(inline)]
-    pub use self::{convert::*, rulespace::*};
+    pub use self::{convert::*, instruction::*, rulespace::*};
 
     mod convert;
+    mod instruction;
     mod rulespace;
 }
 
