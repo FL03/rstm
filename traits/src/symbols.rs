@@ -3,19 +3,35 @@
     Created At: 2026.01.11:13:55:56
     Contrib: @FL03
 */
-/// [Alphabet] describes a finite set of symbols used to construct a formal language.
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
+
+/// The [`Symbolic`] trait is a marker trait used to define types that can be used as symbols in
+/// formal languages.
+pub trait Symbolic
+where
+    Self: 'static
+        + Clone
+        + Default
+        + Eq
+        + PartialOrd
+        + Send
+        + Sync
+        + core::fmt::Debug
+        + core::fmt::Display
+        + core::hash::Hash,
+{
+    private! {}
+}
+/// [`Alphabet`] describes a finite set of symbols used to construct a formal language.
 ///
-/// Ideally, the alphabet should be implemented on unit enums since
-/// each symbol can be represented as a unique variant and assigned
-/// a particular value. The values of the variants may then be used
-/// as pointers, specifiying the location of the symbol w.r.t. the
-/// alphabet.
+/// Ideally, the alphabet should be implemented on unit enums since each symbol can be
+/// represented as a unique variant and assigned a particular value. The values of the variants
+/// may then be used as pointers, specifiying the location of the symbol w.r.t. the alphabet.
 pub trait Alphabet {
-    type Elem;
+    type Elem: Symbolic;
 
     fn as_slice(&self) -> &[Self::Elem];
-
-    fn as_mut_slice(&mut self) -> &mut [Self::Elem];
 
     fn is_empty(&self) -> bool {
         self.len() == 0
@@ -24,36 +40,13 @@ pub trait Alphabet {
     fn len(&self) -> usize {
         self.as_slice().len()
     }
-
+    #[cfg(feature = "alloc")]
+    /// returns the alphabet as a vector
     fn to_vec(&self) -> Vec<Self::Elem>;
 }
-/// [`Symbolic`] is a marker trait used to signal a type that can be displayed.
-pub trait Symbolic: core::fmt::Debug + core::fmt::Display {
-    private! {}
-}
 
-/// The [`RawSymbol`] trait establishes the minimum requirements for a type to be used
-/// as a symbol within a Turing machine.
-pub trait RawSymbol: Symbolic + 'static {
-    private! {}
-}
-
-/// The [`Symbol`] trait extends the [`RawSymbol`] to define the expected behaviors of a symbol
-/// used within a Turing machine.
-pub trait Symbol
-where
-    Self: RawSymbol
-        + Clone
-        + Copy
-        + Default
-        + Eq
-        + Ord
-        + PartialEq
-        + PartialOrd
-        + Send
-        + Sync
-        + core::hash::Hash,
-{
+pub trait AlphabetMut: Alphabet {
+    fn as_mut_slice(&mut self) -> &mut [Self::Elem];
 }
 
 /*
@@ -62,28 +55,27 @@ where
 
 impl<S> Symbolic for S
 where
-    S: core::fmt::Debug + core::fmt::Display,
+    S: 'static
+        + Clone
+        + Default
+        + Eq
+        + Ord
+        + Send
+        + Sync
+        + core::fmt::Debug
+        + core::fmt::Display
+        + core::hash::Hash,
 {
     seal! {}
 }
 
-impl<S> RawSymbol for S
+impl<S> Alphabet for [S]
 where
-    S: Symbolic + 'static,
+    S: Symbolic,
 {
-    seal! {}
-}
-
-impl<S> Symbol for S where S: RawSymbol + Copy + Default + Eq + Ord + Send + Sync + core::hash::Hash {}
-
-impl<S: Symbol> Alphabet for [S] {
     type Elem = S;
 
     fn as_slice(&self) -> &[S] {
-        self
-    }
-
-    fn as_mut_slice(&mut self) -> &mut [S] {
         self
     }
 
@@ -95,25 +87,124 @@ impl<S: Symbol> Alphabet for [S] {
         self.len()
     }
 
+    #[cfg(feature = "alloc")]
     fn to_vec(&self) -> Vec<S> {
         self.to_vec()
     }
 }
 
+impl<A> AlphabetMut for [A]
+where
+    A: Symbolic,
+{
+    fn as_mut_slice(&mut self) -> &mut [A] {
+        &mut self[..]
+    }
+}
+
+impl<S> Alphabet for &[S]
+where
+    S: Symbolic,
+{
+    type Elem = S;
+
+    fn as_slice(&self) -> &[S] {
+        self
+    }
+
+    fn is_empty(&self) -> bool {
+        <[S]>::is_empty(self)
+    }
+
+    fn len(&self) -> usize {
+        <[S]>::len(self)
+    }
+
+    #[cfg(feature = "alloc")]
+    fn to_vec(&self) -> Vec<S> {
+        <[S]>::to_vec(self)
+    }
+}
+
+impl<S> Alphabet for &mut [S]
+where
+    S: Symbolic,
+{
+    type Elem = S;
+
+    fn as_slice(&self) -> &[S] {
+        self
+    }
+
+    fn is_empty(&self) -> bool {
+        <[S]>::is_empty(self)
+    }
+
+    fn len(&self) -> usize {
+        <[S]>::len(self)
+    }
+
+    #[cfg(feature = "alloc")]
+    fn to_vec(&self) -> Vec<S> {
+        <[S]>::to_vec(self)
+    }
+}
+
+impl<S> AlphabetMut for &mut [S]
+where
+    S: Symbolic,
+{
+    fn as_mut_slice(&mut self) -> &mut [S] {
+        self
+    }
+}
+
+impl<const N: usize, S> Alphabet for [S; N]
+where
+    S: Symbolic,
+{
+    type Elem = S;
+
+    fn as_slice(&self) -> &[S] {
+        self
+    }
+
+    fn is_empty(&self) -> bool {
+        <[S]>::is_empty(self)
+    }
+
+    fn len(&self) -> usize {
+        <[S]>::len(self)
+    }
+
+    #[cfg(feature = "alloc")]
+    fn to_vec(&self) -> Vec<S> {
+        <[S]>::to_vec(self)
+    }
+}
+
+impl<const N: usize, S> AlphabetMut for [S; N]
+where
+    S: Symbolic,
+{
+    fn as_mut_slice(&mut self) -> &mut [S] {
+        &mut self[..]
+    }
+}
+
 #[cfg(feature = "alloc")]
 mod impl_alloc {
-    use super::{Alphabet, Symbol};
+    use super::{Alphabet, AlphabetMut, Symbolic};
     use alloc::vec::Vec;
 
-    impl<S: Symbol> Alphabet for Vec<S> {
+    impl<S> Alphabet for Vec<S>
+    where
+        S: Symbolic,
+    {
         type Elem = S;
 
         fn as_slice(&self) -> &[S] {
             self.as_slice()
-        }
-
-        fn as_mut_slice(&mut self) -> &mut [S] {
-            self.as_mut_slice()
         }
 
         fn is_empty(&self) -> bool {
@@ -126,6 +217,15 @@ mod impl_alloc {
 
         fn to_vec(&self) -> Vec<S> {
             self.clone()
+        }
+    }
+
+    impl<S> AlphabetMut for Vec<S>
+    where
+        S: Symbolic,
+    {
+        fn as_mut_slice(&mut self) -> &mut [S] {
+            self.as_mut_slice()
         }
     }
 }

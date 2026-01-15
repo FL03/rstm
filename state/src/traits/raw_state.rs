@@ -20,7 +20,7 @@ where
 }
 /// The [`StateExt`] trait is used to extend the base [`RawState`] trait, introducing
 /// additional traits and constraints that are commonly required for state representations.
-pub trait StateExt: RawState
+pub trait StateExt: HaltingState
 where
     Self: Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display,
 {
@@ -98,7 +98,13 @@ where
 }
 
 impl<T> StateExt for T where
-    T: RawState + Clone + Default + PartialEq + PartialOrd + core::fmt::Debug + core::fmt::Display
+    T: HaltingState
+        + Clone
+        + Default
+        + PartialEq
+        + PartialOrd
+        + core::fmt::Debug
+        + core::fmt::Display
 {
 }
 

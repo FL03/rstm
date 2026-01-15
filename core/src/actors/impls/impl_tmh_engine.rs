@@ -5,7 +5,7 @@
 */
 use crate::actors::{Engine, RawEngine, TMH, TMHEngine};
 use crate::programs::Program;
-use crate::{Head, ReadInto, Symbol, Tail};
+use crate::{Head, ReadInto, Symbolic, Tail};
 use rstm_state::{IsHalted, RawState, State};
 use rstm_traits::Handle;
 
@@ -62,7 +62,7 @@ where
     pub fn run(&mut self) -> crate::Result<()>
     where
         Q: 'static + IsHalted + RawState + Clone + PartialEq,
-        A: Symbol,
+        A: Symbolic,
     {
         // check for a program
         if !self.has_program() {
@@ -98,7 +98,7 @@ where
     pub fn step(&mut self) -> crate::Result<Option<Head<Q, A>>>
     where
         Q: 'static + IsHalted + RawState + Clone + PartialEq,
-        A: Symbol,
+        A: Symbolic,
     {
         // if the output tape is empty, initialize it from the driver's tape
         if self.output.is_empty() {
@@ -158,7 +158,7 @@ where
 impl<'a, Q, A> Engine<Q, A> for TMHEngine<'a, Q, A>
 where
     Q: 'static + IsHalted + RawState + Clone + PartialEq,
-    A: Symbol,
+    A: Symbolic,
 {
     fn load(&mut self, program: Program<Q, A>) {
         self.program = Some(program);
@@ -172,7 +172,7 @@ where
 impl<'a, Q, A> Iterator for TMHEngine<'a, Q, A>
 where
     Q: 'static + IsHalted + RawState + Clone + PartialEq,
-    A: Symbol,
+    A: Symbolic,
 {
     type Item = Head<Q, A>;
 
