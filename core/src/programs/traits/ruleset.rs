@@ -97,6 +97,41 @@ where
     }
 }
 
+impl<Q, A> RuleSet<Q, A> for [(Head<Q, A>, Tail<Q, A>)]
+where
+    Q: RawState,
+{
+    type Rule = (Head<Q, A>, Tail<Q, A>);
+}
+
+impl<Q, A> RuleSet<Q, A> for [Rule<Q, A>]
+where
+    Q: RawState,
+{
+    type Rule = Rule<Q, A>;
+}
+
+impl<Q, A> RuleSet<Q, A> for &[Rule<Q, A>]
+where
+    Q: RawState,
+{
+    type Rule = Rule<Q, A>;
+}
+
+impl<Q, A> RuleSet<Q, A> for &mut [Rule<Q, A>]
+where
+    Q: RawState,
+{
+    type Rule = Rule<Q, A>;
+}
+
+impl<const N: usize, Q, A> RuleSet<Q, A> for [Rule<Q, A>; N]
+where
+    Q: RawState,
+{
+    type Rule = Rule<Q, A>;
+}
+
 #[cfg(feature = "alloc")]
 mod impl_alloc {
     use super::RuleSet;

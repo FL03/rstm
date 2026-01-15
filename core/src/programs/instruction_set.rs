@@ -35,12 +35,12 @@ pub type ProgramSet<Q, A> = InstructionSet<Q, A, HashSet<Rule<Q, A>>>;
     serde(deny_unknown_fields, rename_all = "snake_case")
 )]
 #[repr(C)]
-pub struct InstructionSet<R, Q, A>
+pub struct InstructionSet<R: ?Sized, Q, A>
 where
     Q: RawState,
     R: RuleSet<Q, A>,
 {
-    pub(crate) rules: R,
     pub(crate) initial_state: Option<State<Q>>,
-    pub(crate) _marker: core::marker::PhantomData<(Head<Q, A>, Tail<Q, A>)>,
+    pub(crate) _marker: core::marker::PhantomData<Rule<Q, A>>,
+    pub(crate) rules: R,
 }

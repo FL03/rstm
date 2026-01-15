@@ -42,6 +42,37 @@ where
     }
 }
 
+impl<I, X, R, Q, A> IntoIterator for InstructionSet<R, Q, A>
+where
+    I: Iterator<Item = X>,
+    Q: RawState,
+    X: Instruction<Q, A>,
+    R: RuleSet<Q, A> + IntoIterator<Item = X, IntoIter = I>,
+{
+    type Item = R::Item;
+    type IntoIter = R::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.rules.into_iter()
+    }
+}
+
+impl<'a, X, I, R, Q, A> IntoIterator for &'a InstructionSet<R, Q, A>
+where
+    Q: RawState,
+    X: 'a + Instruction<Q, A>,
+    R: RuleSet<Q, A>,
+    I: Iterator<Item = &'a X>,
+    for<'b> &'b R: IntoIterator<Item = &'b X, IntoIter = I>,
+{
+    type Item = &'a X;
+    type IntoIter = I;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.rules.into_iter()
+    }
+}
+
 impl<X, R, Q, A> FromIterator<X> for InstructionSet<R, Q, A>
 where
     Q: RawState,
