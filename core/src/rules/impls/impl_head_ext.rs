@@ -30,17 +30,33 @@ where
     }
 }
 
-impl<Q, A> core::ops::Add<Tail<Q, A>> for Head<Q, A>
+impl<Q, A, R, B> core::ops::Add<Tail<R, B>> for Head<Q, A>
+where
+    Q: RawState,
+    R: RawState,
+{
+    type Output = Rule<Q, A, R, B>;
+
+    fn add(self, rhs: Tail<R, B>) -> Self::Output {
+        Rule::new(self, rhs)
+    }
+}
+
+impl<Q, A> core::borrow::Borrow<State<Q>> for Head<Q, A>
 where
     Q: RawState,
 {
-    type Output = Rule<Q, A>;
+    fn borrow(&self) -> &State<Q> {
+        &self.state
+    }
+}
 
-    fn add(self, rhs: Tail<Q, A>) -> Self::Output {
-        Rule {
-            head: self,
-            tail: rhs,
-        }
+impl<Q, A> core::borrow::BorrowMut<State<Q>> for Head<Q, A>
+where
+    Q: RawState,
+{
+    fn borrow_mut(&mut self) -> &mut State<Q> {
+        &mut self.state
     }
 }
 
