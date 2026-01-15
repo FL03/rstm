@@ -24,13 +24,15 @@ pub type ProgramMap<Q, A> = InstructionSet<Q, A, HashMap<Head<Q, A>, Tail<Q, A>>
 /// a type alias for a [`ProgramBase`] using a [`HashSet`] as the ruleset, using the head as key and the tail as value
 pub type ProgramSet<Q, A> = InstructionSet<Q, A, HashSet<Rule<Q, A>>>;
 
-/// The [`ProgramBase`]
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+/// The [`ProgramBase`] implementation works to define a generic set of instructions used to
+/// inform an actor as to how to behave under certain conditions.
+#[derive(Clone, Copy, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(
     feature = "serde",
     derive(serde::Serialize, serde::Deserialize),
     serde(deny_unknown_fields, rename_all = "snake_case")
 )]
+#[repr(C)]
 pub struct InstructionSet<R, Q, A>
 where
     Q: RawState,

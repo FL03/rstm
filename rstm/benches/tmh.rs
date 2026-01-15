@@ -15,7 +15,7 @@ const DEFAULT_DURATION_SECS: u64 = 10;
 
 lazy_static::lazy_static! {
     static ref PROGRAM: Program<isize, usize> = rstm::program! {
-        #[default_state(0)]
+        default_state: 0,
         rules: {
             (0, 0) -> Right(1, 0),
             (0, 1) -> Left(-1, 1),
@@ -29,7 +29,7 @@ lazy_static::lazy_static! {
 
 fn setup_tmh() -> TMH<isize, usize> {
     // define some input for the machine
-    let input = vec![0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
+    let input = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
     // initialize the state of the machine
     let initial_state: isize = 0;
     // create a new instance of the machine

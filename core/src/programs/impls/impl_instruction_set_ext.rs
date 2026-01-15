@@ -6,6 +6,24 @@
 use crate::programs::{Instruction, InstructionSet, RuleSet};
 use rstm_state::RawState;
 
+impl<R, Q, A> core::fmt::Debug for InstructionSet<R, Q, A>
+where
+    R: RuleSet<Q, A> + core::fmt::Debug,
+    Q: RawState + core::fmt::Debug,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        if let Some(initial_state) = &self.initial_state {
+            write! {
+                f,
+                "{{ initial_state: {:?}, rules: {:?} }}",
+                initial_state, self.rules
+            }
+        } else {
+            write! { f, "{{ rules: {:?} }}", self.rules }
+        }
+    }
+}
+
 impl<R, Q, A> core::fmt::Display for InstructionSet<R, Q, A>
 where
     R: RuleSet<Q, A> + core::fmt::Debug,

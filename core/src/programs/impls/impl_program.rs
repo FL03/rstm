@@ -38,6 +38,20 @@ where
             rules: Vec::new(),
         }
     }
+    #[cfg(all(feature = "json", feature = "std"))]
+    /// load a program from a `.json` file at the given path
+    pub fn load_from_json<P: AsRef<std::path::Path>>(path: P) -> crate::Result<Self>
+    where
+        Program<Q, A>: serde::de::DeserializeOwned,
+    {
+        // open the file
+        let file = std::fs::File::open(path)?;
+        // create a buffered reader
+        let reader = std::io::BufReader::new(file);
+        // deserialize the program
+        let p = serde_json::from_reader(reader)?;
+        Ok(p)
+    }
     /// Returns an owned reference to the initial state of the program.
     pub fn initial_state(&self) -> Option<State<&'_ Q>> {
         self.initial_state.as_ref().map(|state| state.view())
