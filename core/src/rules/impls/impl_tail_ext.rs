@@ -5,7 +5,7 @@
 */
 use crate::rules::Tail;
 use crate::{Direction, Head};
-use rstm_state::State;
+use rstm_state::{RawState, State};
 
 impl<Q, A> core::fmt::Debug for Tail<Q, A>
 where
@@ -35,9 +35,42 @@ where
     }
 }
 
-impl<Q, A> core::borrow::Borrow<Direction> for Tail<Q, A> {
+impl<Q, A, R, B> core::ops::Add<Head<Q, A>> for Tail<R, B>
+where
+    Q: RawState,
+    R: RawState,
+{
+    type Output = crate::Rule<Q, A, R, B>;
+
+    fn add(self, rhs: Head<Q, A>) -> Self::Output {
+        crate::Rule::new(rhs, self)
+    }
+}
+
+impl<Q, A> core::borrow::Borrow<Direction> for Tail<Q, A>
+where
+    Q: RawState,
+{
     fn borrow(&self) -> &Direction {
         &self.direction
+    }
+}
+
+impl<Q, A> core::borrow::Borrow<State<Q>> for Tail<Q, A>
+where
+    Q: RawState,
+{
+    fn borrow(&self) -> &State<Q> {
+        &self.next_state
+    }
+}
+
+impl<Q, A> core::borrow::BorrowMut<State<Q>> for Tail<Q, A>
+where
+    Q: RawState,
+{
+    fn borrow_mut(&mut self) -> &mut State<Q> {
+        &mut self.next_state
     }
 }
 
