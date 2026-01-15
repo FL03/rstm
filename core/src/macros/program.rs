@@ -21,7 +21,7 @@
 /// states `{-1, 0, 1}` and two symbols `{0, 1}`.
 ///
 /// ```rust
-/// let rule = rstm::program![
+/// let rule = rstm_core::program![
 ///     #[default_state(0)] // optional
 ///     rules: {
 ///         (0, 0) -> Right(1, 1),
