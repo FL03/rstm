@@ -14,10 +14,7 @@ where
     A: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.debug_tuple("Head")
-            .field(&self.state)
-            .field(&self.symbol)
-            .finish()
+        write! { f, "{{ state: {:?}, symbol: {:?} }}", self.state, self.symbol }
     }
 }
 
@@ -27,7 +24,7 @@ where
     A: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "({}, {})", self.state, self.symbol)
+        write! { f, "({}, {})", self.state, self.symbol }
     }
 }
 
