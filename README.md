@@ -13,24 +13,24 @@ Welcome to `rstm`! This crate provides a simple and easy-to-use interface for cr
 ### Rules
 
 ```rust
-    pub struct Rule<Q, S> {
-        pub head: Head<Q, S>,
-        pub tail: Tail<Q, S>,
+    pub struct Rule<Q, A> {
+        pub head: Head<Q, A>,
+        pub tail: Tail<Q, A>,
     }
 ```
 
 where `Head` and `Tail` are defined as follows:
 
 ```rust
-    pub struct Head<Q, S> {
+    pub struct Head<Q, A> {
         pub state: Q,
-        pub symbol: S,
+        pub symbol: A,
     }
 
-    pub struct Tail<Q, S> {
+    pub struct Tail<Q, A> {
         pub direction: Direction,
         pub next_state: Q,
-        pub write_symbol: S,
+        pub write_symbol: A,
     }
 ```
 
@@ -172,11 +172,17 @@ cargo run -f F --example {actor}
 
 ## Usage
 
-To add `rstm` to your Rust project, include it in your `Cargo.toml` file:
+To add `rstm` to your Rust project, run the following command:
+
+```bash
+cargo add rstm --features macros
+```
+
+or, manually include it in your `Cargo.toml` file as such:
 
 ```toml
 [dependencies.rstm]
-version = "0.0.x"
+version = "0.1.x"
 features = [
     "default",
 ]
