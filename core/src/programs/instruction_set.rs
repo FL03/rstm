@@ -15,17 +15,19 @@ use std::collections::{HashMap, HashSet};
 pub type ProgramArray<Q, A, const N: usize> = InstructionSet<Q, A, [Rule<Q, A>; N]>;
 pub type ProgramSlice<Q, A> = InstructionSet<Q, A, [Rule<Q, A>]>;
 #[cfg(feature = "alloc")]
-/// a type alias for a [`ProgramBase`] using a [`Vec`](alloc::vec::Vec) as the ruleset
+/// a type alias for a [`InstructionSet`] using a [`Vec`](alloc::vec::Vec) as the ruleset
 pub type ProgramVec<Q, A> = InstructionSet<Q, A, alloc::vec::Vec<Rule<Q, A>>>;
 #[cfg(any(feature = "hashbrown", feature = "std"))]
-/// a type alias for a [`ProgramBase`] using a [`HashMap`] as the ruleset, using the head as key and the tail as value
+/// a type alias for a [`InstructionSet`] using a [`HashMap`] as the ruleset, using the head
+/// as key and the tail as value
 pub type ProgramMap<Q, A> = InstructionSet<Q, A, HashMap<Head<Q, A>, Tail<Q, A>>>;
 #[cfg(any(feature = "hashbrown", feature = "std"))]
-/// a type alias for a [`ProgramBase`] using a [`HashSet`] as the ruleset, using the head as key and the tail as value
+/// a type alias for a [`InstructionSet`] using a [`HashSet`] consisting of rules as the
+/// store
 pub type ProgramSet<Q, A> = InstructionSet<Q, A, HashSet<Rule<Q, A>>>;
 
-/// The [`ProgramBase`] implementation works to define a generic set of instructions used to
-/// inform an actor as to how to behave under certain conditions.
+/// The [`InstructionSet`] implementation is a generic structure representing a set of
+/// instructions or rules capable of transforming states within a computational model.
 #[derive(Clone, Copy, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(
     feature = "serde",
