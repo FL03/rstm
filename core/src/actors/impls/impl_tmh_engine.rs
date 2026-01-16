@@ -135,14 +135,14 @@ where
         // check for a program
         if !self.has_program() {
             #[cfg(feature = "tracing")]
-            tracing::error!("No program loaded; cannot execute step.");
+            tracing::error! { "unable to execute the workload without a program loaded." };
             return Err(Error::NoProgram);
         }
         #[cfg(feature = "tracing")]
-        tracing::info!("engine loaded; beginning execution...");
+        tracing::info! { "engine loaded; beginning execution..." };
         while let Some(_h) = self.step()? {
             #[cfg(feature = "tracing")]
-            tracing::debug!("{}", self.print());
+            tracing::info! { "{}", self.print() };
             // check for halting
             if self.driver.is_halted() {
                 halted = true;
@@ -151,17 +151,14 @@ where
         }
         if !halted {
             #[cfg(feature = "tracing")]
-            tracing::warn!(
-                "The engine terminated after {} steps without reaching a halt state.",
+            tracing::error!(
+                "The engine terminated after {} steps before halting.",
                 self.cycles
             );
             Err(Error::ExitWithoutHalting)
         } else {
             #[cfg(feature = "tracing")]
-            tracing::info!(
-                "The engine has halted successfully after {} steps.",
-                self.cycles
-            );
+            tracing::info! { "successfully halted after {} steps.", self.cycles };
             Ok(())
         }
     }
