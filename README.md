@@ -23,14 +23,18 @@ At the core of any Turing machine lies its set of rules, which dictate how the m
     }
 ```
 
-where `Head` and `Tail` are defined as follows:
+where the `Head` is defined as:
 
 ```rust
     pub struct Head<Q, A> {
         pub state: Q,
         pub symbol: A,
     }
+```
 
+and the `Tail` is defined as:
+
+```rust
     pub struct Tail<Q, A> {
         pub direction: Direction,
         pub next_state: Q,
