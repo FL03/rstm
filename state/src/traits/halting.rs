@@ -4,8 +4,10 @@
 */
 use crate::state::State;
 
-/// The [`IsHalted`] trait defines a contract for types that can be checked for a halted state.
-pub trait IsHalted {
+/// The [`Halting`] trait establishes an interface for determining whether a given state
+/// is in a halted condition. This trait is essential for Turing machine simulations,
+/// as it allows for the identification of states that signify the end of computation.
+pub trait Halting {
     /// returns true if the current state is considered to be _halted_, otherwise false.
     fn is_halted(&self) -> bool;
 }
@@ -15,22 +17,22 @@ pub trait IsHalted {
 */
 use crate::Halt;
 
-impl<Q> IsHalted for State<Q>
+impl<Q> Halting for State<Q>
 where
-    Q: IsHalted,
+    Q: Halting,
 {
     fn is_halted(&self) -> bool {
         self.get().is_halted()
     }
 }
 
-impl<Q, H> IsHalted for Halt<Q, H> {
+impl<Q, H> Halting for Halt<Q, H> {
     fn is_halted(&self) -> bool {
         matches!(self, &Halt::Halt(_))
     }
 }
 
-impl<Q> IsHalted for Option<Q> {
+impl<Q> Halting for Option<Q> {
     fn is_halted(&self) -> bool {
         self.is_none()
     }
@@ -38,24 +40,24 @@ impl<Q> IsHalted for Option<Q> {
 
 macro_rules! impl_is_halted {
     ($($tag:ident {$($T:ty),* $(,)?}),* $(,)?) => {
-        $(impl_is_halted! { @impl #[$tag] $($T),* })*
+        $(impl_is_halted! { @impl #[$tag] Halting for $($T),* })*
     };
-    (@impl #[unsigned] $($T:ty),*) => {
-        $(impl IsHalted for $T {
+    (@impl #[unsigned] $trait:ident for $($T:ty),*) => {
+        $(impl $trait for $T {
             fn is_halted(&self) -> bool {
                 self == &<$T>::MAX
             }
         })*
     };
-    (@impl #[signed] $($T:ty),*) => {
-        $(impl IsHalted for $T {
+    (@impl #[signed] $trait:ident for $($T:ty),*) => {
+        $(impl $trait for $T {
             fn is_halted(&self) -> bool {
                 self.abs() == <$T>::MAX
             }
         })*
     };
-    (@impl #[float]$($T:ty),*) => {
-        $(impl IsHalted for $T {
+    (@impl #[float] $trait:ident for $($T:ty),*) => {
+        $(impl $trait for $T {
             fn is_halted(&self) -> bool {
                 self.is_nan() || self.is_infinite()
             }

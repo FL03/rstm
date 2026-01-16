@@ -44,7 +44,7 @@ where
             program: Some(program),
             cycles: 0,
         }
-    }    
+    }
     /// initialize a new instance of the engine from the given driver
     pub const fn from_driver(driver: &'a mut D) -> Self {
         Self {
@@ -111,6 +111,14 @@ where
     pub fn current_state(&self) -> State<&Q> {
         self.driver().current_state()
     }
+    /// returns the length of the output tape
+    pub const fn len_output(&self) -> usize {
+        self.output.len()
+    }
+    /// returns true if the output tape is empty
+    pub const fn is_output_empty(&self) -> bool {
+        self.output.is_empty()
+    }
     /// returns true if the engine has a program loaded
     pub const fn has_program(&self) -> bool {
         self.program.is_some()
@@ -126,7 +134,7 @@ where
     pub const fn next_cycle(&mut self) {
         self.cycles += 1;
     }
-    /// reset the engine by clearing the output tape, cycles, and program from the current 
+    /// reset the engine by clearing the output tape, cycles, and program from the current
     /// instance
     pub fn reset(&mut self) {
         self.output.clear();

@@ -11,7 +11,7 @@ use crate::programs::Program;
 use crate::{Direction, Head};
 use alloc::string::String;
 use alloc::vec::Vec;
-use rstm_state::{IsHalted, RawState, State};
+use rstm_state::{Halting, RawState, State};
 
 impl<Q, A> TMH<Q, A>
 where
@@ -157,11 +157,11 @@ where
     /// Checks if the tape is halted
     pub fn is_halted(&self) -> bool
     where
-        Q: IsHalted,
+        Q: Halting,
     {
         self.head().state().is_halted()
     }
-    /// load the current instance and given program into a new instance of the 
+    /// load the current instance and given program into a new instance of the
     /// [`TuringEngine`] implementation to directly manage the execution of the program.
     ///
     /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
@@ -177,7 +177,7 @@ where
         state: State<Q>,
         symbol: A,
     ) -> crate::Result<Head<Q, usize>> {
-        let position = self.current_position();
+        let &position = self.head().symbol();
         #[cfg(feature = "tracing")]
         tracing::trace! { "Reacting to the current context of cell: {:?}", position }
         // write the symbol to the tape
@@ -194,7 +194,7 @@ where
     ///
     /// The method will return an error if the current position of the head is out of bounds;
     /// i.e., `i >= len()`.
-    pub fn get_head(&self) -> crate::Result<Head<&'_ Q, &'_ A>> {
+    pub fn read_as_head(&self) -> crate::Result<Head<&'_ Q, &'_ A>> {
         self.tape()
             .get(self.current_position())
             .map(|symbol| Head {
@@ -211,7 +211,6 @@ where
                     index: self.current_position(),
                     len: self.len(),
                 }
-                .into()
             })
     }
     /// write a symbol to the tape at the current position of the head;
@@ -239,35 +238,36 @@ where
         }
         Ok(())
     }
-    /// returns a string representation of the tape with the current head position highlighted
-    /// in brackets.
-    pub fn pretty_print(&self, radius: usize) -> String
+    /// a string representation of the driver's tape with the current head position highlighted
+    /// in brackets. `0, 1, 0, [1], 1, 0, 0` for a radius of `3`.
+    pub fn pretty_print(&self) -> String
     where
         A: core::fmt::Debug,
     {
-        let mut cells = Vec::new();
+        let mut cells = String::new();
         let pos = self.current_position();
-        let (a, b) = crate::get_range_around(pos, self.len(), radius);
+        let (a, b) = crate::get_range_around(pos, self.len(), 3);
         // print out the tape with the head position highlighted
-        for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
+        for (i, c) in self.tape[a..=b].iter().enumerate() {
+            let idx = a + i;
             let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
-                format!("[{c:?}]")
+                format!("[[{c:?}]]")
             } else {
                 format!("{c:?}")
             };
-            cells.push(cell);
+            cells.push_str(&cell);
         }
-        cells.join("")
+        cells
     }
     /// returns a string representation of the tape with the current head position highlighted
     /// in brackets.
-    pub fn print(&self, radius: usize) -> String
+    pub fn print(&self) -> String
     where
         A: core::fmt::Display,
     {
         let mut cells = Vec::new();
         let pos = self.current_position();
-        let (a, b) = crate::get_range_around(pos, self.len(), radius);
+        let (a, b) = crate::get_range_around(pos, self.len(), 3);
         // print out the tape with the head position highlighted
         for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
             let cell = if pos == idx || (idx == b && pos == (idx + 1)) {

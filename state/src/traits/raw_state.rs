@@ -2,7 +2,7 @@
     appellation: raw_state <module>
     authors: @FL03
 */
-use crate::IsHalted;
+use crate::Halting;
 /// [`RawState`] is a sealed marker trait used to define objects used to represent states.
 /// The primary benefit of such a trait is preventing cases where the [`State`](crate::State)
 /// implementation is used as a state itself: `State<State<Q>>`.
@@ -14,7 +14,7 @@ pub trait RawState {
 /// `isize`, then we might define `<isize>::MAX` to represent a halting state.
 pub trait HaltingState
 where
-    Self: RawState + IsHalted,
+    Self: RawState + Halting,
 {
     private! {}
 }
@@ -61,9 +61,6 @@ where
 /*
  ************* Implementations *************
 */
-impl RawState for &str {
-    seal! {}
-}
 
 impl RawState for () {
     seal! {}
@@ -85,7 +82,7 @@ where
 
 impl<T> HaltingState for T
 where
-    T: RawState + IsHalted,
+    T: RawState + Halting,
 {
     seal! {}
 }
@@ -133,42 +130,52 @@ where
     seal! {}
 }
 
-impl<Q1, Q2> RawState for core::ops::ControlFlow<Q1, Q2>
-where
-    Q1: RawState,
-    Q2: RawState,
-{
+impl RawState for &str {
     seal! {}
 }
 
-impl<Q> RawState for core::mem::MaybeUninit<Q>
+impl<Q> RawState for [Q]
 where
     Q: RawState,
 {
     seal! {}
 }
 
-#[cfg(feature = "alloc")]
-impl RawState for Box<dyn RawState> {
+impl<Q> RawState for &[Q]
+where
+    Q: RawState,
+{
+    seal! {}
+}
+
+impl<Q> RawState for &mut [Q]
+where
+    Q: RawState,
+{
+    seal! {}
+}
+
+impl<const N: usize, Q> RawState for [Q; N]
+where
+    Q: RawState,
+{
     seal! {}
 }
 
 macro_rules! impl_raw_state {
+    (impl $trait:ident for {$($($cont:ident)::*<$($T:ident),*> $({where $($rest:tt)*})?),* $(,)?}) => {
+        $(impl_raw_state! { @impl $trait for $($cont)::*<$($T),*> $(where $($rest)*)?})*
+    };
     (impl $trait:ident for {$($T:ty),* $(,)?}) => {
         $(impl_raw_state!{ @impl $trait for $T })*
     };
-    (impl $trait:ident for {$($($cont:ident)::*<$T:ident $(where $($rest:tt)*)?>),* $(,)?}) => {
-        $(impl_raw_state! {
-            @impl<$T> $cont::* $(where $($rest)*)?
-        })*
-    };
-    (@impl $trait:ident for $t:ty) => {
-        impl $trait for $t {
+    (@impl $trait:ident for $($cont:ident)::*<$($T:ident),*> $(where $($rest:tt)*)?) => {
+        impl<$($T),*> $trait for $($cont)::*<$($T),*> $(where $($rest)*)? {
             seal! {}
         }
     };
-    (@impl $trait:ident for $($cont:ident)::*$(<$($T:ident),*>)? $(where $($rest:tt)*)?) => {
-        impl<$($T),*> $trait for $(cont)::*$(<$($T),*>)? $(where $($rest)*)? {
+    (@impl $trait:ident for $t:ty) => {
+        impl $trait for $t {
             seal! {}
         }
     };
@@ -183,9 +190,30 @@ impl_raw_state! {
     }
 }
 
+impl_raw_state! {
+    impl RawState for {
+        Option<Q> { where Q: RawState },
+        Result<Q, E> { where Q: RawState },
+        core::cell::Cell<Q> { where Q: RawState },
+        core::cell::RefCell<Q> { where Q: RawState },
+        core::mem::MaybeUninit<Q> { where Q: RawState },
+        core::ops::ControlFlow<Q, H> { where Q: RawState, H: RawState },
+        core::ops::Range<Q> { where Q: RawState },
+    }
+}
+
 #[cfg(feature = "alloc")]
 impl_raw_state! {
     impl RawState for {
         alloc::string::String,
+    }
+}
+
+#[cfg(feature = "alloc")]
+impl_raw_state! {
+    impl RawState for {
+        alloc::boxed::Box<Q> { where Q: RawState },
+        alloc::collections::VecDeque<Q> { where Q: RawState },
+        alloc::vec::Vec<Q> { where Q: RawState },
     }
 }

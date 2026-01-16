@@ -5,11 +5,12 @@
 */
 #![cfg(feature = "alloc")]
 
-use crate::actors::{Driver, RawDriver, TMH};
-use crate::{DEFAULT_DISPLAY_RADIUS, Direction, Head, Tail};
+use crate::actors::drivers::TMH;
+use crate::actors::{Driver, RawDriver};
+use crate::{Direction, Head, Tail};
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};
-use rstm_traits::{ExecuteMut, Handle, ReadInto, WriteInto};
+use rstm_traits::{ExecuteMut, Handle, Read, Write};
 
 impl<Q, A> core::fmt::Debug for TMH<Q, A>
 where
@@ -17,7 +18,7 @@ where
     A: core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.write_str(self.pretty_print(DEFAULT_DISPLAY_RADIUS).as_str())
+        f.write_str(self.pretty_print().as_str())
     }
 }
 
@@ -27,23 +28,23 @@ where
     A: core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        f.write_str(self.print(DEFAULT_DISPLAY_RADIUS).as_str())
+        f.write_str(self.print().as_str())
     }
 }
 
-impl<Q, A> ReadInto<A> for TMH<Q, A>
+impl<Q, A> Read<A> for TMH<Q, A>
 where
     Q: RawState,
     A: Clone,
 {
-    type Buf<_T> = [_T];
-    type Output = Option<usize>;
+    type Error = crate::Error;
+    type Output = usize;
 
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "read", target = "tmh")
     )]
-    fn read(&mut self, buf: &mut Self::Buf<A>) -> Self::Output {
+    fn read(&mut self, buf: &mut [A]) -> Result<Self::Output, Self::Error> {
         #[cfg(feature = "tracing")]
         tracing::trace! { "reading the tape..." }
         let pos = self.current_position();
@@ -53,27 +54,30 @@ where
                 "[Index Error] the current position ({pos}) of the head is out of bounds...",
                 pos = self.current_position()
             );
-            return None;
+            return Err(crate::Error::IndexOutOfBounds {
+                index: pos,
+                len: self.len(),
+            });
         }
         let len = buf.len().min(self.len() - pos);
         buf[..len].clone_from_slice(&self.tape()[pos..pos + len]);
-        Some(len)
+        Ok(len)
     }
 }
 
-impl<Q, A> WriteInto<A> for TMH<Q, A>
+impl<Q, A> Write<A> for TMH<Q, A>
 where
     Q: RawState,
     A: Clone,
 {
-    type Buf<'a, _T> = [_T];
-    type Output = Option<usize>;
+    type Error = crate::Error;
+    type Output = usize;
 
     #[cfg_attr(
         feature = "tracing",
         tracing::instrument(skip_all, name = "write", target = "tmh")
     )]
-    fn write(&mut self, buf: &mut Self::Buf<'_, A>) -> Self::Output {
+    fn write(&mut self, buf: &mut [A]) -> Result<Self::Output, Self::Error> {
         let pos = self.current_position();
         if pos > self.len() {
             #[cfg(feature = "tracing")]
@@ -81,7 +85,10 @@ where
                 "[Index Error] the current position ({}) of the head is out of bounds for tape of length {}",
                 pos, self.len(),
             };
-            return None;
+            return Err(crate::Error::IndexOutOfBounds {
+                index: pos,
+                len: self.len(),
+            });
         }
         let len = buf.len();
         if pos + len <= self.len() {
@@ -94,7 +101,7 @@ where
             // append to the tape
             self.tape_mut().extend_from_slice(buf);
         }
-        Some(len)
+        Ok(len)
     }
 }
 
