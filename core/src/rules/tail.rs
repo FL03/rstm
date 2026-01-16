@@ -36,6 +36,8 @@ pub trait RawTail {
 )]
 #[repr(C)]
 pub struct Tail<Q, A> {
+    /// defines the direction to move after writing the symbol
+    #[cfg_attr(feature = "serde", serde(alias = "move_direction", alias = "dir"))]
     pub direction: Direction,
     #[cfg_attr(feature = "serde", serde(alias = "write_state"))]
     pub next_state: State<Q>,
@@ -52,7 +54,7 @@ where
 {
     type State = Q;
     type Symbol = A;
-    
+
     seal! {}
     /// returns the direction of the tail.
     fn direction(&self) -> Direction {
@@ -96,7 +98,7 @@ mod tests {
 
     #[test]
     fn test_tail_init() {
-        let tail: Tail<&str, char> = Tail::new(Direction::Right, "q1", 'a');
+        let tail: Tail<&str, char> = Tail::right("q1", 'a');
         assert_eq! {
             tail,
             (
