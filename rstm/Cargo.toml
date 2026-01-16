@@ -34,7 +34,7 @@ required-features = ["full"]
 
 [[example]]
 name = "tmh"
-required-features = ["default", "json", "macros", "tracing"]
+required-features = ["default", "json", "tracing"]
 
 [dependencies]
 rstm-core = { workspace = true }
