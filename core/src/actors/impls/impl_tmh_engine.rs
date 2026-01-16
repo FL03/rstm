@@ -93,7 +93,7 @@ where
                     pos = self.current_position()
                 );
                 Error::IndexOutOfBounds {
-                    index: self.current_position(),
+                    idx: self.current_position(),
                     len: self.output().len(),
                 }
             })

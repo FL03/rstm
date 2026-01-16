@@ -55,7 +55,7 @@ where
                 pos = self.current_position()
             );
             return Err(crate::Error::IndexOutOfBounds {
-                index: pos,
+                idx: pos,
                 len: self.len(),
             });
         }
@@ -86,7 +86,7 @@ where
                 pos, self.len(),
             };
             return Err(crate::Error::IndexOutOfBounds {
-                index: pos,
+                idx: pos,
                 len: self.len(),
             });
         }
@@ -142,7 +142,6 @@ where
         self.try_execute(rhs)
     }
 }
-
 
 impl<Q, A> TryExecuteMut<(Direction, State<Q>, A)> for TMH<Q, A>
 where

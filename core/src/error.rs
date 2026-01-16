@@ -24,8 +24,8 @@ pub enum Error {
     NoProgram,
     #[error("No rule found associated with the current state and symbol.")]
     NoRuleFound,
-    #[error("Index {index} is out of bounds for length {len}.")]
-    IndexOutOfBounds { index: usize, len: usize },
+    #[error("The index ({idx}) is out of bounds for a tape of length {len}")]
+    IndexOutOfBounds { idx: usize, len: usize },
     #[error("Attempted to perform an operation in a halted state.")]
     Halted,
     #[error("Unable to parse a rule from the given information.")]

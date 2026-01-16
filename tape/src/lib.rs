@@ -34,16 +34,17 @@ mod impls {
 
 mod traits {
     #[doc(inline)]
-    pub use self::{cellular::*, raw_data::*};
+    pub use self::{cellular::*, raw_data::*, raw_tape::*};
 
     mod cellular;
     mod raw_data;
+    mod raw_tape;
 }
 
 mod types {}
 // re-exports
 #[doc(inline)]
-pub use self::{cell::Cell, error::*, tape_base::*, traits::*};
+pub use self::{cell::CellBase, error::*, tape_base::*, traits::*};
 // prelude
 #[doc(hidden)]
 pub mod prelude {

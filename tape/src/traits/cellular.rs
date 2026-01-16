@@ -4,28 +4,34 @@
     Contrib: @FL03
 */
 
+/// The [`RawCell`] trait defines the base interface common to all _cells_ within a tape
 pub trait RawCell {
     type Elem;
 
-    /// Reads the value from the cell.
-    fn read(&self) -> Self::Elem;
-
-    /// Writes a value to the cell.
-    fn write(&mut self, value: Self::Elem);
+    /// returns a reference to the element stored in the cell.
+    fn get(&self) -> &Self::Elem;
 }
+/// [`RawCellMut`] extends the [`RawCell`] trait to provide mutable access to the content of
+/// the cell.
+pub trait RawCellMut: RawCell {
+    /// returns a mutable reference to the element stored in the cell.
+    fn get_mut(&mut self) -> &mut Self::Elem;
+    /// write's the given value into the cell
+    fn write(&mut self, value: Self::Elem) {
+        *self.get_mut() = value;
+    }
+}
+/*
+ ************* Implementations *************
+*/
 
-pub trait RawTape<T> {
-    type Cell<V>: RawCell<Elem = V>;
+impl<T> RawCell for core::cell::Cell<T>
+where
+    Self: AsRef<T>,
+{
+    type Elem = T;
 
-    /// Returns the length of the tape.
-    fn len(&self) -> usize;
-
-    /// Returns true if the tape is empty.
-    fn is_empty(&self) -> bool;
-
-    /// Gets a reference to a cell at the specified position.
-    fn get(&self, position: usize) -> Option<&Self::Cell<T>>;
-
-    /// Gets a mutable reference to a cell at the specified position.
-    fn get_mut(&mut self, position: usize) -> Option<&mut Self::Cell<T>>;
+    fn get(&self) -> &Self::Elem {
+        self.as_ref()
+    }
 }
