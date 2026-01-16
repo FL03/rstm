@@ -14,7 +14,7 @@ use crate::rules::Head;
 /// Before executing any particular program, the tape should be loaded up with the necessary
 /// _inputs_ using the [`extend_tape`](TMH::extend_tape) method. The tape is represented
 /// as a [`Vec<A>`], where `A` is the type of the symbols allowed on the tape. After setting
-/// any inputs, we can use the [`execute`](TMH::execute) method to initialize a lazy executor
+/// any inputs, we can use the [`load`](TMH::load) method to initialize a lazy executor
 /// that will run the program whenever the `run`
 ///
 #[derive(Clone, Default, Eq, Hash, PartialEq, PartialOrd)]
@@ -22,6 +22,6 @@ use crate::rules::Head;
 pub struct TMH<Q, A> {
     /// the head of the tape
     pub(crate) head: Head<Q, usize>,
-    /// the memory of the actor
-    pub(crate) tape: Vec<A>,
+    /// the input tape of the Turing machine
+    pub(crate) input: Vec<A>,
 }

@@ -24,7 +24,7 @@ where
     {
         Self {
             head: Head::new(state, 0),
-            tape: Vec::from_iter(tape),
+            input: Vec::from_iter(tape),
         }
     }
     /// returns a new instance of the [`TMH`] using the given tape
@@ -35,7 +35,7 @@ where
     {
         Self {
             head: Head::default(),
-            tape: Vec::from_iter(tape),
+            input: Vec::from_iter(tape),
         }
     }
     /// returns a new instance of the [`TMH`] using the given state and an empty tape
@@ -43,7 +43,7 @@ where
     pub const fn from_state(state: Q) -> Self {
         Self {
             head: Head::new(state, 0),
-            tape: Vec::new(),
+            input: Vec::new(),
         }
     }
     /// returns an immutable reference to the head of the tape
@@ -56,11 +56,11 @@ where
     }
     /// returns an immutable reference to the tape
     pub const fn tape(&self) -> &Vec<A> {
-        &self.tape
+        &self.input
     }
     /// returns a mutable reference of the tape
     pub const fn tape_mut(&mut self) -> &mut Vec<A> {
-        &mut self.tape
+        &mut self.input
     }
     /// returns the current position of the head on the tape
     pub const fn current_position(&self) -> usize {
@@ -95,7 +95,7 @@ where
     where
         I: IntoIterator<Item = A>,
     {
-        self.tape = Vec::from_iter(tape);
+        self.input = Vec::from_iter(tape);
     }
     /// Consumes the current instance and returns a new instance with the given head
     #[inline]
@@ -128,7 +128,7 @@ where
         I: IntoIterator<Item = A>,
     {
         Self {
-            tape: Vec::from_iter(alpha),
+            input: Vec::from_iter(alpha),
             ..self
         }
     }
@@ -224,7 +224,7 @@ where
         if pos < self.len() {
             #[cfg(feature = "tracing")]
             tracing::trace! { "Updating the tape at {pos}" }
-            self.tape[pos] = value;
+            self.input[pos] = value;
         } else if pos == self.len() {
             #[cfg(feature = "tracing")]
             tracing::trace! { "Extending the tape..." }
@@ -248,7 +248,7 @@ where
         let pos = self.current_position();
         let (a, b) = crate::get_range_around(pos, self.len(), 3);
         // print out the tape with the head position highlighted
-        for (i, c) in self.tape[a..=b].iter().enumerate() {
+        for (i, c) in self.input[a..=b].iter().enumerate() {
             let idx = a + i;
             let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
                 format!("[[{c:?}]]")
@@ -269,7 +269,7 @@ where
         let pos = self.current_position();
         let (a, b) = crate::get_range_around(pos, self.len(), 3);
         // print out the tape with the head position highlighted
-        for (idx, c) in (a..=b).zip(self.tape[a..=b].iter()) {
+        for (idx, c) in (a..=b).zip(self.input[a..=b].iter()) {
             let cell = if pos == idx || (idx == b && pos == (idx + 1)) {
                 format! { "[{c}]" }
             } else {

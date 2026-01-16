@@ -10,7 +10,7 @@ use crate::actors::{Driver, RawDriver};
 use crate::{Direction, Head, Tail};
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};
-use rstm_traits::{ExecuteMut, Handle, Read, Write};
+use rstm_traits::{Handle, Read, TryExecuteMut, Write};
 
 impl<Q, A> core::fmt::Debug for TMH<Q, A>
 where
@@ -118,7 +118,7 @@ where
     }
 
     fn tape(&self) -> &Self::Tape<A> {
-        &self.tape
+        &self.input
     }
 }
 
@@ -127,92 +127,68 @@ where
     Q: RawState,
 {
     fn store_mut(&mut self) -> &mut Self::Tape<A> {
-        &mut self.tape
+        &mut self.input
     }
 }
 
-impl<Q, A> ExecuteMut<(Direction, State<Q>, A)> for TMH<Q, A>
+impl<X, Y, E, Q, A> Handle<X> for TMH<Q, A>
+where
+    Q: RawState,
+    Self: TryExecuteMut<X, Error = E, Output = Y>,
+{
+    type Output = Result<Y, E>;
+
+    fn handle(&mut self, rhs: X) -> Self::Output {
+        self.try_execute(rhs)
+    }
+}
+
+
+impl<Q, A> TryExecuteMut<(Direction, State<Q>, A)> for TMH<Q, A>
 where
     Q: RawState,
 {
-    type Output = crate::Result<Head<Q, usize>>;
+    type Error = crate::Error;
+    type Output = Head<Q, usize>;
 
-    fn execute(&mut self, (direction, state, symbol): (Direction, State<Q>, A)) -> Self::Output {
+    fn try_execute(
+        &mut self,
+        (direction, state, symbol): (Direction, State<Q>, A),
+    ) -> Result<Self::Output, Self::Error> {
         self.step(direction, state, symbol)
     }
 }
 
-impl<Q, A> ExecuteMut<(Direction, Head<Q, A>)> for TMH<Q, A>
+impl<Q, A> TryExecuteMut<(Direction, Head<Q, A>)> for TMH<Q, A>
 where
     Q: RawState,
 {
-    type Output = crate::Result<Head<Q, usize>>;
+    type Error = crate::Error;
+    type Output = Head<Q, usize>;
 
-    fn execute(
+    fn try_execute(
         &mut self,
         (direction, Head { state, symbol }): (Direction, Head<Q, A>),
-    ) -> Self::Output {
+    ) -> Result<Self::Output, Self::Error> {
         self.step(direction, state, symbol)
     }
 }
 
-impl<Q, A> ExecuteMut<Tail<Q, A>> for TMH<Q, A>
+impl<Q, A> TryExecuteMut<Tail<Q, A>> for TMH<Q, A>
 where
     Q: RawState,
 {
-    type Output = crate::Result<Head<Q, usize>>;
+    type Error = crate::Error;
+    type Output = Head<Q, usize>;
 
-    fn execute(
+    fn try_execute(
         &mut self,
         Tail {
             direction,
             next_state: state,
             write_symbol: symbol,
         }: Tail<Q, A>,
-    ) -> Self::Output {
-        self.step(direction, state, symbol)
-    }
-}
-
-impl<Q, A> Handle<(Direction, State<Q>, A)> for TMH<Q, A>
-where
-    Q: RawState,
-{
-    type Output = crate::Result<Head<Q, usize>>;
-
-    fn handle(&mut self, (direction, state, symbol): (Direction, State<Q>, A)) -> Self::Output {
-        self.step(direction, state, symbol)
-    }
-}
-
-impl<Q, A> Handle<(Direction, Head<Q, A>)> for TMH<Q, A>
-where
-    Q: RawState,
-{
-    type Output = crate::Result<Head<Q, usize>>;
-
-    fn handle(
-        &mut self,
-        (direction, Head { state, symbol }): (Direction, Head<Q, A>),
-    ) -> Self::Output {
-        self.step(direction, state, symbol)
-    }
-}
-
-impl<Q, A> Handle<Tail<Q, A>> for TMH<Q, A>
-where
-    Q: RawState,
-{
-    type Output = crate::Result<Head<Q, usize>>;
-
-    fn handle(
-        &mut self,
-        Tail {
-            direction,
-            next_state: state,
-            write_symbol: symbol,
-        }: Tail<Q, A>,
-    ) -> Self::Output {
+    ) -> Result<Self::Output, Self::Error> {
         self.step(direction, state, symbol)
     }
 }
