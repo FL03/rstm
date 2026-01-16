@@ -12,9 +12,9 @@ where
     Q: RawState,
 {
     /// the type of head used by the instruction
-    type Head: RawHead<Q, A>;
+    type Head: RawHead<State = Q, Symbol = A>;
     /// the type of tail used by the instruction
-    type Tail: RawTail<Q, A>;
+    type Tail: RawTail<State = Q, Symbol = A>;
     /// returns a reference to the head of the instruction
     fn head(&self) -> &Self::Head;
     /// returns a reference to the tail of the instruction

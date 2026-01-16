@@ -13,14 +13,13 @@ pub type HeadMut<'a, Q, S> = Head<&'a mut Q, &'a mut S>;
 pub type HeadEntry<'a, Q, S> = Head<&'a Q, &'a mut S>;
 /// [`RawHead`] is a marker trait used to define an interface for objects capable of being
 /// used as a _head_ in the context of Turing machine rules.
-pub trait RawHead<Q, A>
-where
-    Q: RawState,
-{
+pub trait RawHead {
+    type State: RawState;
+    type Symbol;
     /// returns a reference to the current state of the head
-    fn state(&self) -> &State<Q>;
+    fn state(&self) -> &State<Self::State>;
     /// returns a reference to the symbol of the head
-    fn symbol(&self) -> &A;
+    fn symbol(&self) -> &Self::Symbol;
 
     private! {}
 }
@@ -45,10 +44,12 @@ pub struct Head<Q, S> {
 /*
  ************* Implementations *************
 */
-impl<Q, A> RawHead<Q, A> for (State<Q>, A)
+impl<Q, A> RawHead for (State<Q>, A)
 where
     Q: RawState,
 {
+    type State = Q;
+    type Symbol = A;
     seal! {}
     /// returns an immutable reference to the state.
     fn state(&self) -> &State<Q> {
@@ -60,10 +61,12 @@ where
     }
 }
 
-impl<Q, A> RawHead<Q, A> for Head<Q, A>
+impl<Q, A> RawHead for Head<Q, A>
 where
     Q: RawState,
 {
+    type State = Q;
+    type Symbol = A;
     seal! {}
     /// returns an immutable reference to the state.
     fn state(&self) -> &State<Q> {
