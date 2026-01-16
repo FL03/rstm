@@ -52,6 +52,7 @@ impl<'a, Q, A> HeadStep<'a, Q, usize, Q, A>
 where
     Q: RawState,
 {
+    #[inline]
     /// this method shifts the head along the tape, returning a head containing the previous
     /// state and symbol.
     ///

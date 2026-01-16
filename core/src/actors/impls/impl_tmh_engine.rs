@@ -101,25 +101,32 @@ where
         A: Symbolic,
     {
         // if the output tape is empty, initialize it from the driver's tape
-        if self.output.is_empty() {
+        if self.output().is_empty() {
             #[cfg(feature = "tracing")]
-            tracing::warn! { "Output tape is empty; initializing from driver's tape..." };
-            self.output.extend(self.driver().tape().clone());
+            tracing::warn! { "Output tape is empty; initializing from the input tape..." };
+            let inputs = self.driver().tape().clone();
+            self.extend_output(inputs);
         }
         // read the tape
         let Head { state, symbol } = self.get_head()?;
-        // execute the program
-        let tail = self
-            .program()?
-            .find_tail(state, symbol)
-            .ok_or(crate::Error::NoRuleFound)?
-            .clone();
-        // increment the steps
-        self.next_cycle();
-        // process the instruction
-        let step = self.driver.head_mut().step(tail);
-        // apply the step
-        Ok(step.shift(&mut self.output))
+        // get a reference to the program
+        if let Some(program) = self.program() {
+            // use the program to find a tail for the current head
+            let tail = program
+                .find_tail(state, symbol)
+                .ok_or(crate::Error::NoRuleFound)?
+                .clone();
+            // increment the steps
+            self.next_cycle();
+            // process the instruction
+            let step = self.driver.head_mut().step(tail);
+            // apply the step
+            Ok(step.shift(&mut self.output))
+        } else {
+            #[cfg(feature = "tracing")]
+            tracing::error!("No program loaded; cannot execute step.");
+            Err(crate::Error::NoProgram)
+        }
     }
 }
 

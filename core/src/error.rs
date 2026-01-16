@@ -24,14 +24,14 @@ pub enum Error {
     NoRuleFound,
     #[error("Index {index} is out of bounds for length {len}.")]
     IndexOutOfBounds { index: usize, len: usize },
-    #[error("A halted machine attempted to perform an operation.")]
+    #[error("Attempted to perform an operation in a halted state.")]
     Halted,
     #[error("Unable to parse a rule from the given information.")]
     ParseRuleError,
     #[error("An invalid direction was specified.")]
     InvalidDirection,
-    #[error("Unable to downcast into the specified type.")]
-    DowncastFailure,
+    #[error("Unable to downcast {0:?} into type {1:?}.")]
+    DowncastFailure(core::any::TypeId, core::any::TypeId),
     #[error("No symbol found at position {0}")]
     NoSymbolFoundAt(usize),
     // internal errors

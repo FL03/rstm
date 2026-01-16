@@ -161,13 +161,13 @@ where
     {
         self.head().state().is_halted()
     }
-    /// loads the given program and current driver into an engine used to magane the execution
-    /// process.
+    /// load the current instance and given program into a new instance of the 
+    /// [`TuringEngine`] implementation to directly manage the execution of the program.
     ///
     /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
     /// until the corresponding `.run()` method is invoked on the engine.
     pub fn load(&mut self, program: Program<Q, A>) -> TuringEngine<'_, Self, Q, A> {
-        TuringEngine::new(self).load_with(program)
+        TuringEngine::new(self, program)
     }
     /// returns the _current_ head of the actor, using the given directive to write some symbol
     /// onto the tape before shifting the head and updating its state.

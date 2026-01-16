@@ -7,18 +7,15 @@
 #[cfg(feature = "alloc")]
 pub use self::turing_engine::*;
 #[doc(inline)]
-pub use self::{drivers::prelude::*, traits::*};
+pub use self::{drivers::*, traits::*};
 
 pub mod drivers {
     #[doc(inline)]
     pub use self::tmh::*;
 
-    pub mod tmh;
-
-    pub(crate) mod prelude {
-        pub use super::tmh::*;
-    }
+    mod tmh;
 }
+
 pub mod turing_engine;
 
 mod impls {
@@ -38,7 +35,7 @@ mod traits {
 #[doc(hidden)]
 #[allow(unused_imports)]
 pub(crate) mod prelude {
-    pub use super::drivers::prelude::*;
+    pub use super::drivers::*;
     pub use super::traits::*;
     #[cfg(feature = "alloc")]
     pub use super::turing_engine::*;
