@@ -8,13 +8,13 @@ use rstm_state::RawState;
 
 /// [`HeadStep`] is a structure responsible for managing the step operation of a moving head
 /// in a Turing machine simulation.
-pub struct HeadStep<'a, Q, A, R = Q, B = A>
+pub struct HeadStep<'a, Q1, A1, Q2 = Q1, A2 = A1>
 where
-    Q: RawState,
-    R: RawState,
+    Q1: RawState,
+    Q2: RawState,
 {
-    pub(crate) head: &'a mut Head<Q, A>,
-    pub(crate) tail: Tail<R, B>,
+    pub(crate) head: &'a mut Head<Q1, A1>,
+    pub(crate) tail: Tail<Q2, A2>,
 }
 /// the standard implementation of [`HeadStep`] focuses on instances where the head and tail
 /// share the same type-space; meaning `Head<Q, A>` and `Tail<Q, A>` types are being utilized.

@@ -5,7 +5,7 @@
 */
 //! actors for modular Turing machine implementations
 #[cfg(feature = "alloc")]
-pub use self::turing_engine::*;
+pub use self::engine_base::*;
 #[doc(inline)]
 pub use self::{drivers::*, traits::*};
 
@@ -16,11 +16,11 @@ pub mod drivers {
     mod tmh;
 }
 
-pub mod turing_engine;
+pub mod engine_base;
 
 mod impls {
+    mod impl_engine_tmh;
     mod impl_tmh;
-    mod impl_tmh_engine;
     mod impl_tmh_ext;
 }
 
@@ -36,7 +36,7 @@ mod traits {
 #[allow(unused_imports)]
 pub(crate) mod prelude {
     pub use super::drivers::*;
-    pub use super::traits::*;
     #[cfg(feature = "alloc")]
-    pub use super::turing_engine::*;
+    pub use super::engine_base::*;
+    pub use super::traits::*;
 }

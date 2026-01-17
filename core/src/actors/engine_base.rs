@@ -8,15 +8,14 @@ use crate::programs::Program;
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};
 
-/// A type alias for a [`TuringEngine`] configured with a _moving head_ execution model, or
+/// A type alias for a [`EngineBase`] configured with a _moving head_ execution model, or
 /// driver.
-pub type TMHEngine<'a, Q, A> = TuringEngine<'a, TMH<Q, A>, Q, A>;
+pub type TMHEngine<'a, Q, A> = EngineBase<'a, TMH<Q, A>, Q, A>;
 
-/// The [`TuringEngine`] essentially defines a runtime for executing Turing Machine drivers
-/// according to the specifications defined in a given program. The engine is responsible
-/// for managing the execution flow, including tracking the current state, tape position,
-/// and handling transitions based on the rules defined in the program.
-pub struct TuringEngine<'a, D, Q, A>
+/// The [`EngineBase`] implementation is designed as a type of runtime for executing various
+/// Turing machine models, or drivers, according to a specified set of rules encapsulated
+/// within a [`Program<Q, A>`].
+pub struct EngineBase<'a, D, Q, A>
 where
     D: RawDriver<Q, A>,
     Q: RawState,
@@ -31,7 +30,7 @@ where
     pub(crate) output: Vec<A>,
 }
 
-impl<'a, D, Q, A> TuringEngine<'a, D, Q, A>
+impl<'a, D, Q, A> EngineBase<'a, D, Q, A>
 where
     D: RawDriver<Q, A>,
     Q: RawState,
@@ -60,11 +59,11 @@ where
     }
     #[inline]
     /// consumes the engine to create another with the given driver
-    pub fn with_driver<'b, D2>(self, driver: &'b mut D2) -> TuringEngine<'b, D2, Q, A>
+    pub fn with_driver<'b, D2>(self, driver: &'b mut D2) -> EngineBase<'b, D2, Q, A>
     where
         D2: RawDriver<Q, A>,
     {
-        TuringEngine {
+        EngineBase {
             driver,
             program: self.program,
             cycles: self.cycles,
@@ -74,7 +73,7 @@ where
     #[inline]
     /// consumes the current instance to create another with the given program
     pub fn with_program(self, program: Program<Q, A>) -> Self {
-        TuringEngine {
+        EngineBase {
             program: Some(program),
             ..self
         }
