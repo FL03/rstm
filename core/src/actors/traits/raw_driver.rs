@@ -18,7 +18,7 @@ pub trait RawDriver<Q, A> {
     /// returns a reference to the current state of the driver
     fn current_state(&self) -> State<&Q>;
     /// returns a reference to the driver's internal store
-    fn tape(&self) -> &Self::Tape<A>;
+    fn store(&self) -> &Self::Tape<A>;
 
     private! {}
 }

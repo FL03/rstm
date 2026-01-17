@@ -117,7 +117,7 @@ where
         self.head().state().view()
     }
 
-    fn tape(&self) -> &Self::Tape<A> {
+    fn store(&self) -> &Self::Tape<A> {
         &self.input
     }
 }

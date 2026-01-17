@@ -35,7 +35,7 @@ where
     D: RawDriver<Q, A>,
     Q: RawState,
 {
-    /// initialize a new instance of the engine from the given driver
+    /// initialize a new engine using the given driver and program
     pub const fn new(driver: &'a mut D, program: Program<Q, A>) -> Self {
         Self {
             driver,
