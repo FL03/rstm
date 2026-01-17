@@ -155,9 +155,9 @@ where
         Rule { head: self, tail }
     }
     /// tries reading the given tape using the head as its coordinates.
-    pub fn read<T, U>(self, tape: &'_ [T]) -> Option<&U>
+    pub fn read<T>(self, tape: &'_ [T]) -> Option<&A::Output>
     where
-        A: core::slice::SliceIndex<[T], Output = U>,
+        A: core::slice::SliceIndex<[T]>,
     {
         tape.get(self.symbol)
     }
@@ -175,7 +175,7 @@ where
             symbol: &mut self.symbol,
         }
     }
-    /// use the given [`Tail`] to initialize a new [`HeadStep`] instance for performing a step 
+    /// use the given [`Tail`] to initialize a new [`HeadStep`] instance for performing a step
     /// operation.
     ///
     /// **Note**: this method is _lazy_, meaning that the actual step is not performed until
