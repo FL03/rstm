@@ -6,14 +6,28 @@
 use crate::rules::Head;
 use crate::{Rule, Tail};
 use rstm_state::{RawState, State};
-use rstm_traits::Read;
+use rstm_traits::{Read, ReadBuf};
+
+impl<Q, A, T> ReadBuf<T> for Head<Q, A>
+where
+    Q: RawState,
+    A: Copy + core::slice::SliceIndex<[T], Output = T>,
+    A::Output: Clone,
+{
+    type Buf<_T> = [_T];
+    type Output = T;
+
+    fn read(&mut self, rhs: &mut Self::Buf<T>) -> Self::Output {
+        rhs[self.symbol].clone()
+    }
+}
 
 impl<'a, Q, A> Read<&'a mut [A]> for Head<Q, usize>
 where
     Q: RawState,
 {
-    type Error = crate::Error;
     type Output = &'a A;
+    type Error = crate::Error;
 
     fn read(self, rhs: &'a mut [A]) -> Result<Self::Output, Self::Error> {
         let pos = self.symbol;

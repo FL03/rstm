@@ -25,10 +25,10 @@ mod impls {
 }
 
 mod traits {
-    pub use self::{raw_driver::*, raw_engine::*};
+    pub use self::{executor::*, raw_driver::*};
 
+    mod executor;
     mod raw_driver;
-    mod raw_engine;
 }
 
 // prelude (local)

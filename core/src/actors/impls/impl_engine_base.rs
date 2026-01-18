@@ -5,7 +5,7 @@
 */
 use crate::actors::engine_base::EngineBase;
 
-use crate::actors::RawDriver;
+use crate::actors::Driver;
 use crate::error::Error;
 use crate::programs::Program;
 use crate::rules::{Head, Tail};
@@ -14,7 +14,7 @@ use rstm_traits::TryStep;
 
 impl<D, Q, A> EngineBase<D, Q, A>
 where
-    D: RawDriver<Q, A>,
+    D: Driver<Q, A>,
     Q: RawState,
 {
     /// initialize a new instance of the engine using the default driver and given program
@@ -75,7 +75,7 @@ where
     /// consumes the engine to create another with the given driver
     pub fn with_driver<D2>(self, driver: D2) -> EngineBase<D2, Q, A>
     where
-        D2: RawDriver<Q, A>,
+        D2: Driver<Q, A>,
     {
         EngineBase {
             driver,

@@ -26,7 +26,7 @@
 //!
 //! ```rust
 //! use rstm::{HeadEngine, program};
-//! 
+//!
 //! // define an initial state
 //! let initial_state: isize = 0;
 //! // create a program to execute

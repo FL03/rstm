@@ -3,7 +3,7 @@
     Created At: 2025.08.31:14:49:50
     Contrib: @FL03
 */
-use super::RawDriver;
+use super::Driver;
 use crate::programs::Program;
 use crate::rules::Head;
 use alloc::vec::Vec;
@@ -25,7 +25,7 @@ pub type HeadEngine<Q, A> = EngineBase<Head<Q, usize>, Q, A>;
 /// within a [`Program<Q, A>`].
 pub struct EngineBase<D, Q, A>
 where
-    D: RawDriver<Q, A>,
+    D: Driver<Q, A>,
     Q: RawState,
 {
     /// the actor that will be executing the program

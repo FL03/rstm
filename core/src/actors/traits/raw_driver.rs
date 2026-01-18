@@ -6,23 +6,28 @@
 use crate::rules::{Head, Tail};
 use rspace_traits::RawSpace;
 use rstm_state::{RawState, State};
-use rstm_traits::Handle;
+use rstm_traits::{Handle, Read};
 
-/// The [`RawDriver`] is the basis for all compatible actors within the system. Each
+/// The [`Driver`] is the basis for all compatible actors within the system. Each
 /// implementation is required to define the _type_ of internal store it will use to
 /// manage its data. This abstraction allows for flexibility in the choice of data structures,
 /// enabling the actor to adapt to various use cases and performance requirements.
-pub trait RawDriver<Q, A> {
+pub trait Driver<Q, A>
+where
+    for<'a> Self: Read<&'a mut [A], Output = &'a A>,
+{
+    private! {}
     /// returns the current position of the driver.
     fn current_position(&self) -> usize;
     /// returns a reference to the current state of the driver
     fn current_state(&self) -> State<&Q>;
-
-    private! {}
 }
 
 /// An [`Actor`] is a particular kind of driver capable of maintaining its own internal store.
-pub trait Actor<Q, A>: RawDriver<Q, A> + Handle<Tail<Q, A>> {
+pub trait Actor<Q, A>: Driver<Q, A> + Handle<Tail<Q, A>>
+where
+    for<'a> Self: Read<&'a mut [A], Output = &'a A>,
+{
     type Tape<_T>: RawSpace<Elem = _T>;
     /// returns a reference to the driver's internal store
     fn store(&self) -> &Self::Tape<A>;
@@ -49,9 +54,10 @@ pub trait Actor<Q, A>: RawDriver<Q, A> + Handle<Tail<Q, A>> {
     }
 }
 
-impl<Q, A> RawDriver<Q, A> for Head<Q, usize>
+impl<Q, A> Driver<Q, A> for Head<Q, usize>
 where
     Q: RawState,
+    for<'a> Self: Read<&'a mut [A], Output = &'a A>,
 {
     seal! {}
 

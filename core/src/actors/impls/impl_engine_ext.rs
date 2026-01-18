@@ -5,7 +5,7 @@
 */
 
 use crate::actors::engine_base::EngineBase;
-use crate::actors::{Engine, RawDriver, RawEngine};
+use crate::actors::{Driver, Executor};
 use crate::programs::Program;
 use crate::rules::Head;
 use rstm_state::{Halting, RawState};
@@ -14,7 +14,7 @@ use rstm_traits::{Handle, Reader, Symbolic, TryStep};
 impl<'a, D, Q, A> Reader<A> for EngineBase<D, Q, A>
 where
     Q: RawState,
-    D: RawDriver<Q, A>,
+    D: Driver<Q, A>,
 {
     type Error = crate::Error;
 
@@ -26,7 +26,7 @@ where
 impl<'a, D, Q, A, X, Y> Handle<X> for EngineBase<D, Q, A>
 where
     Q: RawState,
-    D: RawDriver<Q, A> + Handle<X, Output = Y>,
+    D: Driver<Q, A> + Handle<X, Output = Y>,
 {
     type Output = Y;
 
@@ -35,23 +35,16 @@ where
     }
 }
 
-impl<'a, D, Q, A> RawEngine<Q, A> for EngineBase<D, Q, A>
+impl<D, Q, A> Executor<Q, A> for EngineBase<D, Q, A>
 where
-    D: RawDriver<Q, A>,
-    Q: RawState,
+    D: Driver<Q, A>,
+    Q: Halting + RawState,
+    Self: TryStep<Output = Head<Q, A>, Error = crate::Error>,
 {
     type Driver = D;
 
-    seal!();
-}
+    seal! {}
 
-impl<D, Q, A> Engine<Q, A> for EngineBase<D, Q, A>
-where
-    D: RawDriver<Q, A>,
-    Q: Halting + RawState + Clone + PartialEq,
-    A: Symbolic,
-    Self: TryStep<Output = Head<Q, A>, Error = crate::Error>,
-{
     fn load(&mut self, program: Program<Q, A>) {
         self.program = Some(program);
     }
@@ -63,8 +56,8 @@ where
 
 impl<Q, A> TryStep for EngineBase<Head<Q, usize>, Q, A>
 where
-    Q: RawState + Clone + PartialEq,
     A: Symbolic,
+    Q: RawState + Clone + PartialEq,
 {
     type Error = crate::Error;
     type Output = Head<Q, A>;
@@ -151,7 +144,7 @@ impl<'a, D, Q, A> Iterator for EngineBase<D, Q, A>
 where
     Q: 'static + Halting + RawState + Clone + PartialEq,
     A: Symbolic,
-    D: RawDriver<Q, A>,
+    D: Driver<Q, A>,
     Self: TryStep<Output = Head<Q, A>>,
 {
     type Item = Head<Q, A>;

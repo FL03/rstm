@@ -4,7 +4,7 @@
     Contrib: @FL03
 */
 #![allow(deprecated)]
-use crate::actors::{Actor, EngineBase, RawDriver};
+use crate::actors::{Actor, Driver, EngineBase};
 use crate::error::Error;
 use crate::programs::Program;
 use crate::{Direction, Head, Tail};
@@ -390,7 +390,7 @@ where
     }
 }
 
-impl<Q, A> RawDriver<Q, A> for TMH<Q, A>
+impl<Q, A> Driver<Q, A> for TMH<Q, A>
 where
     Q: RawState,
 {

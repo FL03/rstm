@@ -5,7 +5,7 @@
 */
 extern crate rstm;
 
-use rstm::{Head, program};
+use rstm::{HeadEngine, program};
 
 fn main() -> rstm::Result<()> {
     // initialize the logger
@@ -15,7 +15,7 @@ fn main() -> rstm::Result<()> {
         .with_timer(tracing_subscriber::fmt::time::uptime())
         .init();
     // define some input for the machine
-    let input = vec![0, 0, 0, 0, 1, 0, 1, 1, 0, 1];
+    let input = [0, 0, 0, 0, 1, 0, 1, 1, 0, 1];
     // initialize the state of the machine
     let initial_state: isize = 0;
     // define the Program for the machine
@@ -33,7 +33,7 @@ fn main() -> rstm::Result<()> {
     // export the program to a JSON file
     program.export_json("rstm/examples/example.program.json")?;
     // create a new instance of the machine
-    let mut tm = Head::new(initial_state, 0usize).load(program);
+    let mut tm = HeadEngine::tmh(program);
     // load the input into the machine tape
     tm.extend_tape(input);
     // execute the program
