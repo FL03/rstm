@@ -3,19 +3,20 @@
     Created At: 2026.01.11:13:54:16
     Contrib: @FL03
 */
-/// [`Read`] establishes an interface for objects capable of reading data from internal
+/// [`Reader`] establishes an interface for objects capable of reading data from internal
 /// sources.
-pub trait Read<T> {
+pub trait Reader<T> {
     type Error: core::error::Error;
 
     fn read(&self) -> Result<&T, Self::Error>;
 }
 
-/// [`ReadBuf`] trait defines an interface for objects capable of reading data into a buffer.
-pub trait ReadBuf<T> {
+/// [`Read`] trait defines an interface for objects capable of reading data into a buffer.
+pub trait Read<Rhs> {
+    type Output;
     type Error: core::error::Error;
 
-    fn read(&mut self, rhs: &mut [T]) -> Result<T, Self::Error>;
+    fn read(self, rhs: Rhs) -> Result<Self::Output, Self::Error>;
 }
 
 /// The [`Write`] trait defines an interface for objects that can perform write operations.

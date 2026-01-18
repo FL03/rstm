@@ -19,8 +19,13 @@ pub mod drivers {
 pub mod engine_base;
 
 mod impls {
-    mod impl_engine_tmh;
+    mod impl_engine_base;
+    mod impl_engine_ext;
+    mod impl_engine_repr;
+
+    #[allow(deprecated)]
     mod impl_tmh;
+    #[allow(deprecated)]
     mod impl_tmh_ext;
 }
 

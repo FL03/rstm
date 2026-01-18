@@ -5,7 +5,7 @@
 */
 use core::hint::black_box;
 use criterion::{BatchSize, BenchmarkId, Criterion};
-use rstm::prelude::{Program, TMH};
+use rstm::prelude::{Head, HeadEngine, Program};
 use std::time::Duration;
 
 const SAMPLES: usize = 50;
@@ -28,13 +28,14 @@ lazy_static::lazy_static! {
     };
 }
 
-fn setup_tmh() -> TMH<isize, usize> {
+fn setup_tmh() -> HeadEngine<isize, usize> {
     // define some input for the machine
     let input = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
-    // initialize the state of the machine
-    let initial_state: isize = 0;
     // create a new instance of the machine
-    TMH::new(initial_state, input)
+    let mut engine = Head::new(0, 0).load(PROGRAM.clone());
+    // load the input into the machine tape
+    engine.extend_tape(input);
+    engine
 }
 fn bench_tmh(c: &mut Criterion) {
     let measure_for = Duration::from_secs(DEFAULT_DURATION_SECS);
@@ -48,8 +49,7 @@ fn bench_tmh(c: &mut Criterion) {
         b.iter_batched(
             setup_tmh,
             |mut tmh| {
-                let mut engine = tmh.load(PROGRAM.clone());
-                black_box(engine.step().expect("should step"));
+                black_box(tmh.step().expect("should step"));
             },
             BatchSize::SmallInput,
         );

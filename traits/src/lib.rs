@@ -31,12 +31,13 @@ mod symbols;
 mod ops {
     //! useful operations for finite state machines (Turing Machines) and their rules
     #[doc(inline)]
-    pub use self::{execute::*, handle::*, increment::*, percentage::*};
+    pub use self::{execute::*, handle::*, increment::*, percentage::*, step::*};
 
     mod execute;
     mod handle;
     mod increment;
     mod percentage;
+    mod step;
 }
 // re-exports
 #[doc(inline)]

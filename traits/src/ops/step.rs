@@ -4,49 +4,12 @@
     Contrib: @FL03
 */
 
-
-
-pub trait StepOnce<Rhs = Self> {
+/// A trait defining an unary step operation primarily intended to enable iterable execution
+/// patterns from implemented machines.
+pub trait TryStep {
+    type Error;
     type Output;
 
-    /// Performs a single step operation with the given right-hand side operand.
-    ///
-    /// # Arguments
-    ///
-    /// * `rhs` - The right-hand side operand for the step operation.
-    ///
-    /// # Returns
-    ///
-    /// The result of the step operation.
-    fn step_once(self, rhs: Rhs) -> Self::Output;
-}
-
-pub trait StepMut<Rhs = Self> {
-    type Output;
-
-    /// Performs a mutable step operation with the given right-hand side operand.
-    ///
-    /// # Arguments
-    ///
-    /// * `rhs` - The right-hand side operand for the step operation.
-    ///
-    /// # Returns
-    ///
-    /// The result of the step operation.
-    fn step_mut(&mut self, rhs: Rhs) -> Self::Output;
-}
-
-pub trait Step<Rhs = Self> {
-    type Output;
-
-    /// Performs a step operation with the given right-hand side operand.
-    ///
-    /// # Arguments
-    ///
-    /// * `rhs` - The right-hand side operand for the step operation.
-    ///
-    /// # Returns
-    ///
-    /// The result of the step operation.
-    fn step(&self, rhs: Rhs) -> Self::Output;
+    /// Performs a step operation
+    fn try_step(&mut self) -> Result<Self::Output, Self::Error>;
 }

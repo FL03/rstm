@@ -6,11 +6,11 @@
 #![cfg(feature = "alloc")]
 
 use crate::actors::drivers::TMH;
-use crate::actors::{Driver, RawDriver};
+use crate::actors::{Actor, RawDriver};
 use crate::{Direction, Head, Tail};
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};
-use rstm_traits::{Handle, TryExecuteMut};
+use rstm_traits::{Handle, Read, TryExecuteMut};
 
 impl<Q, A> core::fmt::Debug for TMH<Q, A>
 where
@@ -32,27 +32,73 @@ where
     }
 }
 
+impl<E, X, Y, Q, A> Read<X> for TMH<Q, A>
+where
+    E: core::error::Error,
+    Q: RawState,
+    Head<Q, usize>: Read<X, Error = E, Output = Y>,
+{
+    type Output = Y;
+    type Error = E;
+
+    fn read(self, rhs: X) -> Result<Self::Output, Self::Error> {
+        self.head.read(rhs)
+    }
+}
+
+impl<E, X, Y, Q, A> Read<X> for &TMH<Q, A>
+where
+    E: core::error::Error,
+    Q: RawState,
+    for<'b> &'b Head<Q, usize>: Read<X, Error = E, Output = Y>,
+{
+    type Output = Y;
+    type Error = E;
+
+    fn read(self, rhs: X) -> Result<Self::Output, Self::Error> {
+        self.head().read(rhs)
+    }
+}
+
+impl<E, X, Y, Q, A> Read<X> for &mut TMH<Q, A>
+where
+    E: core::error::Error,
+    Q: RawState,
+    for<'b> &'b mut Head<Q, usize>: Read<X, Error = E, Output = Y>,
+{
+    type Output = Y;
+    type Error = E;
+
+    fn read(self, rhs: X) -> Result<Self::Output, Self::Error> {
+        self.head_mut().read(rhs)
+    }
+}
+
 impl<Q, A> RawDriver<Q, A> for TMH<Q, A>
+where
+    Q: RawState,
+{
+    seal! {}
+
+    fn current_position(&self) -> usize {
+        self.head().symbol
+    }
+
+    fn current_state(&self) -> State<&Q> {
+        self.head().state().view()
+    }
+}
+
+impl<Q, A> Actor<Q, A> for TMH<Q, A>
 where
     Q: RawState,
 {
     type Tape<_T> = Vec<_T>;
 
-    seal! {}
-
-    fn current_state(&self) -> State<&Q> {
-        self.head().state().view()
-    }
-
     fn store(&self) -> &Self::Tape<A> {
         &self.input
     }
-}
 
-impl<Q, A> Driver<Q, A> for TMH<Q, A>
-where
-    Q: RawState,
-{
     fn store_mut(&mut self) -> &mut Self::Tape<A> {
         &mut self.input
     }

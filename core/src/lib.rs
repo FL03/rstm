@@ -54,7 +54,7 @@ mod utils {
 // re-exports (public)
 #[doc(inline)]
 pub use self::{
-    actors::TMH,
+    actors::{HeadEngine, RawDriver, RawEngine},
     error::{Error, Result},
     motion::HeadStep,
     programs::{InstructionSet, Program, RuleSet},

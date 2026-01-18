@@ -58,34 +58,34 @@ where
     ///
     /// **note**: this method **does not** check if the current nor the next state is halted,
     /// it is up to the caller to establishing halting.
-    pub fn shift(self, tape: &mut [A]) -> Option<Head<Q, A>>
+    pub fn shift(self, tape: &mut [A]) -> crate::Result<Head<Q, A>>
     where
         A: Clone,
     {
+        let pos = self.head.symbol;
+        if pos >= tape.len() {
+            #[cfg(feature = "tracing")]
+            tracing::error!(
+                "The position of the head ({}) is out of tape bounds for a tape of length {}",
+                pos,
+                tape.len()
+            );
+            return Err(crate::Error::index_out_of_bounds(pos, tape.len()));
+        }
         let Tail {
             next_state,
             direction,
             write_symbol,
         } = self.tail;
-        if let Some(sym) = tape.get(self.head.symbol).cloned() {
-            // update the tape at the head's current position
-            tape[self.head.symbol] = write_symbol;
-            // update the head position based on the tail's direction
-            self.head.symbol += direction;
-            // reconstruct the previous head
-            let prev = Head {
-                state: self.head.replace_state(next_state),
-                symbol: sym,
-            };
-            return Some(prev);
-        }
-        #[cfg(feature = "tracing")]
-        tracing::error!(
-            "The position of the head ({}) is out of tape bounds for a tape of length {}",
-            self.head.symbol,
-            tape.len()
-        );
-        // return None if the head's position is out of bounds
-        None
+        // replace the head state
+        let prev = Head {
+            state: self.head.replace_state(next_state),
+            symbol: tape[pos].clone(),
+        };
+        // write the new symbol to the tape
+        tape[pos] = write_symbol;
+        // update the head position based on the tail's direction
+        self.head.symbol += direction;
+        Ok(prev)
     }
 }

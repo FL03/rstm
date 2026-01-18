@@ -6,7 +6,55 @@
 use crate::rules::Head;
 use crate::{Rule, Tail};
 use rstm_state::{RawState, State};
+use rstm_traits::Read;
 
+impl<'a, Q, A> Read<&'a mut [A]> for Head<Q, usize>
+where
+    Q: RawState,
+{
+    type Error = crate::Error;
+    type Output = &'a A;
+
+    fn read(self, rhs: &'a mut [A]) -> Result<Self::Output, Self::Error> {
+        let pos = self.symbol;
+        if pos >= rhs.len() {
+            return Err(crate::Error::index_out_of_bounds(pos, rhs.len()));
+        }
+        Ok(&rhs[pos])
+    }
+}
+
+impl<'a, Q, A> Read<&'a mut [A]> for &Head<Q, usize>
+where
+    Q: RawState,
+{
+    type Error = crate::Error;
+    type Output = &'a A;
+
+    fn read(self, rhs: &'a mut [A]) -> Result<Self::Output, Self::Error> {
+        let pos = self.symbol;
+        if pos >= rhs.len() {
+            return Err(crate::Error::index_out_of_bounds(pos, rhs.len()));
+        }
+        Ok(&rhs[pos])
+    }
+}
+
+impl<'a, Q, A> Read<&'a mut [A]> for &mut Head<Q, usize>
+where
+    Q: RawState,
+{
+    type Error = crate::Error;
+    type Output = &'a A;
+
+    fn read(self, rhs: &'a mut [A]) -> Result<Self::Output, Self::Error> {
+        let pos = self.symbol;
+        if pos >= rhs.len() {
+            return Err(crate::Error::index_out_of_bounds(pos, rhs.len()));
+        }
+        Ok(&rhs[pos])
+    }
+}
 impl<Q, A> core::fmt::Debug for Head<Q, A>
 where
     Q: core::fmt::Debug,

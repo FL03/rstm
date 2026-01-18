@@ -5,6 +5,10 @@
 */
 use crate::rules::Head;
 
+#[deprecated(
+    since = "0.1.3",
+    note = "The `TMH` driver is deprecated and will be removed; please use the `Head<Q, usize>` driver instead."
+)]
 /// The [`TMH`] implementation works to emulate the behaviors of a Turing machine with a
 /// _moving head_ (TMH).
 ///

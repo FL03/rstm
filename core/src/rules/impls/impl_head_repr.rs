@@ -63,7 +63,15 @@ where
     }
 }
 
-impl<Q> Head<Q, usize> {
+impl<Q> Head<Q, usize>
+where
+    Q: RawState,
+{
+    /// load the head into an engine loaded with the given program
+    pub fn load<A>(self, program: crate::Program<Q, A>) -> crate::actors::EngineBase<Self, Q, A> {
+        crate::actors::EngineBase::from_driver(self).with_program(program)
+    }
+
     pub fn shift(self, direction: Direction) -> Self {
         Self {
             symbol: direction.apply_unsigned(self.symbol),

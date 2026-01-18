@@ -14,7 +14,7 @@ impl<Q, A> Program<Q, A>
 where
     Q: RawState,
 {
-    /// returns a new, empty instance of the [`Program`]
+    /// initializes a new, empty instance of the [`Program`]
     pub const fn new() -> Self {
         Self {
             initial_state: None,
@@ -91,11 +91,11 @@ where
     }
     /// returns an immutable reference to the tail for a given head; returns [`None`](Option::None)
     /// if no match is found.
-    pub fn get<Z>(&self, head: &Z) -> Option<&Tail<Q, A>>
+    pub fn get<K>(&self, head: &K) -> Option<&Tail<Q, A>>
     where
         Q: PartialEq,
         A: PartialEq,
-        Z: core::borrow::Borrow<Head<Q, A>>,
+        K: core::borrow::Borrow<Head<Q, A>>,
     {
         self.iter().find_map(|i| {
             if i.head() == head.borrow() {
@@ -107,11 +107,11 @@ where
     }
     /// returns a mutable reference to the tail for a given head; returns [`None`](Option::None)
     /// if no match is found.
-    pub fn get_mut<Z>(&mut self, head: &Z) -> Option<&mut Tail<Q, A>>
+    pub fn get_mut<K>(&mut self, head: &K) -> Option<&mut Tail<Q, A>>
     where
         Q: PartialEq,
         A: PartialEq,
-        Z: core::borrow::Borrow<Head<Q, A>>,
+        K: core::borrow::Borrow<Head<Q, A>>,
     {
         self.iter_mut().find_map(|i| {
             if i.head() == head.borrow() {
@@ -121,8 +121,8 @@ where
             }
         })
     }
-    /// returns an immutable reference to the tail of a rule whose state and symbol match the
-    /// givens
+    /// returns a reference to the tail of a rule for a given state and symbol; returns
+    /// [`None`](Option::None) if no match is found.
     pub fn find_tail(&self, state: State<&Q>, symbol: &A) -> Option<&Tail<Q, A>>
     where
         Q: PartialEq,
