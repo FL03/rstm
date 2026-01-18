@@ -27,7 +27,7 @@ fn test_head_engine() {
     // load the input into the machine tape
     tm.extend_tape(input);
     // execute the program
-    let res = tm.run();
-    assert! { res.is_ok() && tm.is_halted() }
+    tm.run().expect("failed to execute the program...");
+    assert! { tm.is_halted() }
     assert_eq! { tm.cycles(), 9 }
 }

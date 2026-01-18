@@ -18,7 +18,7 @@
 //! the machine's behavtaper. The library provides a set of abstracttapens and utilities to define
 //! and manipulate these components.
 //!
-//! ## Examples
+//! ## Basic Usage
 //!
 //! For more examples, please refer to the [`examples`](https://github.com/FL03/rstm/blob/main/rstm/examples) directory in the repository.
 //!
@@ -26,10 +26,10 @@
 //!
 //! ```rust
 //! use rstm::{HeadEngine, program};
-//!
-//! let input = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
+//! 
+//! // define an initial state
 //! let initial_state: isize = 0;
-//! // define the ruleset for the machine
+//! // create a program to execute
 //! let program = program! {
 //!     #[default_state(initial_state)]
 //!     rules: {
@@ -41,12 +41,12 @@
 //!         (-1, 1) -> Left(1, 1),
 //!     };
 //! };
-//! // create a new instance of the machine
+//! // initialize the machine
 //! let mut tm = HeadEngine::tmh(program);
 //! // load the input
-//! tm.extend_tape(input);
+//! tm.extend_tape([0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0]);
+//! // execute the workload
 //! tm.run().expect("failed to execute...");
-//! }
 //! ```
 #![allow(
     clippy::module_inception,
