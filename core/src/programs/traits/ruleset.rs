@@ -6,7 +6,7 @@
 use crate::rules::{Head, Instruction, Rule, Tail};
 use rstm_state::RawState;
 
-/// The [`RuleSet`] trait establishes an interface common to all compatible sets of rules for 
+/// The [`RuleSet`] trait establishes an interface common to all compatible sets of rules for
 /// the framework.
 pub trait RuleSet<Q, A>
 where
@@ -16,7 +16,7 @@ where
 }
 
 /*
-    ************* Implementations *************
+ ************* Implementations *************
 */
 
 impl<Q, A> RuleSet<Q, A> for [(Head<Q, A>, Tail<Q, A>)]

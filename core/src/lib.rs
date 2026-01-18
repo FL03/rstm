@@ -1,11 +1,9 @@
 /*
-    Appellation: eryon-rules <library>
-    Created At: 2025.12.15:16:51:44
+    Appellation: rstm-core <library>
+    Created At: 2026.01.17:21:43:29
     Contrib: @FL03
 */
-//! Rules and their components
-//!
-//!
+//! this crate provides core primtives and utilities for working with Turing machines in Rust.
 #![allow(
     clippy::missing_errors_doc,
     clippy::missing_panics_doc,
@@ -51,12 +49,10 @@ mod utils {
     mod range;
 }
 
-// re-exports (private)
-pub(crate) use rstm_traits::prelude::*;
 // re-exports (public)
 #[doc(inline)]
 pub use self::{
-    actors::TMH,
+    actors::{Driver, Executor, MovingHead},
     error::{Error, Result},
     motion::HeadStep,
     programs::{InstructionSet, Program, RuleSet},
@@ -66,7 +62,7 @@ pub use self::{
 #[cfg(feature = "macros")]
 pub use rstm_state::s;
 #[doc(inline)]
-pub use rstm_state::{Halt, HaltState, IsHalted, RawState, State};
+pub use rstm_state::{Halt, HaltState, Halting, HaltingState, RawState, State, StateExt};
 // prelude
 #[doc(hidden)]
 pub mod prelude {

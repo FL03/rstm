@@ -155,9 +155,9 @@ where
         Rule { head: self, tail }
     }
     /// tries reading the given tape using the head as its coordinates.
-    pub fn read<T, U>(self, tape: &'_ [T]) -> Option<&U>
+    pub fn read_tape<T>(self, tape: &'_ [T]) -> Option<&A::Output>
     where
-        A: core::slice::SliceIndex<[T], Output = U>,
+        A: core::slice::SliceIndex<[T]>,
     {
         tape.get(self.symbol)
     }
@@ -175,12 +175,11 @@ where
             symbol: &mut self.symbol,
         }
     }
-    /// use the given [`Tail`] to execute a single step using the [`HeadStep`] executor to
-    /// manage the process.
+    /// use the given [`Tail`] to initialize a new [`HeadStep`] instance for performing a step
+    /// operation.
     ///
     /// **Note**: this method is _lazy_, meaning that the actual step is not performed until
-    /// an actionable method is called on the returned [`HeadStep`] instance, namely
-    /// [`apply`](HeadStep::apply) or [`move_along`](HeadStep::move_along).
+    /// an actionable method is called on the returned [`HeadStep`] instance.
     pub fn step<'a, Q2, B>(&'a mut self, tail: Tail<Q2, B>) -> HeadStep<'a, Q, A, Q2, B>
     where
         Q2: RawState,

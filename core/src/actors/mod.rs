@@ -5,41 +5,38 @@
 */
 //! actors for modular Turing machine implementations
 #[cfg(feature = "alloc")]
-pub use self::turing_engine::*;
+pub use self::engine_base::*;
 #[doc(inline)]
-pub use self::{drivers::prelude::*, traits::*};
+pub use self::traits::*;
 
 pub mod drivers {
     #[doc(inline)]
     pub use self::tmh::*;
 
-    pub mod tmh;
-
-    pub(crate) mod prelude {
-        pub use super::tmh::*;
-    }
+    mod tmh;
 }
-pub mod turing_engine;
+
+pub mod engine_base;
 
 mod impls {
-    mod impl_tmh;
-    mod impl_tmh_engine;
-    mod impl_tmh_ext;
+    mod impl_engine_base;
+    mod impl_engine_ext;
+    mod impl_engine_repr;
 }
 
 mod traits {
-    pub use self::{raw_driver::*, raw_engine::*};
+    pub use self::{executor::*, raw_driver::*};
 
+    mod executor;
     mod raw_driver;
-    mod raw_engine;
 }
 
 // prelude (local)
 #[doc(hidden)]
 #[allow(unused_imports)]
 pub(crate) mod prelude {
-    pub use super::drivers::prelude::*;
-    pub use super::traits::*;
+    pub use super::drivers::*;
     #[cfg(feature = "alloc")]
-    pub use super::turing_engine::*;
+    pub use super::engine_base::*;
+    pub use super::traits::*;
 }

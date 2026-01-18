@@ -8,7 +8,7 @@ use crate::programs::Program;
 
 use crate::{Head, Rule, RuleVec, Tail};
 use alloc::vec::{self, Vec};
-use rstm_state::RawState;
+use rstm_state::{RawState, State};
 
 #[cfg(feature = "serde_json")]
 impl<Q, A> Program<Q, A>
@@ -105,11 +105,11 @@ where
 
 impl<Q, A> FromIterator<Rule<Q, A>> for Program<Q, A>
 where
-    Q: RawState,
+    Q: RawState + Default,
 {
     fn from_iter<I: IntoIterator<Item = Rule<Q, A>>>(iter: I) -> Self {
         Self {
-            initial_state: None,
+            initial_state: State::default(),
             rules: iter.into_iter().collect::<RuleVec<Q, A>>(),
         }
     }
@@ -117,7 +117,7 @@ where
 
 impl<Q, A> FromIterator<(Head<Q, A>, Tail<Q, A>)> for Program<Q, A>
 where
-    Q: RawState,
+    Q: RawState + Default,
 {
     fn from_iter<I: IntoIterator<Item = (Head<Q, A>, Tail<Q, A>)>>(iter: I) -> Self {
         Self::from_rules(iter.into_iter().map(|(head, tail)| Rule { head, tail }))

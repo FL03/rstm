@@ -88,9 +88,9 @@ checksum = "37b2a672a2cb129a2e41c10b1224bb368f9f37a2b16b612598138befd7b37eb5"
 
 [[package]]
 name = "cc"
-version = "1.2.52"
+version = "1.2.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd4932aefd12402b36c60956a4fe0035421f544799057659ff86f923657aada3"
+checksum = "755d2fce177175ffca841e9a06afdb2c4ab0f593d53b4dee48147dfaade85932"
 dependencies = [
  "find-msvc-tools",
  "shlex",
@@ -335,9 +335,9 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "find-msvc-tools"
-version = "0.1.7"
+version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f449e6c6c08c865631d4890cfacf252b3d396c9bcc83adb6623cdb02a8336c41"
+checksum = "8591b0bcc8a98a64310a2fae1bb3e9b8564dd10e381e6e28010fde8e8e8568db"
 
 [[package]]
 name = "fnv"
@@ -844,7 +844,7 @@ dependencies = [
 
 [[package]]
 name = "rstm"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "criterion",
@@ -860,7 +860,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-core"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "bytes",
@@ -884,7 +884,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-macros"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -893,7 +893,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-state"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "bytes",
@@ -918,7 +918,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-tape"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "bytes",
@@ -944,7 +944,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-traits"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1493,6 +1493,6 @@ dependencies = [
 
 [[package]]
 name = "zmij"
-version = "1.0.14"
+version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd8f3f50b848df28f887acb68e41201b5aea6bc8a8dacc00fb40635ff9a72fea"
+checksum = "94f63c051f4fe3c1509da62131a678643c5b6fbdc9273b2b79d4378ebda003d2"

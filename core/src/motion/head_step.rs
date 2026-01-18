@@ -8,13 +8,13 @@ use rstm_state::RawState;
 
 /// [`HeadStep`] is a structure responsible for managing the step operation of a moving head
 /// in a Turing machine simulation.
-pub struct HeadStep<'a, Q, A, R = Q, B = A>
+pub struct HeadStep<'a, Q1, A1, Q2 = Q1, A2 = A1>
 where
-    Q: RawState,
-    R: RawState,
+    Q1: RawState,
+    Q2: RawState,
 {
-    pub(crate) head: &'a mut Head<Q, A>,
-    pub(crate) tail: Tail<R, B>,
+    pub(crate) head: &'a mut Head<Q1, A1>,
+    pub(crate) tail: Tail<Q2, A2>,
 }
 /// the standard implementation of [`HeadStep`] focuses on instances where the head and tail
 /// share the same type-space; meaning `Head<Q, A>` and `Tail<Q, A>` types are being utilized.
@@ -52,39 +52,40 @@ impl<'a, Q, A> HeadStep<'a, Q, usize, Q, A>
 where
     Q: RawState,
 {
+    #[inline]
     /// this method shifts the head along the tape, returning a head containing the previous
     /// state and symbol.
     ///
     /// **note**: this method **does not** check if the current nor the next state is halted,
     /// it is up to the caller to establishing halting.
-    pub fn shift(self, tape: &mut [A]) -> Option<Head<Q, A>>
+    pub fn shift(self, tape: &mut [A]) -> crate::Result<Head<Q, A>>
     where
         A: Clone,
     {
+        let pos = self.head.symbol;
+        if pos >= tape.len() {
+            #[cfg(feature = "tracing")]
+            tracing::error!(
+                "The position of the head ({}) is out of tape bounds for a tape of length {}",
+                pos,
+                tape.len()
+            );
+            return Err(crate::Error::index_out_of_bounds(pos, tape.len()));
+        }
         let Tail {
             next_state,
             direction,
             write_symbol,
         } = self.tail;
-        if let Some(sym) = tape.get(self.head.symbol).cloned() {
-            // update the tape at the head's current position
-            tape[self.head.symbol] = write_symbol;
-            // update the head position based on the tail's direction
-            self.head.symbol += direction;
-            // reconstruct the previous head
-            let prev = Head {
-                state: self.head.replace_state(next_state),
-                symbol: sym,
-            };
-            return Some(prev);
-        }
-        #[cfg(feature = "tracing")]
-        tracing::error!(
-            "The position of the head ({}) is out of tape bounds for a tape of length {}",
-            self.head.symbol,
-            tape.len()
-        );
-        // return None if the head's position is out of bounds
-        None
+        // replace the head state
+        let prev = Head {
+            state: self.head.replace_state(next_state),
+            symbol: tape[pos].clone(),
+        };
+        // write the new symbol to the tape
+        tape[pos] = write_symbol;
+        // update the head position based on the tail's direction
+        self.head.symbol += direction;
+        Ok(prev)
     }
 }

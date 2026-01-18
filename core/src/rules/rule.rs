@@ -42,6 +42,7 @@ where
     derive(serde::Deserialize, serde::Serialize),
     serde(rename_all = "snake_case")
 )]
+#[repr(C)]
 pub struct LearnedRule<C = f32, Q = usize, S = usize>
 where
     Q: RawState,
@@ -51,6 +52,10 @@ where
     pub rule: Rule<Q, S>,
 }
 
+/// [`RuleBuilder`] is a utilitarian structure designed to facilitate the construction of
+/// new [`Rule`] instances through a step-by-step approach. This builder pattern allows for
+/// incremental specification of rule components, enhancing code readability and
+/// maintainability.
 #[derive(Default)]
 pub struct RuleBuilder<Q1, A, Q2, B>
 where

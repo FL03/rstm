@@ -14,17 +14,16 @@ pub type TailMut<'a, Q, A> = Tail<&'a mut Q, &'a mut A>;
 
 /// [`RawTail`] is a sealed marker trait used to denote objects capable of being used to
 /// represent the _tail_ of a rule for a Turing machine.
-pub trait RawTail<Q, A>
-where
-    Q: RawState,
-{
+pub trait RawTail {
+    type State: RawState;
+    type Symbol;
     private! {}
     /// returns the direction of the tail.
     fn direction(&self) -> Direction;
     /// returns an immutable reference to the next state.
-    fn next_state(&self) -> &State<Q>;
+    fn next_state(&self) -> &State<Self::State>;
     /// returns a reference to the symbol configured for the head to write next.
-    fn write_symbol(&self) -> &A;
+    fn write_symbol(&self) -> &Self::Symbol;
 }
 
 /// The [`Tail`] of a rule defines the _reaction_ of the actor under specific conditions.
@@ -37,6 +36,8 @@ where
 )]
 #[repr(C)]
 pub struct Tail<Q, A> {
+    /// defines the direction to move after writing the symbol
+    #[cfg_attr(feature = "serde", serde(alias = "move_direction", alias = "dir"))]
     pub direction: Direction,
     #[cfg_attr(feature = "serde", serde(alias = "write_state"))]
     pub next_state: State<Q>,
@@ -47,10 +48,13 @@ pub struct Tail<Q, A> {
 /*
  ************* Implementations *************
 */
-impl<Q, A> RawTail<Q, A> for (Direction, State<Q>, A)
+impl<Q, A> RawTail for (Direction, State<Q>, A)
 where
     Q: RawState,
 {
+    type State = Q;
+    type Symbol = A;
+
     seal! {}
     /// returns the direction of the tail.
     fn direction(&self) -> Direction {
@@ -66,10 +70,13 @@ where
     }
 }
 
-impl<Q, A> RawTail<Q, A> for Tail<Q, A>
+impl<Q, A> RawTail for Tail<Q, A>
 where
     Q: RawState,
 {
+    type State = Q;
+    type Symbol = A;
+
     seal! {}
     /// returns the direction of the tail.
     fn direction(&self) -> Direction {
@@ -91,7 +98,7 @@ mod tests {
 
     #[test]
     fn test_tail_init() {
-        let tail: Tail<&str, char> = Tail::new(Direction::Right, "q1", 'a');
+        let tail: Tail<&str, char> = Tail::right("q1", 'a');
         assert_eq! {
             tail,
             (

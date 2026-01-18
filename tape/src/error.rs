@@ -12,6 +12,6 @@ pub type Result<T> = core::result::Result<T, TapeError>;
 pub enum TapeError {
     #[error("Unable to allocate memory")]
     AllocationFailure,
-    #[error("Index out of bounds: {0}")]
-    IndexOutOfBounds(usize),
+    #[error("The index ({idx}) is out of bounds for a tape of length {len}")]
+    IndexOutOfBounds { idx: usize, len: usize },
 }

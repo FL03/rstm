@@ -17,11 +17,12 @@ mod tests {
     use crate::{Head, Tail};
 
     #[test]
-    fn test_moving_head() {
+    fn test_head_step() {
         let mut head = Head::new(0u8, ' ');
         let tail = Tail::right(1u8, 'A');
         let step = head.step(tail);
-        let mut tape = vec![' '; 10];
+        // define some tape
+        let mut tape = [' '; 10];
         // ensure an empty tape
         assert_eq! { tape[0], ' ' }
         // define the current position

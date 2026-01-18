@@ -14,7 +14,7 @@ use rstm_state::{RawState, State};
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(
     feature = "serde",
-    derive(serde::Serialize),
+    derive(serde::Deserialize, serde::Serialize),
     serde(deny_unknown_fields, rename_all = "snake_case")
 )]
 #[repr(C)]
@@ -22,7 +22,7 @@ pub struct Program<Q = String, A = char>
 where
     Q: RawState,
 {
-    pub(crate) initial_state: Option<State<Q>>,
+    pub(crate) initial_state: State<Q>,
     #[cfg(feature = "alloc")]
     pub(crate) rules: alloc::vec::Vec<Rule<Q, A>>,
 }

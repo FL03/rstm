@@ -6,9 +6,15 @@
 
 ***
 
-Welcome to `rstm`! This crate provides a simple and easy-to-use interface for creating and executing Turing machines. The crate is designed to be flexible and extensible, allowing developers to create and execute a wide range of Turing machines. Furthermore, the crate focuses on efficiency and leverages feature-gating to reduce overhead.
+Welcome to `rstm`, this crate is dedicated to establishing a robust framework for Turing machines in Rust. The crate defines various components, actors, and macros aimed at facilitating the creation and execution of Turing machines.
 
-## Rules
+## Overview
+
+`rstm` provides a comprehensive suite of tools for defining and working with Turing machines.
+
+### Rules
+
+At the core of any Turing machine lies its set of rules, which dictate how the machine transitions between states based on the symbols it reads from its tape. In `rstm`, a rule is represented by the following structure:
 
 ```rust
     pub struct Rule<Q, A> {
@@ -17,14 +23,18 @@ Welcome to `rstm`! This crate provides a simple and easy-to-use interface for cr
     }
 ```
 
-where `Head` and `Tail` are defined as follows:
+where the `Head` is defined as:
 
 ```rust
     pub struct Head<Q, A> {
         pub state: Q,
         pub symbol: A,
     }
+```
 
+and the `Tail` is defined as:
+
+```rust
     pub struct Tail<Q, A> {
         pub direction: Direction,
         pub next_state: Q,
@@ -32,11 +42,11 @@ where `Head` and `Tail` are defined as follows:
     }
 ```
 
-### Serialization
+#### _Serialization_
 
 Enabling the `serde` feature will allow for serialization and deserialization of the `Rule` and other implementations within the crate. That being said, the serialization of the `Rule` macro is notable for the fact that it flattens both the `head` and `tail` fields, resulting in a more compact representation.
 
-## `rule!`, `ruleset!`, and other rule-based macros
+### `rule!`, `ruleset!`, and other rule-based macros
 
 Researchers have simplified the definition of a Turing machine, boiling it down into a dynamical system defined by a set of states, symbols, and rules. The rules define the behavior of the machine, dictating how it transitions from one state to another based on the current symbol being read. More specifically, the transition function $\delta$ where:
 
@@ -103,8 +113,7 @@ The following example demonstrates the use of the `program!` macro to define a s
 ```rust
     extern crate rstm;
 
-    use rstm::actors::TMH;
-    use rstm::rules::Program;
+    use rstm::Head;
 
     fn main() -> rstm::Result<()> {
         // initialize the logger
@@ -119,7 +128,7 @@ The following example demonstrates the use of the `program!` macro to define a s
         // initialize the state of the machine
         let initial_state: isize = 0;
         // define the ruleset for the machine
-        let program: Program<isize, usize> = rstm::program! {
+        let program = rstm::program! {
             #[default_state(initial_state)]
             rules: {
                 (0, 0) -> Right(1, 0),
@@ -131,10 +140,11 @@ The following example demonstrates the use of the `program!` macro to define a s
             };
         };
         // create a new instance of the machine
-        let tm = TMH::new(initial_state, input.to_vec());
+        let mut tm = Head::new(initial_state, 0usize).load(program);
+        // load the input into the machine tape
+        tm.extend_tape(input);
         // execute the program
-        dbg!(tm).execute(program).run()?;
-        Ok(())
+        tm.run()
     }
 ```
 
