@@ -4,6 +4,7 @@
     Contrib: @FL03
 */
 use crate::actors::EngineBase;
+use crate::programs::Program;
 use crate::rules::Head;
 use rstm_state::RawState;
 
@@ -11,6 +12,20 @@ impl<Q, A> EngineBase<Head<Q, usize>, Q, A>
 where
     Q: RawState,
 {
+    pub fn tmh(program: Program<Q, A>) -> Self
+    where
+        Q: Clone,
+    {
+        Self {
+            driver: Head {
+                state: program.initial_state().cloned(),
+                symbol: 0,
+            },
+            tape: Vec::new(),
+            program: Some(program),
+            cycles: 0,
+        }
+    }
     /// initialize a new instance of the TMH engine from the given state and input
     pub fn from_state_with_input<I>(state: Q, input: I) -> Self
     where

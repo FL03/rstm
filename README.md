@@ -113,8 +113,7 @@ The following example demonstrates the use of the `program!` macro to define a s
 ```rust
     extern crate rstm;
 
-    use rstm::actors::TMH;
-    use rstm::rules::Program;
+    use rstm::Head;
 
     fn main() -> rstm::Result<()> {
         // initialize the logger
@@ -129,7 +128,7 @@ The following example demonstrates the use of the `program!` macro to define a s
         // initialize the state of the machine
         let initial_state: isize = 0;
         // define the ruleset for the machine
-        let program: Program<isize, usize> = rstm::program! {
+        let program = rstm::program! {
             #[default_state(initial_state)]
             rules: {
                 (0, 0) -> Right(1, 0),
@@ -141,10 +140,11 @@ The following example demonstrates the use of the `program!` macro to define a s
             };
         };
         // create a new instance of the machine
-        let tm = TMH::new(initial_state, input.to_vec());
+        let mut tm = Head::new(initial_state, 0usize).load(program);
+        // load the input into the machine tape
+        tm.extend_tape(input);
         // execute the program
-        dbg!(tm).execute(program).run()?;
-        Ok(())
+        tm.run()
     }
 ```
 

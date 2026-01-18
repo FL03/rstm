@@ -15,26 +15,27 @@ where
     Q: RawState,
 {
     /// initializes a new, empty instance of the [`Program`]
-    pub const fn new() -> Self {
+    pub const fn new(initial_state: Q) -> Self {
         Self {
-            initial_state: None,
+            initial_state: State(initial_state),
             rules: Vec::new(),
         }
     }
     /// returns a new instance of the [`Program`] using the given rules
     pub fn from_rules<I>(iter: I) -> Self
     where
+        Q: Default,
         I: IntoIterator<Item = Rule<Q, A>>,
     {
         Self {
-            initial_state: None,
+            initial_state: State::default(),
             rules: Vec::from_iter(iter),
         }
     }
     /// Create a new instance of the [Program] using the given initial state.
     pub fn from_state(initial_state: Q) -> Self {
         Self {
-            initial_state: Some(State(initial_state)),
+            initial_state: State(initial_state),
             rules: Vec::new(),
         }
     }
@@ -53,8 +54,8 @@ where
         Ok(p)
     }
     /// Returns an owned reference to the initial state of the program.
-    pub fn initial_state(&self) -> Option<State<&'_ Q>> {
-        self.initial_state.as_ref().map(|state| state.view())
+    pub fn initial_state(&self) -> State<&Q> {
+        self.initial_state.view()
     }
     /// Returns a reference to the instructions.
     pub const fn rules(&self) -> &RuleVec<Q, A> {
@@ -67,7 +68,7 @@ where
     /// consumes the current instance to create another with the given default state
     pub fn with_default_state(self, state: Q) -> Self {
         Self {
-            initial_state: Some(State(state)),
+            initial_state: State(state),
             ..self
         }
     }

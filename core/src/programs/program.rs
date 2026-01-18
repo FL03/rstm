@@ -22,7 +22,7 @@ pub struct Program<Q = String, A = char>
 where
     Q: RawState,
 {
-    pub(crate) initial_state: Option<State<Q>>,
+    pub(crate) initial_state: State<Q>,
     #[cfg(feature = "alloc")]
     pub(crate) rules: alloc::vec::Vec<Rule<Q, A>>,
 }
