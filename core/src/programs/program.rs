@@ -14,7 +14,7 @@ use rstm_state::{RawState, State};
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(
     feature = "serde",
-    derive(serde::Serialize),
+    derive(serde::Deserialize, serde::Serialize),
     serde(deny_unknown_fields, rename_all = "snake_case")
 )]
 #[repr(C)]

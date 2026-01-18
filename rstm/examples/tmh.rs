@@ -5,7 +5,7 @@
 */
 extern crate rstm;
 
-use rstm::{HeadEngine, program};
+use rstm::{HeadEngine, Program, program};
 
 fn main() -> rstm::Result<()> {
     // initialize the logger
@@ -19,7 +19,7 @@ fn main() -> rstm::Result<()> {
     // initialize the state of the machine
     let initial_state: isize = 0;
     // define the Program for the machine
-    let program = program! {
+    let program: Program<isize, usize> = program! {
         #[default_state(initial_state)]
         rules: {
             (0, 0) -> Right(1, 0usize),
@@ -30,7 +30,10 @@ fn main() -> rstm::Result<()> {
             (-1, 1) -> Left(-1, 0),
         };
     };
-    // export the program to a JSON file
+    /*
+    let program = Program::<isize, usize>::load_from_json("rstm/examples/example.program.json")?;
+    */
+    // optionally, export the program to a JSON file
     program.export_json("rstm/examples/example.program.json")?;
     // create a new instance of the machine
     let mut tm = HeadEngine::tmh(program);

@@ -160,12 +160,28 @@ where
         self.iter().filter(|i| *i.head() == state).collect()
     }
     #[cfg(all(feature = "json", feature = "std"))]
-    /// saves the current program as a `.json` file at the given path
-    pub fn export_json<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()>
+    /// export the program to a `.json` file at the given path
+    ///
+    /// **note**: there are no checks to see if the file already exists; it will automatically
+    /// be overwritten.
+    pub fn export_json<P>(&self, path: P) -> std::io::Result<()>
     where
+        P: AsRef<std::path::Path>,
         Q: serde::Serialize,
         A: serde::Serialize,
     {
+        let path = path.as_ref();
+        // ensure the filename ends with `.json`
+        if path.extension().map(|os| os.to_str()).flatten() != Some("json") {
+            #[cfg(feature = "tracing")]
+            tracing::error!(
+                "the provided path does not end with `.json`; consider changing the file extension"
+            );
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "the provided path does not end with `.json`",
+            ));
+        }
         let serialized = serde_json::to_string_pretty(self).unwrap();
         std::fs::write(path, serialized)?;
         #[cfg(feature = "tracing")]

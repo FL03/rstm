@@ -101,3 +101,37 @@ impl From<String> for Error {
         Self::Unknown(s)
     }
 }
+
+#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, PartialOrd, strum::AsRefStr, strum::EnumCount, strum::EnumIs, strum::EnumString, strum::VariantNames,)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize), serde(rename_all = "snake_case"))]
+#[strum(serialize_all = "snake_case")]
+pub enum ErrorKind {
+    Empty,
+    IOError,
+    IndexError,
+    ExitWithoutHalting,
+    NothingToRead,
+    NoProgram,
+    NoRuleFound,
+    IndexOutOfBounds,
+    Halted,
+    ParseRuleError,
+    InvalidDirection,
+    DowncastFailure,
+    NoSymbolFoundAt,
+    StateError,
+    AnyError,
+    DeserializeError,
+    JsonError,
+    FmtError,
+    NetworkAddressParseError,
+    Utf8Error,
+    #[default]
+    Unknown,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, PartialOrd)]
+pub struct ErrorBase<E> {
+    pub kind: ErrorKind,
+    pub error: E,
+}
