@@ -10,7 +10,7 @@ use crate::actors::{Driver, RawDriver};
 use crate::{Direction, Head, Tail};
 use alloc::vec::Vec;
 use rstm_state::{RawState, State};
-use rstm_traits::{Handle, Read, TryExecuteMut, Write};
+use rstm_traits::{Handle, TryExecuteMut};
 
 impl<Q, A> core::fmt::Debug for TMH<Q, A>
 where
@@ -29,79 +29,6 @@ where
 {
     fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         f.write_str(self.print().as_str())
-    }
-}
-
-impl<Q, A> Read<A> for TMH<Q, A>
-where
-    Q: RawState,
-    A: Clone,
-{
-    type Error = crate::Error;
-    type Output = usize;
-
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "read", target = "tmh")
-    )]
-    fn read(&mut self, buf: &mut [A]) -> Result<Self::Output, Self::Error> {
-        #[cfg(feature = "tracing")]
-        tracing::trace! { "reading the tape..." }
-        let pos = self.current_position();
-        if pos >= self.len() {
-            #[cfg(feature = "tracing")]
-            tracing::error!(
-                "[Index Error] the current position ({pos}) of the head is out of bounds...",
-                pos = self.current_position()
-            );
-            return Err(crate::Error::IndexOutOfBounds {
-                idx: pos,
-                len: self.len(),
-            });
-        }
-        let len = buf.len().min(self.len() - pos);
-        buf[..len].clone_from_slice(&self.tape()[pos..pos + len]);
-        Ok(len)
-    }
-}
-
-impl<Q, A> Write<A> for TMH<Q, A>
-where
-    Q: RawState,
-    A: Clone,
-{
-    type Error = crate::Error;
-    type Output = usize;
-
-    #[cfg_attr(
-        feature = "tracing",
-        tracing::instrument(skip_all, name = "write", target = "tmh")
-    )]
-    fn write(&mut self, buf: &mut [A]) -> Result<Self::Output, Self::Error> {
-        let pos = self.current_position();
-        if pos > self.len() {
-            #[cfg(feature = "tracing")]
-            tracing::error! {
-                "[Index Error] the current position ({}) of the head is out of bounds for tape of length {}",
-                pos, self.len(),
-            };
-            return Err(crate::Error::IndexOutOfBounds {
-                idx: pos,
-                len: self.len(),
-            });
-        }
-        let len = buf.len();
-        if pos + len <= self.len() {
-            #[cfg(feature = "tracing")]
-            tracing::trace! { "Updating the tape at {pos}" };
-            self.tape_mut()[pos..pos + len].clone_from_slice(buf);
-        } else {
-            #[cfg(feature = "tracing")]
-            tracing::trace!("Extending the tape...");
-            // append to the tape
-            self.tape_mut().extend_from_slice(buf);
-        }
-        Ok(len)
     }
 }
 

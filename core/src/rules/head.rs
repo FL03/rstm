@@ -34,11 +34,11 @@ pub trait RawHead {
     serde(rename_all = "snake_case")
 )]
 #[repr(C)]
-pub struct Head<Q, S> {
+pub struct Head<Q, A> {
     #[cfg_attr(feature = "serde", serde(alias = "current_state"))]
     pub state: State<Q>,
     #[cfg_attr(feature = "serde", serde(alias = "current_symbol"))]
-    pub symbol: S,
+    pub symbol: A,
 }
 
 /*

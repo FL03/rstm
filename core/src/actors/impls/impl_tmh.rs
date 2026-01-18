@@ -25,10 +25,12 @@ where
         Self {
             head: Head::new(state, 0),
             input: Vec::from_iter(tape),
+            _marker: core::marker::PhantomData::<A>,
         }
     }
+    #[allow(clippy::should_implement_trait)]
     /// returns a new instance of the [`TMH`] using the given tape
-    pub fn from_tape<I>(tape: I) -> Self
+    pub fn from_iter<I>(tape: I) -> Self
     where
         I: IntoIterator<Item = A>,
         Q: Default,
@@ -36,6 +38,19 @@ where
         Self {
             head: Head::default(),
             input: Vec::from_iter(tape),
+            _marker: core::marker::PhantomData::<A>,
+        }
+    }
+    /// returns a new instance of the [`TMH`] using the given tape
+    pub fn from_vec<I>(tape: I) -> Self
+    where
+        I: IntoIterator<Item = A>,
+        Q: Default,
+    {
+        Self {
+            head: Head::default(),
+            input: Vec::from_iter(tape),
+            _marker: core::marker::PhantomData::<A>,
         }
     }
     /// returns a new instance of the [`TMH`] using the given state and an empty tape
@@ -44,6 +59,7 @@ where
         Self {
             head: Head::new(state, 0),
             input: Vec::new(),
+            _marker: core::marker::PhantomData::<A>,
         }
     }
     /// returns an immutable reference to the head of the tape

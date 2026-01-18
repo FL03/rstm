@@ -6,9 +6,9 @@
 use crate::actors::{Engine, RawEngine, TMH, TMHEngine};
 use crate::error::Error;
 use crate::programs::Program;
-use crate::{Head, Read, Symbolic, Tail};
-use rstm_state::{Halting, HaltingState, RawState, State};
-use rstm_traits::Handle;
+use crate::rules::{Head, Tail};
+use rstm_state::{Halting, RawState, State};
+use rstm_traits::{Handle, Read, Symbolic};
 
 impl<'a, Q, A> TMHEngine<'a, Q, A>
 where
@@ -78,34 +78,18 @@ where
         }
         out
     }
-    /// Reads the current symbol at the head of the tape
+    /// read and return the current head of the machine
     pub fn read_head(&self) -> crate::Result<Head<&Q, &A>> {
-        self.output()
-            .get(self.current_position())
-            .map(|symbol| Head {
-                state: self.driver().state().view(),
-                symbol,
-            })
-            .ok_or_else(|| {
-                #[cfg(feature = "tracing")]
-                tracing::error!(
-                    "[Index Error] the current position ({pos}) of the head is out of bounds...",
-                    pos = self.current_position()
-                );
-                Error::IndexOutOfBounds {
-                    idx: self.current_position(),
-                    len: self.output().len(),
-                }
-            })
+        let symbol = self.read()?;
+        Ok(Head {
+            state: self.driver().state().view(),
+            symbol,
+        })
     }
     /// read the current symbol at the head of the tape into the internal buffer
-    pub fn read(&mut self, buf: &mut [A]) -> crate::Result<A>
-    where
-        A: Clone,
-        TMH<Q, A>: Read<A, Error = Error, Output = usize>,
-    {
-        let pos = self.driver.read(&mut buf[..])?;
-        Ok(buf[pos].clone())
+    pub fn read(&self) -> crate::Result<&A> {
+        let pos = self.driver().current_position();
+        Ok(&self.output[pos])
     }
     /// Reads the current symbol at the head of the tape
     pub fn read_uninit(&self) -> Head<&Q, core::mem::MaybeUninit<&A>> {
@@ -128,7 +112,7 @@ where
     /// runs the program until termination (i.e., a halt state is reached, an error occurs, etc.)
     pub fn run(&mut self) -> crate::Result<()>
     where
-        Q: 'static + HaltingState + Clone + PartialEq,
+        Q: 'static + Clone + PartialEq + Halting,
         A: Symbolic,
     {
         let mut halted = false;
@@ -206,17 +190,11 @@ impl<'a, Q, A> Read<A> for TMHEngine<'a, Q, A>
 where
     A: Clone,
     Q: RawState,
-    TMH<Q, A>: Read<A, Output = usize>,
 {
     type Error = Error;
-    type Output = A;
 
-    fn read(&mut self, buf: &mut [A]) -> Result<Self::Output, Self::Error> {
-        let pos = self
-            .driver_mut()
-            .read(&mut buf[..])
-            .expect("reading from the TMH driver failed");
-        Ok(buf[pos].clone())
+    fn read(&self) -> Result<&A, Self::Error> {
+        self.read()
     }
 }
 

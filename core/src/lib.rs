@@ -51,8 +51,6 @@ mod utils {
     mod range;
 }
 
-// re-exports (private)
-pub(crate) use rstm_traits::prelude::*;
 // re-exports (public)
 #[doc(inline)]
 pub use self::{
