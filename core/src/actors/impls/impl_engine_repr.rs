@@ -12,6 +12,8 @@ impl<Q, A> EngineBase<Head<Q, usize>, Q, A>
 where
     Q: RawState,
 {
+    /// initialize a new instance of a turing machine with a moving head using the given 
+    /// program.
     pub fn tmh(program: Program<Q, A>) -> Self
     where
         Q: Clone,

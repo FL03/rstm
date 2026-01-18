@@ -22,11 +22,6 @@ mod impls {
     mod impl_engine_base;
     mod impl_engine_ext;
     mod impl_engine_repr;
-
-    #[allow(deprecated)]
-    mod impl_tmh;
-    #[allow(deprecated)]
-    mod impl_tmh_ext;
 }
 
 mod traits {
