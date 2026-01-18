@@ -25,35 +25,28 @@
 //! ### Creating and executing a simple Turing Machine with a Moving Head
 //!
 //! ```rust
-//!     use rstm::{Head, Program};
+//! use rstm::{HeadEngine, program};
 //!
-//!         // initialize the logger
-//!         tracing_subscriber::fmt()
-//!             .with_max_level(tracing::Level::DEBUG)
-//!             .with_target(false)
-//!             .with_timer(tracing_subscriber::fmt::time::uptime())
-//!             .init();
-//!         tracing::info!("Welcome to rstm!");
-//!         // define some input for the machine
-//!         let input = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
-//!         // initialize the state of the machine
-//!         let initial_state: isize = 0;
-//!         // define the ruleset for the machine
-//!         let program: Program<isize, usize> = rstm::program! {
-//!             #[default_state(initial_state)]
-//!             rules: {
-//!                 (0, 0) -> Right(1, 0),
-//!                 (0, 1) -> Stay(-1, 1),
-//!                 (1, 0) -> Right(0, 1),
-//!                 (1, 1) -> Right(-1, 0),
-//!                 (-1, 0) -> Left(<isize>::MAX, 0),
-//!                 (-1, 1) -> Left(1, 1),
-//!             };
-//!         };
-//!         // create a new instance of the machine
-//!         let mut tm = Head::new(initial_state, 0usize).load(program);
-//!         tm.extend_tape(input); // load the input into the machine tape
-//!         tm.run() // execute the program
+//! let input = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
+//! let initial_state: isize = 0;
+//! // define the ruleset for the machine
+//! let program = program! {
+//!     #[default_state(initial_state)]
+//!     rules: {
+//!         (0, 0) -> Right(1, 0),
+//!         (0, 1) -> Stay(-1, 1),
+//!         (1, 0) -> Right(0, 1),
+//!         (1, 1) -> Right(-1, 0),
+//!         (-1, 0) -> Left(<isize>::MAX, 0),
+//!         (-1, 1) -> Left(1, 1),
+//!     };
+//! };
+//! // create a new instance of the machine
+//! let mut tm = HeadEngine::tmh(program);
+//! // load the input
+//! tm.extend_tape(input);
+//! tm.run().expect("failed to execute...");
+//! }
 //! ```
 #![allow(
     clippy::module_inception,
