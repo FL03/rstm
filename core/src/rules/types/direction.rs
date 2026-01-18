@@ -1,11 +1,11 @@
 /*
     Appellation: direction <module>
-    Contrib: FL03 <jo3mccain@icloud.com>
+    Created At: 2026.01.18:00:16:21
+    Contrib: @FL03
 */
 
-/// [Direction] enumerates the various directions a head can move, namely: left, right, and stay.
-///
-/// The included methods and implementations aim to streamline the conversion between [Direction] and other types.
+/// The [`Direction`] implementation enumerates the directions the head of a Turing machine is
+/// allowed to move, namely: left, right, or stay in place.
 #[derive(
     Clone,
     Copy,
@@ -20,15 +20,12 @@
     strum::EnumCount,
     strum::EnumIs,
     strum::EnumIter,
+    strum::EnumString,
     strum::VariantArray,
     strum::VariantNames,
 )]
-#[cfg_attr(
-    feature = "serde",
-    derive(serde_derive::Deserialize, serde_derive::Serialize)
-)]
+#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
 #[strum(serialize_all = "lowercase")]
-#[repr(i8)]
 pub enum Direction {
     /// Represents a single left shift
     #[cfg_attr(
@@ -143,16 +140,6 @@ impl From<char> for Direction {
         match value {
             'L' | 'l' => Self::Left,
             'R' | 'r' => Self::Right,
-            _ => Self::Stay,
-        }
-    }
-}
-
-impl From<&str> for Direction {
-    fn from(value: &str) -> Self {
-        match value {
-            "left" | "Left" | "LEFT" | "l" | "L" => Self::Left,
-            "right" | "Right" | "RIGHT" | "r" | "R" => Self::Right,
             _ => Self::Stay,
         }
     }

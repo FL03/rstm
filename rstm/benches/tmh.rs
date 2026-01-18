@@ -5,7 +5,7 @@
 */
 use core::hint::black_box;
 use criterion::{BatchSize, BenchmarkId, Criterion};
-use rstm::prelude::{Head, HeadEngine, Program};
+use rstm::prelude::{Head, MovingHead, Program};
 use std::time::Duration;
 
 const SAMPLES: usize = 50;
@@ -28,7 +28,7 @@ lazy_static::lazy_static! {
     };
 }
 
-fn setup_tmh() -> HeadEngine<isize, usize> {
+fn setup_tmh() -> MovingHead<isize, usize> {
     // define some input for the machine
     let input = [0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0];
     // create a new instance of the machine

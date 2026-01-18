@@ -52,7 +52,7 @@ mod utils {
 // re-exports (public)
 #[doc(inline)]
 pub use self::{
-    actors::{Driver, Executor, HeadEngine},
+    actors::{Driver, Executor, MovingHead},
     error::{Error, Result},
     motion::HeadStep,
     programs::{InstructionSet, Program, RuleSet},

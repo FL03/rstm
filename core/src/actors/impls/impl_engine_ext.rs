@@ -98,48 +98,6 @@ where
     }
 }
 
-#[allow(deprecated)]
-impl<'a, Q, A> TryStep for EngineBase<crate::actors::TMH<Q, A>, Q, A>
-where
-    Q: RawState + Clone + PartialEq,
-    A: Symbolic,
-{
-    type Error = crate::Error;
-    type Output = Head<Q, A>;
-
-    fn try_step(&mut self) -> Result<Self::Output, Self::Error> {
-        #[cfg(feature = "tracing")]
-        tracing::info! { "{}", self.print() };
-        // if the output tape is empty, initialize it from the driver's tape
-        if self.tape().is_empty() {
-            #[cfg(feature = "tracing")]
-            tracing::warn! { "Output tape is empty; initializing from the input tape..." };
-            let inputs = self.driver().tape().clone();
-            self.extend_tape(inputs);
-        }
-        // read the tape
-        let Head { state, symbol } = self.read_head()?;
-        // get a reference to the program
-        if let Some(program) = self.program() {
-            // use the program to find a tail for the current head
-            let tail = program
-                .find_tail(state, symbol)
-                .ok_or(crate::Error::NoRuleFound)?
-                .clone();
-            // increment the steps
-            self.next_cycle();
-            // process the instruction
-            let step = self.driver.head_mut().step(tail);
-            // apply the step
-            step.shift(&mut self.tape)
-        } else {
-            #[cfg(feature = "tracing")]
-            tracing::error!("No program loaded; cannot execute step.");
-            Err(crate::Error::NoProgram)
-        }
-    }
-}
-
 impl<'a, D, Q, A> Iterator for EngineBase<D, Q, A>
 where
     Q: 'static + Halting + RawState + Clone + PartialEq,

@@ -9,17 +9,9 @@ use crate::rules::Head;
 use alloc::vec::Vec;
 use rstm_state::RawState;
 
-#[deprecated(
-    since = "0.1.3",
-    note = "The `TMHEngine` alias has been deprecated; please use the `HeadEngine` instead."
-)]
-#[allow(deprecated)]
-/// A type alias for a [`EngineBase`] configured with a _moving head_ execution model, or
-/// driver.
-pub type TMHEngine<Q, A> = EngineBase<super::TMH<Q, A>, Q, A>;
 /// A type alias for an [`EngineBase`] instance configured with a _moving head_ model using
 /// the [`Head<Q, usize>`] structure to maintain the head's position on the tape.
-pub type HeadEngine<Q, A> = EngineBase<Head<Q, usize>, Q, A>;
+pub type MovingHead<Q, A> = EngineBase<Head<Q, usize>, Q, A>;
 /// The [`EngineBase`] implementation is designed as a type of runtime for executing various
 /// Turing machine models, or drivers, according to a specified set of rules encapsulated
 /// within a [`Program<Q, A>`].

@@ -25,7 +25,7 @@
 //! ### Creating and executing a simple Turing Machine with a Moving Head
 //!
 //! ```rust
-//! use rstm::{HeadEngine, program};
+//! use rstm::{MovingHead, program};
 //!
 //! // define an initial state
 //! let initial_state: isize = 0;
@@ -42,7 +42,7 @@
 //!     };
 //! };
 //! // initialize the machine
-//! let mut tm = HeadEngine::tmh(program);
+//! let mut tm = MovingHead::tmh(program);
 //! // load the input
 //! tm.extend_tape([0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0]);
 //! // execute the workload

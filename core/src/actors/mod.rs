@@ -7,7 +7,7 @@
 #[cfg(feature = "alloc")]
 pub use self::engine_base::*;
 #[doc(inline)]
-pub use self::{drivers::*, traits::*};
+pub use self::traits::*;
 
 pub mod drivers {
     #[doc(inline)]

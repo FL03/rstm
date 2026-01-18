@@ -5,7 +5,7 @@
 */
 extern crate rstm;
 
-use rstm::{HeadEngine, Program, program};
+use rstm::{MovingHead, Program, program};
 
 fn main() -> rstm::Result<()> {
     // initialize the logger
@@ -36,7 +36,7 @@ fn main() -> rstm::Result<()> {
     // optionally, export the program to a JSON file
     program.export_json("rstm/examples/example.program.json")?;
     // create a new instance of the machine
-    let mut tm = HeadEngine::tmh(program);
+    let mut tm = MovingHead::tmh(program);
     // load the input into the machine tape
     tm.extend_tape(input);
     // execute the program

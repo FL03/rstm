@@ -102,8 +102,26 @@ impl From<String> for Error {
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, Eq, Hash, PartialEq, PartialOrd, strum::AsRefStr, strum::EnumCount, strum::EnumIs, strum::EnumString, strum::VariantNames,)]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize), serde(rename_all = "snake_case"))]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Default,
+    Eq,
+    Hash,
+    PartialEq,
+    PartialOrd,
+    strum::AsRefStr,
+    strum::EnumCount,
+    strum::EnumIs,
+    strum::EnumString,
+    strum::VariantNames,
+)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(rename_all = "snake_case")
+)]
 #[strum(serialize_all = "snake_case")]
 pub enum ErrorKind {
     Empty,

@@ -3,7 +3,7 @@
     Created At: 2025.09.03:21:59:56
     Contrib: @FL03
 */
-use rstm_core::{HeadEngine, program};
+use rstm_core::{MovingHead, program};
 
 #[test]
 fn test_head_engine() {
@@ -23,7 +23,7 @@ fn test_head_engine() {
         };
     };
     // create a new instance of the machine
-    let mut tm = HeadEngine::tmh(program);
+    let mut tm = MovingHead::tmh(program);
     // load the input into the machine tape
     tm.extend_tape(input);
     // execute the program

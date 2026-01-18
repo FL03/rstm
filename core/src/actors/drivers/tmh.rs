@@ -11,8 +11,9 @@ use crate::{Direction, Head, Tail};
 use alloc::string::String;
 use alloc::vec::Vec;
 use rstm_state::{Halting, RawState, State};
-use rstm_traits::{Handle, Read, TryExecuteMut};
+use rstm_traits::{Handle, Read, Symbolic, TryExecuteMut, TryStep};
 
+#[doc(hidden)]
 #[deprecated(
     since = "0.1.3",
     note = "The `TMH` driver is deprecated and will be removed; please use the `Head<Q, usize>` driver instead."
@@ -478,5 +479,46 @@ where
         }: Tail<Q, A>,
     ) -> Result<Self::Output, Self::Error> {
         self.step(direction, state, symbol)
+    }
+}
+
+impl<'a, Q, A> TryStep for EngineBase<TMH<Q, A>, Q, A>
+where
+    Q: RawState + Clone + PartialEq,
+    A: Symbolic,
+{
+    type Error = crate::Error;
+    type Output = Head<Q, A>;
+
+    fn try_step(&mut self) -> Result<Self::Output, Self::Error> {
+        #[cfg(feature = "tracing")]
+        tracing::info! { "{}", self.print() };
+        // if the output tape is empty, initialize it from the driver's tape
+        if self.tape().is_empty() {
+            #[cfg(feature = "tracing")]
+            tracing::warn! { "Output tape is empty; initializing from the input tape..." };
+            let inputs = self.driver().tape().clone();
+            self.extend_tape(inputs);
+        }
+        // read the tape
+        let Head { state, symbol } = self.read_head()?;
+        // get a reference to the program
+        if let Some(program) = self.program() {
+            // use the program to find a tail for the current head
+            let tail = program
+                .find_tail(state, symbol)
+                .ok_or(crate::Error::NoRuleFound)?
+                .clone();
+            // increment the steps
+            self.next_cycle();
+            // process the instruction
+            let step = self.driver.head_mut().step(tail);
+            // apply the step
+            step.shift(&mut self.tape)
+        } else {
+            #[cfg(feature = "tracing")]
+            tracing::error!("No program loaded; cannot execute step.");
+            Err(crate::Error::NoProgram)
+        }
     }
 }
