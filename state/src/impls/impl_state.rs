@@ -2,6 +2,7 @@
     Appellation: impl_state <module>
     Contrib: @FL03
 */
+use crate::RawState;
 use crate::state::{Halt, State};
 
 impl<Q> State<Q> {
@@ -11,7 +12,7 @@ impl<Q> State<Q> {
     }
     /// create a new state by invoking the given function and capturing its output.
     #[inline]
-    pub fn create<F>(f: F) -> Self
+    pub fn init<F>(f: F) -> Self
     where
         F: FnOnce() -> Q,
     {
@@ -22,14 +23,14 @@ impl<Q> State<Q> {
     where
         Q: num_traits::One,
     {
-        State::create(Q::one)
+        State::init(Q::one)
     }
     /// returns a new state with a value of zero.
     pub fn zero() -> Self
     where
         Q: num_traits::Zero,
     {
-        State::create(Q::zero)
+        State::init(Q::zero)
     }
     /// returns a new instance of state with a raw pointer to the inner value.
     pub const fn as_ptr(&self) -> *const Q {
@@ -101,17 +102,26 @@ impl<Q> State<Q> {
         core::mem::take(self.get_mut())
     }
     /// converts the current reference into a haltable state initialized with the current state
-    pub fn as_halt(&self) -> State<Halt<&Q>> {
+    pub fn as_halt(&self) -> State<Halt<&Q>>
+    where
+        Q: RawState,
+    {
         State::new(Halt::Halt(self.get()))
     }
     /// consumes the wrapper to create another, haltable state that is initialized with the
     /// current state
-    pub fn into_halt(self) -> State<Halt<Q>> {
+    pub fn into_halt(self) -> State<Halt<Q>>
+    where
+        Q: RawState,
+    {
         State::new(Halt::Step(self.value()))
     }
     /// consumes the current state, returning a new one with a [`Halt`](Halt::Halt)
     /// variant initialized with the current value.
-    pub fn halt(self) -> State<Halt<Q>> {
+    pub fn halt(self) -> State<Halt<Q>>
+    where
+        Q: RawState,
+    {
         State::new(Halt::Halt(self.value()))
     }
     /// returns a state with an owned inner value.

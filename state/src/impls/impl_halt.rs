@@ -4,11 +4,19 @@
 */
 use crate::{Halt, RawState, State};
 
-impl<Q, H> RawState for Halt<Q, H> {
+impl<Q, H> RawState for Halt<Q, H>
+where
+    Q: RawState,
+    H: RawState,
+{
     seal! {}
 }
 
-impl<Q, H> Halt<Q, H> {
+impl<Q, H> Halt<Q, H>
+where
+    Q: RawState,
+    H: RawState,
+{
     /// Creates a new instance of a [HaltState] with a halted state.
     pub const fn from_halt(state: H) -> Self {
         Self::Halt(state)
@@ -53,7 +61,10 @@ impl<Q, H> Halt<Q, H> {
     }
 }
 
-impl<Q> Halt<Q, Q> {
+impl<Q> Halt<Q, Q>
+where
+    Q: RawState,
+{
     #[inline]
     /// consumes the current haltable state, returning the inner state.
     pub fn into_inner(self) -> Q {
@@ -63,7 +74,7 @@ impl<Q> Halt<Q, Q> {
         }
     }
     #[inline]
-    /// consumes the current instance to create another instance with a [`Halt`](Self::Halt)
+    /// consumes the current instance to ensure a halting state
     pub fn halt(self) -> Halt<Q, Q> {
         match self {
             Self::Step(inner) => Halt::Halt(inner),
@@ -124,7 +135,11 @@ impl<Q> Halt<Q, Q> {
     }
 }
 
-impl<'a, Q, H> Halt<&'a Q, &'a H> {
+impl<'a, Q, H> Halt<&'a Q, &'a H>
+where
+    Q: RawState,
+    H: RawState,
+{
     #[inline]
     /// consumes the current instance of the halt state to create another with cloned inner
     /// values.
@@ -155,7 +170,11 @@ impl<'a, Q, H> Halt<&'a Q, &'a H> {
     }
 }
 
-impl<'a, Q, H> Halt<&'a mut Q, &'a mut H> {
+impl<'a, Q, H> Halt<&'a mut Q, &'a mut H>
+where
+    Q: RawState,
+    H: RawState,
+{
     #[inline]
     /// consumes the current instance of the halt state to create another with cloned inner
     /// values.
@@ -184,19 +203,28 @@ impl<'a, Q, H> Halt<&'a mut Q, &'a mut H> {
     }
 }
 
-impl<Q> AsRef<Q> for Halt<Q> {
+impl<Q> AsRef<Q> for Halt<Q>
+where
+    Q: RawState,
+{
     fn as_ref(&self) -> &Q {
         self.get()
     }
 }
 
-impl<Q> AsMut<Q> for Halt<Q> {
+impl<Q> AsMut<Q> for Halt<Q>
+where
+    Q: RawState,
+{
     fn as_mut(&mut self) -> &mut Q {
         self.get_mut()
     }
 }
 
-impl<Q> core::ops::Deref for Halt<Q> {
+impl<Q> core::ops::Deref for Halt<Q>
+where
+    Q: RawState,
+{
     type Target = Q;
 
     fn deref(&self) -> &Self::Target {
@@ -204,7 +232,10 @@ impl<Q> core::ops::Deref for Halt<Q> {
     }
 }
 
-impl<Q> core::ops::DerefMut for Halt<Q> {
+impl<Q> core::ops::DerefMut for Halt<Q>
+where
+    Q: RawState,
+{
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.get_mut()
     }
@@ -212,14 +243,17 @@ impl<Q> core::ops::DerefMut for Halt<Q> {
 
 impl<Q> Default for Halt<Q>
 where
-    Q: Default,
+    Q: Default + RawState,
 {
     fn default() -> Self {
         Self::Step(Default::default())
     }
 }
 
-impl<Q> From<State<Q>> for Halt<Q> {
+impl<Q> From<State<Q>> for Halt<Q>
+where
+    Q: RawState,
+{
     fn from(State(state): State<Q>) -> Self {
         Self::Step(state)
     }

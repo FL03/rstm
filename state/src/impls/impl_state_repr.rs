@@ -58,7 +58,7 @@ impl<Q> State<*mut Q> {
 
 impl<Q> State<MaybeUninit<Q>> {
     /// Creates a new instance of state with an initialized inner value.
-    pub fn init(value: Q) -> Self {
+    pub const fn initialized(value: Q) -> Self {
         Self(MaybeUninit::new(value))
     }
     /// Creates a new instance of state with an uninitialized inner value.
@@ -94,11 +94,11 @@ impl State<()> {
 
 impl State<bool> {
     /// Creates a new instance of [State] with an inner state of `true`.
-    pub const fn from_true() -> Self {
+    pub const fn yes() -> Self {
         Self(true)
     }
     /// returns a new instance of [`State`] with an inner state of `false`.
-    pub const fn from_false() -> Self {
+    pub const fn no() -> Self {
         Self(false)
     }
     /// returns true if the inner state is true, false otherwise.

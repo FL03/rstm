@@ -2,6 +2,7 @@
     appellation: halted <module>
     authors: @FL03
 */
+use crate::RawState;
 use crate::state::State;
 
 /// The [`Halting`] trait establishes an interface for determining whether a given state
@@ -26,7 +27,11 @@ where
     }
 }
 
-impl<Q, H> Halting for Halt<Q, H> {
+impl<Q, H> Halting for Halt<Q, H>
+where
+    Q: RawState,
+    H: RawState,
+{
     fn is_halted(&self) -> bool {
         matches!(self, &Halt::Halt(_))
     }
