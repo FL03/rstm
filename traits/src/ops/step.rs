@@ -4,12 +4,11 @@
     Contrib: @FL03
 */
 
-/// A trait defining an unary step operation primarily intended to enable iterable execution
-/// patterns from implemented machines.
+/// The [`TryStep`] trait establishes an interface for a fallible step operation
 pub trait TryStep {
     type Error;
     type Output;
 
-    /// Performs a step operation
+    /// try to perform a step operation
     fn try_step(&mut self) -> Result<Self::Output, Self::Error>;
 }

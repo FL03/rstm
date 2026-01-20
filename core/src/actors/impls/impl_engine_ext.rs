@@ -9,7 +9,7 @@ use crate::actors::{Driver, Executor};
 use crate::programs::Program;
 use crate::rules::Head;
 use rstm_state::{Halting, RawState};
-use rstm_traits::{Handle, Reader, Symbolic, TryStep};
+use rstm_traits::{Reader, Symbolic, TryExecute, TryStep};
 
 impl<'a, D, Q, A> Reader<A> for EngineBase<D, Q, A>
 where
@@ -23,15 +23,16 @@ where
     }
 }
 
-impl<'a, D, Q, A, X, Y> Handle<X> for EngineBase<D, Q, A>
+impl<'a, D, Q, A, X, Y, E> TryExecute<X> for EngineBase<D, Q, A>
 where
     Q: RawState,
-    D: Driver<Q, A> + Handle<X, Output = Y>,
+    D: Driver<Q, A> + TryExecute<X, Output = Y, Error = E>,
 {
+    type Error = E;
     type Output = Y;
 
-    fn handle(&mut self, args: X) -> Self::Output {
-        self.driver_mut().handle(args)
+    fn try_execute(&mut self, args: X) -> Result<Self::Output, Self::Error> {
+        self.driver_mut().try_execute(args)
     }
 }
 

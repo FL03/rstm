@@ -6,7 +6,7 @@
 use crate::rules::{Head, Tail};
 use rspace_traits::RawSpace;
 use rstm_state::{RawState, State};
-use rstm_traits::{Handle, Read};
+use rstm_traits::{Read, TryExecute};
 
 /// The [`Driver`] is the basis for all compatible actors within the system. Each
 /// implementation is required to define the _type_ of internal store it will use to
@@ -19,12 +19,12 @@ where
     private! {}
     /// returns the current position of the driver.
     fn current_position(&self) -> usize;
-    /// returns a reference to the current state of the driver
+    /// returns a view of the current state of the driver.
     fn current_state(&self) -> State<&Q>;
 }
 
 /// An [`Actor`] is a particular kind of driver capable of maintaining its own internal store.
-pub trait Actor<Q, A>: Driver<Q, A> + Handle<Tail<Q, A>>
+pub trait Actor<Q, A>: Driver<Q, A> + TryExecute<Tail<Q, A>>
 where
     for<'a> Self: Read<&'a mut [A], Output = &'a A>,
 {

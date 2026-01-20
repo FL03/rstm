@@ -22,7 +22,7 @@ fn main() -> rstm::Result<()> {
     let program: Program<isize, usize> = program! {
         #[default_state(initial_state)]
         rules: {
-            (0, 0) -> Right(1, 0usize),
+            (0, 0) -> Right(1, 0),
             (0, 1) -> Left(-1, 1),
             (1, 0) -> Right(1, 1),
             (1, 1) -> Right(0, 0),

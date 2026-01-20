@@ -4,6 +4,7 @@
     Contrib: @FL03
 */
 
+#[deprecated(since = "0.1.4", note = "Use the `TryExecute` trait instead")]
 /// The [`Handle`] trait
 pub trait Handle<T> {
     type Output;

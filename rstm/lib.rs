@@ -2,27 +2,38 @@
 #![crate_type = "lib"]
 //! # rstm
 //!
-//! `rstm` is a Rust library dedicated to the constructtapen and executtapen of Turing Machines.
-//! The crate is designed to be flexible and easy to use while preserving the abstract nature
-//! of the models.
+//! Welcome to `rstm`, a flexible framework for creating and executing Turing machines (TM) in
+//! Rust.
 //!
-//! ## Features
+//! ## Background
 //!
-//! The crate employs the use of vartapeus feature flags for modularity and to keep the core
-//! lightweight.
+//! Turing machines are abstract models of computation initially proposed by Alan Turing in
+//! 1936. These models work by considering an infinite tape (memory) divided evenly into
+//! uniform cells capable of storing a single value that is mutated by the head of the machine
+//! according to some set of rules.
 //!
-//! ## Overview
+//! ## Rules
 //!
-//! The core of the library is built around the concept of a Turing Machine, which consists of
-//! a tape, a head that reads and writes symbols on the tape, and a set of rules that dictate
-//! the machine's behavtaper. The library provides a set of abstracttapens and utilities to define
-//! and manipulate these components.
+//! Rules or instructions for TMs can be defined as a 5-tuple consisting of:
+//!
+//! 1. Current State: The current state of the machine.
+//! 2. Current Symbol: The symbol currently being read by the head.
+//! 3. Next State: The state to transition to after executing the rule.
+//! 4. Write Symbol: The symbol to write on the tape at the current head position.
+//! 5. Shift: The direction to move the head (left, right, or stay).
+//!
+//! Here, we break the rule into two distinct components for clarity:
+//!
+//! - [`Head`]: defines the current state and symbol
+//! - [`Tail`]: defines the shift direction, next state, and write symbol
 //!
 //! ## Basic Usage
 //!
 //! For more examples, please refer to the [`examples`](https://github.com/FL03/rstm/blob/main/rstm/examples) directory in the repository.
 //!
-//! ### Creating and executing a simple Turing Machine with a Moving Head
+//! ### `MovingHead` Example
+//!
+//! This example demonstrats how to initialize and run a Turing machine with a _moving head_.
 //!
 //! ```rust
 //! use rstm::{MovingHead, program};

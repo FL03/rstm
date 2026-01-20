@@ -11,7 +11,7 @@ use crate::{Direction, Head, Tail};
 use alloc::string::String;
 use alloc::vec::Vec;
 use rstm_state::{Halting, RawState, State};
-use rstm_traits::{Handle, Read, Symbolic, TryExecuteMut, TryStep};
+use rstm_traits::{Handle, Read, Symbolic, TryExecute, TryStep};
 
 #[doc(hidden)]
 #[deprecated(
@@ -424,7 +424,7 @@ where
 impl<X, Y, E, Q, A> Handle<X> for TMH<Q, A>
 where
     Q: RawState,
-    Self: TryExecuteMut<X, Error = E, Output = Y>,
+    Self: TryExecute<X, Error = E, Output = Y>,
 {
     type Output = Result<Y, E>;
 
@@ -433,7 +433,7 @@ where
     }
 }
 
-impl<Q, A> TryExecuteMut<(Direction, State<Q>, A)> for TMH<Q, A>
+impl<Q, A> TryExecute<(Direction, State<Q>, A)> for TMH<Q, A>
 where
     Q: RawState,
 {
@@ -448,7 +448,7 @@ where
     }
 }
 
-impl<Q, A> TryExecuteMut<(Direction, Head<Q, A>)> for TMH<Q, A>
+impl<Q, A> TryExecute<(Direction, Head<Q, A>)> for TMH<Q, A>
 where
     Q: RawState,
 {
@@ -463,7 +463,7 @@ where
     }
 }
 
-impl<Q, A> TryExecuteMut<Tail<Q, A>> for TMH<Q, A>
+impl<Q, A> TryExecute<Tail<Q, A>> for TMH<Q, A>
 where
     Q: RawState,
 {

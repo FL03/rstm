@@ -1,4 +1,4 @@
-# General
+## General
 
 **/.artifacts/data
 **/.cache
@@ -31,7 +31,7 @@
 ### Windows (WSL2)
 **/*:Zone.Identifier
 
-# Configuration Files
+## Development
 
 **/.config/*.config.*
 !**/default.config.*
@@ -43,7 +43,7 @@
 !**/default.env
 !**/example.env
 
-## Development Environments
+### Development Environments
 **/.direnv/
 
 ### JetBrains IDEs

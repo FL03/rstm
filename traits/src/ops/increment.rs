@@ -2,60 +2,63 @@
     Appellation: increment <module>
     Contrib: @FL03
 */
-/// An unary operator defining an incremental operation
+/// [`Increment`] defines an unary operator for incrementing, or stepping up, a value by a
+/// single unit.
 pub trait Increment {
-    fn increment(self) -> Self;
+    fn inc(self) -> Self;
 }
 /// A mutable unary operator defining a self-incrementing operation
-pub trait IncrementMut {
-    fn increment_mut(&mut self);
+pub trait IncrementAssign {
+    fn inc_assign(&mut self);
 }
-/// An unary operator defining a decremental operation
+/// [`Decrement`] defines an unary operator for decrementing, or stepping down, a value by a
+/// single unit.
 pub trait Decrement {
-    fn decrement(self) -> Self;
+    fn dec(self) -> Self;
 }
 /// A mutable unary operator defining a self-decrementing operation
-pub trait DecrementMut {
-    fn decrement_mut(&mut self);
+pub trait DecAssign {
+    fn dec_assign(&mut self);
 }
 
 /*
  ************* Implementations *************
 */
-use num_traits::One;
+macro_rules! impl_inc_dec_for {
+    (@impl $T:ty: $one:literal) => {
+        impl Increment for $T {
+            fn inc(self) -> Self {
+                self + $one
+            }
+        }
 
-impl<T> Decrement for T
-where
-    T: One + core::ops::Sub<T, Output = T>,
-{
-    fn decrement(self) -> Self {
-        self - T::one()
-    }
+        impl IncrementAssign for $T {
+            fn inc_assign(&mut self) {
+                *self += $one
+            }
+        }
+
+        impl Decrement for $T {
+            fn dec(self) -> Self {
+                self - $one
+            }
+        }
+
+        impl DecAssign for $T {
+            fn dec_assign(&mut self) {
+                *self -= $one
+            }
+        }
+    };
+    ($($one:literal {$($T:ty),* $(,)?});* $(;)?) => {
+        $($(impl_inc_dec_for! { @impl $T: $one })*)*
+    };
 }
 
-impl<T> DecrementMut for T
-where
-    T: One + core::ops::SubAssign<T>,
-{
-    fn decrement_mut(&mut self) {
-        *self -= T::one()
-    }
-}
-
-impl<T> Increment for T
-where
-    T: One + core::ops::Add<T, Output = T>,
-{
-    fn increment(self) -> Self {
-        self + T::one()
-    }
-}
-
-impl<T> IncrementMut for T
-where
-    T: One + core::ops::AddAssign<T>,
-{
-    fn increment_mut(&mut self) {
-        *self += T::one()
-    }
+impl_inc_dec_for! {
+    1 {
+        u8, u16, u32, u64, u128, usize,
+        i8, i16, i32, i64, i128, isize,
+    };
+    1.0 { f32, f64 };
 }
