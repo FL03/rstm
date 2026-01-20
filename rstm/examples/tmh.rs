@@ -30,9 +30,6 @@ fn main() -> rstm::Result<()> {
             (-1, 1) -> Left(-1, 0),
         };
     };
-    /*
-    let program = Program::<isize, usize>::load_from_json("rstm/examples/example.program.json")?;
-    */
     // optionally, export the program to a JSON file
     program.export_json("rstm/examples/example.program.json")?;
     // create a new instance of the machine
