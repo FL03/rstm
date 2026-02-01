@@ -39,7 +39,7 @@ rstm-state = { default-features = false, path = "state", version = "0.1.3" }
 rstm-tape = { default-features = false, path = "tape", version = "0.1.3" }
 rstm-traits = { default-features = false, path = "traits", version = "0.1.3" }
 # custom
-contained = { default-features = false, features = ["macros"], version = "0.2.3" }
+contained = { default-features = false, features = ["macros"], version = "0.2.4" }
 rspace-traits = { default-features = false, version = "0.0.9" }
 # developmemt
 criterion = { version = "0.8" }
