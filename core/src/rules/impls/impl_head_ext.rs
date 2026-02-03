@@ -15,10 +15,58 @@ where
     A::Output: Clone,
 {
     type Buf<_T> = [_T];
-    type Output = T;
+    type Output = A::Output;
 
     fn read(&mut self, rhs: &mut Self::Buf<T>) -> Self::Output {
         rhs[self.symbol].clone()
+    }
+}
+
+impl<'a, Q, A> Read<&'a [A]> for Head<Q, usize>
+where
+    Q: RawState,
+{
+    type Output = &'a A;
+    type Error = crate::Error;
+
+    fn read(self, rhs: &'a [A]) -> Result<Self::Output, Self::Error> {
+        let pos = self.symbol;
+        if pos >= rhs.len() {
+            return Err(crate::Error::index_out_of_bounds(pos, rhs.len()));
+        }
+        Ok(&rhs[pos])
+    }
+}
+
+impl<'a, Q, A> Read<&'a [A]> for &Head<Q, usize>
+where
+    Q: RawState,
+{
+    type Output = &'a A;
+    type Error = crate::Error;
+
+    fn read(self, rhs: &'a [A]) -> Result<Self::Output, Self::Error> {
+        let pos = self.symbol;
+        if pos >= rhs.len() {
+            return Err(crate::Error::index_out_of_bounds(pos, rhs.len()));
+        }
+        Ok(&rhs[pos])
+    }
+}
+
+impl<'a, Q, A> Read<&'a [A]> for &mut Head<Q, usize>
+where
+    Q: RawState,
+{
+    type Output = &'a A;
+    type Error = crate::Error;
+
+    fn read(self, rhs: &'a [A]) -> Result<Self::Output, Self::Error> {
+        let pos = self.symbol;
+        if pos >= rhs.len() {
+            return Err(crate::Error::index_out_of_bounds(pos, rhs.len()));
+        }
+        Ok(&rhs[pos])
     }
 }
 

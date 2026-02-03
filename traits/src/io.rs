@@ -3,8 +3,8 @@
     Created At: 2026.01.11:13:54:16
     Contrib: @FL03
 */
-/// [`Reader`] establishes an interface for objects capable of reading data from internal
-/// sources.
+/// The [`Reader`] trait defines implementations used to actually produce output by relying on 
+/// configured sources. 
 pub trait Reader<T> {
     type Error: core::error::Error;
 

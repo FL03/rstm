@@ -69,7 +69,7 @@ where
         // if the output tape is empty, initialize it from the driver's tape
         if self.tape().is_empty() {
             #[cfg(feature = "tracing")]
-            tracing::error! { "Output tape is empty; initializing from the input tape..." };
+            tracing::error! { "No inputs loaded on the tape" };
             return Err(crate::Error::TapeIsEmpty);
         }
         // read the tape
