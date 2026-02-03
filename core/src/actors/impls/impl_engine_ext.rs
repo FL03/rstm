@@ -90,12 +90,12 @@ where
             // process the instruction
             let step = self.driver.step(tail);
             // apply the step
-            step.shift(&mut self.tape)
-        } else {
-            #[cfg(feature = "tracing")]
-            tracing::error!("No program loaded; cannot execute step.");
-            Err(crate::Error::NoProgram)
+            return step.shift(&mut self.tape);
         }
+        // if there is no program loaded, return an error
+        #[cfg(feature = "tracing")]
+        tracing::error!("No program loaded; cannot execute step.");
+        Err(crate::Error::NoProgram)
     }
 }
 
