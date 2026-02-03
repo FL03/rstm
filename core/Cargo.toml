@@ -24,6 +24,11 @@ version = "v{{version}}"
 no-dev-version = true
 tag-name = "{{version}}"
 
+[package.metadata.component]
+package = "rstm:core"
+
+[package.metadata.component.dependencies]
+
 [lib]
 bench = false
 
