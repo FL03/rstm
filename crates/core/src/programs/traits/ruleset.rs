@@ -3,23 +3,34 @@
     Created At: 2026.01.11:12:29:41
     Contrib: @FL03
 */
-use crate::rules::{Head, Instruction, Rule, Tail};
-use rstm_state::RawState;
+use crate::rules::{Head, Instruction, InstructionMut, Rule, Tail};
+use rstm_state::{RawState, State};
 
 /// The [`RuleSet`] trait establishes an interface common to all compatible sets of rules for
 /// the framework.
-pub trait RuleSet<Q, A>
+pub trait RawRuleset<Q, A>
 where
     Q: RawState,
 {
     type Rule: Instruction<Q, A>;
 
-    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>>;
+    private! {}
 }
 
-pub trait RuleSetMut<Q, A>: RuleSet<Q, A>
+pub trait Ruleset<Q, A>: RawRuleset<Q, A>
 where
     Q: RawState,
+    Self::Rule: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
+{
+    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>>;
+
+    fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>>;
+}
+
+pub trait RuleSetMut<Q, A>: RawRuleset<Q, A>
+where
+    Q: RawState,
+    Self::Rule: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
 {
     fn get_mut(&mut self, head: &Head<Q, A>) -> Option<&mut Tail<Q, A>>;
 }
@@ -27,10 +38,21 @@ where
  ************* Implementations *************
 */
 
+impl<R, I, Q, A> RawRuleset<Q, A> for &R
+where
+    I: Instruction<Q, A>,
+    Q: RawState,
+    R: RawRuleset<Q, A, Rule = I>,
+{
+    type Rule = R::Rule;
+
+    seal! {}
+}
+
 macro_rules! get_tail {
     ($iter:expr, $head:expr) => {
         $iter.find_map(|i| {
-            if i.head() == $head {
+            if i.head().state() == $head.state() && i.head().symbol() == $head.symbol() {
                 Some(i.tail())
             } else {
                 None
@@ -39,71 +61,97 @@ macro_rules! get_tail {
     };
 }
 
-impl<Q, A> RuleSet<Q, A> for [(Head<Q, A>, Tail<Q, A>)]
-where
-    Q: RawState + PartialEq,
-    A: PartialEq,
-{
-    type Rule = (Head<Q, A>, Tail<Q, A>);
-
-    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
-        self.iter()
-            .find_map(|(h, t)| if h == head { Some(t) } else { None })
-    }
+macro_rules! find_tail {
+    ($iter:expr, ($state:expr, $sym:expr)) => {
+        $iter.find_map(|i| {
+            if i.head().state().view() == $state && i.head().symbol() == $sym {
+                Some(i.tail())
+            } else {
+                None
+            }
+        })
+    };
 }
 
-impl<Q, A> RuleSet<Q, A> for [Rule<Q, A>]
+impl<I, Q, A> RawRuleset<Q, A> for [I]
 where
-    Q: RawState + PartialEq,
-    A: PartialEq,
+    Q: RawState,
+    I: Instruction<Q, A>,
 {
-    type Rule = Rule<Q, A>;
+    type Rule = I;
 
-    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
-        get_tail!(self.iter(), head)
-    }
+    seal! {}
 }
 
-impl<Q, A> RuleSet<Q, A> for &[Rule<Q, A>]
+impl<I, Q, A> Ruleset<Q, A> for [I]
 where
     Q: RawState + PartialEq,
     A: PartialEq,
+    I: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
 {
-    type Rule = Rule<Q, A>;
-
     fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
         get_tail!(self.iter(), head)
     }
+
+    fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+        find_tail!(self.iter(), (state, sym))
+    }
+}
+impl<I, Q, A> RawRuleset<Q, A> for &[I]
+where
+    Q: RawState,
+    I: Instruction<Q, A>,
+{
+    type Rule = I;
+
+    seal! {}
 }
 
-impl<Q, A> RuleSet<Q, A> for &mut [Rule<Q, A>]
+impl<I, Q, A> Ruleset<Q, A> for &[I]
 where
     Q: RawState + PartialEq,
     A: PartialEq,
+    I: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
 {
-    type Rule = Rule<Q, A>;
-
     fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
         get_tail!(self.iter(), head)
     }
-}
 
-impl<const N: usize, Q, A> RuleSet<Q, A> for [Rule<Q, A>; N]
-where
-    Q: RawState + PartialEq,
-    A: PartialEq,
-{
-    type Rule = Rule<Q, A>;
-
-    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
-        get_tail!(self.iter(), head)
+    fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+        find_tail!(self.iter(), (state, sym))
     }
 }
 
-impl<Q, A> RuleSetMut<Q, A> for &mut [Rule<Q, A>]
+impl<I, Q, A> RawRuleset<Q, A> for &mut [I]
+where
+    Q: RawState,
+    I: Instruction<Q, A>,
+{
+    type Rule = I;
+
+    seal! {}
+}
+
+impl<I, Q, A> Ruleset<Q, A> for &mut [I]
 where
     Q: RawState + PartialEq,
     A: PartialEq,
+    I: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
+{
+    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
+        get_tail!(self.iter(), head)
+    }
+
+    fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+        find_tail!(self.iter(), (state, sym))
+    }
+}
+
+impl<I, Q, A> RuleSetMut<Q, A> for &mut [I]
+where
+    Q: RawState + PartialEq,
+    A: PartialEq,
+    I: InstructionMut<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
 {
     fn get_mut(&mut self, head: &Head<Q, A>) -> Option<&mut Tail<Q, A>> {
         self.iter_mut().find_map(|i| {
@@ -116,110 +164,236 @@ where
     }
 }
 
+impl<const N: usize, I, Q, A> RawRuleset<Q, A> for [I; N]
+where
+    Q: RawState,
+    I: Instruction<Q, A>,
+{
+    type Rule = I;
+
+    seal! {}
+}
+
+impl<const N: usize, I, Q, A> Ruleset<Q, A> for [I; N]
+where
+    Q: RawState + PartialEq,
+    A: PartialEq,
+    I: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
+{
+    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
+        get_tail!(self.iter(), head)
+    }
+
+    fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+        find_tail!(self.iter(), (state, sym))
+    }
+}
+
 #[cfg(feature = "alloc")]
 mod impl_alloc {
-    use super::RuleSet;
-    use crate::{Head, Rule, Tail};
+    use super::{RawRuleset, Ruleset};
+    use crate::{Head, Instruction, Rule, Tail};
     use alloc::collections::{BTreeMap, BTreeSet};
     use alloc::vec::Vec;
-    use rstm_state::RawState;
+    use rstm_state::{RawState, State};
 
-    impl<Q, A> RuleSet<Q, A> for Vec<(Head<Q, A>, Tail<Q, A>)>
+    impl<I, Q, A> RawRuleset<Q, A> for Vec<I>
     where
-        Q: RawState + PartialEq,
-        A: PartialEq,
+        Q: RawState,
+        I: Instruction<Q, A>,
     {
-        type Rule = Rule<Q, A>;
-        fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
-            self.iter()
-                .find_map(|(h, t)| if h == head { Some(t) } else { None })
-        }
+        type Rule = I;
+
+        seal! {}
     }
 
-    impl<Q, A> RuleSet<Q, A> for Vec<Rule<Q, A>>
+    impl<I, Q, A> Ruleset<Q, A> for Vec<I>
     where
         Q: RawState + PartialEq,
         A: PartialEq,
+        I: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
     {
-        type Rule = Rule<Q, A>;
-
         fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
             get_tail!(self.iter(), head)
         }
-    }
 
-    impl<Q, A> RuleSet<Q, A> for BTreeSet<Rule<Q, A>>
-    where
-        Q: RawState + PartialEq,
-        A: PartialEq,
-    {
-        type Rule = Rule<Q, A>;
-        fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
-            get_tail!(self.iter(), head)
+        fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+            find_tail!(self.iter(), (state, sym))
         }
     }
 
-    impl<Q, A> RuleSet<Q, A> for BTreeMap<Head<Q, A>, Tail<Q, A>>
+    impl<I, Q, A> RawRuleset<Q, A> for BTreeSet<I>
+    where
+        Q: RawState,
+        I: Instruction<Q, A>,
+    {
+        type Rule = I;
+        seal! {}
+    }
+
+    impl<I, Q, A> Ruleset<Q, A> for BTreeSet<I>
+    where
+        Q: RawState + PartialEq,
+        A: PartialEq,
+        I: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
+    {
+        fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
+            get_tail!(self.iter(), head)
+        }
+
+        fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+            find_tail!(self.iter(), (state, sym))
+        }
+    }
+
+    impl<Q, A> RawRuleset<Q, A> for BTreeMap<Head<Q, A>, Tail<Q, A>>
     where
         Q: RawState + Ord,
         A: Ord,
     {
         type Rule = Rule<Q, A>;
 
+        seal! {}
+    }
+    impl<Q, A> Ruleset<Q, A> for BTreeMap<Head<Q, A>, Tail<Q, A>>
+    where
+        Q: RawState + Ord,
+        A: Ord,
+    {
         fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
             self.get(head)
+        }
+
+        fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+            self.iter().find_map(|(h, t)| {
+                if h.state().view() == state && h.symbol() == sym {
+                    Some(t)
+                } else {
+                    None
+                }
+            })
         }
     }
 }
 
 #[cfg(feature = "hashbrown")]
-impl<Q, A> RuleSet<Q, A> for hashbrown::HashSet<Rule<Q, A>>
-where
-    Q: RawState + PartialEq,
-    A: PartialEq,
-{
-    type Rule = Rule<Q, A>;
+mod impl_hashbrown {
+    use super::*;
+    use core::hash::Hash;
+    use hashbrown::{HashMap, HashSet};
 
-    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
-        get_tail!(self.iter(), head)
+    impl<Q, A> RawRuleset<Q, A> for HashSet<Rule<Q, A>>
+    where
+        Q: RawState + Eq + Hash,
+        A: Eq + Hash,
+    {
+        type Rule = Rule<Q, A>;
+
+        seal! {}
     }
-}
 
-#[cfg(feature = "hashbrown")]
-impl<Q, A> RuleSet<Q, A> for hashbrown::HashMap<Head<Q, A>, Tail<Q, A>>
-where
-    Q: RawState + Eq + core::hash::Hash,
-    A: Eq + core::hash::Hash,
-{
-    type Rule = Rule<Q, A>;
+    impl<Q, A> Ruleset<Q, A> for HashSet<Rule<Q, A>>
+    where
+        Q: RawState + Eq + Hash,
+        A: Eq + Hash,
+    {
+        fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
+            get_tail!(self.iter(), head)
+        }
 
-    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
-        self.get(head)
+        fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+            find_tail!(self.iter(), (state, sym))
+        }
+    }
+
+    impl<Q, A> RawRuleset<Q, A> for HashMap<Head<Q, A>, Tail<Q, A>>
+    where
+        Q: RawState + Eq + Hash,
+        A: Eq + Hash,
+    {
+        type Rule = Rule<Q, A>;
+
+        seal! {}
+    }
+
+    impl<Q, A> Ruleset<Q, A> for HashMap<Head<Q, A>, Tail<Q, A>>
+    where
+        Q: RawState + Eq + Hash,
+        A: Eq + Hash,
+    {
+        fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
+            self.get(head)
+        }
+
+        fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+            self.iter().find_map(|(h, t)| {
+                if h.state().view() == state && h.symbol() == sym {
+                    Some(t)
+                } else {
+                    None
+                }
+            })
+        }
     }
 }
 
 #[cfg(feature = "std")]
-impl<Q, A> RuleSet<Q, A> for std::collections::HashSet<Rule<Q, A>>
-where
-    Q: RawState + Eq + core::hash::Hash,
-    A: Eq + core::hash::Hash,
-{
-    type Rule = Rule<Q, A>;
+mod impl_std {
+    use super::*;
+    use core::hash::Hash;
+    use std::collections::{HashMap, HashSet};
 
-    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
-        get_tail!(self.iter(), head)
+    impl<Q, A> RawRuleset<Q, A> for HashSet<Rule<Q, A>>
+    where
+        Q: RawState + Eq + Hash,
+        A: Eq + Hash,
+    {
+        type Rule = Rule<Q, A>;
+
+        seal! {}
     }
-}
 
-#[cfg(feature = "std")]
-impl<Q, A> RuleSet<Q, A> for std::collections::HashMap<Head<Q, A>, Tail<Q, A>>
-where
-    Q: RawState + Eq + core::hash::Hash,
-    A: Eq + core::hash::Hash,
-{
-    type Rule = Rule<Q, A>;
+    impl<Q, A> Ruleset<Q, A> for HashSet<Rule<Q, A>>
+    where
+        Q: RawState + Eq + Hash,
+        A: Eq + Hash,
+    {
+        fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
+            get_tail!(self.iter(), head)
+        }
 
-    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
-        self.get(head)
+        fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+            find_tail!(self.iter(), (state, sym))
+        }
+    }
+
+    impl<Q, A> RawRuleset<Q, A> for HashMap<Head<Q, A>, Tail<Q, A>>
+    where
+        Q: RawState + Eq + Hash,
+        A: Eq + Hash,
+    {
+        type Rule = Rule<Q, A>;
+
+        seal! {}
+    }
+
+    impl<Q, A> Ruleset<Q, A> for HashMap<Head<Q, A>, Tail<Q, A>>
+    where
+        Q: RawState + Eq + Hash,
+        A: Eq + Hash,
+    {
+        fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
+            self.get(head)
+        }
+
+        fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>> {
+            self.iter().find_map(|(h, t)| {
+                if h.state() == *state && h.symbol() == sym {
+                    Some(t)
+                } else {
+                    None
+                }
+            })
+        }
     }
 }

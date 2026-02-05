@@ -3,14 +3,14 @@
     Created At: 2026.01.11:12:33:32
     Contrib: @FL03
 */
-use crate::programs::{ProgramBase, RuleSet};
-use crate::rules::{Head, Rule, Tail};
+use crate::programs::{ProgramBase, RawRuleset, Ruleset};
+use crate::rules::{Head, Instruction, Rule, Tail};
 use rstm_state::{IntoState, RawState, State};
 
 impl<R, Q, A> ProgramBase<R, Q, A>
 where
     Q: RawState,
-    R: RuleSet<Q, A>,
+    R: RawRuleset<Q, A>,
 {
     /// initialize a new program from the given rule set
     pub const fn from_rules(rules: R) -> Self {
@@ -53,7 +53,7 @@ where
     }
     #[inline]
     /// consumes the instance to create another with the given initial state
-    pub fn with_initial_state<U>(self, initial_state: U) -> Self
+    pub fn with_default_state<U>(self, initial_state: U) -> Self
     where
         U: IntoState<Q>,
     {
@@ -99,7 +99,19 @@ where
         Ok(())
     }
 
-    pub fn get_head(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>> {
+    pub fn get_head(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>>
+    where
+        R: Ruleset<Q, A>,
+        R::Rule: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
+    {
         self.rules().get(head)
+    }
+
+    pub fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>>
+    where
+        R: Ruleset<Q, A>,
+        R::Rule: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
+    {
+        self.rules().find_tail(state, sym)
     }
 }

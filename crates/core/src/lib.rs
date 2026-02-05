@@ -55,7 +55,7 @@ pub use self::{
     actors::{Driver, Executor, MovingHead},
     error::{Error, Result},
     motion::HeadStep,
-    programs::{ProgramBase, Program, RuleSet},
+    programs::{Program, ProgramBase, RawRuleset},
     rules::prelude::*,
     utils::*,
 };

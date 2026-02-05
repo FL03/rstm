@@ -7,6 +7,7 @@
 use crate::Rule;
 use rstm_state::{RawState, State};
 
+#[deprecated(since = "0.1.4", note = "Use the `Program` implementation instead")]
 /// The [`Program`] implementation is designed to provide a structured representation of a set
 /// of rules and an optional initial state for a Turing machine or similar computational model.
 /// It encapsulates the rules that dictate the machine's behavior and the starting point for

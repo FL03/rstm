@@ -69,7 +69,11 @@ where
     Q: RawState,
 {
     /// load the head into an engine loaded with the given program
-    pub fn load<A>(self, program: crate::Program<Q, A>) -> EngineBase<Self, Q, A> {
+    pub fn load<A>(self, program: crate::Program<Q, A>) -> EngineBase<Self, Q, A>
+    where
+        Q: PartialEq,
+        A: PartialEq,
+    {
         EngineBase::from_driver(self).with_program(program)
     }
 
