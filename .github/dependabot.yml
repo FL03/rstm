@@ -14,9 +14,4 @@ updates:
       interval: monthly
     directories:
       - /
-      - /rstm
-      - /core
-      - /macros
-      - /state
-      - /tape
-      - /traits
+      - /crates/*

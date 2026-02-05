@@ -1,0 +1,40 @@
+interface types {
+    type state = string;
+    type symbol = string;
+    /// A key-value pair describing an attribute.
+    record head {
+        /// The attribute name.
+        state: state,
+        /// The attribute value.
+        symbol: symbol,
+    }
+
+    enum direction {
+        left, 
+        right,
+        stay,
+    }
+
+    record tail {
+        /// The attribute name.
+        next-state: state,
+        /// The attribute value.
+        write-symbol: symbol,
+        /// The direction to move.
+        direction: direction,
+    }
+
+    record rule {
+        head: head,
+        tail: tail,
+    }
+
+    record program {
+        /// The initial state of the Turing machine.
+        initial-state: state,
+        /// The blank symbol used to represent an empty cell on the tape.
+        blank-symbol: symbol,
+        /// The set of rules that define the behavior of the Turing machine.
+        rules: list<rule>,
+    }
+}
