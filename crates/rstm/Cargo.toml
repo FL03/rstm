@@ -1,0 +1,172 @@
+[package]
+build = "build.rs"
+name = "rstm"
+
+authors.workspace = true
+categories.workspace = true
+description.workspace = true
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[package.metadata.docs.rs]
+all-features = false
+features = ["default"]
+rustc-args = ["--cfg", "docsrs"]
+version = "v{{version}}"
+
+[package.metadata.release]
+no-dev-version = true
+tag-name = "{{version}}"
+
+[lib]
+path = "lib.rs"
+
+[[bench]]
+harness = false
+name = "tmh"
+required-features = ["full"]
+
+[[example]]
+name = "tmh"
+required-features = ["default", "json", "tracing"]
+
+[dependencies]
+rstm-core = { workspace = true }
+rstm-macros = { optional = true, workspace = true }
+rstm-traits = { workspace = true }
+
+[dev-dependencies]
+anyhow = { features = ["std"], workspace = true }
+criterion = { features = ["plotters"], workspace = true }
+lazy_static = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies.tracing-subscriber]
+features = [
+  "env-filter",
+  "fmt",
+  "json",
+  "serde",
+]
+version = "0.3"
+
+[features]
+default = ["actors", "macros", "std"]
+
+full = [
+  "default",
+  "bytes",
+  "complex",
+  "hashbrown",
+  "json",
+  "rand",
+  "serde",
+  "tracing",
+]
+
+# ********* [FF] Features *********
+actors = []
+
+macros = [
+  "dep:rstm-macros",
+  "rstm-core/macros",
+]
+
+tape = [
+  "alloc",
+]
+
+nightly = [
+  "rstm-core/nightly",
+  "rstm-macros/nightly",
+  "rstm-traits/nightly",
+]
+
+json = [
+  "alloc",
+  "serde",
+  "serde_json",
+  "rstm-core/json",
+]
+
+# ********* [FF] Environments *********
+std = [
+  "alloc",
+  "rstm-core/std",
+  "rstm-traits/std",
+]
+
+wasi = [
+  "alloc",
+  "rstm-core/wasi",
+  "rstm-traits/wasi",
+]
+
+wasm = [
+  "alloc",
+  "wasm_bindgen",
+  "rstm-core/wasm",
+  "rstm-traits/wasm",
+]
+
+# ************* [FF:Dependencies] *************
+
+alloc = [
+  "rstm-core/alloc",
+  "rstm-traits/alloc",
+]
+
+bytes = [
+  "rstm-core/bytes",
+  "rstm-traits/bytes",
+]
+
+complex = [
+  "rstm-core/complex",
+  "rstm-traits/complex",
+]
+
+hashbrown = [
+  "rstm-core/hashbrown",
+  "rstm-traits/hashbrown",
+]
+
+rand = [
+  "rstm-core/rand",
+  "rstm-traits/rand",
+]
+
+rayon = [
+  "rstm-core/rayon",
+  "rstm-traits/rayon",
+]
+
+rng = [
+  "rstm-core/rng",
+]
+
+serde = [
+  "rstm-core/serde",
+  "rstm-traits/serde",
+]
+
+serde_json = [
+  "rstm-core/serde_json",
+]
+
+tracing = [
+  "rstm-core/tracing",
+]
+
+wasm_bindgen = [
+  "rstm-core/wasm_bindgen",
+  "rstm-traits/wasm_bindgen",
+]
