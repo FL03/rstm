@@ -4,20 +4,21 @@
     Contrib: @FL03
 */
 use crate::programs::{ProgramBase, RawRuleset, Ruleset};
-use crate::rules::{Head, Instruction, Rule, Tail};
+use crate::rules::{Head, Instruction, Tail};
 use rstm_state::{IntoState, RawState, State};
 
-impl<R, Q, A> ProgramBase<R, Q, A>
+impl<R, I, Q, A> ProgramBase<R, Q, A, I>
 where
     Q: RawState,
-    R: RawRuleset<Q, A>,
+    R: RawRuleset<Q, A, Rule = I>,
+    I: Instruction<Q, A>,
 {
     /// initialize a new program from the given rule set
     pub const fn from_rules(rules: R) -> Self {
         Self {
             rules,
             initial_state: None,
-            _marker: core::marker::PhantomData::<Rule<Q, A>>,
+            _marker: core::marker::PhantomData,
         }
     }
     #[cfg(all(feature = "json", feature = "std"))]

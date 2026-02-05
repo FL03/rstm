@@ -15,7 +15,7 @@ categories = [
 description = "This crate focuses on building concrete implementations for Turing Machines."
 edition = "2024"
 homepage = "https://github.com/FL03/rstm/wiki"
-keywords = ["turing", "turing-machine", "utm"]
+keywords = ["turing machine", "tm", "fsm", "computation"]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/FL03/rstm.git"
@@ -66,6 +66,7 @@ smart-default = { version = "0.7" }
 strum = { default-features = false, features = ["derive"], version = "0.27" }
 # logging
 tracing = { default-features = false, features = ["attributes"], version = "0.1" }
+tracing-subscriber = { features = ["env-filter", "fmt",], version = "0.3" }
 # WebAssembly
 wasm-bindgen = { default-features = false, version = "0.2" }
 
