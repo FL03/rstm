@@ -6,8 +6,8 @@
 use crate::{Head, Tail};
 use rstm_state::RawState;
 
-/// [`HeadStep`] is a structure responsible for managing the step operation of a moving head
-/// in a Turing machine simulation.
+/// [`HeadStep`] defines a *lazy* stepper for a Turing machine configured with a so-called 
+/// *moving head*.
 pub struct HeadStep<'a, Q1, A1, Q2 = Q1, A2 = A1>
 where
     Q1: RawState,
