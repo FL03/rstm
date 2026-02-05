@@ -7,7 +7,7 @@ use crate::rules::rule::Rule;
 use crate::rules::{Head, Tail};
 use rstm_state::RawState;
 
-impl<'a, Q, A, R, B> Rule<&'a Q, &'a A, &'a R, &'a B>
+impl<Q, A, R, B> Rule<&Q, &A, &R, &B>
 where
     Q: RawState,
     R: RawState,
@@ -40,7 +40,7 @@ where
     }
 }
 
-impl<'a, Q, A> Rule<Q, usize, Q, A>
+impl<Q, A> Rule<Q, usize, Q, A>
 where
     Q: RawState,
 {

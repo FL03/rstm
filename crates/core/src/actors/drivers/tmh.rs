@@ -210,7 +210,7 @@ where
         self.head().state().is_halted()
     }
     /// load the current instance and given program into a new instance of the
-    /// [`TuringEngine`] implementation to directly manage the execution of the program.
+    /// [`EngineBase`] implementation to directly manage the execution of the program.
     ///
     /// **Note**: The engine is a _lazy_ executor, meaning that the program will not be run
     /// until the corresponding `.run()` method is invoked on the engine.
@@ -486,7 +486,7 @@ where
     }
 }
 
-impl<'a, Q, A> TryStep for EngineBase<TMH<Q, A>, Q, A>
+impl<Q, A> TryStep for EngineBase<TMH<Q, A>, Q, A>
 where
     Q: RawState + Clone + PartialEq,
     A: Symbolic,

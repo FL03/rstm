@@ -10,6 +10,7 @@
     Clone,
     Copy,
     Debug,
+    Default,
     Eq,
     Hash,
     Ord,
@@ -24,7 +25,11 @@
     strum::VariantArray,
     strum::VariantNames,
 )]
-#[cfg_attr(feature = "serde", derive(serde::Deserialize, serde::Serialize))]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde::Deserialize, serde::Serialize),
+    serde(untagged)
+)]
 #[strum(serialize_all = "lowercase")]
 pub enum Direction {
     /// Represents a single left shift
@@ -43,6 +48,7 @@ pub enum Direction {
         feature = "serde",
         serde(alias = "stay", alias = "s", alias = "S", alias = "STAY",)
     )]
+    #[default]
     /// Represents no movement
     Stay = 0,
 }
@@ -111,12 +117,6 @@ impl Direction {
     /// method.
     pub const fn apply_unsigned(&self, cur: usize) -> usize {
         cur.wrapping_add_signed(*self as isize)
-    }
-}
-
-impl Default for Direction {
-    fn default() -> Self {
-        Self::Stay
     }
 }
 

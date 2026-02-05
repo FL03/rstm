@@ -48,11 +48,11 @@ where
     pub const fn head_mut(&mut self) -> &mut Head<Q, A> {
         &mut self.head
     }
-    /// returns an immutable reference to the [Tail] of the [Instruction]
+    /// returns an immutable reference to the [Tail] of the [`Rule`]
     pub const fn tail(&self) -> &Tail<R, B> {
         &self.tail
     }
-    /// returns a mutable reference to the [Tail] of the [Instruction]
+    /// returns a mutable reference to the [Tail] of the [`Rule`]
     pub const fn tail_mut(&mut self) -> &mut Tail<R, B> {
         &mut self.tail
     }

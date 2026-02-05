@@ -1,5 +1,6 @@
 {
-  description = "A developmental environment for a Rust project using Nix flakes with direnv";
+  description =
+    "A developmental environment for a Rust project using Nix flakes with direnv";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -19,25 +20,24 @@
       in rec {
         packages.default = pkgs.rustPlatform.buildRustPackage {
           pname = "rstm";
-          version = "0.1.5";
+          version = "0.1.4";
           src = self; # ./.;
-          cargoLock = {
-            lockFile = ./Cargo.lock;
-          };
+          cargoLock = { lockFile = ./Cargo.lock; };
         };
 
         devShells.default = pkgs.mkShell {
           buildInputs = [
             rustToolchain
-            pkgs.cargo
-            pkgs.rust-analyzer
             pkgs.pkg-config
             pkgs.openssl
+            pkgs.cargo
+            pkgs.rust-analyzer
+            pkgs.cargo-binstall
+            pkgs.cargo-criterion
           ];
           shellHook = ''
             export CARGO_HOME=$PWD/.cargo
           '';
         };
-      }
-    );
+      });
 }

@@ -54,7 +54,8 @@ where
     pub fn into_tuple(self) -> (Direction, State<Q>, A) {
         (self.direction, self.next_state, self.write_symbol)
     }
-    /// returns the direction the [head](StdHead) is instructed to move
+    /// returns a copy of the direction the head should *shift* after writing the symbol and
+    /// updating the state.
     pub const fn direction(&self) -> Direction {
         self.direction
     }

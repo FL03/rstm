@@ -2,12 +2,14 @@
 //! generalizing cell-based memory systems in Rust.
 #![crate_type = "lib"]
 #![allow(
+    clippy::len_without_is_empty,
+    clippy::missing_docs_in_private_items,
     clippy::missing_errors_doc,
     clippy::missing_panics_doc,
     clippy::missing_safety_doc,
     clippy::module_inception,
     clippy::needless_doctest_main,
-    clippy::non_canonical_partial_ord_impl,
+    clippy::new_ret_no_self,
     clippy::should_implement_trait,
     clippy::upper_case_acronyms
 )]

@@ -3,23 +3,21 @@
     Created At: 2026.01.11:12:29:14
     Contrib: @FL03
 */
-//! the `program` module implements the core `Program` structure and its associated traits
+//! This module provides the [`ProgramBase`] implementation along with its associated aliases,
+//! supporting traits, and more.
 #[cfg(feature = "alloc")]
 #[allow(deprecated)]
-pub use self::program::ProgramO;
+pub use self::instruction_set::InstructionSet;
 #[doc(inline)]
-pub use self::{instruction_set::*, traits::*};
+pub use self::{program_base::ProgramBase, traits::*, types::*};
 
 mod instruction_set;
-mod program;
+mod program_base;
 
 mod impls {
-    mod impl_program;
-    mod impl_program_ext;
-
-    mod impl_instruction_set;
-    mod impl_instruction_set_ext;
-    mod impl_instruction_set_repr;
+    mod imp_program_base;
+    mod imp_program_base_ext;
+    mod imp_program_base_repr;
 }
 
 mod traits {
@@ -28,15 +26,17 @@ mod traits {
 
     mod ruleset;
 }
-// mod types {
-//     #[doc(inline)]
-//     pub use self::aliases::*;
 
-//     mod aliases;
-// }
+mod types {
+    #[doc(inline)]
+    pub use self::aliases::*;
+
+    mod aliases;
+}
 
 #[doc(hidden)]
 pub(crate) mod prelude {
-    pub use super::instruction_set::*;
+    pub use super::program_base::*;
     pub use super::traits::*;
+    pub use super::types::*;
 }

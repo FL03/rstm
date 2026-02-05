@@ -6,7 +6,7 @@
 use crate::rules::{Head, Instruction, InstructionMut, Rule, Tail};
 use rstm_state::{RawState, State};
 
-/// The [`RuleSet`] trait establishes an interface common to all compatible sets of rules for
+/// The [`RawRuleset`] trait establishes an interface common to all compatible sets of rules for
 /// the framework.
 pub trait RawRuleset<Q, A>
 where

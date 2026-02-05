@@ -56,6 +56,8 @@ paste = { workspace = true }
 smart-default = { workspace = true }
 strum = { workspace = true }
 # logging
+tracing = { optional = true, workspace = true }
+# wasm
 wasm-bindgen = { optional = true, workspace = true }
 
 [features]
@@ -81,6 +83,7 @@ json = [
 macros = []
 
 nightly = [
+  "rand?/nightly",
   "rspace-traits/nightly",
   "rstm-traits/nightly",
 ]
@@ -89,7 +92,9 @@ nightly = [
 std = [
   "alloc",
   "anyhow/std",
+  "bytes?/std",
   "contained/std",
+  "getrandom?/std",
   "rspace-traits/std",
   "rstm-traits/std",
   "rand?/std",
@@ -100,6 +105,8 @@ std = [
   "strum/std",
   "num-traits/std",
   "thiserror/std",
+  "tracing?/std",
+  "wasm-bindgen?/std",
 ]
 
 wasi = [
@@ -124,6 +131,7 @@ alloc = [
   "rstm-traits/alloc",
   "serde?/alloc",
   "serde_json?/alloc",
+  "wasm-bindgen?/gg-alloc",
 ]
 
 complex = [
@@ -173,6 +181,8 @@ serde = [
 ]
 
 serde_json = ["dep:serde_json"]
+
+tracing = ["dep:tracing"]
 
 wasm_bindgen = [
   "dep:wasm-bindgen",

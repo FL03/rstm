@@ -5,7 +5,7 @@
 */
 #![cfg(feature = "macros")]
 
-/// the [`s!`] macro is a simple helper macro to create a [`State`](crate::state::State)
+/// the `s!` macro is a simple helper macro to create a [`State`](crate::state::State)
 /// instance.
 #[macro_export]
 macro_rules! s {

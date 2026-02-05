@@ -17,11 +17,11 @@ where
     Q: RawState,
     H: RawState,
 {
-    /// Creates a new instance of a [HaltState] with a halted state.
+    /// Creates a new instance of a [Halt] with a halted state.
     pub const fn from_halt(state: H) -> Self {
         Self::Halt(state)
     }
-    /// Creates a new instance of a [HaltState] with a continuing state.
+    /// Creates a new instance of a [Halt] with a continuing state.
     pub const fn from_state(state: Q) -> Self {
         Self::Step(state)
     }

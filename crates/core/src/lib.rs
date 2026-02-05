@@ -3,14 +3,34 @@
     Created At: 2026.01.17:21:43:29
     Contrib: @FL03
 */
-//! this crate provides core primtives and utilities for working with Turing machines in Rust.
+//! This crate provides the core abstractions and utilities for the `rstm` framework, including
+//! common types, traits, and macros that are used across the various components of the system.
+//!
+//! ## Features
+//!
+//! - `std`: Enables features that require the Rust standard library.
+//! - `alloc`: Enables features that require the Rust `alloc` crate, allowing for dynamic
+//!   memory allocation in `no_std` environments.
+//! - `nightly`: Enables features that require a nightly Rust compiler, such as certain unstable
+//!   features or APIs.
+//!
+//! ## Overview
+//!
+//! ### Rules
+//!
+//! - [`Head`]: A structural implementation of the 2-tuple containing the current
+//!   state and symbol of the machine.
+//!
+//!
 #![allow(
+    clippy::len_without_is_empty,
+    clippy::missing_docs_in_private_items,
     clippy::missing_errors_doc,
     clippy::missing_panics_doc,
     clippy::missing_safety_doc,
     clippy::module_inception,
     clippy::needless_doctest_main,
-    clippy::non_canonical_partial_ord_impl,
+    clippy::new_ret_no_self,
     clippy::should_implement_trait,
     clippy::upper_case_acronyms
 )]
@@ -35,6 +55,8 @@ pub(crate) mod macros {
 // redeclarations
 #[doc(inline)]
 pub use rstm_state as state;
+#[doc(inline)]
+pub use rstm_traits as traits;
 // modules
 pub mod actors;
 pub mod error;
@@ -67,6 +89,7 @@ pub use rstm_state::{Halt, HaltState, Halting, HaltingState, RawState, State, St
 #[doc(hidden)]
 pub mod prelude {
     pub use rstm_state::prelude::*;
+    pub use rstm_traits::prelude::*;
 
     #[cfg(all(feature = "alloc", feature = "macros"))]
     pub use crate::program;

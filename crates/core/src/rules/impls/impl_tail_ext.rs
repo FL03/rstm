@@ -129,8 +129,8 @@ where
 {
     fn eq(&self, (other_direction, other_head): &(Direction, Head<Q, A>)) -> bool {
         &self.direction == other_direction
-            && &self.next_state == &other_head.state
-            && &self.write_symbol == &other_head.symbol
+            && self.next_state == other_head.state
+            && self.write_symbol == other_head.symbol
     }
 }
 
@@ -172,6 +172,6 @@ where
     A: PartialEq,
 {
     fn eq(&self, other: &Tail<Q, A>) -> bool {
-        &self.0 == &other.next_state && &self.1 == &other.write_symbol
+        self.0 == other.next_state && self.1 == other.write_symbol
     }
 }

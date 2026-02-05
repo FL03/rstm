@@ -6,7 +6,7 @@
 #[cfg(feature = "alloc")]
 use alloc::string::String;
 
-/// A type alias for a [`Result`](core::result::Result) that uses the custom [`Error`] type
+/// A type alias for a [`Result`](core::result::Result) that uses the custom [`StateError`] type
 pub type Result<T> = core::result::Result<T, StateError>;
 
 /// the various errors that can occur in the state module

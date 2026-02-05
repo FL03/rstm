@@ -5,7 +5,7 @@
 */
 #![cfg(feature = "macros")]
 
-/// The [`program!`] macro facilitates the creation of new [`Program`](crate::programs::Program)
+/// The `program!` macro facilitates the creation of new [`Program`](crate::programs::Program)
 /// instances using familiar syntax
 ///
 /// ```ignore

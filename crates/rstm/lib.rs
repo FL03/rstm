@@ -60,10 +60,16 @@
 //! tm.run().expect("failed to execute...");
 //! ```
 #![allow(
+    clippy::len_without_is_empty,
+    clippy::missing_docs_in_private_items,
+    clippy::missing_errors_doc,
+    clippy::missing_panics_doc,
+    clippy::missing_safety_doc,
     clippy::module_inception,
-    clippy::new_ret_no_self,
     clippy::needless_doctest_main,
-    clippy::should_implement_trait
+    clippy::new_ret_no_self,
+    clippy::should_implement_trait,
+    clippy::upper_case_acronyms
 )]
 #![cfg_attr(not(feature = "std"), no_std)]
 #![cfg_attr(all(feature = "alloc", feature = "nightly"), feature(allocator_api))]
@@ -74,20 +80,18 @@ compile_error! { "Either the `std` or `alloc` feature must be enabled to compile
 #[cfg(feature = "alloc")]
 extern crate alloc;
 #[doc(inline)]
-pub use rstm_traits as traits;
-// re-exports
-#[doc(inline)]
-pub use self::traits::*;
-#[doc(inline)]
 pub use rstm_core::*;
 #[cfg(feature = "macros")]
 pub use rstm_macros::*;
+#[cfg(feature = "tape")]
+pub use rstm_tape as tape;
+// prelude
 #[doc(hidden)]
 pub mod prelude {
-    #[doc(no_inline)]
     pub use rstm_core::prelude::*;
+    // conditionally re-exported items
     #[cfg(feature = "macros")]
     pub use rstm_macros::*;
-    #[doc(no_inline)]
-    pub use rstm_traits::prelude::*;
+    #[cfg(feature = "tape")]
+    pub use rstm_tape::prelude::*;
 }

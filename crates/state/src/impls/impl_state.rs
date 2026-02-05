@@ -167,7 +167,7 @@ impl<Q> State<Q> {
     {
         State(alloc::boxed::Box::new(self.value()))
     }
-    /// Wraps the inner value of the state with an [`Arc`] and returns a new instance of [State]
+    /// convert the state into another instance by wrapping the inner value with an [`Arc`](alloc::sync::Arc).
     pub fn shared(self) -> State<alloc::sync::Arc<Q>> {
         self.map(alloc::sync::Arc::new)
     }

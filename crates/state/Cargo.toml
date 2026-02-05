@@ -91,6 +91,7 @@ std = [
   "alloc",
   "anyhow/std",
   "contained/std",
+  "getrandom?/std",
   "rstm-traits/std",
   "rand?/std",
   "rand?/default",
@@ -100,6 +101,7 @@ std = [
   "strum/std",
   "num-traits/std",
   "thiserror/std",
+  "wasm-bindgen?/std",
 ]
 
 wasi = [
@@ -121,6 +123,7 @@ alloc = [
   "rstm-traits/alloc",
   "serde?/alloc",
   "serde_json?/alloc",
+  "wasm-bindgen?/gg-alloc",
 ]
 
 bytes = ["dep:bytes"]

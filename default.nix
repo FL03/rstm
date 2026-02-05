@@ -5,7 +5,7 @@ let
     overlays = [ (import rust-overlay) ];
   };
 
-  rustVersion = "1.88.0";
+  rustVersion = "1.91.0";
 
   wasm = "wasm32-unknown-unknown";
   wasi = "wasm32-wasip2";

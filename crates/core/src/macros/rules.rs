@@ -2,7 +2,7 @@
     Appellation: ruleset <module>
     Contrib: @FL03
 */
-/// The [`head!`] macro simplifies the creation of a [`Head`](crate::Head) struct
+/// The `head!` macro simplifies the creation of a [`Head`](crate::Head) struct
 /// by providing a concise syntax for specifying the state and symbol.
 #[macro_export]
 macro_rules! head {
@@ -13,11 +13,11 @@ macro_rules! head {
         }
     };
 }
-///! the [`tail!`] macro facilitates the creation of a [`Tail`](crate::Tail) struct
-///! by providing a concise syntax for specifying the direction, next state, and symbol to
+/// the `tail!` macro facilitates the creation of a [`Tail`](crate::Tail) struct
+/// by providing a concise syntax for specifying the direction, next state, and symbol to
 /// write. As with other macros in this module, the variants of the [`Direction`](crate::Direction)
 /// are hygenically imported based on usage, meaning one only needs to specify the variant name
-///! directly, i.e. `Left`, `Right`, or `Stay`.
+/// directly, i.e. `Left`, `Right`, or `Stay`.
 #[macro_export]
 macro_rules! tail {
     ($direction:ident, $state:expr, $symbol:expr) => {
@@ -29,7 +29,7 @@ macro_rules! tail {
     };
 }
 
-/// The [`rule!`] macro enables the definition of a single, Turing compatible rule using the
+/// The `rule!` macro enables the definition of a single, Turing compatible rule using the
 /// following syntax:
 ///
 /// ```ignore
@@ -65,9 +65,9 @@ macro_rules! rule {
         }
     };
 }
-/// [`ruleset!`] is a macro that simplifies the creation of an array of [`Rules`](crate::Rule).
+/// `ruleset!` is a macro that simplifies the creation of an array of [`Rules`](crate::Rule).
 ///
-/// The syntax follows the [`rule!`] macro, allowing for multiple rules to be defined in a
+/// The syntax follows the `rule!` macro, allowing for multiple rules to be defined in a
 /// single invocation.
 ///
 /// ```ignore

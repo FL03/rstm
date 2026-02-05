@@ -80,6 +80,7 @@ std = [
   "rspace-traits/std",
   "serde?/std",
   "thiserror/std",
+  "wasm-bindgen?/std",
 ]
 
 wasi = [
@@ -99,6 +100,7 @@ alloc = [
   "rspace-traits/alloc",
   "serde?/alloc",
   "serde_json?/alloc",
+  "wasm-bindgen?/gg-alloc",
 ]
 
 bytes = ["dep:bytes"]

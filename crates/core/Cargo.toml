@@ -52,6 +52,10 @@ thiserror = { workspace = true }
 # math
 num-complex = { optional = true, workspace = true }
 num-traits = { workspace = true }
+# random
+getrandom = { optional = true, workspace = true }
+rand = { optional = true, workspace = true }
+rand_distr = { optional = true, workspace = true }
 # serialization
 serde = { optional = true, workspace = true }
 serde_derive = { optional = true, workspace = true }
@@ -84,6 +88,7 @@ macros = [
 ]
 
 nightly = [
+  "rand?/nightly",
   "rstm-state/nightly",
   "rstm-traits/nightly",
   "rspace-traits/nightly",
@@ -102,6 +107,7 @@ std = [
   "alloc",
   "anyhow/std",
   "contained/std",
+  "getrandom?/std",
   "rstm-state/std",
   "rstm-traits/std",
   "rspace-traits/std",
@@ -110,6 +116,7 @@ std = [
   "strum/std",
   "thiserror/std",
   "tracing?/std",
+  "wasm-bindgen?/std",
 ]
 
 wasi = [
@@ -119,6 +126,8 @@ wasi = [
 ]
 
 wasm = [
+  "getrandom?/wasm_js",
+  "rayon?/web_spin_lock",
   "wasm_bindgen",
   "rstm-state/wasm",
   "rstm-traits/wasm",
@@ -129,11 +138,14 @@ wasm = [
 
 alloc = [
   "contained/alloc",
+  "rand?/alloc",
+  "rand_distr?/alloc",
   "rstm-state/alloc",
   "rstm-traits/alloc",
   "rspace-traits/alloc",
   "serde?/alloc",
   "serde_json?/alloc",
+  "wasm-bindgen?/gg-alloc",
 ]
 
 bytes = [
@@ -157,6 +169,9 @@ complex = [
 ]
 
 rand = [
+  "rng",
+  "dep:rand",
+  "dep:rand_distr",
   "rstm-state/rand",
   "rstm-traits/rand",
   "rspace-traits/rand",
@@ -170,7 +185,10 @@ rayon = [
 ]
 
 rng = [
+  "dep:getrandom",
   "rstm-state/rng",
+  "rand?/os_rng",
+  "rand?/small_rng",
 ]
 
 serde = [
@@ -179,6 +197,9 @@ serde = [
   "serde?/derive",
   "bytes?/serde",
   "hashbrown?/serde",
+  "num-complex?/serde",
+  "rand?/serde",
+  "rand_distr?/serde",
   "rstm-state/serde",
   "rstm-traits/serde",
   "rspace-traits/serde",
@@ -188,9 +209,7 @@ serde_json = [
   "dep:serde_json",
 ]
 
-tracing = [
-  "dep:tracing",
-]
+tracing = ["dep:tracing"]
 
 wasm_bindgen = [
   "dep:wasm-bindgen",

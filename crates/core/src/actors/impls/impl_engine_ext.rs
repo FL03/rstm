@@ -11,7 +11,7 @@ use crate::rules::Head;
 use rstm_state::{Halting, RawState};
 use rstm_traits::{Reader, Symbolic, TryExecute, TryStep};
 
-impl<'a, D, Q, A> Reader<A> for EngineBase<D, Q, A>
+impl<D, Q, A> Reader<A> for EngineBase<D, Q, A>
 where
     Q: RawState + PartialEq,
     A: PartialEq,
@@ -24,7 +24,7 @@ where
     }
 }
 
-impl<'a, D, Q, A, X, Y, E> TryExecute<X> for EngineBase<D, Q, A>
+impl<D, Q, A, X, Y, E> TryExecute<X> for EngineBase<D, Q, A>
 where
     Q: RawState + PartialEq,
     A: PartialEq,
@@ -102,7 +102,7 @@ where
     }
 }
 
-impl<'a, D, Q, A> Iterator for EngineBase<D, Q, A>
+impl<D, Q, A> Iterator for EngineBase<D, Q, A>
 where
     Q: 'static + Halting + RawState + Clone + PartialEq,
     A: Symbolic,

@@ -39,7 +39,7 @@ required-features = ["default", "json", "tracing"]
 [dependencies]
 rstm-core = { workspace = true }
 rstm-macros = { optional = true, workspace = true }
-rstm-traits = { workspace = true }
+rstm-tape = { optional = true, workspace = true }
 
 [dev-dependencies]
 anyhow = { features = ["std"], workspace = true }
@@ -73,13 +73,14 @@ macros = [
 ]
 
 tape = [
+  "dep:rstm-tape",
   "alloc",
 ]
 
 nightly = [
   "rstm-core/nightly",
   "rstm-macros/nightly",
-  "rstm-traits/nightly",
+  "rstm-tape?/nightly",
 ]
 
 json = [
@@ -87,78 +88,82 @@ json = [
   "serde",
   "serde_json",
   "rstm-core/json",
+  "rstm-tape?/json",
 ]
 
 # ********* [FF] Environments *********
 std = [
   "alloc",
   "rstm-core/std",
-  "rstm-traits/std",
+  "rstm-tape?/std",
 ]
 
 wasi = [
   "alloc",
   "rstm-core/wasi",
-  "rstm-traits/wasi",
+  "rstm-tape?/wasi",
 ]
 
 wasm = [
   "alloc",
   "wasm_bindgen",
   "rstm-core/wasm",
-  "rstm-traits/wasm",
+  "rstm-tape?/wasm",
 ]
 
 # ************* [FF:Dependencies] *************
 
 alloc = [
   "rstm-core/alloc",
-  "rstm-traits/alloc",
+  "rstm-tape?/alloc",
 ]
 
 bytes = [
   "rstm-core/bytes",
-  "rstm-traits/bytes",
+  "rstm-tape?/bytes",
 ]
 
 complex = [
   "rstm-core/complex",
-  "rstm-traits/complex",
+  "rstm-tape?/complex",
 ]
 
 hashbrown = [
   "rstm-core/hashbrown",
-  "rstm-traits/hashbrown",
+  "rstm-tape?/hashbrown",
 ]
 
 rand = [
   "rstm-core/rand",
-  "rstm-traits/rand",
+  "rstm-tape?/rand",
 ]
 
 rayon = [
   "rstm-core/rayon",
-  "rstm-traits/rayon",
+  "rstm-tape?/rayon",
 ]
 
 rng = [
   "rstm-core/rng",
+  "rstm-tape?/rng",
 ]
 
 serde = [
   "rstm-core/serde",
-  "rstm-traits/serde",
+  "rstm-tape?/serde",
 ]
 
 serde_json = [
   "rstm-core/serde_json",
+  "rstm-tape?/serde_json",
 ]
 
 tracing = [
-  "rstm-core/tracing",
+  "rstm-core/tracing",  
+  "rstm-tape?/tracing",
 ]
 
 wasm_bindgen = [
   "rstm-core/wasm_bindgen",
-  "rstm-traits/wasm_bindgen",
+  "rstm-tape?/wasm_bindgen",
 ]
