@@ -3,6 +3,7 @@
     Created At: 2025.09.04:19:04:56
     Contrib: @FL03
 */
+#![allow(deprecated)]
 #![cfg(feature = "alloc")]
 use crate::programs::ProgramO;
 

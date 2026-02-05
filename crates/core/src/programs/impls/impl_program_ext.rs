@@ -3,6 +3,7 @@
     Created At: 2026.01.11:13:35:13
     Contrib: @FL03
 */
+#![allow(deprecated)]
 #![cfg(feature = "alloc")]
 use crate::programs::ProgramO;
 
@@ -10,11 +11,11 @@ use crate::{Head, Rule, RuleVec, Tail};
 use alloc::vec::{self, Vec};
 use rstm_state::{RawState, State};
 
-
 impl<Q, A> ProgramO<Q, A>
 where
     Q: RawState,
-{#[cfg(feature = "serde_json")]
+{
+    #[cfg(feature = "serde_json")]
     /// serializes the current instance into a JSON string
     pub fn to_json(&self) -> serde_json::Value
     where

@@ -5,7 +5,8 @@
 */
 //! the `program` module implements the core `Program` structure and its associated traits
 #[cfg(feature = "alloc")]
-pub use self::program::Program;
+#[allow(deprecated)]
+pub use self::program::ProgramO;
 #[doc(inline)]
 pub use self::{instruction_set::*, traits::*};
 
@@ -13,8 +14,6 @@ mod instruction_set;
 mod program;
 
 mod impls {
-    mod impl_deprecated;
-
     mod impl_program;
     mod impl_program_ext;
 
@@ -39,7 +38,5 @@ mod traits {
 #[doc(hidden)]
 pub(crate) mod prelude {
     pub use super::instruction_set::*;
-    #[cfg(feature = "alloc")]
-    pub use super::program::*;
     pub use super::traits::*;
 }

@@ -3,13 +3,13 @@
     Created At: 2026.01.11:12:33:32
     Contrib: @FL03
 */
-use crate::programs::{ProgramBase, RuleSet};
+use crate::programs::{ProgramBase, RawRuleset};
 use crate::rules::Instruction;
 use rstm_state::RawState;
 
 impl<R, Q, A> core::fmt::Debug for ProgramBase<R, Q, A>
 where
-    R: RuleSet<Q, A> + core::fmt::Debug,
+    R: RawRuleset<Q, A> + core::fmt::Debug,
     Q: RawState + core::fmt::Debug,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -27,7 +27,7 @@ where
 
 impl<R, Q, A> core::fmt::Display for ProgramBase<R, Q, A>
 where
-    R: RuleSet<Q, A> + core::fmt::Debug,
+    R: RawRuleset<Q, A> + core::fmt::Debug,
     Q: RawState + core::fmt::Display,
 {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -48,7 +48,7 @@ where
     I: Iterator<Item = X>,
     Q: RawState,
     X: Instruction<Q, A>,
-    R: RuleSet<Q, A> + IntoIterator<Item = X, IntoIter = I>,
+    R: RawRuleset<Q, A> + IntoIterator<Item = X, IntoIter = I>,
 {
     type Item = R::Item;
     type IntoIter = R::IntoIter;
@@ -62,7 +62,7 @@ impl<'a, X, I, R, Q, A> IntoIterator for &'a ProgramBase<R, Q, A>
 where
     Q: RawState,
     X: 'a + Instruction<Q, A>,
-    R: RuleSet<Q, A>,
+    R: RawRuleset<Q, A>,
     I: Iterator<Item = &'a X>,
     for<'b> &'b R: IntoIterator<Item = &'b X, IntoIter = I>,
 {
@@ -78,7 +78,7 @@ impl<X, R, Q, A> FromIterator<X> for ProgramBase<R, Q, A>
 where
     Q: RawState,
     X: Instruction<Q, A>,
-    R: RuleSet<Q, A> + FromIterator<X>,
+    R: RawRuleset<Q, A> + FromIterator<X>,
 {
     fn from_iter<Iter>(iter: Iter) -> Self
     where
@@ -92,7 +92,7 @@ impl<X, R, Q, A> Extend<X> for ProgramBase<R, Q, A>
 where
     Q: RawState,
     X: Instruction<Q, A>,
-    R: RuleSet<Q, A> + Extend<X>,
+    R: RawRuleset<Q, A> + Extend<X>,
 {
     fn extend<Iter>(&mut self, iter: Iter)
     where

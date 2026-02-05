@@ -12,7 +12,8 @@ use rstm_state::RawState;
 /// The [`Executor`] trait defines the basis for compatible engines within the system.
 pub trait Executor<Q, A>
 where
-    Q: RawState,
+    Q: RawState + PartialEq,
+    A: PartialEq,
 {
     type Driver: Driver<Q, A>;
 

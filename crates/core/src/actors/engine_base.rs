@@ -12,6 +12,7 @@ use rstm_state::RawState;
 /// A type alias for an [`EngineBase`] instance configured with a _moving head_ model using
 /// the [`Head<Q, usize>`] structure to maintain the head's position on the tape.
 pub type MovingHead<Q, A> = EngineBase<Head<Q, usize>, Q, A>;
+
 /// The [`EngineBase`] implementation is designed as a type of runtime for executing various
 /// Turing machine models, or drivers, according to a specified set of rules encapsulated
 /// within a [`Program<Q, A>`].

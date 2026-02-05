@@ -13,7 +13,8 @@ use rstm_traits::{Reader, Symbolic, TryExecute, TryStep};
 
 impl<'a, D, Q, A> Reader<A> for EngineBase<D, Q, A>
 where
-    Q: RawState,
+    Q: RawState + PartialEq,
+    A: PartialEq,
     D: Driver<Q, A>,
 {
     type Error = crate::Error;
@@ -25,7 +26,8 @@ where
 
 impl<'a, D, Q, A, X, Y, E> TryExecute<X> for EngineBase<D, Q, A>
 where
-    Q: RawState,
+    Q: RawState + PartialEq,
+    A: PartialEq,
     D: Driver<Q, A> + TryExecute<X, Output = Y, Error = E>,
 {
     type Error = E;
@@ -39,7 +41,8 @@ where
 impl<D, Q, A> Executor<Q, A> for EngineBase<D, Q, A>
 where
     D: Driver<Q, A>,
-    Q: Halting + RawState,
+    Q: Halting + RawState + PartialEq,
+    A: PartialEq,
     Self: TryStep<Output = Head<Q, A>, Error = crate::Error>,
 {
     type Driver = D;
