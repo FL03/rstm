@@ -20,16 +20,16 @@ license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/FL03/rstm.git"
 rust-version = "1.91.0"
-version = "0.1.4"
+version = "0.1.5"
 
 [workspace.dependencies]
 # local
-rstm = { default-features = false, path = "crates/rstm", version = "0.1.4" }
-rstm-core = { default-features = false, path = "crates/core", version = "0.1.4" }
-rstm-macros = { default-features = false, path = "crates/macros", version = "0.1.4" }
-rstm-state = { default-features = false, path = "crates/state", version = "0.1.4" }
-rstm-tape = { default-features = false, path = "crates/tape", version = "0.1.4" }
-rstm-traits = { default-features = false, path = "crates/traits", version = "0.1.4" }
+rstm = { default-features = false, path = "crates/rstm", version = "0.1.5" }
+rstm-core = { default-features = false, path = "crates/core", version = "0.1.5" }
+rstm-macros = { default-features = false, path = "crates/macros", version = "0.1.5" }
+rstm-state = { default-features = false, path = "crates/state", version = "0.1.5" }
+rstm-tape = { default-features = false, path = "crates/tape", version = "0.1.5" }
+rstm-traits = { default-features = false, path = "crates/traits", version = "0.1.5" }
 # custom
 contained = { default-features = false, features = ["macros"], version = "0.2.3" }
 rspace-traits = { default-features = false, version = "0.0.9" }
