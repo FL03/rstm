@@ -1,0 +1,219 @@
+[package]
+build = "build.rs"
+name = "rstm-core"
+
+authors.workspace = true
+categories.workspace = true
+description.workspace = true
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+readme.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
+
+[package.metadata.docs.rs]
+all-features = false
+features = ["default"]
+rustc-args = ["--cfg", "docsrs"]
+version = "v{{version}}"
+
+[package.metadata.release]
+no-dev-version = true
+tag-name = "{{version}}"
+
+[package.metadata.component]
+package = "rstm:core"
+
+[package.metadata.component.dependencies]
+
+[lib]
+bench = false
+
+[[test]]
+name = "macros"
+required-features = ["macros"]
+
+[dependencies]
+rstm-state = { workspace = true }
+rstm-traits = { workspace = true }
+# custom
+rspace-traits = { workspace = true }
+# concurrency / parallelism
+rayon = { optional = true, workspace = true }
+# data structures
+bytes = { optional = true, workspace = true }
+hashbrown = { optional = true, workspace = true }
+# error handling
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+# math
+num-complex = { optional = true, workspace = true }
+num-traits = { workspace = true }
+# random
+getrandom = { optional = true, workspace = true }
+rand = { optional = true, workspace = true }
+rand_distr = { optional = true, workspace = true }
+# serialization
+serde = { optional = true, workspace = true }
+serde_derive = { optional = true, workspace = true }
+serde_json = { optional = true, workspace = true }
+# logging
+tracing = { optional = true, workspace = true }
+# WebAssembly
+wasm-bindgen = { optional = true, workspace = true }
+# utilities
+contained = { workspace = true }
+paste = { workspace = true }
+strum = { workspace = true }
+
+[features]
+default = ["macros", "std"]
+
+full = [
+  "default",
+  "bytes",
+  "complex",
+  "hashbrown",
+  "json",
+  "rand",
+  "serde",
+  "tracing",
+]
+
+macros = [
+  "rstm-state/macros",
+]
+
+nightly = [
+  "rand?/nightly",
+  "rstm-state/nightly",
+  "rstm-traits/nightly",
+  "rspace-traits/nightly",
+]
+
+json = [
+  "alloc",
+  "serde",
+  "serde_json",
+  "rstm-state/json",
+]
+
+# ********* [FF] Environments *********
+
+std = [
+  "alloc",
+  "anyhow/std",
+  "contained/std",
+  "getrandom?/std",
+  "rstm-state/std",
+  "rstm-traits/std",
+  "rspace-traits/std",
+  "serde?/std",
+  "serde_json?/std",
+  "strum/std",
+  "thiserror/std",
+  "tracing?/std",
+  "wasm-bindgen?/std",
+]
+
+wasi = [
+  "rstm-state/wasi",
+  "rstm-traits/wasi",
+  "rspace-traits/wasi",
+]
+
+wasm = [
+  "getrandom?/wasm_js",
+  "rayon?/web_spin_lock",
+  "wasm_bindgen",
+  "rstm-state/wasm",
+  "rstm-traits/wasm",
+  "rspace-traits/wasm",
+]
+
+# ********* [FF] Dependencies *********
+
+alloc = [
+  "contained/alloc",
+  "rand?/alloc",
+  "rand_distr?/alloc",
+  "rstm-state/alloc",
+  "rstm-traits/alloc",
+  "rspace-traits/alloc",
+  "serde?/alloc",
+  "serde_json?/alloc",
+  "wasm-bindgen?/gg-alloc",
+]
+
+bytes = [
+  "dep:bytes",
+  "rstm-state/bytes",
+  "rstm-traits/bytes",
+]
+
+hashbrown = [
+  "dep:hashbrown",
+  "rstm-state/hashbrown",
+  "rstm-traits/hashbrown",
+  "rspace-traits/hashbrown",
+]
+
+complex = [
+  "dep:num-complex",
+  "rstm-state/complex",
+  "rstm-traits/complex",
+  "rspace-traits/complex",
+]
+
+rand = [
+  "rng",
+  "dep:rand",
+  "dep:rand_distr",
+  "rstm-state/rand",
+  "rstm-traits/rand",
+  "rspace-traits/rand",
+]
+
+rayon = [
+  "dep:rayon",
+  "hashbrown?/rayon",
+  "rstm-state/rayon",
+  "rstm-traits/rayon",
+]
+
+rng = [
+  "dep:getrandom",
+  "rstm-state/rng",
+  "rand?/os_rng",
+  "rand?/small_rng",
+]
+
+serde = [
+  "dep:serde",
+  "dep:serde_derive",
+  "serde?/derive",
+  "bytes?/serde",
+  "hashbrown?/serde",
+  "num-complex?/serde",
+  "rand?/serde",
+  "rand_distr?/serde",
+  "rstm-state/serde",
+  "rstm-traits/serde",
+  "rspace-traits/serde",
+]
+
+serde_json = [
+  "dep:serde_json",
+]
+
+tracing = ["dep:tracing"]
+
+wasm_bindgen = [
+  "dep:wasm-bindgen",
+  "rstm-state/wasm_bindgen",
+  "rstm-traits/wasm_bindgen",
+  "rspace-traits/wasm_bindgen",
+]

@@ -5,14 +5,15 @@ let
     overlays = [ (import rust-overlay) ];
   };
 
-  rustVersion = "1.85.0";
-  wasmUnknownUknown = "wasm32-unknown-unknown";
-  wasm32Wasi = "wasm32-wasi";
+  rustVersion = "1.91.0";
+
+  wasm = "wasm32-unknown-unknown";
+  wasi = "wasm32-wasip2";
 
   rustDefaultTarget = rustPkgs.rust-bin.stable.${rustVersion}.default;
 
   rustWithWasmTarget = rustPkgs.rust-bin.nightly.${rustVersion}.default.override {
-    targets = [ wasmUnknownUknown ];
+    targets = [ wasm ];
   };
 
   rustPlatform = makeRustPlatform {
@@ -26,7 +27,7 @@ let
   };
 
   common = {
-    version = "0.1.3";
+    version = "0.1.4";
     src = self;
 
     cargoLock = {

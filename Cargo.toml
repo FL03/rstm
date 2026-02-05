@@ -1,20 +1,12 @@
 [workspace]
-default-members = ["rstm"]
+default-members = ["crates/rstm"]
 members = [
-  "rstm",
-  "core",
-  "macros",
-  "state",
-  "tape",
-  "traits", 
+  "crates/*"
 ]
 resolver = "3"
 
 [workspace.package]
-authors = [
-  "FL03 <joe@pzzld.org>",
-  "Scattered-Systems <support@scsys.io>",
-]
+authors = ["FL03 <joe@pzzld.org> (https://github.com/FL03)"]
 categories = [
   "mathematics",
   "science",
@@ -23,21 +15,21 @@ categories = [
 description = "This crate focuses on building concrete implementations for Turing Machines."
 edition = "2024"
 homepage = "https://github.com/FL03/rstm/wiki"
-keywords = ["turing", "turing-machine", "utm"]
+keywords = ["turing machine", "tm", "fsm", "computation"]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/FL03/rstm.git"
-rust-version = "1.85.0"
-version = "0.1.3"
+rust-version = "1.91.0"
+version = "0.1.4"
 
 [workspace.dependencies]
 # local
-rstm = { default-features = false, path = "rstm", version = "0.1.3" }
-rstm-core = { default-features = false, path = "core", version = "0.1.3" }
-rstm-macros = { default-features = false, path = "macros", version = "0.1.3" }
-rstm-state = { default-features = false, path = "state", version = "0.1.3" }
-rstm-tape = { default-features = false, path = "tape", version = "0.1.3" }
-rstm-traits = { default-features = false, path = "traits", version = "0.1.3" }
+rstm = { default-features = false, path = "crates/rstm", version = "0.1.4" }
+rstm-core = { default-features = false, path = "crates/core", version = "0.1.4" }
+rstm-macros = { default-features = false, path = "crates/macros", version = "0.1.4" }
+rstm-state = { default-features = false, path = "crates/state", version = "0.1.4" }
+rstm-tape = { default-features = false, path = "crates/tape", version = "0.1.4" }
+rstm-traits = { default-features = false, path = "crates/traits", version = "0.1.4" }
 # custom
 contained = { default-features = false, features = ["macros"], version = "0.2.3" }
 rspace-traits = { default-features = false, version = "0.0.9" }
@@ -60,7 +52,7 @@ num-complex = { default-features = false, version = "0.4" }
 num-integer = { default-features = false, version = "0.1" }
 num-traits = { default-features = false, version = "0.2" }
 # random
-getrandom = { default-features = false, version = "0.3" }
+getrandom = { default-features = false, version = "0.4" }
 rand = { default-features = false, version = "0.9" }
 rand_distr = { default-features = false, version = "0.5" }
 # serialization
@@ -74,6 +66,7 @@ smart-default = { version = "0.7" }
 strum = { default-features = false, features = ["derive"], version = "0.27" }
 # logging
 tracing = { default-features = false, features = ["attributes"], version = "0.1" }
+tracing-subscriber = { features = ["env-filter", "fmt",], version = "0.3" }
 # WebAssembly
 wasm-bindgen = { default-features = false, version = "0.2" }
 
