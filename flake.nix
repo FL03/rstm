@@ -20,7 +20,7 @@
       in rec {
         packages.default = pkgs.rustPlatform.buildRustPackage {
           pname = "rstm";
-          version = "0.1.5";
+          version = "0.1.6";
           src = self; # ./.;
           cargoLock = { lockFile = ./Cargo.lock; };
         };
