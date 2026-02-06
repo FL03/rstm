@@ -107,12 +107,24 @@ where
     {
         self.rules().get(head)
     }
-
+    /// given a state and symbol, returns the corresponding tail if it exists within the 
+    /// ruleset
     pub fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>>
     where
         R: Ruleset<Q, A>,
         R::Rule: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
     {
         self.rules().find_tail(state, sym)
+    }
+    /// returns the number of rules within the ruleset
+    pub fn len(&self) -> usize
+    {
+        self.rules().len()
+    }
+    /// returns true if the ruleset is considered empty (i.e. contains no rules), 
+    /// otherwise false.
+    pub fn is_empty(&self) -> bool
+    {
+        self.rules().is_empty()
     }
 }

@@ -15,6 +15,12 @@ where
     type Rule: Instruction<Q, A>;
 
     private! {}
+
+    fn len(&self) -> usize;
+
+    fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 pub trait Ruleset<Q, A>: RawRuleset<Q, A>
@@ -22,9 +28,14 @@ where
     Q: RawState,
     Self::Rule: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
 {
-    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>>;
 
     fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>>;
+    
+    fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>>;
+
+    fn find_head(&self, Head { state, symbol }: Head<&Q, &A>) -> Option<&Tail<Q, A>> {
+        self.find_tail(state, symbol)
+    }
 }
 
 pub trait RuleSetMut<Q, A>: RawRuleset<Q, A>
@@ -47,6 +58,10 @@ where
     type Rule = R::Rule;
 
     seal! {}
+
+    fn len(&self) -> usize {
+        (*self).len()
+    }
 }
 
 macro_rules! get_tail {
@@ -81,6 +96,14 @@ where
     type Rule = I;
 
     seal! {}
+
+    fn len(&self) -> usize {
+        <[I]>::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        <[I]>::is_empty(self)
+    }
 }
 
 impl<I, Q, A> Ruleset<Q, A> for [I]
@@ -105,6 +128,14 @@ where
     type Rule = I;
 
     seal! {}
+
+    fn len(&self) -> usize {
+        <[I]>::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        <[I]>::is_empty(self)
+    }
 }
 
 impl<I, Q, A> Ruleset<Q, A> for &[I]
@@ -130,6 +161,14 @@ where
     type Rule = I;
 
     seal! {}
+
+    fn len(&self) -> usize {
+        <[I]>::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        <[I]>::is_empty(self)
+    }
 }
 
 impl<I, Q, A> Ruleset<Q, A> for &mut [I]
@@ -172,6 +211,14 @@ where
     type Rule = I;
 
     seal! {}
+
+    fn len(&self) -> usize {
+        <[I]>::len(self)
+    }
+
+    fn is_empty(&self) -> bool {
+        <[I]>::is_empty(self)
+    }
 }
 
 impl<const N: usize, I, Q, A> Ruleset<Q, A> for [I; N]
@@ -205,6 +252,14 @@ mod impl_alloc {
         type Rule = I;
 
         seal! {}
+
+        fn len(&self) -> usize {
+            <Vec<I>>::len(self)
+        }
+
+        fn is_empty(&self) -> bool {
+            <Vec<I>>::is_empty(self)
+        }
     }
 
     impl<I, Q, A> Ruleset<Q, A> for Vec<I>
@@ -228,7 +283,16 @@ mod impl_alloc {
         I: Instruction<Q, A>,
     {
         type Rule = I;
+
         seal! {}
+
+        fn len(&self) -> usize {
+            <BTreeSet<I>>::len(self)
+        }
+
+        fn is_empty(&self) -> bool {
+            <BTreeSet<I>>::is_empty(self)
+        }
     }
 
     impl<I, Q, A> Ruleset<Q, A> for BTreeSet<I>
@@ -254,7 +318,16 @@ mod impl_alloc {
         type Rule = Rule<Q, A>;
 
         seal! {}
+
+        fn len(&self) -> usize {
+            <BTreeMap<Head<Q, A>, Tail<Q, A>>>::len(self)
+        }
+
+        fn is_empty(&self) -> bool {
+            <BTreeMap<Head<Q, A>, Tail<Q, A>>>::is_empty(self)
+        }
     }
+
     impl<Q, A> Ruleset<Q, A> for BTreeMap<Head<Q, A>, Tail<Q, A>>
     where
         Q: RawState + Ord,
@@ -282,14 +355,23 @@ mod impl_hashbrown {
     use core::hash::Hash;
     use hashbrown::{HashMap, HashSet};
 
-    impl<Q, A> RawRuleset<Q, A> for HashSet<Rule<Q, A>>
+    impl<I, Q, A> RawRuleset<Q, A> for HashSet<I>
     where
+        I: Instruction<Q, A>,
         Q: RawState + Eq + Hash,
         A: Eq + Hash,
     {
         type Rule = Rule<Q, A>;
 
         seal! {}
+
+        fn len(&self) -> usize {
+            <HashSet<I>>::len(self)
+        }
+
+        fn is_empty(&self) -> bool {
+            <HashSet<I>>::is_empty(self)
+        }
     }
 
     impl<Q, A> Ruleset<Q, A> for HashSet<Rule<Q, A>>
@@ -314,6 +396,14 @@ mod impl_hashbrown {
         type Rule = Rule<Q, A>;
 
         seal! {}
+
+        fn len(&self) -> usize {
+            <HashMap<Head<Q, A>, Tail<Q, A>>>::len(self)
+        }
+
+        fn is_empty(&self) -> bool {
+            <HashMap<Head<Q, A>, Tail<Q, A>>>::is_empty(self)
+        }
     }
 
     impl<Q, A> Ruleset<Q, A> for HashMap<Head<Q, A>, Tail<Q, A>>
@@ -343,14 +433,23 @@ mod impl_std {
     use core::hash::Hash;
     use std::collections::{HashMap, HashSet};
 
-    impl<Q, A> RawRuleset<Q, A> for HashSet<Rule<Q, A>>
+    impl<I, Q, A> RawRuleset<Q, A> for HashSet<I>
     where
+        I: Instruction<Q, A>,
         Q: RawState + Eq + Hash,
         A: Eq + Hash,
     {
         type Rule = Rule<Q, A>;
 
         seal! {}
+
+        fn len(&self) -> usize {
+            <HashSet<I>>::len(self)
+        }
+
+        fn is_empty(&self) -> bool {
+            <HashSet<I>>::is_empty(self)
+        }
     }
 
     impl<Q, A> Ruleset<Q, A> for HashSet<Rule<Q, A>>
@@ -375,6 +474,14 @@ mod impl_std {
         type Rule = Rule<Q, A>;
 
         seal! {}
+
+        fn len(&self) -> usize {
+            <HashMap<Head<Q, A>, Tail<Q, A>>>::len(self)
+        }
+
+        fn is_empty(&self) -> bool {
+            <HashMap<Head<Q, A>, Tail<Q, A>>>::is_empty(self)
+        }
     }
 
     impl<Q, A> Ruleset<Q, A> for HashMap<Head<Q, A>, Tail<Q, A>>
