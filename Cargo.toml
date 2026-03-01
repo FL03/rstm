@@ -63,7 +63,7 @@ serde_json = { default-features = false, version = "1" }
 lazy_static = { version = "1" }
 paste = { version = "1" }
 smart-default = { version = "0.7" }
-strum = { default-features = false, features = ["derive"], version = "0.27" }
+strum = { default-features = false, features = ["derive"], version = "0.28" }
 # logging
 tracing = { default-features = false, features = ["attributes"], version = "0.1" }
 tracing-subscriber = { features = ["env-filter", "fmt",], version = "0.3" }
