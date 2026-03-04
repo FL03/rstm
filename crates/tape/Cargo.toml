@@ -28,6 +28,7 @@ tag-name = "{{version}}"
 bench = false
 
 [dependencies]
+rstm-state = { workspace = true }
 rstm-traits = { workspace = true }
 # custom
 contained = { workspace = true }
@@ -61,7 +62,10 @@ tracing = { optional = true, workspace = true }
 wasm-bindgen = { optional = true, workspace = true }
 
 [features]
-default = ["macros", "std"]
+default = [
+  "macros",
+  "std",
+]
 
 full = [
   "default",
@@ -80,11 +84,13 @@ json = [
   "serde_json",
 ]
 
-macros = []
+macros = [
+  "rstm-state/macros",
+]
 
 nightly = [
-  "rand?/nightly",
   "rspace-traits/nightly",
+  "rstm-state/nightly",
   "rstm-traits/nightly",
 ]
 
@@ -96,6 +102,7 @@ std = [
   "contained/std",
   "getrandom?/std",
   "rspace-traits/std",
+  "rstm-state/std",
   "rstm-traits/std",
   "rand?/std",
   "rand?/default",
@@ -110,15 +117,19 @@ std = [
 ]
 
 wasi = [
+  "alloc",
   "rspace-traits/wasi",
+  "rstm-state/wasi",
   "rstm-traits/wasi",
 ]
 
 wasm = [
+  "alloc",
   "wasm_bindgen",
   "getrandom?/wasm_js",
   "rayon?/web_spin_lock",
   "rspace-traits/wasm",
+  "rstm-state/wasm",
   "rstm-traits/wasm",
 ]
 
@@ -137,12 +148,14 @@ alloc = [
 complex = [
   "dep:num-complex",
   "rspace-traits/complex",
+  "rstm-state/complex",
   "rstm-traits/complex",
 ]
 
 hashbrown = [
   "dep:hashbrown",
   "rspace-traits/hashbrown",
+  "rstm-state/hashbrown",
   "rstm-traits/hashbrown",
 ]
 
@@ -151,6 +164,7 @@ rand = [
   "dep:rand_distr",
   "rng",
   "rspace-traits/rand",
+  "rstm-state/rand",
   "rstm-traits/rand",
   "num-complex?/rand",
 ]
@@ -164,7 +178,9 @@ rayon = [
 
 rng = [
   "dep:getrandom",
-  "rand?/os_rng",
+  "getrandom?/sys_rng",
+  "rand?/sys_rng",
+  "rstm-state/rng",
 ]
 
 serde = [
@@ -177,15 +193,23 @@ serde = [
   "rand?/serde",
   "rand_distr?/serde",
   "rspace-traits/serde",
+  "rstm-state/serde",
   "rstm-traits/serde",
 ]
 
-serde_json = ["dep:serde_json"]
+serde_json = [
+  "dep:serde_json",
+  "rstm-state/serde_json",
+]
 
-tracing = ["dep:tracing"]
+tracing = [
+  "dep:tracing",
+  "rstm-state/tracing",
+]
 
 wasm_bindgen = [
   "dep:wasm-bindgen",
   "rspace-traits/wasm_bindgen",
+  "rstm-state/wasm_bindgen",
   "rstm-traits/wasm_bindgen",
 ]
