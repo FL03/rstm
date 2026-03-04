@@ -11,7 +11,7 @@ pub fn impl_rule(rule: &RuleAst) -> TokenStream {
     handle_rule(rule)
 }
 
-fn handle_rule(
+pub fn handle_rule(
     RuleAst {
         head: HeadAst { state, symbol, .. },
         tail:

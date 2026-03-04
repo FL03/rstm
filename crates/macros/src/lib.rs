@@ -6,32 +6,11 @@
 //! procedural macros for interacting with various wrappers
 extern crate proc_macro;
 
-mod ast {
-    pub use self::{fsm_ast::*, rule_ast::*};
+pub(crate) mod ast;
+pub(crate) mod impls;
+pub(crate) mod keywords;
 
-    mod fsm_ast;
-    mod rule_ast;
-}
-
-mod impls {
-    pub use self::{fsm::impl_wrapper_binary_ops, rule::impl_rule};
-
-    pub mod fsm;
-    pub mod rule;
-}
-
-pub(crate) mod keywords {
-    syn::custom_keyword! { direction }
-    syn::custom_keyword! { state }
-    syn::custom_keyword! { symbol }
-
-    syn::custom_keyword! { head }
-    syn::custom_keyword! { tail }
-
-    syn::custom_keyword! { rule }
-}
-
-use crate::ast::{FiniteStateMachineAst, RuleAst};
+use self::ast::{FiniteStateMachineAst, RuleAst};
 use proc_macro::TokenStream;
 use syn::parse_macro_input;
 
@@ -52,8 +31,8 @@ pub fn ruler(input: TokenStream) -> TokenStream {
 ///
 /// ```
 #[proc_macro]
-pub fn fsm(input: TokenStream) -> TokenStream {
+pub fn tmh(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as FiniteStateMachineAst);
-    let output = impls::impl_wrapper_binary_ops(ast);
+    let output = impls::impl_fsm(&ast);
     output.into()
 }

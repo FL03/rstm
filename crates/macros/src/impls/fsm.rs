@@ -1,53 +1,44 @@
 /*
-    appellation: impl_binary <module>
+    appellation: fsm <module>
     authors: @FL03
 */
-use crate::ast::{FiniteStateMachineAst, HeadAst, RuleAst, TailAst};
+use crate::ast::{FiniteStateMachineAst, RulesBlockAst};
+use crate::impls::rule::handle_rule;
 use proc_macro2::TokenStream;
 use quote::quote;
 
-/// Procedural macro entry point
-pub fn impl_wrapper_binary_ops(input: FiniteStateMachineAst) -> TokenStream {
-    let rules = generate_rules(&input);
-
-    quote! {
-        #(#rules)*
-    }
-}
-
-fn generate_rules(FiniteStateMachineAst { ops, .. }: &FiniteStateMachineAst) -> Vec<TokenStream> {
-    let mut impls = Vec::new();
-    for rule in ops {
-        let _impl = handle_rule(rule);
-        impls.push(_impl);
-    }
-    impls
-}
-
-fn handle_rule(
-    RuleAst {
-        head: HeadAst { state, symbol, .. },
-        tail:
-            TailAst {
-                direction,
-                next_state,
-                next_symbol,
-                ..
-            },
+/// Generates a block expression that builds and returns an initialized
+/// `MovingHead` instance from the declared rules and optional default state.
+///
+/// Types (state `Q` and symbol `A`) are inferred by the compiler from the
+/// literal values present in the rule expressions, avoiding the need for
+/// explicit type annotations.
+pub fn impl_fsm(input: &FiniteStateMachineAst) -> TokenStream {
+    let FiniteStateMachineAst {
+        default_state,
+        rules,
         ..
-    }: &RuleAst,
-) -> TokenStream {
+    } = input;
+
+    let rules_stream = generate_rules(rules);
+
+    // generate the optional `.with_default_state(...)` call
+    let with_state = default_state.as_ref().map(|ds| {
+        let state = &ds.state;
+        quote! { .with_default_state(#state) }
+    });
+
     quote! {
-        rstm::Rule {
-            head: rstm::Head {
-                state: rstm::State(#state),
-                symbol: #symbol,
-            },
-            tail: rstm::Tail {
-                new_state: rstm::State(#next_state),
-                new_symbol: #next_symbol,
-                direction: rstm::Direction::#direction,
-            }
-        }
+        rstm::MovingHead::tmh(
+            rstm::Program::from_iter([
+                #(#rules_stream),*
+            ])
+            #with_state
+        )
     }
 }
+
+fn generate_rules(rules: &RulesBlockAst) -> Vec<TokenStream> {
+    rules.rules.iter().map(handle_rule).collect()
+}
+

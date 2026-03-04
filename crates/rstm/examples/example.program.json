@@ -1,45 +1,46 @@
 {
   "initial_state": 0,
+  "_marker": null,
   "rules": [
     {
       "state": 0,
       "symbol": 0,
-      "direction": "Right",
+      "direction": null,
       "next_state": 1,
       "write_symbol": 0
     },
     {
       "state": 0,
       "symbol": 1,
-      "direction": "Left",
+      "direction": null,
       "next_state": -1,
       "write_symbol": 1
     },
     {
       "state": 1,
       "symbol": 0,
-      "direction": "Right",
+      "direction": null,
       "next_state": 1,
       "write_symbol": 1
     },
     {
       "state": 1,
       "symbol": 1,
-      "direction": "Right",
+      "direction": null,
       "next_state": 0,
       "write_symbol": 0
     },
     {
       "state": -1,
       "symbol": 0,
-      "direction": "Left",
+      "direction": null,
       "next_state": 9223372036854775807,
       "write_symbol": 0
     },
     {
       "state": -1,
       "symbol": 1,
-      "direction": "Left",
+      "direction": null,
       "next_state": -1,
       "write_symbol": 0
     }

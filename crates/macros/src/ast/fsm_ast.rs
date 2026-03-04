@@ -1,77 +1,85 @@
 /*
-    appellation: ops <module>
+    appellation: fsm_ast <module>
     authors: @FL03
 */
-use super::RuleAst;
+use crate::ast::RulesBlockAst;
 use syn::parse::{Parse, ParseStream};
-use syn::punctuated::Punctuated;
-use syn::token::Impl;
-use syn::{AngleBracketedGenericArguments, Ident, Token, WhereClause, braced};
+use syn::{Expr, Token};
 
-fn _parse_ops(input: ParseStream) -> syn::Result<Punctuated<RuleAst, Token![,]>> {
-    // parse the operations defined within braces
-    let content;
-    let _ = braced! { content in input };
-    Punctuated::parse_terminated(&content)
+/// Parses: `default_state: <expr>;`
+pub struct DefaultStateFieldAst {
+    #[allow(dead_code)]
+    pub key: crate::keywords::default_state,
+    #[allow(dead_code)]
+    pub colon: Token![:],
+    pub state: Expr,
+    #[allow(dead_code)]
+    pub semi: Option<Token![;]>,
 }
 
-#[allow(dead_code)]
-/// The abstract syntax tree for the `fsm!` procedural macro
+
+
+/// The abstract syntax tree for the `fsm!` procedural macro.
+///
+/// Syntax:
+/// ```ignore
+/// fsm! {
+///     default_state: <expr>;
+///     rules: {
+///         (state, symbol) -> Direction(next_state, next_symbol),
+///         ...
+///     };
+/// }
+/// ```
 pub struct FiniteStateMachineAst {
-    pub impl_token: Impl,
-    pub generics: Option<AngleBracketedGenericArguments>,
-    pub target: Ident,
-    pub field: Option<Ident>,
-    pub where_clause: Option<WhereClause>,
-    pub ops: Punctuated<RuleAst, Token![,]>,
+    pub default_state: Option<DefaultStateFieldAst>,
+    pub rules: RulesBlockAst,
 }
 
 /*
  ************* Implementations *************
 */
 
-impl Parse for FiniteStateMachineAst {
+impl Parse for DefaultStateFieldAst {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        // parse the `impl` keyword
-        let impl_token = input.parse::<Impl>()?;
-        // detect any generic parameters
-        let generics = if input.peek(Token![<]) {
-            input.parse().ok()
-        } else {
-            None
-        };
-        let target = input.parse::<Ident>()?;
-        // resolve the optional named field
-        let field = if input.peek(Token![.]) {
-            input.parse::<Token![.]>()?;
+        let key = input.parse()?;
+        let colon = input.parse()?;
+        let state = input.parse()?;
+        // optionally consume a trailing semicolon after the default state declaration
+        let semi = if input.peek(Token![;]) {
             Some(input.parse()?)
         } else {
             None
         };
-        // parse the optional where clause
-        let where_clause = if input.peek(Token![where]) {
-            Some(input.parse()?)
-        } else {
-            None
-        };
-        // parse the operations block
-        let content;
-        let _ = braced! { content in input };
-        let mut ops = Punctuated::new();
-        while !content.is_empty() {
-            ops.push(content.parse::<RuleAst>()?);
-            if content.peek(Token![,]) {
-                content.parse::<Token![,]>()?;
-            }
-        }
-
         Ok(Self {
-            impl_token,
-            generics,
-            target,
-            field,
-            where_clause,
-            ops,
+            key,
+            colon,
+            state,
+            semi, // optional semicolon, consume if present
         })
     }
+}
+
+impl Parse for FiniteStateMachineAst {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        // optionally parse `default_state: <expr>;`
+        let default_state = if input.peek(crate::keywords::default_state) {
+            Some(input.parse::<DefaultStateFieldAst>()?)
+        } else {
+            None
+        };
+        // parse the required `rules: { ... }` block
+        let rules = input.parse::<RulesBlockAst>()?;
+        Ok(Self {
+            default_state,
+            rules,
+        })
+    }
+}
+
+fn _parse_default_state(input: ParseStream) -> Option<DefaultStateFieldAst> {
+    if input.peek(Token![#]) && input.peek3(crate::keywords::default_state) {
+        return input.parse::<DefaultStateFieldAst>().ok();
+    }
+    None
 }
