@@ -27,7 +27,9 @@ fn main() -> rstm::Result<()> {
         }
     };
     // optionally, export the program to a JSON file
-    fsm.program().expect("Failed to get program").export_json("./crates/rstm/examples/example.program.json")?;
+    fsm.program()
+        .expect("Failed to get program")
+        .export_json("./crates/rstm/examples/example.program.json")?;
     // create a new instance of the machine
     // let mut tm = MovingHead::tmh(program);
     // load the input into the machine tape

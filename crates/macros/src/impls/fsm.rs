@@ -41,4 +41,3 @@ pub fn impl_fsm(input: &FiniteStateMachineAst) -> TokenStream {
 fn generate_rules(rules: &RulesBlockAst) -> Vec<TokenStream> {
     rules.rules.iter().map(handle_rule).collect()
 }
-

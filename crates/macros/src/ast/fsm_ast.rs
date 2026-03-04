@@ -17,8 +17,6 @@ pub struct DefaultStateFieldAst {
     pub semi: Option<Token![;]>,
 }
 
-
-
 /// The abstract syntax tree for the `fsm!` procedural macro.
 ///
 /// Syntax:

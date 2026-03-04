@@ -191,7 +191,7 @@ where
     {
         let path = path.as_ref();
         // ensure the filename ends with `.json`
-        if path.extension().map(|os| os.to_str()).flatten() != Some("json") {
+        if path.extension().and_then(|os| os.to_str()) != Some("json") {
             #[cfg(feature = "tracing")]
             tracing::error!(
                 "the provided path does not end with `.json`; consider changing the file extension"
