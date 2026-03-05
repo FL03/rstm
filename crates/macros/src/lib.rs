@@ -10,28 +10,25 @@ pub(crate) mod ast;
 pub(crate) mod impls;
 pub(crate) mod keywords;
 
-use self::ast::{FiniteStateMachineAst, RuleAst};
+use self::ast::FiniteStateMachineAst;
 use proc_macro::TokenStream;
 use syn::parse_macro_input;
 
-/// The [`ruler!`] generates a finite state machine implementation
-///
-/// ```no_run
-/// ruler![(0, 'a') -> Right(1i8, 'b')];
-/// ```
-#[proc_macro]
-pub fn ruler(input: TokenStream) -> TokenStream {
-    let ast = parse_macro_input!(input as RuleAst);
-    let output = impls::impl_rule(&ast);
-    output.into()
-}
 /// The [`fsm!`] generates a finite state machine implementation
 ///
-/// ```rust
+/// ## Syntax
 ///
+/// ```no_run
+/// fsm! {
+///     default_state: 0; // optional
+///     rules: {
+///      (state, symbol) -> Direction(next_state, next_symbol),
+///         ...
+///     };
+/// }
 /// ```
 #[proc_macro]
-pub fn tmh(input: TokenStream) -> TokenStream {
+pub fn fsm(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as FiniteStateMachineAst);
     let output = impls::impl_fsm(&ast);
     output.into()

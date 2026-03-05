@@ -4,7 +4,7 @@
     Contrib: @FL03
 */
 #[doc(inline)]
-pub use self::{fsm::impl_fsm, rule::impl_rule};
+#[allow(unused_imports)]
+pub use self::fsm::impl_fsm;
 
 pub mod fsm;
-pub mod rule;

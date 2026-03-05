@@ -14,10 +14,10 @@ fn main() -> rstm::Result<()> {
         .init();
     // define some input for the machine
     let input = [0, 0, 0, 0, 1, 0, 1, 1, 0, 1];
-    // initialize the machine using the `fsm!` macro
-    let mut fsm = rstm::tmh! {
-        default_state: 0isize;
-        rules: {
+    // initialize the machine using the `tmh!` macro
+    let mut tmh = rstm::tmh! {
+        #[default_state(0isize)]
+        program {
             (0, 0) -> Right(1, 0),
             (0, 1) -> Left(-1, 1),
             (1, 0) -> Right(1, 1),
@@ -27,13 +27,11 @@ fn main() -> rstm::Result<()> {
         }
     };
     // optionally, export the program to a JSON file
-    fsm.program()
+    tmh.program()
         .expect("Failed to get program")
         .export_json("./crates/rstm/examples/example.program.json")?;
-    // create a new instance of the machine
-    // let mut tm = MovingHead::tmh(program);
     // load the input into the machine tape
-    fsm.extend_tape(input);
+    tmh.extend_tape(input);
     // execute the program
-    fsm.run()
+    tmh.run()
 }

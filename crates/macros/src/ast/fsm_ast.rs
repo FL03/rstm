@@ -2,7 +2,7 @@
     appellation: fsm_ast <module>
     authors: @FL03
 */
-use crate::ast::RulesBlockAst;
+use crate::ast::RuleBlockAst;
 use syn::parse::{Parse, ParseStream};
 use syn::{Expr, Token};
 
@@ -20,7 +20,7 @@ pub struct DefaultStateFieldAst {
 /// The abstract syntax tree for the `fsm!` procedural macro.
 ///
 /// Syntax:
-/// ```ignore
+/// ```no_run
 /// fsm! {
 ///     default_state: <expr>;
 ///     rules: {
@@ -31,7 +31,7 @@ pub struct DefaultStateFieldAst {
 /// ```
 pub struct FiniteStateMachineAst {
     pub default_state: Option<DefaultStateFieldAst>,
-    pub rules: RulesBlockAst,
+    pub rules: RuleBlockAst,
 }
 
 /*
@@ -67,7 +67,7 @@ impl Parse for FiniteStateMachineAst {
             None
         };
         // parse the required `rules: { ... }` block
-        let rules = input.parse::<RulesBlockAst>()?;
+        let rules = input.parse::<RuleBlockAst>()?;
         Ok(Self {
             default_state,
             rules,

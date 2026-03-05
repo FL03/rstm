@@ -41,7 +41,7 @@ pub struct RuleAst {
     pub tail: TailAst,
 }
 
-pub struct RulesBlockAst {
+pub struct RuleBlockAst {
     #[allow(dead_code)]
     pub key: crate::keywords::rules,
     #[allow(dead_code)]
@@ -131,7 +131,7 @@ impl Parse for RuleAst {
     }
 }
 
-impl Parse for RulesBlockAst {
+impl Parse for RuleBlockAst {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let key = input.parse::<crate::keywords::rules>()?;
         let colon = input.parse::<Token![:]>()?;

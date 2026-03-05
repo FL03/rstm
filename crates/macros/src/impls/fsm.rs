@@ -2,8 +2,7 @@
     appellation: fsm <module>
     authors: @FL03
 */
-use crate::ast::{FiniteStateMachineAst, RulesBlockAst};
-use crate::impls::rule::handle_rule;
+use crate::ast::{FiniteStateMachineAst, HeadAst, RuleAst, RuleBlockAst, TailAst};
 use proc_macro2::TokenStream;
 use quote::quote;
 
@@ -19,9 +18,8 @@ pub fn impl_fsm(input: &FiniteStateMachineAst) -> TokenStream {
         rules,
         ..
     } = input;
-
-    let rules_stream = generate_rules(rules);
-
+    // convert the rules into token streams
+    let rules_stream = handle_rule_block(rules);
     // generate the optional `.with_default_state(...)` call
     let with_state = default_state.as_ref().map(|ds| {
         let state = &ds.state;
@@ -30,14 +28,37 @@ pub fn impl_fsm(input: &FiniteStateMachineAst) -> TokenStream {
 
     quote! {
         rstm::MovingHead::tmh(
-            rstm::Program::from_iter([
-                #(#rules_stream),*
-            ])
-            #with_state
+            rstm::Program::from_iter([#(#rules_stream),*]) #with_state
         )
     }
 }
 
-fn generate_rules(rules: &RulesBlockAst) -> Vec<TokenStream> {
-    rules.rules.iter().map(handle_rule).collect()
+fn handle_rule_block(RuleBlockAst { rules, .. }: &RuleBlockAst) -> Vec<TokenStream> {
+    rules.into_iter().map(handle_rule).collect()
+}
+
+fn handle_rule(
+    RuleAst {
+        head: HeadAst { state, symbol, .. },
+        tail:
+            TailAst {
+                direction,
+                next_state,
+                next_symbol,
+                ..
+            },
+        ..
+    }: &RuleAst,
+) -> TokenStream {
+    // create a rule
+    quote! {
+        rstm::Rule {
+            head: rstm::Head { state: #state, symbol: #symbol },
+            tail: rstm::Tail {
+                direction: rstm::Direction::#direction,
+                next_state: #next_state,
+                write_symbol: #next_symbol,
+            }
+        }
+    }
 }

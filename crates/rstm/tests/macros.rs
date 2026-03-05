@@ -19,7 +19,7 @@ fn test_ruler_macro() {
 
 #[test]
 fn test_macro_tmh() {
-    let _fsm = rstm::tmh! {
+    let _fsm = rstm::fsm! {
         default_state: 0;
         rules: {
             (0, ' ') -> Right(1u8, 'a'),
