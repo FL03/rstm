@@ -5,6 +5,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
 on:
+  release:
+    types: [published]
   repository_dispatch:
     types: [crates-io, cargo-publish]
   workflow_dispatch:
@@ -20,7 +22,9 @@ permissions:
 jobs:
   crates-io:
     runs-on: ubuntu-latest
-    environment: crates-io
+    environment:
+      name: crates-io
+      url: https://crates.io/crates/${{ matrix.package }}
     strategy:
       fail-fast: false
       max-parallel: 1

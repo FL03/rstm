@@ -20,16 +20,16 @@ license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/FL03/rstm.git"
 rust-version = "1.91.0"
-version = "0.1.5"
+version = "0.1.6"
 
 [workspace.dependencies]
 # local
-rstm = { default-features = false, path = "crates/rstm", version = "0.1.5" }
-rstm-core = { default-features = false, path = "crates/core", version = "0.1.5" }
-rstm-macros = { default-features = false, path = "crates/macros", version = "0.1.5" }
-rstm-state = { default-features = false, path = "crates/state", version = "0.1.5" }
-rstm-tape = { default-features = false, path = "crates/tape", version = "0.1.5" }
-rstm-traits = { default-features = false, path = "crates/traits", version = "0.1.5" }
+rstm = { default-features = false, path = "crates/rstm", version = "0.1.6" }
+rstm-core = { default-features = false, path = "crates/core", version = "0.1.6" }
+rstm-macros = { default-features = false, path = "crates/macros", version = "0.1.6" }
+rstm-state = { default-features = false, path = "crates/state", version = "0.1.6" }
+rstm-tape = { default-features = false, path = "crates/tape", version = "0.1.6" }
+rstm-traits = { default-features = false, path = "crates/traits", version = "0.1.6" }
 # custom
 contained = { default-features = false, features = ["macros"], version = "0.2.3" }
 rspace-traits = { default-features = false, version = "0.0.9" }
@@ -53,8 +53,8 @@ num-integer = { default-features = false, version = "0.1" }
 num-traits = { default-features = false, version = "0.2" }
 # random
 getrandom = { default-features = false, version = "0.4" }
-rand = { default-features = false, version = "0.9" }
-rand_distr = { default-features = false, version = "0.5" }
+rand = { default-features = false, version = "0.10" }
+rand_distr = { default-features = false, version = "0.6" }
 # serialization
 serde = { default-features = false, features = ["derive"], version = "1" }
 serde_derive = { default-features = false, version = "1" }
@@ -63,7 +63,7 @@ serde_json = { default-features = false, version = "1" }
 lazy_static = { version = "1" }
 paste = { version = "1" }
 smart-default = { version = "0.7" }
-strum = { default-features = false, features = ["derive"], version = "0.27" }
+strum = { default-features = false, features = ["derive"], version = "0.28" }
 # logging
 tracing = { default-features = false, features = ["attributes"], version = "0.1" }
 tracing-subscriber = { features = ["env-filter", "fmt",], version = "0.3" }

@@ -105,12 +105,12 @@ where
         &mut self.driver
     }
     /// returns a reference to the program
-    pub const fn program(&self) -> Option<&Program<Q, A>> {
-        self.program.as_ref()
+    pub fn program(&self) -> crate::Result<&Program<Q, A>> {
+        self.program.as_ref().ok_or_else(|| Error::NoProgram)
     }
     /// returns a mutable reference to the program
-    pub const fn program_mut(&mut self) -> Option<&mut Program<Q, A>> {
-        self.program.as_mut()
+    pub fn program_mut(&mut self) -> crate::Result<&mut Program<Q, A>> {
+        self.program.as_mut().ok_or_else(|| Error::NoProgram)
     }
     /// returns a reference to the output tape
     pub const fn tape(&self) -> &Vec<A> {
@@ -134,7 +134,7 @@ where
     }
     /// returns true if the output tape is empty
     pub const fn is_empty(&self) -> bool {
-        self.tape.is_empty() || self.program().is_none()
+        self.tape.is_empty() || !self.has_program()
     }
     /// returns true if the engine has a program loaded
     pub const fn has_program(&self) -> bool {

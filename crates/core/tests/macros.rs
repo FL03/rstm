@@ -37,3 +37,21 @@ fn test_ruleset() {
     assert_eq! { rules[0].head(), &head }
     assert_eq! { rules[0].tail(), &exp }
 }
+
+
+#[test]
+fn test_macro_tmh() {
+    let tmh = rstm_core::tmh! {
+        #[default_state(0isize)]
+        program {
+            (0, 0) -> Right(1, 1),
+            (0, 1) -> Left(-1, 0),
+            (1, 0) -> Right(1, 1),
+            (1, 1) -> Left(-1, 1),
+            (-1, 0) -> Right(0, 0),
+            (-1, 1) -> Left(0, 1),
+        };
+    };
+    assert! { tmh.has_program() }
+    assert! { tmh.program().unwrap().len() == 6 }
+}

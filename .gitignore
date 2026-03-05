@@ -83,6 +83,9 @@
 #### NixOS
 !**/flake.lock
 
+**/.nix-channels
+**/.nix
+
 ### Windows
 
 #### Windows Subsystem for Linux (WSL)

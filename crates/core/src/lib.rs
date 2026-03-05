@@ -46,6 +46,8 @@ extern crate alloc;
 #[macro_use]
 pub(crate) mod macros {
     #[macro_use]
+    pub(crate) mod machine;
+    #[macro_use]
     pub(crate) mod rules;
     #[macro_use]
     pub(crate) mod program;

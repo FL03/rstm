@@ -83,7 +83,7 @@ where
     {
         let path = path.as_ref();
         // ensure the filename ends with `.json`
-        if path.extension().map(|os| os.to_str()).flatten() != Some("json") {
+        if path.extension().and_then(|os| os.to_str()) != Some("json") {
             #[cfg(feature = "tracing")]
             tracing::error!(
                 "the provided path does not end with `.json`; consider changing the file extension"
@@ -107,7 +107,7 @@ where
     {
         self.rules().get(head)
     }
-    /// given a state and symbol, returns the corresponding tail if it exists within the 
+    /// given a state and symbol, returns the corresponding tail if it exists within the
     /// ruleset
     pub fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>>
     where
@@ -117,14 +117,12 @@ where
         self.rules().find_tail(state, sym)
     }
     /// returns the number of rules within the ruleset
-    pub fn len(&self) -> usize
-    {
+    pub fn len(&self) -> usize {
         self.rules().len()
     }
-    /// returns true if the ruleset is considered empty (i.e. contains no rules), 
+    /// returns true if the ruleset is considered empty (i.e. contains no rules),
     /// otherwise false.
-    pub fn is_empty(&self) -> bool
-    {
+    pub fn is_empty(&self) -> bool {
         self.rules().is_empty()
     }
 }

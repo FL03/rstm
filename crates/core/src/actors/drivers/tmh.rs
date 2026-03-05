@@ -26,7 +26,7 @@ use rstm_traits::{Handle, Read, Symbolic, TryExecute, TryStep};
 /// The [`TMH`] implementation works by maintaining a `head` of type [`Head<Q, usize>`],
 /// allowing the current symbol to define the head's position on a tape. While the driver
 /// contains its own tape, it is primarily used for handling any inputs into the system and
-/// isn't actively updated during execution.  
+/// isn't actively updated during execution.
 ///
 /// Before executing any particular program, the tape should be loaded up with the necessary
 /// _inputs_ using the [`extend_tape`](TMH::extend_tape) method. The tape is represented
@@ -507,22 +507,17 @@ where
         // read the tape
         let Head { state, symbol } = self.read_head()?;
         // get a reference to the program
-        if let Some(program) = self.program() {
-            // use the program to find a tail for the current head
-            let tail = program
-                .find_tail(state, symbol)
-                .ok_or(crate::Error::NoRuleFound)?
-                .clone();
-            // increment the steps
-            self.next_cycle();
-            // process the instruction
-            let step = self.driver.head_mut().step(tail);
-            // apply the step
-            step.shift(&mut self.tape)
-        } else {
-            #[cfg(feature = "tracing")]
-            tracing::error!("No program loaded; cannot execute step.");
-            Err(crate::Error::NoProgram)
-        }
+        let program = self.program()?;
+        // use the program to find a tail for the current head
+        let tail = program
+            .find_tail(state, symbol)
+            .ok_or(crate::Error::NoRuleFound)?
+            .clone();
+        // increment the steps
+        self.next_cycle();
+        // process the instruction
+        let step = self.driver.head_mut().step(tail);
+        // apply the step
+        step.shift(&mut self.tape)
     }
 }

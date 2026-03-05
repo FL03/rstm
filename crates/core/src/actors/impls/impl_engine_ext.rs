@@ -82,23 +82,18 @@ where
         } = self.driver.view();
         let current_symbol = &self.tape[pos];
         // get a reference to the program
-        if let Some(program) = self.program() {
-            // use the program to find a tail for the current head
-            let tail = program
-                .find_tail(state, current_symbol)
-                .ok_or(crate::Error::NoRuleFound)?
-                .clone();
-            // increment the steps
-            self.next_cycle();
-            // process the instruction
-            let step = self.driver.step(tail);
-            // apply the step
-            return step.shift(&mut self.tape);
-        }
-        // if there is no program loaded, return an error
-        #[cfg(feature = "tracing")]
-        tracing::error!("No program loaded; cannot execute step.");
-        Err(crate::Error::NoProgram)
+        let program = self.program()?;
+        // use the program to find a tail for the current head
+        let tail = program
+            .find_tail(state, current_symbol)
+            .ok_or(crate::Error::NoRuleFound)?
+            .clone();
+        // increment the steps
+        self.next_cycle();
+        // process the instruction
+        let step = self.driver.step(tail);
+        // apply the step
+        step.shift(&mut self.tape)
     }
 }
 

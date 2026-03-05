@@ -8,7 +8,7 @@
 use alloc::{boxed::Box, string::String};
 
 /// A type alias for a [`Result`](core::result::Result) with a custom error type ([Error])
-pub type Result<T = ()> = core::result::Result<T, Error>;
+pub type Result<T = ()> = core::result::Result<T, self::Error>;
 
 /// [`Error`] enumerates the various errors encountered when dealing with rules and their
 /// components.

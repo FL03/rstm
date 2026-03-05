@@ -6,7 +6,7 @@
 use crate::{Head, Tail};
 use rstm_state::RawState;
 
-/// [`HeadStep`] defines a *lazy* stepper for a Turing machine configured with a so-called 
+/// [`HeadStep`] defines a *lazy* stepper for a Turing machine configured with a so-called
 /// *moving head*.
 pub struct HeadStep<'a, Q1, A1, Q2 = Q1, A2 = A1>
 where

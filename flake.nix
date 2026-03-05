@@ -20,7 +20,7 @@
       in rec {
         packages.default = pkgs.rustPlatform.buildRustPackage {
           pname = "rstm";
-          version = "0.1.5";
+          version = "0.1.6";
           src = self; # ./.;
           cargoLock = { lockFile = ./Cargo.lock; };
         };
@@ -32,8 +32,7 @@
             pkgs.openssl
             pkgs.cargo
             pkgs.rust-analyzer
-            pkgs.cargo-binstall
-            pkgs.cargo-criterion
+            pkgs.aarch64-darwin.rstm
           ];
           shellHook = ''
             export CARGO_HOME=$PWD/.cargo

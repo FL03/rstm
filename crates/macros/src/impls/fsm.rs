@@ -1,27 +1,40 @@
 /*
-    appellation: impl_binary <module>
+    appellation: fsm <module>
     authors: @FL03
 */
-use crate::ast::{FiniteStateMachineAst, HeadAst, RuleAst, TailAst};
+use crate::ast::{FiniteStateMachineAst, HeadAst, RuleAst, RuleBlockAst, TailAst};
 use proc_macro2::TokenStream;
 use quote::quote;
 
-/// Procedural macro entry point
-pub fn impl_wrapper_binary_ops(input: FiniteStateMachineAst) -> TokenStream {
-    let rules = generate_rules(&input);
+/// Generates a block expression that builds and returns an initialized
+/// `MovingHead` instance from the declared rules and optional default state.
+///
+/// Types (state `Q` and symbol `A`) are inferred by the compiler from the
+/// literal values present in the rule expressions, avoiding the need for
+/// explicit type annotations.
+pub fn impl_fsm(input: &FiniteStateMachineAst) -> TokenStream {
+    let FiniteStateMachineAst {
+        default_state,
+        rules,
+        ..
+    } = input;
+    // convert the rules into token streams
+    let rules_stream = handle_rule_block(rules);
+    // generate the optional `.with_default_state(...)` call
+    let with_state = default_state.as_ref().map(|ds| {
+        let state = &ds.state;
+        quote! { .with_default_state(#state) }
+    });
 
     quote! {
-        #(#rules)*
+        rstm::MovingHead::tmh(
+            rstm::Program::from_iter([#(#rules_stream),*]) #with_state
+        )
     }
 }
 
-fn generate_rules(FiniteStateMachineAst { ops, .. }: &FiniteStateMachineAst) -> Vec<TokenStream> {
-    let mut impls = Vec::new();
-    for rule in ops {
-        let _impl = handle_rule(rule);
-        impls.push(_impl);
-    }
-    impls
+fn handle_rule_block(RuleBlockAst { rules, .. }: &RuleBlockAst) -> Vec<TokenStream> {
+    rules.into_iter().map(handle_rule).collect()
 }
 
 fn handle_rule(
@@ -37,17 +50,11 @@ fn handle_rule(
         ..
     }: &RuleAst,
 ) -> TokenStream {
+    // create a rule
     quote! {
         rstm::Rule {
-            head: rstm::Head {
-                state: rstm::State(#state),
-                symbol: #symbol,
-            },
-            tail: rstm::Tail {
-                new_state: rstm::State(#next_state),
-                new_symbol: #next_symbol,
-                direction: rstm::Direction::#direction,
-            }
+            head: rstm::Head::new(#state, #symbol),
+            tail: rstm::Tail::new(rstm::Direction::#direction, #next_state, #next_symbol),
         }
     }
 }

@@ -5,6 +5,8 @@
 */
 extern crate rstm;
 
+use rstm::{MovingHead, Program, program};
+
 fn main() -> rstm::Result<()> {
     // initialize the logger
     tracing_subscriber::fmt()
@@ -14,24 +16,26 @@ fn main() -> rstm::Result<()> {
         .init();
     // define some input for the machine
     let input = [0, 0, 0, 0, 1, 0, 1, 1, 0, 1];
-    // initialize the machine using the `tmh!` macro
-    let mut tmh = rstm::tmh! {
-        #[default_state(0isize)]
-        program {
+    // initialize the state of the machine
+    let initial_state: isize = 0;
+    // define the Program for the machine
+    let program: Program<isize, usize> = program! {
+        #[default_state(initial_state)]
+        rules: {
             (0, 0) -> Right(1, 0),
             (0, 1) -> Left(-1, 1),
             (1, 0) -> Right(1, 1),
             (1, 1) -> Right(0, 0),
             (-1, 0) -> Left(<isize>::MAX, 0),
             (-1, 1) -> Left(-1, 0),
-        }
+        };
     };
     // optionally, export the program to a JSON file
-    tmh.program()
-        .expect("Failed to get program")
-        .export_json("./crates/rstm/examples/example.program.json")?;
+    program.export_json("rstm/examples/example.program.json")?;
+    // create a new instance of the machine
+    let mut tm = MovingHead::tmh(program);
     // load the input into the machine tape
-    tmh.extend_tape(input);
+    tm.extend_tape(input);
     // execute the program
-    tmh.run()
+    tm.run()
 }

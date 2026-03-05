@@ -28,9 +28,8 @@ where
     Q: RawState,
     Self::Rule: Instruction<Q, A, Head = Head<Q, A>, Tail = Tail<Q, A>>,
 {
-
     fn find_tail(&self, state: State<&Q>, sym: &A) -> Option<&Tail<Q, A>>;
-    
+
     fn get(&self, head: &Head<Q, A>) -> Option<&Tail<Q, A>>;
 
     fn find_head(&self, Head { state, symbol }: Head<&Q, &A>) -> Option<&Tail<Q, A>> {
