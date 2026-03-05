@@ -33,6 +33,10 @@ name = "tmh"
 required-features = ["full"]
 
 [[example]]
+name = "program"
+required-features = ["default", "json", "tracing"]
+
+[[example]]
 name = "tmh"
 required-features = ["default", "json", "tracing"]
 
@@ -159,7 +163,7 @@ serde_json = [
 ]
 
 tracing = [
-  "rstm-core/tracing",  
+  "rstm-core/tracing",
   "rstm-tape?/tracing",
 ]
 
