@@ -93,7 +93,7 @@ where
         // process the instruction
         let step = self.driver.step(tail);
         // apply the step
-        return step.shift(&mut self.tape);
+        step.shift(&mut self.tape)
     }
 }
 
