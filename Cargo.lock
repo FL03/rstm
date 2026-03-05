@@ -979,7 +979,7 @@ dependencies = [
 
 [[package]]
 name = "rstm"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "anyhow",
  "criterion",
@@ -995,7 +995,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-core"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1022,7 +1022,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-macros"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1031,7 +1031,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-state"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1057,7 +1057,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-tape"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1085,7 +1085,7 @@ dependencies = [
 
 [[package]]
 name = "rstm-traits"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "anyhow",
  "bytes",
