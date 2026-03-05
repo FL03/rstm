@@ -5,20 +5,29 @@ let
     overlays = [ (import rust-overlay) ];
   };
 
-  rustVersion = "1.91.0";
+  rustVersion = "1.93.0";
 
   wasm = "wasm32-unknown-unknown";
   wasi = "wasm32-wasip2";
 
   rustDefaultTarget = rustPkgs.rust-bin.stable.${rustVersion}.default;
 
-  rustWithWasmTarget = rustPkgs.rust-bin.nightly.${rustVersion}.default.override {
+  rustWithWasiTarget = rustPkgs.rust-bin.stable.${rustVersion}.default.override {
+    targets = [ wasi ];
+  };
+
+  rustWithWasmTarget = rustPkgs.rust-bin.stable.${rustVersion}.default.override {
     targets = [ wasm ];
   };
 
   rustPlatform = makeRustPlatform {
     cargo = rustDefaultTarget;
     rustc = rustDefaultTarget;
+  };
+
+  rustPlatformWasi = makeRustPlatform {
+    cargo = rustWithWasiTarget;
+    rustc = rustWithWasiTarget;
   };
 
   rustPlatformWasm = makeRustPlatform {
@@ -38,7 +47,7 @@ let
     PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
   };
 in {
-  workspace = pkgs.rustPlatformWasm.buildRustPackage (common // {
+  workspace = rustPlatform.buildRustPackage (common // {
     cargoBuildFlags = "--release --workspace";
   });
 }

@@ -32,8 +32,7 @@
             pkgs.openssl
             pkgs.cargo
             pkgs.rust-analyzer
-            pkgs.cargo-binstall
-            pkgs.cargo-criterion
+            pkgs.aarch64-darwin.rstm
           ];
           shellHook = ''
             export CARGO_HOME=$PWD/.cargo
