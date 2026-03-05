@@ -44,11 +44,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.client_payload.ref  || github.ref }}
           repository: ${{ github.repository }}
-          token: ${{ github.token }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          cache-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}      
+          cache-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Install cargo-criterion
         uses: taiki-e/install-action@v2
         with:
@@ -57,7 +57,7 @@ jobs:
         run: cargo criterion --benches --locked --verbose --workspace --features ${{ matrix.features }} --target ${{ matrix.target }}
       - name: Upload the benchmarks
         id: artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: Benchmark Report (${{ github.run_id }})
           if-no-files-found: error
