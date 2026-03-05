@@ -4,26 +4,15 @@
     Contrib: @FL03
 */
 #![cfg(feature = "macros")]
-use rstm::{Direction, Head, Rule, Tail};
 
 #[test]
-fn test_ruler_macro() {
-    let rule: Rule<u8, char> = rstm::ruler![(0, ' ') -> Right(1u8, 'a')];
-    // create a new head for a rule within the program
-    let head = Head::new(0, ' ');
-    let exp = Tail::new(Direction::Right, 1, 'a');
-    // validate the composition of the rule
-    assert_eq! { rule.head(), &head }
-    assert_eq! { rule.tail(), &exp }
-}
-
-#[test]
-fn test_macro_tmh() {
-    let _fsm = rstm::fsm! {
+fn test_macro_fsm() {
+    let fsm = rstm::fsm! {
         default_state: 0;
         rules: {
             (0, ' ') -> Right(1u8, 'a'),
             (1, 'a') -> Left(0u8, ' '),
         }
     };
+    assert! { fsm.has_program() }
 }

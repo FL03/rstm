@@ -53,12 +53,8 @@ fn handle_rule(
     // create a rule
     quote! {
         rstm::Rule {
-            head: rstm::Head { state: #state, symbol: #symbol },
-            tail: rstm::Tail {
-                direction: rstm::Direction::#direction,
-                next_state: #next_state,
-                write_symbol: #next_symbol,
-            }
+            head: rstm::Head::new(#state, #symbol),
+            tail: rstm::Tail::new(rstm::Direction::#direction, #next_state, #next_symbol),
         }
     }
 }

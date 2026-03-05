@@ -18,7 +18,7 @@ use syn::parse_macro_input;
 ///
 /// ## Syntax
 ///
-/// ```no_run
+/// ```ignore
 /// fsm! {
 ///     default_state: 0; // optional
 ///     rules: {

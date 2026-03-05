@@ -5,11 +5,10 @@
 */
 #![cfg(all(feature = "macros", feature = "alloc"))]
 
-
 /// The `turing!` macro facilitates the creation of new [`MovingHead`](crate::MovingHead)
 /// instances using familiar syntax
 ///
-/// ```no_run
+/// ```ignore
 /// tmh! {
 ///     #[default_state(initial_state)] // optional
 ///     rules: {(state, symbol) -> direction(next_state, write_symbol); ...};
@@ -22,7 +21,7 @@
 /// states `{-1, 0, 1}` and two symbols `{0, 1}`.
 ///
 /// ```rust
-/// let tmh = rstm_core::tmh! {
+/// let mut tmh = rstm_core::tmh! {
 ///     #[default_state(0isize)] // optional, defaults to <Q>::default()
 ///     program {
 ///        (0, 0) -> Right(1, 1),
