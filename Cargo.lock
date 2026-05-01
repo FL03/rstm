@@ -459,6 +459,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "hashbrown"
+version = "0.17.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f467dd6dccf739c208452f8014c75c18bb8301b050ad1cfb27153803edb0f51"
+dependencies = [
+ "allocator-api2",
+ "equivalent",
+ "foldhash 0.2.0",
+ "rayon",
+ "rustc-std-workspace-alloc",
+ "serde",
+ "serde_core",
+]
+
+[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1001,7 +1016,7 @@ dependencies = [
  "bytes",
  "contained",
  "getrandom 0.4.2",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.0",
  "num-complex",
  "num-traits",
  "paste",
@@ -1037,7 +1052,7 @@ dependencies = [
  "bytes",
  "contained",
  "getrandom 0.4.2",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.0",
  "num-complex",
  "num-traits",
  "paste",
@@ -1063,7 +1078,7 @@ dependencies = [
  "bytes",
  "contained",
  "getrandom 0.4.2",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.0",
  "num-complex",
  "num-traits",
  "paste",
@@ -1089,7 +1104,7 @@ version = "0.1.6"
 dependencies = [
  "anyhow",
  "bytes",
- "hashbrown 0.16.1",
+ "hashbrown 0.17.0",
  "num-complex",
  "num-traits",
  "paste",
