@@ -43,7 +43,7 @@ crossbeam = { default-features = false, version = "0.8" }
 rayon = { default-features = false, version = "1" }
 # data-structures
 bytes = { default-features = false, version = "1" }
-hashbrown = { default-features = false, version = "0.16" }
+hashbrown = { default-features = false, version = "0.17" }
 # error-handling
 anyhow = { default-features = false, version = "1" }
 thiserror = { default-features = false, version = "2" }
